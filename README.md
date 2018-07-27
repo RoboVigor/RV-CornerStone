@@ -7,7 +7,7 @@ RoboVigor 电控基石。
 - 裸机（无系统）
 - 使用配置文件调整功能开关及参数
 - 使用utf-8
-- 采用采用代码规范
+- 采用代码规范
 - 采用[Gitflow Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)作为版本管理
 
 ## 规划
