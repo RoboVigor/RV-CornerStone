@@ -30,8 +30,31 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
 #include "stm32f4xx.h"
-#include "led.h"
- 
+#include "main.h"
+
+//extern int debugTime;
+
+int ArmatureRotateSpeed[4], Buffer[4];
+int isDoublePID = 0; //0为单速度pid
+
+float LastYawAngleFeed = 0;
+float YawAngleFeedOffset = 0;
+float YawAngleFeedThreshold = 0.003;
+float YawAngleFeedDiff = 0;
+float YawAngleFeedOffsetSample = 0;
+float YawAngleFeedOffsetSampleCounter = 0;
+int PanPIDMode = 1;
+
+
+int32_t debug_YawAngleFeed = 0;
+int32_t debug_value1 = 0;
+int32_t debug_value2 = 0;
+int32_t debug_value3 = 0;
+int32_t debug_value4 = 0;
+int32_t debug_value5 = 0;
+int32_t debug_value6 = 0;
+int32_t debug_value7 = 0;
+int32_t debug_value8 = 0;
 
 /** @addtogroup Template_Project
   * @{
@@ -53,8 +76,7 @@
   * @param  None
   * @retval None
   */
-	extern int debug_tim;
-	
+
 void NMI_Handler(void)
 {
 }
@@ -145,7 +167,6 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
- 
 }
 
 /******************************************************************************/
@@ -166,7 +187,7 @@ void SysTick_Handler(void)
 
 /**
   * @}
-  */ 
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 #include "Driver_DBUS.h"
@@ -181,40 +202,40 @@ uint8_t UARTtemp;
   */
 void USART1_IRQHandler(void)
 {
-    UARTtemp = USART1->DR;
-    UARTtemp = USART1->SR;
-    
-    DMA_Cmd(DMA2_Stream2, DISABLE);
-    
-    //数据量正确
-    if(DMA2_Stream2->NDTR == DBUSBackLength)
-    {
-      //  DBUSFrameCounter++;         //帧数增加
-        DBUS_DataDecoding();          //解码
-    }
-    
-    //重启DMA
-    DMA_ClearFlag(DMA2_Stream2, DMA_FLAG_TCIF2 | DMA_FLAG_HTIF2);
-    while(DMA_GetCmdStatus(DMA2_Stream2) != DISABLE);
-    DMA_SetCurrDataCounter(DMA2_Stream2, DBUSLength + DBUSBackLength);
-    DMA_Cmd(DMA2_Stream2, ENABLE);
-}
+  UARTtemp = USART1->DR;
+  UARTtemp = USART1->SR;
 
+  DMA_Cmd(DMA2_Stream2, DISABLE);
+
+  //数据量正确
+  if (DMA2_Stream2->NDTR == DBUSBackLength)
+  {
+    //  DBUSFrameCounter++;         //帧数增加
+    DBUS_DataDecoding(); //解码
+  }
+
+  //重启DMA
+  DMA_ClearFlag(DMA2_Stream2, DMA_FLAG_TCIF2 | DMA_FLAG_HTIF2);
+  while (DMA_GetCmdStatus(DMA2_Stream2) != DISABLE)
+    ;
+  DMA_SetCurrDataCounter(DMA2_Stream2, DBUSLength + DBUSBackLength);
+  DMA_Cmd(DMA2_Stream2, ENABLE);
+}
 
 /**
   * @brief  1000Hz任务循环中断
   * @param  void
   * @retval void
   */
-void TIM6_DAC_IRQHandler(void)  
+void TIM6_DAC_IRQHandler(void)
 {
-    if (TIM_GetITStatus(TIM6,TIM_IT_Update)!= RESET) 
-	  {
-			TIM_ClearITPendingBit(TIM6,TIM_IT_Update);
-      TIM_ClearFlag(TIM6, TIM_FLAG_Update);
-			
-			//Set_CM_Speed(CAN1,1000,0,0,0);
-    }
+  if (TIM_GetITStatus(TIM6, TIM_IT_Update) != RESET)
+  {
+    TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
+    TIM_ClearFlag(TIM6, TIM_FLAG_Update);
+
+    //Set_CM_Speed(CAN1,1000,0,0,0);
+  }
 }
 
 CanRxMsg CanRxData;
@@ -225,81 +246,199 @@ CanRxMsg CanRxData;
   */
 void CAN1_RX0_IRQHandler(void)
 {
-		CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
-		switch(CanRxData.StdId)
-		{
-			case WHEEL_1_ID :
-				Motor_Feedback.Motor_201_Agree = (short)( (int)CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-				Motor_Feedback.Motor_201_Speed = (short)( (int)CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-			break;
-			
-			case WHEEL_2_ID :
-				Motor_Feedback.Motor_202_Agree = (short)( (int)CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-				Motor_Feedback.Motor_202_Speed = (short)( (int)CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-			break;
-			
-			case WHEEL_3_ID :
-				Motor_Feedback.Motor_203_Agree = (short)( (int)CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-				Motor_Feedback.Motor_203_Speed = (short)( (int)CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-			break;
-			
-			case WHEEL_4_ID :
-				Motor_Feedback.Motor_204_Agree = (short)( (int)CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-				Motor_Feedback.Motor_204_Speed = (short)( (int)CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-			break;
-			
-			
-			
-			
-			default:
-				break;
-			
-		}
-				
-				
-			
+  CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
+  switch (CanRxData.StdId)
+  {
+  case WHEEL_1_ID:
+    Motor_Feedback.Motor_201_Agree = (short)((int)CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+    Motor_Feedback.Motor_201_Speed = (short)((int)CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    break;
+
+  case WHEEL_2_ID:
+    Motor_Feedback.Motor_202_Agree = (short)((int)CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+    Motor_Feedback.Motor_202_Speed = (short)((int)CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    break;
+
+  case WHEEL_3_ID:
+    Motor_Feedback.Motor_203_Agree = (short)((int)CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+    Motor_Feedback.Motor_203_Speed = (short)((int)CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    break;
+
+  case WHEEL_4_ID:
+    Motor_Feedback.Motor_204_Agree = (short)((int)CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+    Motor_Feedback.Motor_204_Speed = (short)((int)CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    break;
+
+  default:
+    break;
+  }
 }
 
 void CAN2_RX0_IRQHandler(void)
 {
-	CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
-	//printf("%d\r\n",CanRxData.StdId);
-		switch(CanRxData.StdId)
-		{
-			//RED_LIGHT_ON;
-			case 0x201://钩子电机
-				Motor_Feedback.Motor_205_Agree = (short)( (int)CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-				Motor_Feedback.Motor_205_Speed = (short)( (int)CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-			break;
-			
-			case 0x202:
-				
-				Motor_Feedback.Motor_206_Agree = (short)( (int)CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-				Motor_Feedback.Motor_206_Speed = (short)( (int)CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-			
-			break;
-			
-			case 0x203:
-				Motor_Feedback.Motor_207_Agree = (short)( (int)CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-				Motor_Feedback.Motor_207_Speed = (short)( (int)CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-					
-				
-			
-			break;
-			
-			default:
-				break;
-			
-		}
-}
-	   void TIM2_IRQHandler(void)
-	{
-		if(TIM_GetITStatus(TIM2,TIM_IT_Update)!= RESET)
-		{
-			//LED2=!LED2;//视频中的方式
-			//RED_LIGHT_TOGGLE;
-			debug_tim=debug_tim+100;
-			TIM_ClearITPendingBit(TIM2,TIM_IT_Update);
-		}
-	}
+  CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
+  //printf("%d\r\n",CanRxData.StdId);
+  switch (CanRxData.StdId)
+  {
+  //RED_LIGHT_ON;
+  case 0x201: //钩子电机
+    Motor_Feedback.Motor_205_Agree = (short)((int)CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+    Motor_Feedback.Motor_205_Speed = (short)((int)CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    break;
 
+  case 0x202:
+
+    Motor_Feedback.Motor_206_Agree = (short)((int)CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+    Motor_Feedback.Motor_206_Speed = (short)((int)CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+
+    break;
+
+  case 0x203:
+    Motor_Feedback.Motor_207_Agree = (short)((int)CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+    Motor_Feedback.Motor_207_Speed = (short)((int)CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+
+    break;
+
+  default:
+    break;
+  }
+}
+
+void mainTask(void)
+{
+
+  if (DBUS_ReceiveData.switch_right == 2)
+  {
+    Set_CM_Speed(CAN1, 0, 0, 0, 0);
+    return;
+  }
+  Motion_Update();
+  if (ABS(DBUS_ReceiveData.ch1) < 5)
+  {
+    PanPIDMode = 2;
+  }
+  else
+  {
+    PanPIDMode = 1;
+  }
+
+  if (Euler_Angle.Yaw - YawAngleFeedOffset - LastYawAngleFeed > 300)
+  {
+    YawAngleFeedOffset += 360;
+  }
+  else if (Euler_Angle.Yaw - YawAngleFeedOffset - LastYawAngleFeed < -300)
+  {
+    YawAngleFeedOffset -= 360;
+  }
+
+  YawAngleFeed = Euler_Angle.Yaw - YawAngleFeedOffset;
+
+  YawAngleFeedDiff = YawAngleFeed - LastYawAngleFeed;
+
+  if (ABS(DBUS_ReceiveData.ch1) < 10 && ABS(DBUS_ReceiveData.ch3) < 10 && ABS(DBUS_ReceiveData.ch4) < 10)
+  //if(1)
+  {
+    if (ABS(YawAngleFeedDiff) < YawAngleFeedThreshold)
+    {
+      YawAngleFeedOffset += YawAngleFeedDiff;
+      YawAngleFeed = LastYawAngleFeed;
+      PanPIDMode = 0;
+      if (YawAngleFeedOffsetSampleCounter < 100)
+      {
+        YawAngleFeedOffsetSample += YawAngleFeedDiff;
+        YawAngleFeedOffsetSampleCounter += 1;
+      }
+    }
+    else
+    {
+      LastYawAngleFeed = YawAngleFeed;
+    }
+  }
+  else
+  {
+    if (DBUS_ReceiveData.switch_right == 1)
+    {
+      YawAngleFeedOffset += YawAngleFeedOffsetSample / YawAngleFeedOffsetSampleCounter;
+    }
+    YawAngleFeed = Euler_Angle.Yaw - YawAngleFeedOffset;
+    YawAngleFeedDiff = YawAngleFeed - LastYawAngleFeed;
+    LastYawAngleFeed = YawAngleFeed;
+  }
+  /*DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG*/
+  debug_YawAngleFeed = (int)(YawAngleFeed);
+  debug_value1 = (int)(DBUS_ReceiveData.ch1);
+  debug_value2 = (int)(DBUS_ReceiveData.ch2);
+  debug_value3 = (int)(DBUS_ReceiveData.ch3);
+  debug_value4 = (int)(DBUS_ReceiveData.ch4);
+  debug_value5 = (int)(YawAngleFeedOffsetSample);
+  debug_value6 = (int)(YawAngleFeedOffsetSampleCounter);
+  debug_value7 = (int)(YawAngleFeedOffset * 10000);
+  debug_value8 = (int)(YawAngleFeedOffsetSample / YawAngleFeedOffsetSampleCounter * 10000);
+
+  if (DBUS_ReceiveData.switch_left == 1) //摄像头朝向丝杆 功能：移动
+  {
+
+    TIM_SetCompare1(TIM4, 23);
+    //			-------------------------------------------------------------------------------------------------------------------------------
+
+    EncoderProcess(&Hook_Encoder, Motor_Feedback.Motor_205_Agree);
+
+    HookSpeedPID(&Hook_SpeedPID, 0, Motor_Feedback.Motor_205_Speed);
+
+    Set_Hook_Armour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
+
+    //			-------------------------------------------------------------------------------------------------------------------------------
+
+    GetXYWSpeed(FORWARD, PanPIDMode);
+
+    MecanumCalculation(Buffer);
+
+    LimitWheelSpeed(Buffer, ArmatureRotateSpeed, MAXWHEELSPEED);
+
+    //速度pid
+    PANSpeedPID(&CM1PID, ArmatureRotateSpeed[0], Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
+    PANSpeedPID(&CM2PID, ArmatureRotateSpeed[1], Motor_Feedback.Motor_202_Speed * 2 * 3.14 / 60);
+    PANSpeedPID(&CM3PID, ArmatureRotateSpeed[2], Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
+    PANSpeedPID(&CM4PID, ArmatureRotateSpeed[3], Motor_Feedback.Motor_204_Speed * 2 * 3.14 / 60); //都是rad/s 反馈转子转速
+
+    Set_CM_Speed(CAN1, CM1PID.PIDout, CM2PID.PIDout, CM3PID.PIDout, CM4PID.PIDout); //得到电流发送给电调
+  }
+  //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  else if (DBUS_ReceiveData.switch_left == 3)
+  {
+    TIM_SetCompare1(TIM4, 5);
+
+    EncoderProcess(&Hook_Encoder, Motor_Feedback.Motor_205_Agree);
+
+    HookFeedAngle = Hook_Encoder.ecd_angle;
+
+    HookSpeedPID(&Hook_SpeedPID, DBUS_ReceiveData.ch2, Motor_Feedback.Motor_205_Speed);
+
+    Set_Hook_Armour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
+
+    //=======移动=============================================================================
+
+    GetXYWSpeed(BACKWARD, PanPIDMode);
+
+    MecanumCalculation(Buffer);
+
+    LimitWheelSpeed(Buffer, ArmatureRotateSpeed, MAXWHEELSPEED);
+
+    //速度pid
+    PANSpeedPID(&CM1PID, ArmatureRotateSpeed[0], Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
+    PANSpeedPID(&CM2PID, ArmatureRotateSpeed[1], Motor_Feedback.Motor_202_Speed * 2 * 3.14 / 60);
+    PANSpeedPID(&CM3PID, ArmatureRotateSpeed[2], Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
+    PANSpeedPID(&CM4PID, ArmatureRotateSpeed[3], Motor_Feedback.Motor_204_Speed * 2 * 3.14 / 60); //都是rad/s 反馈转子转速
+
+    Set_CM_Speed(CAN1, CM1PID.PIDout, CM2PID.PIDout, CM3PID.PIDout, CM4PID.PIDout); //得到电流发送给电调
+  }
+}
+
+void TIM2_IRQHandler(void)
+{
+  if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
+  {
+    mainTask();
+    TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+  }
+}
