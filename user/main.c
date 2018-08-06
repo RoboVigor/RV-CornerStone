@@ -1,22 +1,4 @@
-#include "sys.h"
-#include "delay.h"
-#include "usart.h"
-#include "led.h"
-#include "beep.h"
-#include "key.h"
-#include "BSP_GPIO.h"
-#include "BSP_NVIC.h"
-#include "BSP_UART.h"
-#include "BSP_DMA.h"
-#include "BSP_CAN.h"
-#include "BSP_TIM.h"
-#include "Driver_DBUS.h"
-#include "Driver_CAN.h"
-#include "Driver_PanController.h"
-#include "Driver_HookController.h"
-#include "Driver_Armour.h"
-#include "Driver_Angular.h"
-#include "mpu6500_interrupt.h"
+#include "main.h"
 #include "Task_SysInitConfig.h"
 
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
@@ -124,7 +106,16 @@ int main(void)
 	ArmourSpeedPIDInit(&Armour1_SinglePID_SpeedPID, 1.1, 0, 0); //装甲板单速度pid
 	ArmourSpeedPIDInit(&Armour2_SinglePID_SpeedPID, 1, 0, 0);
 
-	while (1)
-	{
-	}
+	//创建系统初始化任务
+    xTaskCreate(Task_SysInitConfig,
+                "SysInitConfig",
+                1600,
+                NULL,
+                5,
+                NULL);
+	
+	  //任务开始
+    vTaskStartScheduler();
+
+	while (1);
 }
