@@ -437,61 +437,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>DRIVER</GroupName>
-          <Files>
-            <File>
-              <FileName>Driver_Angular.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\Driver_Angular.c</FilePath>
-            </File>
-            <File>
-              <FileName>Driver_Armour.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\Driver_Armour.c</FilePath>
-            </File>
-            <File>
-              <FileName>Driver_CAN.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\Driver_CAN.c</FilePath>
-            </File>
-            <File>
-              <FileName>Driver_DBUS.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\Driver_DBUS.c</FilePath>
-            </File>
-            <File>
-              <FileName>Driver_HookController.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\Driver_HookController.c</FilePath>
-            </File>
-            <File>
-              <FileName>Driver_PanController.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\Driver_PanController.c</FilePath>
-            </File>
-            <File>
-              <FileName>MadgwickAHRS.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\MadgwickAHRS.c</FilePath>
-            </File>
-            <File>
-              <FileName>mpu6500_driver.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\mpu6500_driver.c</FilePath>
-            </File>
-            <File>
-              <FileName>mpu6500_i2c.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\mpu6500_i2c.c</FilePath>
-            </File>
-            <File>
-              <FileName>mpu6500_interrupt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\mpu6500_interrupt.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>library</GroupName>
           <Files>
             <File>
@@ -593,6 +538,61 @@
               <FileName>system_stm32f4xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\system_stm32f4xx.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>driver</GroupName>
+          <Files>
+            <File>
+              <FileName>Driver_Angular.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Angular.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_Armour.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Armour.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_CAN.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_CAN.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_DBUS.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_DBUS.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_HookController.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_HookController.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_PanController.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_PanController.c</FilePath>
+            </File>
+            <File>
+              <FileName>MadgwickAHRS.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\MadgwickAHRS.c</FilePath>
+            </File>
+            <File>
+              <FileName>mpu6500_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\mpu6500_driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>mpu6500_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\mpu6500_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>mpu6500_interrupt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\mpu6500_interrupt.c</FilePath>
             </File>
           </Files>
         </Group>
