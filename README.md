@@ -12,17 +12,8 @@ RoboVigor 电控基石。
 
 ## 规划
 
-- [x] 将工程车仓库中将所有代码文件（.c, .h）格式从ansi转为utf8以解决中文注释乱码的问题
-- [x] 给while(1)的所有脚本全部安排上计时器 
-- [x] **0.0.1** 将工程车代码并入本仓库
-- [x] **0.0.X** 整理代码目录
-- [ ] **0.1.X** 测试FreeRTOS
-- [ ] 测试无线串口调试
-- [ ] 参考电科代码重新封装模块、隔离变量、重写不规范的代码
-- [ ] 考虑编写自检单元测试
-- [ ] 在工程车上调试底盘运动等基础功能
-- [ ] 以英雄车为模板重写功能代码
-- [ ] 各车种兼容性调试
-- [ ] 分发各车种版本
-- [ ] 实现各车种特有功能
+[Projects](https://github.com/tccoin/RV-CornerStone/projects/1)
 
+## 历史
+
+[Commits](https://github.com/tccoin/RV-CornerStone/commits/develop)
