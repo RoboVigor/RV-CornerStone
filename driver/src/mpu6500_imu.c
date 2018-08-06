@@ -2,8 +2,8 @@
 #include "mpu6500_driver.h"
 #include "mpu6500_i2c.h"
 #include "mpu6500_interrupt.h"
-#include "MPU6500_IST8310.h"
-#include "imu.h"
+#include "mpu6500_IST8310.h"
+#include "mpu6500_imu.h"
 #include "math.h"
 
 

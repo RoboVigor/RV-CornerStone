@@ -4,7 +4,7 @@
 #include "MPU6500_IST8310.h"
 
 #include "mpu6500_driver.h"
-uint8_t isMPU6500_is_DRY = 0;  
+uint8_t isMPU6500_is_DRY = 0;
 
 
 void MPU6500_IntConfiguration(void)

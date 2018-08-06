@@ -5,18 +5,18 @@
 typedef struct
 {
 	volatile int16_t ax;
-  volatile int16_t ay;
-  volatile int16_t az;
+	volatile int16_t ay;
+	volatile int16_t az;
 	volatile int16_t temp;
 	volatile int16_t gx;
-  volatile int16_t gy;
-  volatile int16_t gz;
+	volatile int16_t gy;
+	volatile int16_t gz;
 	int16_t gx_offset;
 	int16_t gy_offset;
 	int16_t gz_offset;
-}IMU_DataType;
+} IMU_DataType;
 
-#ifdef  __DRIVER_MPU6500_GLOBALS
+#ifdef __DRIVER_MPU6500_GLOBALS
 #define __DRIVER_MPU6500_EXT
 #else
 #define __DRIVER_MPU6500_EXT extern
@@ -30,13 +30,9 @@ int MPU6500_Init(void);
 
 void MPU6500_Initialize(void);
 
-int MPU6500_ReadData(uint8_t Slave_Addr, uint8_t Reg_Addr, uint8_t * Data, uint8_t Num);
+int MPU6500_ReadData(uint8_t Slave_Addr, uint8_t Reg_Addr, uint8_t *Data, uint8_t Num);
 int MPU6500_EnableInt(void);
 
 void MPU6500_getMotion6(void);
 
-
-
 #endif
-
-
