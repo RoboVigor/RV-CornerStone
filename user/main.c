@@ -1,4 +1,5 @@
 #include "main.h"
+#include "Task_SysInitConfig.h"
 
 int main(void)
 {
@@ -63,7 +64,16 @@ int main(void)
 	ArmourSpeedPIDInit(&Armour1_SinglePID_SpeedPID, 1.1, 0, 0); //装甲板单速度pid
 	ArmourSpeedPIDInit(&Armour2_SinglePID_SpeedPID, 1, 0, 0);
 
-	while (1)
-	{
-	}
+	//创建系统初始化任务
+    xTaskCreate(Task_SysInitConfig,
+                "SysInitConfig",
+                1600,
+                NULL,
+                5,
+                NULL);
+	
+	  //任务开始
+    vTaskStartScheduler();
+
+	while (1);
 }
