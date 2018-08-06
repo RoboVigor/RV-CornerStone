@@ -17,6 +17,8 @@
 #include "Driver_Armour.h"
 #include "Driver_Angular.h"
 #include "mpu6500_interrupt.h"
+#include "Task_SysInitConfig.h"
+
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 #define FORWARD 1
 #define BACKWARD -1
@@ -33,9 +35,21 @@ int32_t debug_value7 = 0;
 int32_t debug_value8 = 0;
 
 int debug_tim = 0;
+
+void Task_SysInitConfig(void *Parameters);
 int main(void)
 {
-
+	//创建系统初始化任务
+    xTaskCreate(Task_SysInitConfig,
+                "SysInitConfig",
+                1600,
+                NULL,
+                5,
+                NULL);
+	
+	  //任务开始
+    vTaskStartScheduler();
+	
 	int ArmatureRotateSpeed[4], Buffer[4];
 	int isDoublePID = 0; //0为单速度pid
 
