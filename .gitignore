@@ -1,5 +1,6 @@
-Objects/*
 JLinkLog.txt
-DebugConfig/*
 .vscode/*
-mdk/*
+mdk/DebugConfig/*
+mdk/Objects/*.d
+mdk/Objects/*.o
+mdk/Objects/*.crf
