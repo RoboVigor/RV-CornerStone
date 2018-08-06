@@ -21,6 +21,14 @@
 ".\objects\stm32f4xx_tim.o"
 ".\objects\stm32f4xx_usart.o"
 ".\objects\stm32f4xx_wwdg.o"
+".\objects\croutine.o"
+".\objects\event_groups.o"
+".\objects\list.o"
+".\objects\queue.o"
+".\objects\tasks.o"
+".\objects\timers.o"
+".\objects\heap_4.o"
+".\objects\port.o"
 ".\objects\delay.o"
 ".\objects\sys.o"
 ".\objects\usart.o"
@@ -37,6 +45,7 @@
 ".\objects\mpu6500_driver.o"
 ".\objects\mpu6500_i2c.o"
 ".\objects\mpu6500_interrupt.o"
+".\objects\task_sysinitconfig.o"
 --strict --scatter ".\Objects\Belief exp2.sct"
 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
