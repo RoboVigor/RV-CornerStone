@@ -1,7 +1,68 @@
-#include "main.h"
+#include "sys.h"
+#include "delay.h"
+#include "usart.h"
+#include "led.h"
+#include "beep.h"
+#include "key.h"
+#include "BSP_GPIO.h"
+#include "BSP_NVIC.h"
+#include "BSP_UART.h"
+#include "BSP_DMA.h"
+#include "BSP_CAN.h"
+#include "BSP_TIM.h"
+#include "Driver_DBUS.h"
+#include "Driver_CAN.h"
+#include "Driver_PanController.h"
+#include "Driver_HookController.h"
+#include "Driver_Armour.h"
+#include "Driver_Angular.h"
+#include "mpu6500_interrupt.h"
+#include "Task_SysInitConfig.h"
 
+#define ABS(x) ((x) >= 0 ? (x) : -(x))
+#define FORWARD 1
+#define BACKWARD -1
+#define MAXWHEELSPEED 1150
+
+int32_t debug_YawAngleFeed = 0;
+int32_t debug_value1 = 0;
+int32_t debug_value2 = 0;
+int32_t debug_value3 = 0;
+int32_t debug_value4 = 0;
+int32_t debug_value5 = 0;
+int32_t debug_value6 = 0;
+int32_t debug_value7 = 0;
+int32_t debug_value8 = 0;
+
+int debug_tim = 0;
+
+void Task_SysInitConfig(void *Parameters);
 int main(void)
 {
+	//创建系统初始化任务
+    xTaskCreate(Task_SysInitConfig,
+                "SysInitConfig",
+                1600,
+                NULL,
+                5,
+                NULL);
+	
+	  //任务开始
+    vTaskStartScheduler();
+	
+	int ArmatureRotateSpeed[4], Buffer[4];
+	int isDoublePID = 0; //0为单速度pid
+
+	int LastMode = 0; //1指上次为直线前进模式 2上次为自转模式
+
+	float LastYawAngleFeed = 0;
+	float YawAngleFeedOffset = 0;
+	float YawAngleFeedThreshold = 0.003;
+	float YawAngleFeedDiff = 0;
+	float YawAngleFeedOffsetSample = 0;
+	float YawAngleFeedOffsetSampleCounter = 0;
+	int PanPIDMode = 1;
+
 	BSP_GPIO_InitConfig();
 	BSP_CAN_InitConfig();
 	BSP_UART_InitConfig();
