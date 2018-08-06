@@ -15,7 +15,7 @@
         <TargetCommonOption>
           <Device>STM32F427II</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.1.0.8</PackID>
+          <PackID>Keil.STM32F4xx_DFP.2.9.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x200000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F427_437xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>.\CORE;.\DRIVER;.\FWLIB\inc;.\HARDWARE;.\HARDWARE\BEEP;.\HARDWARE\KEY;.\HARDWARE\LED;.\SYSTEM\delay;.\SYSTEM\sys;.\SYSTEM\usart;.\USER;.\MPU6500</IncludePath>
+              <IncludePath>..\bsp\inc;..\core;..\driver\inc;..\library\std\inc;..\system\delay;..\system\sys;..\system\usart;..\user</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -377,72 +377,62 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>USER</GroupName>
+          <GroupName>bsp</GroupName>
           <Files>
             <File>
-              <FileName>main.c</FileName>
+              <FileName>beep.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\USER\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\USER\stm32f4xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>system_stm32f4xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\USER\system_stm32f4xx.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>HARDWARE</GroupName>
-          <Files>
-            <File>
-              <FileName>BSP_DMA.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\HARDWARE\BSP_DMA.c</FilePath>
-            </File>
-            <File>
-              <FileName>BSP_GPIO.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\HARDWARE\BSP_GPIO.c</FilePath>
-            </File>
-            <File>
-              <FileName>BSP_NVIC.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\HARDWARE\BSP_NVIC.c</FilePath>
-            </File>
-            <File>
-              <FileName>BSP_UART.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\HARDWARE\BSP_UART.c</FilePath>
+              <FilePath>..\bsp\src\beep.c</FilePath>
             </File>
             <File>
               <FileName>BSP_CAN.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\HARDWARE\BSP_CAN.c</FilePath>
+              <FilePath>..\bsp\src\BSP_CAN.c</FilePath>
+            </File>
+            <File>
+              <FileName>BSP_DMA.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\bsp\src\BSP_DMA.c</FilePath>
+            </File>
+            <File>
+              <FileName>BSP_GPIO.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\bsp\src\BSP_GPIO.c</FilePath>
+            </File>
+            <File>
+              <FileName>BSP_NVIC.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\bsp\src\BSP_NVIC.c</FilePath>
             </File>
             <File>
               <FileName>BSP_TIM.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\HARDWARE\BSP_TIM.c</FilePath>
+              <FilePath>..\bsp\src\BSP_TIM.c</FilePath>
             </File>
             <File>
-              <FileName>beep.c</FileName>
+              <FileName>BSP_UART.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\HARDWARE\BEEP\beep.c</FilePath>
+              <FilePath>..\bsp\src\BSP_UART.c</FilePath>
             </File>
             <File>
               <FileName>key.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\HARDWARE\KEY\key.c</FilePath>
+              <FilePath>..\bsp\src\key.c</FilePath>
             </File>
             <File>
               <FileName>led.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\HARDWARE\LED\led.c</FilePath>
+              <FilePath>..\bsp\src\led.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>core</GroupName>
+          <Files>
+            <File>
+              <FileName>startup_stm32f427xx.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>..\core\startup_stm32f427xx.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -450,154 +440,159 @@
           <GroupName>DRIVER</GroupName>
           <Files>
             <File>
-              <FileName>Driver_DBUS.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\DRIVER\Driver_DBUS.c</FilePath>
-            </File>
-            <File>
-              <FileName>Driver_CAN.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\DRIVER\Driver_CAN.c</FilePath>
-            </File>
-            <File>
-              <FileName>Driver_PanController.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\DRIVER\Driver_PanController.c</FilePath>
-            </File>
-            <File>
-              <FileName>Driver_HookController.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\DRIVER\Driver_HookController.c</FilePath>
-            </File>
-            <File>
               <FileName>Driver_Angular.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\DRIVER\Driver_Angular.c</FilePath>
-            </File>
-            <File>
-              <FileName>MadgwickAHRS.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\DRIVER\MadgwickAHRS.c</FilePath>
+              <FilePath>..\driver\src\Driver_Angular.c</FilePath>
             </File>
             <File>
               <FileName>Driver_Armour.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\DRIVER\Driver_Armour.c</FilePath>
+              <FilePath>..\driver\src\Driver_Armour.c</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>SYSTEM</GroupName>
-          <Files>
             <File>
-              <FileName>delay.c</FileName>
+              <FileName>Driver_CAN.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\SYSTEM\delay\delay.c</FilePath>
+              <FilePath>..\driver\src\Driver_CAN.c</FilePath>
             </File>
             <File>
-              <FileName>sys.c</FileName>
+              <FileName>Driver_DBUS.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\SYSTEM\sys\sys.c</FilePath>
+              <FilePath>..\driver\src\Driver_DBUS.c</FilePath>
             </File>
             <File>
-              <FileName>usart.c</FileName>
+              <FileName>Driver_HookController.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\SYSTEM\usart\usart.c</FilePath>
+              <FilePath>..\driver\src\Driver_HookController.c</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>STDLIB</GroupName>
-          <Files>
             <File>
-              <FileName>misc.c</FileName>
+              <FileName>Driver_PanController.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\FWLIB\src\misc.c</FilePath>
+              <FilePath>..\driver\src\Driver_PanController.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f4xx_can.c</FileName>
+              <FileName>MadgwickAHRS.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\FWLIB\src\stm32f4xx_can.c</FilePath>
+              <FilePath>..\driver\src\MadgwickAHRS.c</FilePath>
             </File>
-            <File>
-              <FileName>stm32f4xx_dma.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FWLIB\src\stm32f4xx_dma.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_dma2d.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FWLIB\src\stm32f4xx_dma2d.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_exti.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FWLIB\src\stm32f4xx_exti.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_flash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FWLIB\src\stm32f4xx_flash.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_gpio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FWLIB\src\stm32f4xx_gpio.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_rcc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FWLIB\src\stm32f4xx_rcc.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_syscfg.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FWLIB\src\stm32f4xx_syscfg.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_tim.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FWLIB\src\stm32f4xx_tim.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FWLIB\src\stm32f4xx_usart.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_wwdg.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FWLIB\src\stm32f4xx_wwdg.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>CORE</GroupName>
-          <Files>
-            <File>
-              <FileName>startup_stm32f427xx.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\CORE\startup_stm32f427xx.s</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>MPU6500</GroupName>
-          <Files>
             <File>
               <FileName>mpu6500_driver.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\MPU6500\mpu6500_driver.c</FilePath>
+              <FilePath>..\driver\src\mpu6500_driver.c</FilePath>
             </File>
             <File>
               <FileName>mpu6500_i2c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\MPU6500\mpu6500_i2c.c</FilePath>
+              <FilePath>..\driver\src\mpu6500_i2c.c</FilePath>
             </File>
             <File>
               <FileName>mpu6500_interrupt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\MPU6500\mpu6500_interrupt.c</FilePath>
+              <FilePath>..\driver\src\mpu6500_interrupt.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>library</GroupName>
+          <Files>
+            <File>
+              <FileName>misc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\misc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_can.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_can.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_dma.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_dma2d.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_dma2d.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_exti.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_exti.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_gpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_rcc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_rcc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_syscfg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_syscfg.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_tim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_wwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_wwdg.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>system</GroupName>
+          <Files>
+            <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\system\delay\delay.c</FilePath>
+            </File>
+            <File>
+              <FileName>sys.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\system\sys\sys.c</FilePath>
+            </File>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\system\usart\usart.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>user</GroupName>
+          <Files>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\stm32f4xx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>system_stm32f4xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\system_stm32f4xx.c</FilePath>
             </File>
           </Files>
         </Group>
