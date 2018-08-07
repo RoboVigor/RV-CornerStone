@@ -1,5 +1,4 @@
 #include "main.h"
-#include "Task_SysInitConfig.h"
 
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 #define FORWARD 1
@@ -70,9 +69,6 @@ int main(void)
 	GetEncoderBias(&Armour1_Encoder); //得到编码器的初始bias
 	GetEncoderBias(&Armour2_Encoder);
 
-	RED_LIGHT_OFF;
-	GREEN_LIGHT_OFF;
-
 	MPU6500_Initialize();
 
 	delay_ms(3000);
@@ -114,7 +110,7 @@ int main(void)
                 5,
                 NULL);
 	
-	  //任务开始
+	//任务开始
     vTaskStartScheduler();
 
 	while (1);

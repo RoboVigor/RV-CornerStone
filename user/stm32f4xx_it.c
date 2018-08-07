@@ -377,7 +377,7 @@ void mainTask(void)
     YawAngleFeedDiff = YawAngleFeed - LastYawAngleFeed;
     LastYawAngleFeed = YawAngleFeed;
   }
-  /*DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG*/
+  /*DEBUG*/
   debug_YawAngleFeed = (int)(YawAngleFeed);
   debug_value1 = (int)(DBUS_ReceiveData.ch1);
   debug_value2 = (int)(DBUS_ReceiveData.ch2);
