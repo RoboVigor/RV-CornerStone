@@ -3,3 +3,8 @@ JLinkLog.txt
 mdk/DebugConfig/*
 mdk/Objects/*
 mdk/Belief exp2.uvguix.*
+mdk/Objects/Belief exp2.axf
+mdk/Objects/Belief exp2.build_log.htm
+mdk/Objects/Belief exp2.hex
+mdk/Objects/Belief exp2.htm
+mdk/Objects/Belief exp2_Target 1.dep

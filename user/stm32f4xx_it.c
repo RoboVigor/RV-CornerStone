@@ -28,9 +28,8 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_it.h"
-#include "stm32f4xx.h"
 #include "main.h"
+#include "stm32f4xx_it.h"
 
 //extern int debugTime;
 
@@ -165,22 +164,10 @@ void DebugMon_Handler(void)
   * @param  None
   * @retval None
   */
-<<<<<<< HEAD
-<<<<<<< HEAD
-void SysTick_Handler(void)
-{
-}
-=======
-=======
->>>>>>> 0.1.1 添加freertos
 //void SysTick_Handler(void)
 //{
 // 
 //}
-<<<<<<< HEAD
->>>>>>> 0.1.1 添加freertos
-=======
->>>>>>> 0.1.1 添加freertos
 
 /******************************************************************************/
 /*                 STM32F4xx Peripherals Interrupt Handlers                   */
