@@ -17,6 +17,7 @@ void Task_SysInitConfig(void *Parameters)
             GREEN_LIGHT_ON;
         }
         sign = sign ? 0 : 1;
+        vTaskDelay(1000);
     }
 
     vTaskDelete(NULL);
