@@ -1,5 +1,9 @@
 #include "usart.h"	
 #include "sys.h"
+
+#if SYSTEM_SUPPORT_OS
+#include "FreeRTOS.h"					//支持OS时，使用	  
+#endif
 //加入以下代码,支持printf函数,而不需要选择use MicroLIB	  
 #if 1
             

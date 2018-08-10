@@ -15,7 +15,7 @@
         <TargetCommonOption>
           <Device>STM32F427II</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.9.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.1.0.8</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x200000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F427_437xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\bsp\inc;..\core;..\driver\inc;..\library\std\inc;..\system\delay;..\system\sys;..\system\usart;..\user</IncludePath>
+              <IncludePath>..\bsp\inc;..\core;..\driver\inc;..\library\std\inc;..\system\delay;..\system\sys;..\system\usart;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\task\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -499,6 +499,46 @@
               <FileType>1</FileType>
               <FilePath>..\library\std\src\stm32f4xx_wwdg.c</FilePath>
             </File>
+            <File>
+              <FileName>croutine.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\freertos\croutine.c</FilePath>
+            </File>
+            <File>
+              <FileName>event_groups.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\freertos\event_groups.c</FilePath>
+            </File>
+            <File>
+              <FileName>list.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\freertos\list.c</FilePath>
+            </File>
+            <File>
+              <FileName>queue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\freertos\queue.c</FilePath>
+            </File>
+            <File>
+              <FileName>tasks.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\freertos\tasks.c</FilePath>
+            </File>
+            <File>
+              <FileName>timers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\freertos\timers.c</FilePath>
+            </File>
+            <File>
+              <FileName>heap_4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\freertos\portable\MemMang\heap_4.c</FilePath>
+            </File>
+            <File>
+              <FileName>port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\freertos\portable\RVDS\ARM_CM4F\port.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -593,6 +633,16 @@
               <FileName>mpu6500_interrupt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\src\mpu6500_interrupt.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>task</GroupName>
+          <Files>
+            <File>
+              <FileName>Task_SysInitConfig.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\task\src\Task_SysInitConfig.c</FilePath>
             </File>
           </Files>
         </Group>
