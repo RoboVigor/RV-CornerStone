@@ -640,9 +640,19 @@
           <GroupName>task</GroupName>
           <Files>
             <File>
-              <FileName>Task_SysInitConfig.c</FileName>
+              <FileName>Task_IRQ.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\task\src\Task_SysInitConfig.c</FilePath>
+              <FilePath>..\task\src\Task_IRQ.c</FilePath>
+            </File>
+            <File>
+              <FileName>Task_Low.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\task\src\Task_Low.c</FilePath>
+            </File>
+            <File>
+              <FileName>Task_SysInit.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\task\src\Task_SysInit.c</FilePath>
             </File>
           </Files>
         </Group>
