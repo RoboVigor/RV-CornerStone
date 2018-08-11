@@ -29,7 +29,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
-#include "stm32f4xx.h"
 #include "main.h"
 
 // extern int debugTime;
@@ -184,19 +183,31 @@ void DebugMon_Handler(void) {}
  * @param  void
  * @retval void
  */
+int debug_i = 30;
+uint8_t UARTtemp;
+BaseType_t xHigherPriorityTaskWoken;
 void USART1_IRQHandler(void) {
-    GREEN_LIGHT_ON;
-    //TaskStatus_t TaskStatus_DBUS;
-    // if (sign) {
-    //   RED_LIGHT_ON;
-    // } else {
-    //   RED_LIGHT_OFF;
-    // }
-    // delay_ms(1000);
-    // vTaskGetInfo(TaskHandler_DBUS, &TaskStatus_DBUS, pdTRUE, eInvalid);
-    // if(TaskStatus_DBUS.eCurrentState == eSuspended){
-    //   xTaskResumeFromISR(TaskHandler_DBUS);
-    // }
+
+  UARTtemp = USART1->DR;
+  UARTtemp = USART1->SR;
+
+  DMA_Cmd(DMA2_Stream2, DISABLE);
+
+  //数据量正确
+  if (DMA2_Stream2->NDTR == DBUSBackLength) {
+    DBUS_DataDecoding(); //解码
+    debug_i += 1;
+    //xTaskResumeFromISR(TaskHandler_DBUS);
+  }
+
+  //重启DMA
+  DMA_ClearFlag(DMA2_Stream2, DMA_FLAG_TCIF2 | DMA_FLAG_HTIF2);
+  while (DMA_GetCmdStatus(DMA2_Stream2) != DISABLE){}
+  DMA_SetCurrDataCounter(DMA2_Stream2, DBUSLength + DBUSBackLength);
+  DMA_Cmd(DMA2_Stream2, ENABLE);
+
+    // vTaskNotifyGiveFromISR(TaskHandler_DBUS, &xHigherPriorityTaskWoken);
+    // portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 /**
@@ -205,8 +216,8 @@ void USART1_IRQHandler(void) {
  * @retval void
  */
 void USART6_IRQHandler(void) {
-    RED_LIGHT_ON;
-    //xTaskResumeFromISR(TaskHandler_USART3);
+  RED_LIGHT_TOGGLE;
+  delay_us(300*1000);
 }
 
 /**

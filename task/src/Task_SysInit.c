@@ -3,18 +3,6 @@
 #include "main.h"
 
 void Task_SysInit(void *Parameters) {
-  BSP_GPIO_InitConfig();
-  BSP_CAN_InitConfig();
-  BSP_UART_InitConfig();
-  BSP_DMA_InitConfig();
-  BSP_UART_InitConfig();
-  BSP_TIM_InitConfig();
-  // BSP_NVIC_InitConfig();
-
-  delay_init(180); // 延时初始化
-  //uart_init(9600); // 初始化串口
-  LED_Init();      // 初始化LED
-  BEEP_Init();     // 初始化蜂鸣器
 
   // TIM4_PWM_Init();
   // MPU6500_IntConfiguration();
@@ -69,13 +57,13 @@ void Task_SysInit(void *Parameters) {
 
   // 建立任务
   //// IRQ任务
-  xTaskCreate(Task_USART3, "Task_USART3", 400, NULL, 6,
-              &TaskHandler_USART3);
-  xTaskCreate(Task_DBUS, "Task_DBUS", 400, NULL, 6, &TaskHandler_DBUS);
+  xTaskCreate(Task_USART3, "Task_USART3", 800, NULL, 6,&TaskHandler_USART3);
+  xTaskCreate(Task_DBUS, "Task_DBUS", 800, NULL, 6, &TaskHandler_DBUS);
   //// 低优先级任务
   xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, &TaskHandler_Blink);
 
-  vTaskSuspend(TaskHandler_DBUS);
+
+  //GREEN_LIGHT_ON;
 
   vTaskDelete(NULL);
 }
