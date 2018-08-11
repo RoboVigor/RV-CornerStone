@@ -3,7 +3,7 @@
 void Task_DBUS(void *Parameters) {
   while (1) {
     vTaskSuspend(NULL);
-    RED_LIGHT_ON;
+    GREEN_LIGHT_ON;
     taskENTER_CRITICAL();
     vTaskDelay(1000);
     /*
@@ -33,7 +33,7 @@ void Task_DBUS(void *Parameters) {
 void Task_USART3(void *Parameters) {
   while (1) {
     vTaskSuspend(NULL);
-    RED_LIGHT_ON;
+    GREEN_LIGHT_ON;
     taskENTER_CRITICAL();
     vTaskDelay(1000);
     taskEXIT_CRITICAL();

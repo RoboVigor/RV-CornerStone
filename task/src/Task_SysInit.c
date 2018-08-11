@@ -9,7 +9,7 @@ void Task_SysInit(void *Parameters) {
   BSP_DMA_InitConfig();
   BSP_UART_InitConfig();
   BSP_TIM_InitConfig();
-  BSP_NVIC_InitConfig();
+  // BSP_NVIC_InitConfig();
 
   delay_init(180); // 延时初始化
   uart_init(9600); // 初始化串口
@@ -72,7 +72,7 @@ void Task_SysInit(void *Parameters) {
   xTaskCreate(Task_USART3, "Task_USART3", 400, NULL, 6, &TaskHandler_USART3);
   xTaskCreate(Task_DBUS, "Task_DBUS", 400, NULL, 6, &TaskHandler_DBUS);
   //// 低优先级任务
-  xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, &TaskHandler_Blink);
+  xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 7, &TaskHandler_Blink);
 
   vTaskDelete(NULL);
 }
