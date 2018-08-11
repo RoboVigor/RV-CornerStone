@@ -29,6 +29,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
+#include "stm32f4xx.h"
 #include "main.h"
 
 // extern int debugTime;
@@ -177,10 +178,6 @@ void DebugMon_Handler(void) {}
  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-#include "Driver_CAN.h"
-#include "Driver_DBUS.h"
-#include "usart.h"
-uint8_t UARTtemp;
 
 /**
  * @brief  DBUS空闲中断(USART1)
@@ -188,16 +185,28 @@ uint8_t UARTtemp;
  * @retval void
  */
 void USART1_IRQHandler(void) {
-    xTaskResumeFromISR(TaskHandler_DBUS);
+    GREEN_LIGHT_ON;
+    //TaskStatus_t TaskStatus_DBUS;
+    // if (sign) {
+    //   RED_LIGHT_ON;
+    // } else {
+    //   RED_LIGHT_OFF;
+    // }
+    // delay_ms(1000);
+    // vTaskGetInfo(TaskHandler_DBUS, &TaskStatus_DBUS, pdTRUE, eInvalid);
+    // if(TaskStatus_DBUS.eCurrentState == eSuspended){
+    //   xTaskResumeFromISR(TaskHandler_DBUS);
+    // }
 }
 
 /**
- * @brief  无线串口中断(USART3)
+ * @brief  无线串口中断(USART6)
  * @param  void
  * @retval void
  */
-void USART3_IRQHandler(void) {
-    xTaskResumeFromISR(TaskHandler_USART3);
+void USART6_IRQHandler(void) {
+    RED_LIGHT_ON;
+    //xTaskResumeFromISR(TaskHandler_USART3);
 }
 
 /**

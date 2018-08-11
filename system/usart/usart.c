@@ -13,14 +13,14 @@ FILE __stdout;
 
 //重定义fputc函数
 int fputc(int ch, FILE *f) {
-  while ((USART3->SR & 0X40) == 0)
+  while ((USART6->SR & 0X40) == 0)
     ; //循环发送,直到发送完毕
-  USART3->DR = (u8)ch;
+  USART6->DR = (u8)ch;
   return ch;
 }
 #endif
 
-#if EN_USART3_RX //如果使能了接收
+#if EN_USART6_RX //如果使能了接收
 //串口3中断服务程序
 //注意,读取USARTx->SR能避免莫名其妙的错误
 
@@ -32,24 +32,24 @@ void uart_init(u32 bound) {
   USART_InitTypeDef USART_InitStructure;
   NVIC_InitTypeDef NVIC_InitStructure;
 
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);  //使能GPIOD时钟
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE); //使能USART3时钟
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);  //使能GPIOG时钟
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE); //使能USART6时钟
 
   //串口3对应引脚复用映射
-  GPIO_PinAFConfig(GPIOD, GPIO_PinSource8,
-                   GPIO_AF_USART3); // GPIOD8复用为USART3
-  GPIO_PinAFConfig(GPIOD, GPIO_PinSource9,
-                   GPIO_AF_USART3); // GPIOD9复用为USART3
+  GPIO_PinAFConfig(GPIOG, GPIO_PinSource9,
+                   GPIO_AF_USART6); // GPIOG8复用为USART6
+  GPIO_PinAFConfig(GPIOG, GPIO_PinSource14,
+                   GPIO_AF_USART6); // GPIOG9复用为USART6
 
-  // USART3端口配置
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9; // GPIOD8与GPIOD9
+  // USART6端口配置
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_14; // GPIOG9与GPIOG14
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;           //复用功能
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;      //速度50MHz
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;         //推挽复用输出
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;           //上拉
-  GPIO_Init(GPIOD, &GPIO_InitStructure);                 //初始化PD8，PD9
+  GPIO_Init(GPIOG, &GPIO_InitStructure);                 //初始化
 
-  // USART3 初始化设置
+  // USART6 初始化设置
   USART_InitStructure.USART_BaudRate = bound; //波特率设置
   USART_InitStructure.USART_WordLength =
       USART_WordLength_8b; //字长为8位数据格式
@@ -58,30 +58,30 @@ void uart_init(u32 bound) {
   USART_InitStructure.USART_HardwareFlowControl =
       USART_HardwareFlowControl_None; //无硬件数据流控制
   USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx; //收发模式
-  USART_Init(USART3, &USART_InitStructure); //初始化串口3
+  USART_Init(USART6, &USART_InitStructure); //初始化串口3
 
-  USART_Cmd(USART3, ENABLE); //使能串口3
+  USART_Cmd(USART6, ENABLE); //使能串口3
 
-  // USART_ClearFlag(USART3, USART_FLAG_TC);
+  // USART_ClearFlag(USART6, USART_FLAG_TC);
 
-  USART_ITConfig(USART3, USART_IT_RXNE, ENABLE); //开启相关中断
+  USART_ITConfig(USART6, USART_IT_RXNE, ENABLE); //开启相关中断
 
-  // USART3 NVIC 配置
-  NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn; //串口3中断通道
+  // USART6 NVIC 配置
+  NVIC_InitStructure.NVIC_IRQChannel = USART6_IRQn; //串口3中断通道
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0; //抢占优先级3
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;        //子优先级3
   NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;          // IRQ通道使能
   NVIC_Init(&NVIC_InitStructure); //根据指定的参数初始化VIC寄存器、
 }
 
-// void USART3_IRQHandler(void) //串口3中断服务程序
+// void USART6_IRQHandler(void) //串口3中断服务程序
 // {
 //   u8 Res;
 
-//   if (USART_GetITStatus(USART3, USART_IT_RXNE) !=
+//   if (USART_GetITStatus(USART6, USART_IT_RXNE) !=
 //       RESET) //接收中断(接收到的数据必须是0x0d 0x0a结尾)
 //   {
-//     Res = USART_ReceiveData(USART3); //(USART3->DR);	//读取接收到的数据
+//     Res = USART_ReceiveData(USART6); //(USART6->DR);	//读取接收到的数据
 
 //     if ((USART_RX_STA & 0x8000) == 0) //接收未完成
 //     {
@@ -108,13 +108,13 @@ void uart_init(u32 bound) {
 
 #endif
 
-void USART3_Send_Package(uint8_t *data, uint8_t count) {
+void USART6_Send_Package(uint8_t *data, uint8_t count) {
   uint8_t i;
 
   for (i = 0; i < count; i++) {
-    while (USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET)
+    while (USART_GetFlagStatus(USART6, USART_FLAG_TC) == RESET)
       ;
-    USART3->DR = data[i];
+    USART6->DR = data[i];
   }
   memset(data, 0, count);
 }
