@@ -2,15 +2,15 @@
 
 void Task_Blink(void *Parameters) {
   int sign = 0;
-
+  TickType_t LastWakeTime = xtaskgettic;
   while (1) {
     if (sign) {
-      RED_LIGHT_ON;
+      GREEN_LIGHT_ON;
     } else {
-      RED_LIGHT_OFF;
+      GREEN_LIGHT_OFF;
     }
     sign = sign ? 0 : 1;
-    vTaskDelay(250);
+    vTaskDelayUntil(&LastWakeTime, 50);
   }
 
   vTaskDelete(NULL);
