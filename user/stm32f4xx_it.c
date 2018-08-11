@@ -188,7 +188,7 @@ uint8_t UARTtemp;
  * @retval void
  */
 void USART1_IRQHandler(void) {
-
+    xTaskResumeFromISR(TaskHandler_DBUS);
 }
 
 /**
@@ -197,7 +197,7 @@ void USART1_IRQHandler(void) {
  * @retval void
  */
 void USART3_IRQHandler(void) {
-    vTaskResume(TaskHandler_USART3);
+    xTaskResumeFromISR(TaskHandler_USART3);
 }
 
 /**
