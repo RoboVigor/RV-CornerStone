@@ -117,9 +117,9 @@ void delay_init(u8 SYSCLK) {
   u32 reload;
 #endif
   SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8);
-  fac_us = SYSCLK / 8; //不论是否使用OS,fac_us都需要使用
+  fac_us = SYSCLK; //不论是否使用OS,fac_us都需要使用
 #if SYSTEM_SUPPORT_OS  //如果需要支持OS.
-  reload = SYSCLK / 8; //每秒钟的计数次数 单位为M
+  reload = SYSCLK; //每秒钟的计数次数 单位为M
   reload *=
       1000000 /
       configTICK_RATE_HZ; //根据delay_ostickspersec设定溢出时间
