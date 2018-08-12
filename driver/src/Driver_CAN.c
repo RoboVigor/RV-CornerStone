@@ -2,14 +2,14 @@
 #include "Driver_CAN.h"
 
 /**
-  * @brief  发送数据给四个电机
-  * @param  CANx  指定一个CAN口,CAN1或CAN2
-	*					i_201 0x201地址电机给定电流值，范围-32768~32768
-	*					i_202 0x202地址电机给定电流值，范围-32768~32768
-	*					i_203 0x203地址电机给定电流值，范围-32768~32768
-	*					i_204 0x204地址电机给定电流值，范围-32768~32768
-  * @retval void
-  */
+ * @brief  发送数据给四个电机
+ * @param  CANx  指定一个CAN口,CAN1或CAN2
+	*					i_201 0x201地址电机给定电流值,范围-32768~32768
+	*					i_202 0x202地址电机给定电流值,范围-32768~32768
+	*					i_203 0x203地址电机给定电流值,范围-32768~32768
+	*					i_204 0x204地址电机给定电流值,范围-32768~32768
+ * @return void
+ */
 	void Set_CM_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204)
 {
     CanTxMsg tx_message;
@@ -77,10 +77,10 @@ void Set_Hook_Armour_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int1
 
 
 /**
-  * @brief  获取编码器的值
-  * @param  void
-  * @retval void
-  */
+ * @brief  获取编码器的值
+ * @param  void
+ * @return void
+ */
 void GetEncoderBias(volatile Encoder *v)
 {
 //		int i;
@@ -91,10 +91,10 @@ void GetEncoderBias(volatile Encoder *v)
 }
 
 /**
-  * @brief  电机机械角度解结解算，转子角度转成实际角度
-  * @param  void
-  * @retval void
-  */
+ * @brief  电机机械角度解结解算,转子角度转成实际角度
+ * @param  void
+ * @return void
+ */
 
 
  void EncoderProcess(volatile Encoder *v,uint16_t agree)
@@ -104,7 +104,7 @@ void GetEncoderBias(volatile Encoder *v)
 	v->last_raw_value = v->raw_value;
 	v->raw_value = agree;
 	v->diff = v->raw_value - v->last_raw_value;
-	if(v->diff < -4200)    //两次编码器的反馈值差别太大，表示圈数发生了改变
+	if(v->diff < -4200)    //两次编码器的反馈值差别太大,表示圈数发生了改变
 	{
 		v->round_cnt++;
 		v->ecd_raw_rate = v->diff + 8192;
@@ -120,7 +120,7 @@ void GetEncoderBias(volatile Encoder *v)
 	}
 	//计算得到连续的编码器输出值
 	v->ecd_value = v->raw_value + v->round_cnt * 8192;
-	//计算得到角度值，范围正负无穷大
+	//计算得到角度值,范围正负无穷大
 	v->ecd_angle = (float)(v->raw_value - v->ecd_bias)*360/8192 + v->round_cnt * 360;
 	v->rate_buf[v->buf_count++] = v->ecd_raw_rate;
 	if(v->buf_count == RATE_BUF_SIZE)

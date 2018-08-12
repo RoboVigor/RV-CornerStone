@@ -2,10 +2,10 @@
 
 
 /**
-  * @brief  GPIO初始化
-  * @param  void
-  * @retval void
-  */
+ * @brief  GPIO初始化
+ * @param  void
+ * @return void
+ */
 void BSP_GPIO_InitConfig(void)
 {
 	GPIO_InitTypeDef	GPIO_InitStructure;

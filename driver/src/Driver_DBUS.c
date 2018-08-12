@@ -3,10 +3,10 @@
 #include "Driver_DBUS.h"
 
 /**
-  * @brief  DBUS参数初始化
-  * @param  void
-  * @retval void
-  */
+ * @brief  DBUS参数初始化
+ * @param  void
+ * @return void
+ */
 void DBUS_InitConfig(void)
 {
 	DBUS_ReceiveData.ch1 = 0;
@@ -19,10 +19,10 @@ void DBUS_InitConfig(void)
 
 
 /**
-  * @brief  DBUS解码
-  * @param  void
-  * @retval void
-  */
+ * @brief  DBUS解码
+ * @param  void
+ * @return void
+ */
 void DBUS_DataDecoding(void)
 {
 	LASTDBUS_ReceiveData = DBUS_ReceiveData;

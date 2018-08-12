@@ -6,7 +6,7 @@
 #include "mpu6500_interrupt.h"
 #include "MPU6500_IST8310.h"
 
-//MPU6050 初始化，成功返回0  失败返回 0xff
+//MPU6050 初始化,成功返回0  失败返回 0xff
 int MPU6500_Init(void)
 {
     unsigned char temp_data = 0x00;
@@ -16,7 +16,7 @@ int MPU6500_Init(void)
     if (IIC_ReadData(MPU_IIC_ADDR, MPU6500_WHO_AM_I, &temp_data, 1) == 0) //确定IIC总线上挂接的是否是MPU6050
     {
         if (temp_data != MPU6500_ID)
-            return 0xff; //校验失败，返回0xff
+            return 0xff; //校验失败,返回0xff
         else
             IMU_id = temp_data;
     }
@@ -61,7 +61,7 @@ int MPU6500_Init(void)
         return 0xff;
     }
 
-    //设置IIC masters mode 为 bypass mode enabled，在INT_PIN_CFG中配置
+    //设置IIC masters mode 为 bypass mode enabled,在INT_PIN_CFG中配置
     delay_ms(500);
     return 0;
 }
@@ -90,7 +90,7 @@ void MPU6500_Initialize(void)
     }
 }
 
-//MPU6500  数据读取，成功返回0  失败返回 0xff
+//MPU6500  数据读取,成功返回0  失败返回 0xff
 
 int MPU6500_ReadData(uint8_t Slave_Addr, uint8_t Reg_Addr, uint8_t *Data, uint8_t Num)
 {

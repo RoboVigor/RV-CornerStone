@@ -80,7 +80,7 @@ void Motion_Update(void)
 	//	q_fresh(q,last_a_speed,a_speed,0.002);
 
 	MadgwickAHRSupdateIMU(a_speed[1], a_speed[2], a_speed[3], ax_acc, ay_acc, az_acc);
-	//GD算法或Madgwick算法，梯度算法，网上开源
+	//GD算法或Madgwick算法,梯度算法,网上开源
 
 	//	  MadgwickAHRSupdate(a_speed[1],a_speed[2],a_speed[3],ax_acc,ay_acc,az_acc,mpu6500_data.mx,mpu6500_data.my,mpu6500_data.mz);
 	//	q_0=q[0]*1000;
@@ -190,10 +190,10 @@ void Motion_Update(void)
 	//	startcount++;
 }
 
-//四元数更新，队内自制，可能可以，互补滤波，一阶微分方程或二阶可选择，但没有使用
+//四元数更新,队内自制,可能可以,互补滤波,一阶微分方程或二阶可选择,但没有使用
 void q_fresh(float *q_num, float *a_num, float *a_num2, float time)
 {
-	//这是二阶四元数更新算法，没有加旋转矢量，因为是瞬时角速度，如果是角增量要采用旋转矢量
+	//这是二阶四元数更新算法,没有加旋转矢量,因为是瞬时角速度,如果是角增量要采用旋转矢量
 	//采用了暴力方法为了节省时间
 	ax_acc = (float)(mpu6500_data.ax / ACC_LSB);
 	ay_acc = (float)(mpu6500_data.ay / ACC_LSB);
@@ -286,7 +286,7 @@ void q2euler2(float *q_num, float *e_num)
 //四元数转欧拉失败
 void q2euler(float *q_num, float *e_num)
 {
-	//q_num是四元数，e_num是欧拉角，都是数组
+	//q_num是四元数,e_num是欧拉角,都是数组
 	//检查四元数是否是四个
 	//	if ((sizeof(q_num) / sizeof(q_num[0])) < 5)
 	//	{
@@ -298,9 +298,9 @@ void q2euler(float *q_num, float *e_num)
 	T23 = 2 * (q_num[2] * q_num[3] + q_num[0] * q_num[1]);
 	T33 = pow(q_num[0], 2.0) + pow(q_num[3], 2.0) - pow(q_num[2], 2.0) - pow(q_num[1], 2.0);
 	T13 = 2 * (q_num[1] * q_num[3] - q_num[0] * q_num[2]);
-	//得出pitch角，俯仰角，y轴角
+	//得出pitch角,俯仰角,y轴角
 	e_num[pitch] = -asin(T13) * 180 / PI;
-	//得出yawn角，航向角，z轴角
+	//得出yawn角,航向角,z轴角
 	if (T11 < 0.01 && T11 > -0.01)
 	{
 		if (T12 < 0)
@@ -355,7 +355,7 @@ void q2euler(float *q_num, float *e_num)
 //	return F->filtered_value;
 //}
 
-//2016年官方开源，互补滤波
+//2016年官方开源,互补滤波
 /////////////////////////////////////////////////////////////////////////
 
 //volatile float exInt, eyInt, ezInt;  // 误差积分
@@ -383,8 +383,8 @@ void q2euler(float *q_num, float *e_num)
 ///**************************实现函数********************************************
 //*函数原型:	   float invSqrt(float x)
 //*功　　能:	   快速计算 1/Sqrt(x)
-//输入参数： 要计算的值
-//输出参数： 结果
+//输入参数: 要计算的值
+//输出参数: 结果
 //*******************************************************************************/
 //float invSqrt(float x) {
 //	float halfx = 0.5f * x;
@@ -399,13 +399,13 @@ void q2euler(float *q_num, float *e_num)
 ///**************************实现函数********************************************
 //*函数原型:	   void Init_Quaternion
 //*功　　能:	 初始化四元数
-//输入参数： 当前的测量值。
-//输出参数：没有
+//输入参数: 当前的测量值.
+//输出参数:没有
 //*******************************************************************************/
 ////初始化IMU数据
 //#define BOARD_DOWN 1   //板子正面朝下摆放
 
-//void Init_Quaternion()//根据测量数据，初始化q0,q1,q2.q3，从而加快收敛速度
+//void Init_Quaternion()//根据测量数据,初始化q0,q1,q2.q3,从而加快收敛速度
 //{
 //	int16_t hx,hy,hz;
 //	hx=mpu6500_data.mx;
@@ -557,7 +557,7 @@ void q2euler(float *q_num, float *e_num)
 //	}
 //	#endif
 //
-//	//根据hx hy hz来判断q的值，取四个相近的值做逼近即可,初始值可以由欧拉角转换到四元数计算得到
+//	//根据hx hy hz来判断q的值,取四个相近的值做逼近即可,初始值可以由欧拉角转换到四元数计算得到
 //
 //}
 
@@ -566,11 +566,11 @@ void q2euler(float *q_num, float *e_num)
 ///**************************实现函数********************************************
 //*函数原型:	   void IMU_getValues(volatile float * values)
 //*功　　能:	 读取加速度 陀螺仪 磁力计 的当前值
-//输入参数： 将结果存放的数组首地址
-//加速度值：原始数据，-8192-+8192
-//角速度值：deg/s
-//磁力计值：原始数据
-//输出参数：没有
+//输入参数: 将结果存放的数组首地址
+//加速度值:原始数据,-8192-+8192
+//角速度值:deg/s
+//磁力计值:原始数据
+//输出参数:没有
 //*******************************************************************************/
 //void IMU_getValues(volatile float * values) {
 //		int16_t accgyroval[6];
@@ -602,8 +602,8 @@ void q2euler(float *q_num, float *e_num)
 ///**************************实现函数********************************************
 //*函数原型:	   void IMU_AHRSupdate
 //*功　　能:	 更新AHRS 更新四元数
-//输入参数： 当前的测量值。
-//输出参数：没有
+//输入参数: 当前的测量值.
+//输出参数:没有
 //*******************************************************************************/
 //#define Kp 2.0f   // proportional gain governs rate of convergence to accelerometer/magnetometer
 //#define Ki 0.01f   // integral gain governs rate of convergence of gyroscope biases
@@ -650,7 +650,7 @@ void q2euler(float *q_num, float *e_num)
 //    ax = ax * norm;
 //    ay = ay * norm;
 //    az = az * norm;
-//    //把加计的三维向量转成单位向量。
+//    //把加计的三维向量转成单位向量.
 //    norm = invSqrt(mx*mx + my*my + mz*mz);
 //    mx = mx * norm;
 //    my = my * norm;
@@ -701,13 +701,13 @@ void q2euler(float *q_num, float *e_num)
 ///**************************实现函数********************************************
 //*函数原型:	   void IMU_getQ(float * q)
 //*功　　能:	 更新四元数 返回当前的四元数组值
-//输入参数： 将要存放四元数的数组首地址
-//输出参数：没有
+//输入参数: 将要存放四元数的数组首地址
+//输出参数:没有
 //*******************************************************************************/
 
 //void IMU_getQ(volatile float * q) {
 
-//    IMU_getValues(mygetqval);	 //获取原始数据,加速度计和磁力计是原始值，陀螺仪转换成了deg/s
+//    IMU_getValues(mygetqval);	 //获取原始数据,加速度计和磁力计是原始值,陀螺仪转换成了deg/s
 //    IMU_AHRSupdate();
 //    q[0] = q0; //返回当前值
 //    q[1] = q1;
@@ -718,14 +718,14 @@ void q2euler(float *q_num, float *e_num)
 ///**************************实现函数********************************************
 //*函数原型:	   void IMU_getYawPitchRoll(float * angles)
 //*功　　能:	 更新四元数 返回当前解算后的姿态数据
-//输入参数： 将要存放姿态角的数组首地址
-//输出参数：没有
+//输入参数: 将要存放姿态角的数组首地址
+//输出参数:没有
 //*******************************************************************************/
 //void IMU_getYawPitchRoll(volatile float * angles)
 //{
 //    // volatile float gx=0.0, gy=0.0, gz=0.0; //估计重力方向
 //    IMU_getQ(q); //更新全局四元数
-//    //四元数转换成欧拉角，经过三角函数计算即可
+//    //四元数转换成欧拉角,经过三角函数计算即可
 //    angles[0] = -atan2(2 * q[1] * q[2] + 2 * q[0] * q[3], -2 * q[2]*q[2] - 2 * q[3] * q[3] + 1)* 180/PI; // yaw        -pi----pi
 //    angles[1] = -asin(-2 * q[1] * q[3] + 2 * q[0] * q[2])* 180/PI; // pitch    -pi/2    --- pi/2
 //    angles[2] = atan2(2 * q[2] * q[3] + 2 * q[0] * q[1], -2 * q[1] * q[1] - 2 * q[2] * q[2] + 1)* 180/PI; // roll       -pi-----pi

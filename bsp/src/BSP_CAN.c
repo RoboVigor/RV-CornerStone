@@ -2,10 +2,10 @@
 
 
 /**
-  * @brief  CAN初始化
-  * @param  void
-  * @retval void
-  */
+ * @brief  CAN初始化
+ * @param  void
+ * @return void
+ */
 void BSP_CAN_InitConfig(void)
 {
     CAN_InitTypeDef         CAN_InitStructure;
