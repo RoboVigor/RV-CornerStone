@@ -1,12 +1,18 @@
 #ifndef __BSP_TIM_H
 #define __BSP_TIM_H
 
-
 #include "stm32f4xx.h"
-
 
 void BSP_TIM_InitConfig(void);
 
 void TIM4_PWM_Init(void);
-//void TIM3_Init(u16 arr,u16 psc);
+
+#ifdef  __BSP_TIM_Global
+#define __BSP_TIM_EXT  
+#else
+#define __BSP_TIM_EXT extern
+#endif
+
+__BSP_TIM_EXT volatile uint32_t ulHighFrequencyTimerTicks;
+
 #endif

@@ -8,7 +8,7 @@
 #endif
 
 __HANDLER_EXT TaskHandle_t TaskHandler_DBUS;
-__HANDLER_EXT TaskHandle_t TaskHandler_USART3;
+__HANDLER_EXT TaskHandle_t TaskHandler_Debug;
 __HANDLER_EXT TaskHandle_t TaskHandler_Blink;
 
 #endif
