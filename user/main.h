@@ -1,3 +1,8 @@
+/**
+ * @brief  万物之源
+ * @rule   所有包含公用函数和公用变量的头文件应在此引用
+ */
+
 #include "sys.h"
 #include "delay.h"
 #include "usart.h"
