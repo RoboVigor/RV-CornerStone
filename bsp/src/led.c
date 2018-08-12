@@ -24,8 +24,8 @@ void LED_Init(void)
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;//上拉
   GPIO_Init(GPIOF, &GPIO_InitStructure);//初始化
 	
-	GPIO_SetBits(GPIOE,GPIO_Pin_11);	//GPIOE11 设置高，灯灭
-	GPIO_SetBits(GPIOF,GPIO_Pin_14);//GPIOF14设置高，灯灭
+	GPIO_SetBits(GPIOE,GPIO_Pin_11);	//GPIOE11 设置高,灯灭
+	GPIO_SetBits(GPIOF,GPIO_Pin_14);//GPIOF14设置高,灯灭
 
 }
 

@@ -2,10 +2,10 @@
 #include "Driver_DBUS.h"
 
 /**
-  * @brief  DMA初始化
-  * @param  void
-  * @retval void
-  */
+ * @brief  DMA初始化
+ * @param  void
+ * @return void
+ */
 void BSP_DMA_InitConfig(void)
 {
 	DMA_InitTypeDef     DMA_InitStructure;

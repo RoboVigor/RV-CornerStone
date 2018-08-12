@@ -45,7 +45,7 @@ typedef struct{
 	uint8_t buf_count;								//滤波更新buf用
 	int32_t ecd_bias;											//初始编码器值	
 	int32_t ecd_raw_rate;									//通过编码器计算得到的速度原始值
-	int32_t rate_buf[RATE_BUF_SIZE];	//buf，for filter
+	int32_t rate_buf[RATE_BUF_SIZE];	//buf,for filter
 	int32_t round_cnt;										//圈数
 	int32_t filter_rate;											//速度
 	float ecd_angle;											//角度

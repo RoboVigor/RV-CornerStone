@@ -9,10 +9,10 @@ void HookTargetAngleInit(void)
 
 
 /**
-  * @brief 	钩子的减速电机3508角度PID控制
-  * @param  void
-  * @retval void
-  */
+ * @brief 	钩子的减速电机3508角度PID控制
+ * @param  void
+ * @return void
+ */
 void HookAnglePID(HookPID_Type * pid, int angle, int feed)
 {	
 	pid->TargetAngle=angle;
@@ -37,10 +37,10 @@ void HookAnglePID(HookPID_Type * pid, int angle, int feed)
 
 
 /**
-  * @brief 	钩子的减速电机3508速度PID控制
-  * @param  void
-  * @retval void
-  */
+ * @brief 	钩子的减速电机3508速度PID控制
+ * @param  void
+ * @return void
+ */
 
 void HookSpeedPID(HookPID_Type * pid, int speed, int feed)
 {	
@@ -62,10 +62,10 @@ void HookSpeedPID(HookPID_Type * pid, int speed, int feed)
 	pid->LastError = pid->CurrentError;
 }
 /**
-  * @brief  PID参数初始化
-  * @param  PID_Type结构体、PID三个参数
-  * @retval void
-  */
+ * @brief  PID参数初始化
+ * @param  PID_Type结构体、PID三个参数
+ * @return void
+ */
 void HookSpeedPIDInit(HookPID_Type * pid, float Kp,float Ki, float Kd)
 {
 	pid->P = Kp;
@@ -90,10 +90,10 @@ void HookSpeedPIDInit(HookPID_Type * pid, float Kp,float Ki, float Kd)
 	pid->SpeedFeed = 0;
 }
 /**
-  * @brief  PID参数初始化
-  * @param  PID_Type结构体、PID三个参数
-  * @retval void
-  */
+ * @brief  PID参数初始化
+ * @param  PID_Type结构体、PID三个参数
+ * @return void
+ */
 void HookAnglePIDInit(HookPID_Type * pid, float Kp,float Ki, float Kd)
 {
 	pid->P = Kp;

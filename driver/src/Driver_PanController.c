@@ -18,11 +18,11 @@ void PanTargetAngleInit(void)
 }
 
 /**
-  * @brief  地盘yaw角度
-  * @param  
+ * @brief  地盘yaw角度
+ * @param  
 	*         
-  * @retval PID输出Wv 转动速度
-  */
+ * @return PID输出Wv 转动速度
+ */
 
 void PanYawSpeedPID(PANPID_Type * pid, int angle, int feed)
 {	
@@ -46,11 +46,11 @@ void PanYawSpeedPID(PANPID_Type * pid, int angle, int feed)
 
 
 /**
-  * @brief  地盘yaw角度
-  * @param  
+ * @brief  地盘yaw角度
+ * @param  
 	*         
-  * @retval PID输出Wv 转动速度
-  */
+ * @return PID输出Wv 转动速度
+ */
 
 void PanAnglePID(PANPID_Type * pid, int angle, int feed)
 {	
@@ -75,10 +75,10 @@ void PanAnglePID(PANPID_Type * pid, int angle, int feed)
 
 
 /**
-  * @brief 	底盘电机3508速度PID控制
-  * @param  void
-  * @retval void
-  */
+ * @brief 	底盘电机3508速度PID控制
+ * @param  void
+ * @return void
+ */
 
 void PANSpeedPID(PANPID_Type * pid, int speed, int feed)
 {	
@@ -100,10 +100,10 @@ void PANSpeedPID(PANPID_Type * pid, int speed, int feed)
 	pid->LastError = pid->CurrentError;
 }
 /**
-  * @brief  PID参数初始化
-  * @param  PID_Type结构体、PID三个参数
-  * @retval void
-  */
+ * @brief  PID参数初始化
+ * @param  PID_Type结构体、PID三个参数
+ * @return void
+ */
 void PANSpeedPIDInit(PANPID_Type * pid, float Kp,float Ki, float Kd)
 {
 	pid->P = Kp;
@@ -153,10 +153,10 @@ void PanYawSpeedPIDInit(PANPID_Type * pid, float Kp,float Ki, float Kd)
 }
 
 /**
-  * @brief  PID参数初始化
-  * @param  PID_Type结构体、PID三个参数
-  * @retval void
-  */
+ * @brief  PID参数初始化
+ * @param  PID_Type结构体、PID三个参数
+ * @return void
+ */
 void PANAnglePIDInit(PANPID_Type * pid, float Kp,float Ki, float Kd)
 {
 	pid->P = Kp;

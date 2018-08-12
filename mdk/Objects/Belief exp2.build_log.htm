@@ -22,16 +22,21 @@ Dialog DLL:      TCM.DLL V1.14.14.0
  
 <h2>Project:</h2>
 C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\Belief exp2.uvprojx
-Project File Date:  08/11/2018
+Project File Date:  08/12/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-compiling main.c...
+compiling Task_IRQ.c...
+..\task\src\Task_IRQ.c(8): warning:  #111-D: statement is unreachable
+    vTaskDelete(NULL);
+..\task\src\Task_IRQ.c(32): warning:  #111-D: statement is unreachable
+    vTaskDelete(NULL);
+..\task\src\Task_IRQ.c: 2 warnings, 0 errors
 linking...
-Program Size: Code=16084 RO-data=460 RW-data=260 ZI-data=82756  
+Program Size: Code=18128 RO-data=460 RW-data=272 ZI-data=82752  
 FromELF: creating hex file...
-".\Objects\Belief exp2.axf" - 0 Error(s), 0 Warning(s).
+".\Objects\Belief exp2.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE
