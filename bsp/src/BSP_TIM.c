@@ -8,10 +8,12 @@
  * @return void
  */
 void BSP_TIM_InitConfig(void) {
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
+    TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure; // TIM 频率
+    GPIO_InitTypeDef        GPIO_InitStructure;        // TIM4_PWM GPIO口设置
+    TIM_OCInitTypeDef       TIM_OCInitStructure;       // TIM4_PWM PWM模式
 
     // TIM2
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE); //使能定时器时钟
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
     TIM_TimeBaseInitStructure.TIM_Period        = 2 - 1;
     TIM_TimeBaseInitStructure.TIM_Prescaler     = 9000 - 1;
     TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up;
@@ -28,11 +30,7 @@ void BSP_TIM_InitConfig(void) {
     TIM_TimeBaseInit(TIM6, &TIM_TimeBaseInitStructure);
     TIM_Cmd(TIM6, ENABLE);
 
-    // TIM4_PWM 此部分需手动修改IO口设置
-    GPIO_InitTypeDef        GPIO_InitStructure;
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-    TIM_OCInitTypeDef       TIM_OCInitStructure;
-
+    // TIM4_PWM
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);  // TIM4时钟使能
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE); //使能PORTD时钟
 
@@ -45,12 +43,12 @@ void BSP_TIM_InitConfig(void) {
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;      //上拉
     GPIO_Init(GPIOD, &GPIO_InitStructure);             //初始化
 
-    TIM_TimeBaseStructure.TIM_Prescaler     = 9000 - 1;           //定时器分频
-    TIM_TimeBaseStructure.TIM_CounterMode   = TIM_CounterMode_Up; //向上计数模式
-    TIM_TimeBaseStructure.TIM_Period        = 200 - 1;            //自动重装载值
-    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+    TIM_TimeBaseInitStructure.TIM_Prescaler     = 9000 - 1;           //定时器分频
+    TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up; //向上计数模式
+    TIM_TimeBaseInitStructure.TIM_Period        = 200 - 1;            //自动重装载值
+    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 
-    TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure); //初始化定时器4
+    TIM_TimeBaseInit(TIM4, &TIM_TimeBaseInitStructure); //初始化定时器4
 
     //初始化TIM4 Channel1 PWM模式
     TIM_OCInitStructure.TIM_OCMode      = TIM_OCMode_PWM2;        //选择定时器模式:TIM脉冲宽度调制模式2
