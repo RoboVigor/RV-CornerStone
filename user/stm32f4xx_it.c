@@ -136,7 +136,7 @@ void CAN2_RX0_IRQHandler(void) {
  * @return void
  */
 
-volatile uint32_t ulHighFrequencyTimerTicks;
+extern volatile uint32_t ulHighFrequencyTimerTicks;
 
 void TIM2_IRQHandler(void) {
     if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) {
