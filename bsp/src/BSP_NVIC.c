@@ -36,19 +36,19 @@ void BSP_NVIC_InitConfig(void) {
 
     // TIM2
     NVIC_InitStructure.NVIC_IRQChannel                   = TIM2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9; //抢占优先级
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0; //子优先级
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
     TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
     TIM_ClearFlag(TIM2, TIM_FLAG_Update);
 
-    // TIM6
-    NVIC_InitStructure.NVIC_IRQChannel                   = TIM6_DAC_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-    TIM_ITConfig(TIM6, TIM_IT_Update, ENABLE);
-    TIM_ClearFlag(TIM6, TIM_FLAG_Update);
+    // // TIM6
+    // NVIC_InitStructure.NVIC_IRQChannel                   = TIM6_DAC_IRQn;
+    // NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9;
+    // NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    // NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    // NVIC_Init(&NVIC_InitStructure);
+    // TIM_ITConfig(TIM6, TIM_IT_Update, ENABLE);
+    // TIM_ClearFlag(TIM6, TIM_FLAG_Update);
 }
