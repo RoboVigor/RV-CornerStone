@@ -12,10 +12,9 @@
  * @return void
  */
 
-uint8_t    UARTtemp;
-BaseType_t xHigherPriorityTaskWoken;
-
 void USART1_IRQHandler(void) {
+    uint8_t    UARTtemp;
+    BaseType_t xHigherPriorityTaskWoken;
 
     UARTtemp = USART1->DR;
     UARTtemp = USART1->SR;
@@ -39,33 +38,37 @@ void USART1_IRQHandler(void) {
  * @brief  无线串口中断(USART6)
  * @param  void
  * @return void
- * 接收到r时恢复DBUS任务，不然挂起
+ * 接收到s时往消息体里塞数据
  */
 
 void USART6_IRQHandler(void) {
-    u8         Res;
-    BaseType_t YieldRequired;
-    Res = USART_ReceiveData(USART6);
-    // USART_SendData(USART6, Res);
-    if (Res == 'r') {
-        printf("resume the task!\n");
-        YieldRequired = xTaskResumeFromISR(TaskHandler_DBUS);
-        if (YieldRequired == pdTRUE) {
-            portYIELD_FROM_ISR(YieldRequired);
+    u8         res;
+    BaseType_t err;
+    BaseType_t xHigherPriorityTaskWoken;
+
+    res = USART_ReceiveData(USART6);
+
+    if (res == 's') {
+        printf(">>>send message\n");
+        err = xQueueSendFromISR(queue_test, 886, &xHigherPriorityTaskWoken);
+        if (err == pdTRUE) {
+            printf("Queue full!\n");
+        } else {
+            printf("Message sent!\n");
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         }
-    } else {
-        vTaskSuspend(TaskHandler_DBUS);
     }
 }
+
 /**
  * @brief  CAN1数据接收中断服务函数
  * @param  void
  * @return void
  */
 
-CanRxMsg CanRxData;
-
 void CAN1_RX0_IRQHandler(void) {
+    CanRxMsg CanRxData;
+
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
     switch (CanRxData.StdId) {
     case WHEEL_1_ID:

@@ -4,15 +4,18 @@
  * @brief  DBUS处理任务
  * @param  void *Parameters
  * @return void
- * 处理DBUS消息
- * 暂时作测试（红灯闪烁）
+ * 暂时作消息体测试
  */
 
 void Task_DBUS(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount();
+    u8 data;
+
     while (1) {
-        RED_LIGHT_TOGGLE;
-        vTaskDelayUntil(&LastWakeTime, 250);
+        if (xQueueReceive(queue_test, &data, portMAX_DELAY)) {
+            printf("Received message: %d", data);
+        } else {
+            printf("Failed");
+        }
     }
 
     vTaskDelete(NULL);
