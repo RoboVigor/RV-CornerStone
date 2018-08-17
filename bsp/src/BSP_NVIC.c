@@ -1,14 +1,13 @@
-#include "BSP_NVIC.h"
+#include "main.h"
 
 /**
  * @brief  中断初始化
  * @param  void
  * @return void
+ * USART6 用作无线串口，定义在usart.c中
  */
 void BSP_NVIC_InitConfig(void) {
     NVIC_InitTypeDef NVIC_InitStructure;
-
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
     // UART(DBUS)
     NVIC_InitStructure.NVIC_IRQChannel                   = USART1_IRQn;
@@ -42,13 +41,4 @@ void BSP_NVIC_InitConfig(void) {
     NVIC_Init(&NVIC_InitStructure);
     TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
     TIM_ClearFlag(TIM2, TIM_FLAG_Update);
-
-    // // TIM6
-    // NVIC_InitStructure.NVIC_IRQChannel                   = TIM6_DAC_IRQn;
-    // NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9;
-    // NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
-    // NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
-    // NVIC_Init(&NVIC_InitStructure);
-    // TIM_ITConfig(TIM6, TIM_IT_Update, ENABLE);
-    // TIM_ClearFlag(TIM6, TIM_FLAG_Update);
 }

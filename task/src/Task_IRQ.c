@@ -4,16 +4,15 @@
  * @brief  DBUS处理任务
  * @param  void *Parameters
  * @return void
- * 本来规划用任务处理DBUS信息
- * 测试结果表明我们
- * 毕竟乃衣服
- * 这个任务,可能明天就不在了
- * 道个别吧
+ * 处理DBUS消息
+ * 暂时作测试（红灯闪烁）
  */
 
 void Task_DBUS(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        vTaskDelay(1000);
+        RED_LIGHT_TOGGLE;
+        vTaskDelayUntil(&LastWakeTime, 250);
     }
 
     vTaskDelete(NULL);
