@@ -1759,6 +1759,7 @@ static void prvAddNewTaskToReadyList( TCB_t *pxNewTCB )
 	TCB_t * const pxTCB = ( TCB_t * ) xTaskToResume;
 	UBaseType_t uxSavedInterruptStatus;
 
+				printf("1");
 		configASSERT( xTaskToResume );
 
 		/* RTOS ports that support interrupt nesting have the concept of a
@@ -1777,17 +1778,21 @@ static void prvAddNewTaskToReadyList( TCB_t *pxNewTCB )
 		simple as possible.  More information (albeit Cortex-M specific) is
 		provided on the following link:
 		http://www.freertos.org/RTOS-Cortex-M3-M4.html */
+				printf("2");
 		portASSERT_IF_INTERRUPT_PRIORITY_INVALID();
+				printf("3");
 
 		uxSavedInterruptStatus = portSET_INTERRUPT_MASK_FROM_ISR();
+				printf("4");
 		{
 			if( prvTaskIsTaskSuspended( pxTCB ) != pdFALSE )
 			{
+				printf("5");
 				traceTASK_RESUME_FROM_ISR( pxTCB );
-
 				/* Check the ready lists can be accessed. */
 				if( uxSchedulerSuspended == ( UBaseType_t ) pdFALSE )
 				{
+				printf("6");
 					/* Ready lists can be accessed so move the task from the
 					suspended list to the ready list directly. */
 					if( pxTCB->uxPriority >= pxCurrentTCB->uxPriority )

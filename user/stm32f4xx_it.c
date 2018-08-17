@@ -39,12 +39,23 @@ void USART1_IRQHandler(void) {
  * @brief  无线串口中断(USART6)
  * @param  void
  * @return void
+ * 接收到r时恢复DBUS任务，不然挂起
  */
 
 void USART6_IRQHandler(void) {
-    u8 Res;
+    u8         Res;
+    BaseType_t YieldRequired;
     Res = USART_ReceiveData(USART6);
-    USART_SendData(USART6, Res);
+    // USART_SendData(USART6, Res);
+    if (Res == 'r') {
+        printf("resume the task!\n");
+        YieldRequired = xTaskResumeFromISR(TaskHandler_DBUS);
+        if (YieldRequired == pdTRUE) {
+            portYIELD_FROM_ISR(YieldRequired);
+        }
+    } else {
+        vTaskSuspend(TaskHandler_DBUS);
+    }
 }
 /**
  * @brief  CAN1数据接收中断服务函数
@@ -58,31 +69,23 @@ void CAN1_RX0_IRQHandler(void) {
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
     switch (CanRxData.StdId) {
     case WHEEL_1_ID:
-        Motor_Feedback.Motor_201_Agree =
-            (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
-        Motor_Feedback.Motor_201_Speed =
-            (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
+        Motor_Feedback.Motor_201_Agree = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
+        Motor_Feedback.Motor_201_Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
         break;
 
     case WHEEL_2_ID:
-        Motor_Feedback.Motor_202_Agree =
-            (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
-        Motor_Feedback.Motor_202_Speed =
-            (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
+        Motor_Feedback.Motor_202_Agree = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
+        Motor_Feedback.Motor_202_Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
         break;
 
     case WHEEL_3_ID:
-        Motor_Feedback.Motor_203_Agree =
-            (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
-        Motor_Feedback.Motor_203_Speed =
-            (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
+        Motor_Feedback.Motor_203_Agree = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
+        Motor_Feedback.Motor_203_Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
         break;
 
     case WHEEL_4_ID:
-        Motor_Feedback.Motor_204_Agree =
-            (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
-        Motor_Feedback.Motor_204_Speed =
-            (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
+        Motor_Feedback.Motor_204_Agree = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
+        Motor_Feedback.Motor_204_Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
         break;
 
     default:
@@ -102,26 +105,20 @@ void CAN2_RX0_IRQHandler(void) {
     switch (CanRxData.StdId) {
     // RED_LIGHT_ON;
     case 0x201: //钩子电机
-        Motor_Feedback.Motor_205_Agree =
-            (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
-        Motor_Feedback.Motor_205_Speed =
-            (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
+        Motor_Feedback.Motor_205_Agree = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
+        Motor_Feedback.Motor_205_Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
         break;
 
     case 0x202:
 
-        Motor_Feedback.Motor_206_Agree =
-            (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
-        Motor_Feedback.Motor_206_Speed =
-            (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
+        Motor_Feedback.Motor_206_Agree = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
+        Motor_Feedback.Motor_206_Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
 
         break;
 
     case 0x203:
-        Motor_Feedback.Motor_207_Agree =
-            (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
-        Motor_Feedback.Motor_207_Speed =
-            (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
+        Motor_Feedback.Motor_207_Agree = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
+        Motor_Feedback.Motor_207_Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
 
         break;
 
@@ -152,7 +149,9 @@ void TIM2_IRQHandler(void) {
  * @return None
  */
 
-void NMI_Handler(void) {}
+void NMI_Handler(void) {
+    printf("NMI_Handler");
+}
 
 /**
  * @brief  This function handles Hard Fault exception.
@@ -160,9 +159,7 @@ void NMI_Handler(void) {}
  * @return None
  */
 void HardFault_Handler(void) {
-    /* Go to infinite loop when Hard Fault exception occurs */
-    while (1) {
-    }
+    printf("HardFault_Handler");
 }
 
 /**
@@ -171,9 +168,7 @@ void HardFault_Handler(void) {
  * @return None
  */
 void MemManage_Handler(void) {
-    /* Go to infinite loop when Memory Manage exception occurs */
-    while (1) {
-    }
+    printf("MemManage_Handler");
 }
 
 /**
@@ -182,9 +177,7 @@ void MemManage_Handler(void) {
  * @return None
  */
 void BusFault_Handler(void) {
-    /* Go to infinite loop when Bus Fault exception occurs */
-    while (1) {
-    }
+    printf("BusFault_Handler");
 }
 
 /**
@@ -193,42 +186,41 @@ void BusFault_Handler(void) {
  * @return None
  */
 void UsageFault_Handler(void) {
-    /* Go to infinite loop when Usage Fault exception occurs */
-    while (1) {
-    }
+    printf("UsageFault_Handler");
 }
-
-/**
- * @brief  This function handles SVCall exception.
- * @param  None
- * @return None
- */
-// void SVC_Handler(void)
-//{
-//}
 
 /**
  * @brief  This function handles Debug Monitor exception.
  * @param  None
  * @return None
  */
-void DebugMon_Handler(void) {}
+void DebugMon_Handler(void) {
+    printf("DebugMon_Handler");
+}
 
-/**
- * @brief  This function handles PendSVC exception.
- * @param  None
- * @return None
- */
-// void PendSV_Handler(void)
-//{
-//}
+// /**
+//  * @brief  This function handles SVCall exception.
+//  * @param  None
+//  * @return None
+//  */
+// void SVC_Handler(void) {
+//     //printf("SVC_Handler");
+// }
 
-/**
- * @brief  This function handles SysTick Handler.
- * @param  None
- * @return None
- */
-// void SysTick_Handler(void)
-//{
-//
-//}
+// /**
+//  * @brief  This function handles PendSVC exception.
+//  * @param  None
+//  * @return None
+//  */
+// void PendSV_Handler(void) {
+//     //printf("PendSV_Handler");
+// }
+
+// /**
+//  * @brief  This function handles SysTick Handler.
+//  * @param  None
+//  * @return None
+//  */
+// void SysTick_Handler(void) {
+//     //printf("SysTick_Handler");
+// }

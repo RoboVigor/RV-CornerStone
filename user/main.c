@@ -2,8 +2,11 @@
 
 int main(void) {
 
-    // 调试相关
-    delay_init(180); // 延时初始化
+    //设置中断优先级位数
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+
+    //调试相关
+    delay_init(180); // 初始化延时
     uart_init(9600); // 初始化串口
     LED_Init();      // 初始化LED
     BEEP_Init();     // 初始化蜂鸣器

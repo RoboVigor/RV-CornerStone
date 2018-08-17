@@ -13,7 +13,7 @@ ObjCSpaceAfterProperty: true
 # OC block后面的缩进
 ObjCBlockIndentWidth: 4
 # 是否允许短方法单行
-AllowShortFunctionsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: false
 # 是否允许短if单行 If true, if (a) return; 可以放到同一行
 AllowShortIfStatementsOnASingleLine: true
 #注释对齐

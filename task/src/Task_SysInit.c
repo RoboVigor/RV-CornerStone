@@ -19,12 +19,10 @@ void Task_SysInit(void *Parameters) {
 
     // 建立任务
     //// IRQ任务
-    //xTaskCreate(Task_Debug, "Task_Debug", 500, NULL, 6, &TaskHandler_Debug);
-    //xTaskCreate(Task_DBUS, "Task_DBUS", 400, NULL, 6, &TaskHandler_DBUS);
+    xTaskCreate(Task_Debug, "Task_Debug", 500, NULL, 6, &TaskHandler_Debug);
+    xTaskCreate(Task_DBUS, "Task_DBUS", 400, NULL, 6, &TaskHandler_DBUS);
     //// 低优先级任务
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, &TaskHandler_Blink);
-
-    printf("4");
 
     // 完成使命
     vTaskDelete(NULL);
