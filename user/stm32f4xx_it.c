@@ -14,7 +14,6 @@
 
 void USART1_IRQHandler(void) {
     uint8_t    UARTtemp;
-    BaseType_t xHigherPriorityTaskWoken;
 
     UARTtemp = USART1->DR;
     UARTtemp = USART1->SR;
@@ -50,12 +49,12 @@ void USART6_IRQHandler(void) {
 
     if (res == 's') {
         printf(">>>send message\n");
-        err = xQueueSendFromISR(queue_test, 886, &xHigherPriorityTaskWoken);
+        err = xQueueSendFromISR(queue_test, (void *) 886, &xHigherPriorityTaskWoken);
         if (err == pdTRUE) {
-            printf("Queue full!\n");
-        } else {
             printf("Message sent!\n");
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        } else {
+            printf("Queue full!\n");
         }
     }
 }
@@ -103,6 +102,7 @@ void CAN1_RX0_IRQHandler(void) {
  */
 
 void CAN2_RX0_IRQHandler(void) {
+    CanRxMsg CanRxData;
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
     // printf("%d\r\n",CanRxData.StdId);
     switch (CanRxData.StdId) {
