@@ -8,11 +8,11 @@
  */
 
 void Task_DBUS(void *Parameters) {
-    u8 data;
+    u32 data;
 
     while (1) {
         if (xQueueReceive(queue_test, &data, portMAX_DELAY)) {
-            printf("Received message: %d", data);
+            printf("Received message: %d\r\n", data);
         } else {
             printf("Failed");
         }
