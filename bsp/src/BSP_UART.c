@@ -4,7 +4,7 @@
  * @brief  UART初始化
  * @param  void
  * @return void
- * USART6 用作无线串口，定义在usart.c中
+ * USART6 用作无线串口,定义在usart.c中
  */
 void BSP_UART_InitConfig(void) {
     USART_InitTypeDef USART_InitStructure;

@@ -42,7 +42,7 @@ BreakConstructorInitializersBeforeComma: true
 AllowAllParametersOfDeclarationOnNextLine: false
 #代码长度
 ColumnLimit: 160
-#函数调用时的参数要么是全部占同一行，要么一个参数占一行
+#函数调用时的参数要么是全部占同一行,要么一个参数占一行
 BinPackArguments: false
 #括号后添加空格
 SpaceAfterCStyleCast: true

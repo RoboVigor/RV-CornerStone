@@ -21,11 +21,12 @@ void Task_SysInit(void *Parameters) {
     BSP_NVIC_InitConfig();
 
     // 初始化消息体
-    queue_test = xQueueCreate(10, sizeof(u8));
+    queue_test = xQueueCreate(10, sizeof(u32));
 
     // 建立IRQ任务
     xTaskCreate(Task_Debug, "Task_Debug", 500, NULL, 6, &taskHandler_Debug);
     xTaskCreate(Task_DBUS, "Task_DBUS", 400, NULL, 6, &taskHandler_DBUS);
+    vTaskSuspend(taskHandler_Debug);
 
     // 建立低优先级任务
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, &taskHandler_Blink);
