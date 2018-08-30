@@ -1,4 +1,4 @@
-#define __HANDLER_GLOBALS
+#define __HANDLE_GLOBALS
 
 #include "main.h"
 
@@ -13,23 +13,23 @@ void Task_SysInit(void *Parameters) {
     taskENTER_CRITICAL();
 
     // BSP们
-    BSP_GPIO_InitConfig();
-    BSP_CAN_InitConfig();
-    BSP_UART_InitConfig();
-    BSP_DMA_InitConfig();
-    BSP_TIM_InitConfig();
-    BSP_NVIC_InitConfig();
+    BSP_GPIO_Init();
+    BSP_CAN_Init();
+    BSP_UART_Init();
+    BSP_DMA_Init();
+    BSP_TIM_Init();
+    BSP_NVIC_Init();
 
     // 初始化消息体
-    queue_test = xQueueCreate(10, sizeof(u32));
+    QueueTest = xQueueCreate(10, sizeof(u32));
 
     // 建立IRQ任务
-    xTaskCreate(Task_Debug, "Task_Debug", 500, NULL, 6, &taskHandler_Debug);
-    xTaskCreate(Task_DBUS, "Task_DBUS", 400, NULL, 6, &taskHandler_DBUS);
-    vTaskSuspend(taskHandler_Debug);
+    xTaskCreate(Task_Debug, "Task_Debug", 500, NULL, 6, &TaskHandler_Debug);
+    xTaskCreate(Task_DBus, "Task_DBus", 400, NULL, 6, &TaskHandler_Dbus);
+    vTaskSuspend(TaskHandler_Debug);
 
     // 建立低优先级任务
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, &taskHandler_Blink);
+    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, &TaskHandler_Blink);
 
     // 完成使命
     vTaskDelete(NULL);

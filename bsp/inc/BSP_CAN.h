@@ -5,7 +5,7 @@
 #include "stm32f4xx.h"
 
 
-void BSP_CAN_InitConfig(void);
+void BSP_CAN_Init(void);
 
 
 #endif

@@ -7,7 +7,7 @@
 #include "stm32f4xx_it.h"
 
 /**
- * @brief  DBUS空闲中断(USART1)
+ * @brief  DBus空闲中断(USART1)
  * @param  void
  * @return void
  */
@@ -21,15 +21,15 @@ void USART1_IRQHandler(void) {
     DMA_Cmd(DMA2_Stream2, DISABLE);
 
     //数据量正确
-    if (DMA2_Stream2->NDTR == DBUSBackLength) {
-        DBUS_DataDecoding(); //解码
+    if (DMA2_Stream2->NDTR == DBUS_BACK_LENGTH) {
+        Dbus_Decode_Remote_Control_Data(); //解码
     }
 
     //重启DMA
     DMA_ClearFlag(DMA2_Stream2, DMA_FLAG_TCIF2 | DMA_FLAG_HTIF2);
     while (DMA_GetCmdStatus(DMA2_Stream2) != DISABLE) {
     }
-    DMA_SetCurrDataCounter(DMA2_Stream2, DBUSLength + DBUSBackLength);
+    DMA_SetCurrDataCounter(DMA2_Stream2, DBUS_LENGTH + DBUS_BACK_LENGTH);
     DMA_Cmd(DMA2_Stream2, ENABLE);
 }
 
@@ -52,7 +52,7 @@ void USART6_IRQHandler(void) {
     if (res == 's') {
         printf("send message\r\n");
         data = 886;
-        err  = xQueueSendFromISR(queue_test, &data, &xHigherPriorityTaskWoken);
+        err  = xQueueSendFromISR(QueueTest, &data, &xHigherPriorityTaskWoken);
         if (err == pdTRUE) {
             printf("Message sent!\r\n");
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

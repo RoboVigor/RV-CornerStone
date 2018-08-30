@@ -1,17 +1,17 @@
 #include "main.h"
 
 /**
- * @brief  DBUS处理任务
+ * @brief  DBus处理任务
  * @param  void *Parameters
  * @return void
  * 暂时作消息体测试
  */
 
-void Task_DBUS(void *Parameters) {
+void Task_DBus(void *Parameters) {
     u32 data;
 
     while (1) {
-        if (xQueueReceive(queue_test, &data, portMAX_DELAY)) {
+        if (xQueueReceive(QueueTest, &data, portMAX_DELAY)) {
             printf("Received message: %d\r\n", data);
         } else {
             printf("Failed");

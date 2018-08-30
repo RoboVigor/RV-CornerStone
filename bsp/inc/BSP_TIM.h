@@ -3,12 +3,12 @@
 
 #include "stm32f4xx.h"
 
-void BSP_TIM_InitConfig(void);
+void BSP_TIM_Init(void);
 
 void TIM4_PWM_Init(void);
 
 #ifdef  __BSP_TIM_Global
-#define __BSP_TIM_EXT  
+#define __BSP_TIM_EXT
 #else
 #define __BSP_TIM_EXT extern
 #endif

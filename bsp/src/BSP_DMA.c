@@ -5,18 +5,18 @@
  * @param  void
  * @return void
  */
-void BSP_DMA_InitConfig(void) {
+void BSP_DMA_Init(void) {
     DMA_InitTypeDef DMA_InitStructure;
 
     //	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);     no use currently
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
 
-    // UART1(DBUS)
+    // UART1(DBus)
     DMA_InitStructure.DMA_Channel            = DMA_Channel_4;
     DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(&USART1->DR);
-    DMA_InitStructure.DMA_Memory0BaseAddr    = (uint32_t)(DBUSBuffer);
+    DMA_InitStructure.DMA_Memory0BaseAddr    = (uint32_t)(dbusBuffer);
     DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
-    DMA_InitStructure.DMA_BufferSize         = DBUSLength + DBUSBackLength;
+    DMA_InitStructure.DMA_BufferSize         = DBUS_LENGTH + DBUS_BACK_LENGTH;
     DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
     DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
     DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;

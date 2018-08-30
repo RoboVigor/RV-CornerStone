@@ -5,7 +5,7 @@
 #include "stm32f4xx.h"
 
 
-void BSP_NVIC_InitConfig(void);
+void BSP_NVIC_Init(void);
 
 
 #endif

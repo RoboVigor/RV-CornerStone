@@ -16,12 +16,12 @@ int PanPIDMode = 1;
 
 void mainTask(void) {
 
-  if (DBUS_ReceiveData.switch_right == 2) {
+  if (DbusData.switchRight == 2) {
     Set_CM_Speed(CAN1, 0, 0, 0, 0);
     return;
   }
   Motion_Update();
-  if (ABS(DBUS_ReceiveData.ch1) < 5) {
+  if (ABS(DbusData.ch1) < 5) {
     PanPIDMode = 2;
   } else {
     PanPIDMode = 1;
@@ -37,8 +37,8 @@ void mainTask(void) {
 
   YawAngleFeedDiff = YawAngleFeed - LastYawAngleFeed;
 
-  if (ABS(DBUS_ReceiveData.ch1) < 10 && ABS(DBUS_ReceiveData.ch3) < 10 &&
-      ABS(DBUS_ReceiveData.ch4) < 10)
+  if (ABS(DbusData.ch1) < 10 && ABS(DbusData.ch3) < 10 &&
+      ABS(DbusData.ch4) < 10)
   // if(1)
   {
     if (ABS(YawAngleFeedDiff) < YawAngleFeedThreshold) {
@@ -53,7 +53,7 @@ void mainTask(void) {
       LastYawAngleFeed = YawAngleFeed;
     }
   } else {
-    if (DBUS_ReceiveData.switch_right == 1) {
+    if (DbusData.switchRight == 1) {
       YawAngleFeedOffset +=
           YawAngleFeedOffsetSample / YawAngleFeedOffsetSampleCounter;
     }
@@ -62,7 +62,7 @@ void mainTask(void) {
     LastYawAngleFeed = YawAngleFeed;
   }
 
-  if (DBUS_ReceiveData.switch_left == 1) //摄像头朝向丝杆 功能:移动
+  if (DbusData.switchLeft == 1) //摄像头朝向丝杆 功能:移动
   {
 
     TIM_SetCompare1(TIM4, 23);
@@ -97,14 +97,14 @@ void mainTask(void) {
                  CM4PID.PIDout); //得到电流发送给电调
   }
   //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  else if (DBUS_ReceiveData.switch_left == 3) {
+  else if (DbusData.switchLeft == 3) {
     TIM_SetCompare1(TIM4, 5);
 
     EncoderProcess(&Hook_Encoder, Motor_Feedback.Motor_205_Agree);
 
     HookFeedAngle = Hook_Encoder.ecd_angle;
 
-    HookSpeedPID(&Hook_SpeedPID, DBUS_ReceiveData.ch2,
+    HookSpeedPID(&Hook_SpeedPID, DbusData.ch2,
                  Motor_Feedback.Motor_205_Speed);
 
     Set_Hook_Armour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);

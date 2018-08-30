@@ -16,34 +16,34 @@ Section Cross References
     beep.o(i.Sing) refers to beep.o(.constdata) for tone_tab
     beep.o(i.Sing_Startup_music) refers to beep.o(i.Sing) for Sing
     beep.o(i.Sing_Startup_music) refers to beep.o(.constdata) for Mavic_Startup_music
-    bsp_can.o(i.BSP_CAN_InitConfig) refers to stm32f4xx_rcc.o(i.RCC_APB1PeriphClockCmd) for RCC_APB1PeriphClockCmd
-    bsp_can.o(i.BSP_CAN_InitConfig) refers to stm32f4xx_can.o(i.CAN_Init) for CAN_Init
-    bsp_can.o(i.BSP_CAN_InitConfig) refers to stm32f4xx_can.o(i.CAN_FilterInit) for CAN_FilterInit
-    bsp_dma.o(i.BSP_DMA_InitConfig) refers to stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd) for RCC_AHB1PeriphClockCmd
-    bsp_dma.o(i.BSP_DMA_InitConfig) refers to stm32f4xx_dma.o(i.DMA_Init) for DMA_Init
-    bsp_dma.o(i.BSP_DMA_InitConfig) refers to stm32f4xx_dma.o(i.DMA_Cmd) for DMA_Cmd
-    bsp_dma.o(i.BSP_DMA_InitConfig) refers to driver_dbus.o(.bss) for DBUSBuffer
-    bsp_gpio.o(i.BSP_GPIO_InitConfig) refers to stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd) for RCC_AHB1PeriphClockCmd
-    bsp_gpio.o(i.BSP_GPIO_InitConfig) refers to stm32f4xx_gpio.o(i.GPIO_Init) for GPIO_Init
-    bsp_gpio.o(i.BSP_GPIO_InitConfig) refers to stm32f4xx_gpio.o(i.GPIO_PinAFConfig) for GPIO_PinAFConfig
-    bsp_nvic.o(i.BSP_NVIC_InitConfig) refers to misc.o(i.NVIC_Init) for NVIC_Init
-    bsp_nvic.o(i.BSP_NVIC_InitConfig) refers to stm32f4xx_usart.o(i.USART_ITConfig) for USART_ITConfig
-    bsp_nvic.o(i.BSP_NVIC_InitConfig) refers to stm32f4xx_can.o(i.CAN_ITConfig) for CAN_ITConfig
-    bsp_nvic.o(i.BSP_NVIC_InitConfig) refers to stm32f4xx_tim.o(i.TIM_ITConfig) for TIM_ITConfig
-    bsp_nvic.o(i.BSP_NVIC_InitConfig) refers to stm32f4xx_tim.o(i.TIM_ClearFlag) for TIM_ClearFlag
-    bsp_tim.o(i.BSP_TIM_InitConfig) refers to stm32f4xx_rcc.o(i.RCC_APB1PeriphClockCmd) for RCC_APB1PeriphClockCmd
-    bsp_tim.o(i.BSP_TIM_InitConfig) refers to stm32f4xx_tim.o(i.TIM_TimeBaseInit) for TIM_TimeBaseInit
-    bsp_tim.o(i.BSP_TIM_InitConfig) refers to stm32f4xx_tim.o(i.TIM_Cmd) for TIM_Cmd
-    bsp_tim.o(i.BSP_TIM_InitConfig) refers to stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd) for RCC_AHB1PeriphClockCmd
-    bsp_tim.o(i.BSP_TIM_InitConfig) refers to stm32f4xx_gpio.o(i.GPIO_PinAFConfig) for GPIO_PinAFConfig
-    bsp_tim.o(i.BSP_TIM_InitConfig) refers to stm32f4xx_gpio.o(i.GPIO_Init) for GPIO_Init
-    bsp_tim.o(i.BSP_TIM_InitConfig) refers to stm32f4xx_tim.o(i.TIM_OC1Init) for TIM_OC1Init
-    bsp_tim.o(i.BSP_TIM_InitConfig) refers to stm32f4xx_tim.o(i.TIM_OC1PreloadConfig) for TIM_OC1PreloadConfig
-    bsp_tim.o(i.BSP_TIM_InitConfig) refers to stm32f4xx_tim.o(i.TIM_ARRPreloadConfig) for TIM_ARRPreloadConfig
-    bsp_uart.o(i.BSP_UART_InitConfig) refers to stm32f4xx_rcc.o(i.RCC_APB2PeriphClockCmd) for RCC_APB2PeriphClockCmd
-    bsp_uart.o(i.BSP_UART_InitConfig) refers to stm32f4xx_usart.o(i.USART_Init) for USART_Init
-    bsp_uart.o(i.BSP_UART_InitConfig) refers to stm32f4xx_usart.o(i.USART_DMACmd) for USART_DMACmd
-    bsp_uart.o(i.BSP_UART_InitConfig) refers to stm32f4xx_usart.o(i.USART_Cmd) for USART_Cmd
+    bsp_can.o(i.BSP_CAN_Init) refers to stm32f4xx_rcc.o(i.RCC_APB1PeriphClockCmd) for RCC_APB1PeriphClockCmd
+    bsp_can.o(i.BSP_CAN_Init) refers to stm32f4xx_can.o(i.CAN_Init) for CAN_Init
+    bsp_can.o(i.BSP_CAN_Init) refers to stm32f4xx_can.o(i.CAN_FilterInit) for CAN_FilterInit
+    bsp_dma.o(i.BSP_DMA_Init) refers to stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd) for RCC_AHB1PeriphClockCmd
+    bsp_dma.o(i.BSP_DMA_Init) refers to stm32f4xx_dma.o(i.DMA_Init) for DMA_Init
+    bsp_dma.o(i.BSP_DMA_Init) refers to stm32f4xx_dma.o(i.DMA_Cmd) for DMA_Cmd
+    bsp_dma.o(i.BSP_DMA_Init) refers to driver_dbus.o(.bss) for dbusBuffer
+    bsp_gpio.o(i.BSP_GPIO_Init) refers to stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd) for RCC_AHB1PeriphClockCmd
+    bsp_gpio.o(i.BSP_GPIO_Init) refers to stm32f4xx_gpio.o(i.GPIO_Init) for GPIO_Init
+    bsp_gpio.o(i.BSP_GPIO_Init) refers to stm32f4xx_gpio.o(i.GPIO_PinAFConfig) for GPIO_PinAFConfig
+    bsp_nvic.o(i.BSP_NVIC_Init) refers to misc.o(i.NVIC_Init) for NVIC_Init
+    bsp_nvic.o(i.BSP_NVIC_Init) refers to stm32f4xx_usart.o(i.USART_ITConfig) for USART_ITConfig
+    bsp_nvic.o(i.BSP_NVIC_Init) refers to stm32f4xx_can.o(i.CAN_ITConfig) for CAN_ITConfig
+    bsp_nvic.o(i.BSP_NVIC_Init) refers to stm32f4xx_tim.o(i.TIM_ITConfig) for TIM_ITConfig
+    bsp_nvic.o(i.BSP_NVIC_Init) refers to stm32f4xx_tim.o(i.TIM_ClearFlag) for TIM_ClearFlag
+    bsp_tim.o(i.BSP_TIM_Init) refers to stm32f4xx_rcc.o(i.RCC_APB1PeriphClockCmd) for RCC_APB1PeriphClockCmd
+    bsp_tim.o(i.BSP_TIM_Init) refers to stm32f4xx_tim.o(i.TIM_TimeBaseInit) for TIM_TimeBaseInit
+    bsp_tim.o(i.BSP_TIM_Init) refers to stm32f4xx_tim.o(i.TIM_Cmd) for TIM_Cmd
+    bsp_tim.o(i.BSP_TIM_Init) refers to stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd) for RCC_AHB1PeriphClockCmd
+    bsp_tim.o(i.BSP_TIM_Init) refers to stm32f4xx_gpio.o(i.GPIO_PinAFConfig) for GPIO_PinAFConfig
+    bsp_tim.o(i.BSP_TIM_Init) refers to stm32f4xx_gpio.o(i.GPIO_Init) for GPIO_Init
+    bsp_tim.o(i.BSP_TIM_Init) refers to stm32f4xx_tim.o(i.TIM_OC1Init) for TIM_OC1Init
+    bsp_tim.o(i.BSP_TIM_Init) refers to stm32f4xx_tim.o(i.TIM_OC1PreloadConfig) for TIM_OC1PreloadConfig
+    bsp_tim.o(i.BSP_TIM_Init) refers to stm32f4xx_tim.o(i.TIM_ARRPreloadConfig) for TIM_ARRPreloadConfig
+    bsp_uart.o(i.BSP_UART_Init) refers to stm32f4xx_rcc.o(i.RCC_APB2PeriphClockCmd) for RCC_APB2PeriphClockCmd
+    bsp_uart.o(i.BSP_UART_Init) refers to stm32f4xx_usart.o(i.USART_Init) for USART_Init
+    bsp_uart.o(i.BSP_UART_Init) refers to stm32f4xx_usart.o(i.USART_DMACmd) for USART_DMACmd
+    bsp_uart.o(i.BSP_UART_Init) refers to stm32f4xx_usart.o(i.USART_Cmd) for USART_Cmd
     key.o(i.KEY_Init) refers to stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd) for RCC_AHB1PeriphClockCmd
     key.o(i.KEY_Init) refers to stm32f4xx_gpio.o(i.GPIO_Init) for GPIO_Init
     led.o(i.LED_Init) refers to stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd) for RCC_AHB1PeriphClockCmd
@@ -564,14 +564,14 @@ Section Cross References
     stm32f4xx_it.o(i.TIM2_IRQHandler) refers to stm32f4xx_tim.o(i.TIM_ClearFlag) for TIM_ClearFlag
     stm32f4xx_it.o(i.TIM2_IRQHandler) refers to bsp_tim.o(.data) for ulHighFrequencyTimerTicks
     stm32f4xx_it.o(i.USART1_IRQHandler) refers to stm32f4xx_dma.o(i.DMA_Cmd) for DMA_Cmd
-    stm32f4xx_it.o(i.USART1_IRQHandler) refers to driver_dbus.o(i.DBUS_DataDecoding) for DBUS_DataDecoding
+    stm32f4xx_it.o(i.USART1_IRQHandler) refers to driver_dbus.o(i.Dbus_Decode_Remote_Control_Data) for Dbus_Decode_Remote_Control_Data
     stm32f4xx_it.o(i.USART1_IRQHandler) refers to stm32f4xx_dma.o(i.DMA_ClearFlag) for DMA_ClearFlag
     stm32f4xx_it.o(i.USART1_IRQHandler) refers to stm32f4xx_dma.o(i.DMA_GetCmdStatus) for DMA_GetCmdStatus
     stm32f4xx_it.o(i.USART1_IRQHandler) refers to stm32f4xx_dma.o(i.DMA_SetCurrDataCounter) for DMA_SetCurrDataCounter
     stm32f4xx_it.o(i.USART6_IRQHandler) refers to stm32f4xx_usart.o(i.USART_ReceiveData) for USART_ReceiveData
     stm32f4xx_it.o(i.USART6_IRQHandler) refers to noretval__2printf.o(.text) for __2printf
     stm32f4xx_it.o(i.USART6_IRQHandler) refers to queue.o(i.xQueueGenericSendFromISR) for xQueueGenericSendFromISR
-    stm32f4xx_it.o(i.USART6_IRQHandler) refers to task_sysinit.o(.data) for queue_test
+    stm32f4xx_it.o(i.USART6_IRQHandler) refers to task_sysinit.o(.data) for QueueTest
     stm32f4xx_it.o(i.UsageFault_Handler) refers to noretval__2printf.o(.text) for __2printf
     system_stm32f4xx.o(i.SystemCoreClockUpdate) refers to system_stm32f4xx.o(.data) for SystemCoreClock
     system_stm32f4xx.o(i.SystemInit) refers to system_stm32f4xx.o(i.SetSysClock) for SetSysClock
@@ -624,9 +624,9 @@ Section Cross References
     driver_armour.o(i.ArmourTargetAngleInit) refers to driver_armour.o(.data) for Armour1TargetAngle
     driver_can.o(i.Set_CM_Speed) refers to stm32f4xx_can.o(i.CAN_Transmit) for CAN_Transmit
     driver_can.o(i.Set_Hook_Armour_Speed) refers to stm32f4xx_can.o(i.CAN_Transmit) for CAN_Transmit
-    driver_dbus.o(i.DBUS_DataDecoding) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
-    driver_dbus.o(i.DBUS_DataDecoding) refers to driver_dbus.o(.bss) for DBUS_ReceiveData
-    driver_dbus.o(i.DBUS_InitConfig) refers to driver_dbus.o(.bss) for DBUS_ReceiveData
+    driver_dbus.o(i.Dbus_Decode_Remote_Control_Data) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
+    driver_dbus.o(i.Dbus_Decode_Remote_Control_Data) refers to driver_dbus.o(.bss) for DbusData
+    driver_dbus.o(i.Dbus_Init) refers to driver_dbus.o(.bss) for DbusData
     driver_hookcontroller.o(i.HookTargetAngleInit) refers to driver_hookcontroller.o(.data) for HookTargetAngle
     driver_pancontroller.o(i.Chassis_SpeedSet) refers to driver_pancontroller.o(.bss) for ChassisParam
     driver_pancontroller.o(i.GetXYWSpeed) refers to dflt_clz.o(x$fpl$dflt) for __aeabi_i2d
@@ -639,7 +639,7 @@ Section Cross References
     driver_pancontroller.o(i.GetXYWSpeed) refers to mpu6500_driver.o(.bss) for mpu6500_data
     driver_pancontroller.o(i.GetXYWSpeed) refers to driver_pancontroller.o(.data) for YawSpeedFeed
     driver_pancontroller.o(i.GetXYWSpeed) refers to driver_pancontroller.o(.bss) for YawAnglePID
-    driver_pancontroller.o(i.GetXYWSpeed) refers to driver_dbus.o(.bss) for DBUS_ReceiveData
+    driver_pancontroller.o(i.GetXYWSpeed) refers to driver_dbus.o(.bss) for DbusData
     driver_pancontroller.o(i.MecanumCalculation) refers to f2d.o(x$fpl$f2d) for __aeabi_f2d
     driver_pancontroller.o(i.MecanumCalculation) refers to dmul.o(x$fpl$dmul) for __aeabi_dmul
     driver_pancontroller.o(i.MecanumCalculation) refers to dfix.o(x$fpl$dfix) for __aeabi_d2iz
@@ -705,12 +705,12 @@ Section Cross References
     mpu6500_interrupt.o(i.MPU6500_IntConfiguration) refers to stm32f4xx_syscfg.o(i.SYSCFG_EXTILineConfig) for SYSCFG_EXTILineConfig
     mpu6500_interrupt.o(i.MPU6500_IntConfiguration) refers to stm32f4xx_exti.o(i.EXTI_Init) for EXTI_Init
     mpu6500_interrupt.o(i.MPU6500_IntConfiguration) refers to misc.o(i.NVIC_Init) for NVIC_Init
-    task_irq.o(i.Task_DBUS) refers to _printf_percent.o(.ARM.Collect$$_printf_percent$$00000000) for _printf_percent
-    task_irq.o(i.Task_DBUS) refers to _printf_d.o(.ARM.Collect$$_printf_percent$$00000009) for _printf_d
-    task_irq.o(i.Task_DBUS) refers to _printf_dec.o(.text) for _printf_int_dec
-    task_irq.o(i.Task_DBUS) refers to queue.o(i.xQueueGenericReceive) for xQueueGenericReceive
-    task_irq.o(i.Task_DBUS) refers to noretval__2printf.o(.text) for __2printf
-    task_irq.o(i.Task_DBUS) refers to task_sysinit.o(.data) for queue_test
+    task_irq.o(i.Task_DBus) refers to _printf_percent.o(.ARM.Collect$$_printf_percent$$00000000) for _printf_percent
+    task_irq.o(i.Task_DBus) refers to _printf_d.o(.ARM.Collect$$_printf_percent$$00000009) for _printf_d
+    task_irq.o(i.Task_DBus) refers to _printf_dec.o(.text) for _printf_int_dec
+    task_irq.o(i.Task_DBus) refers to queue.o(i.xQueueGenericReceive) for xQueueGenericReceive
+    task_irq.o(i.Task_DBus) refers to noretval__2printf.o(.text) for __2printf
+    task_irq.o(i.Task_DBus) refers to task_sysinit.o(.data) for QueueTest
     task_irq.o(i.Task_Debug) refers to _printf_percent.o(.ARM.Collect$$_printf_percent$$00000000) for _printf_percent
     task_irq.o(i.Task_Debug) refers to _printf_d.o(.ARM.Collect$$_printf_percent$$00000009) for _printf_d
     task_irq.o(i.Task_Debug) refers to _printf_dec.o(.text) for _printf_int_dec
@@ -726,20 +726,20 @@ Section Cross References
     task_low.o(i.Task_Blink) refers to stm32f4xx_gpio.o(i.GPIO_ToggleBits) for GPIO_ToggleBits
     task_low.o(i.Task_Blink) refers to tasks.o(i.vTaskDelayUntil) for vTaskDelayUntil
     task_sysinit.o(i.Task_SysInit) refers to port.o(i.vPortEnterCritical) for vPortEnterCritical
-    task_sysinit.o(i.Task_SysInit) refers to bsp_gpio.o(i.BSP_GPIO_InitConfig) for BSP_GPIO_InitConfig
-    task_sysinit.o(i.Task_SysInit) refers to bsp_can.o(i.BSP_CAN_InitConfig) for BSP_CAN_InitConfig
-    task_sysinit.o(i.Task_SysInit) refers to bsp_uart.o(i.BSP_UART_InitConfig) for BSP_UART_InitConfig
-    task_sysinit.o(i.Task_SysInit) refers to bsp_dma.o(i.BSP_DMA_InitConfig) for BSP_DMA_InitConfig
-    task_sysinit.o(i.Task_SysInit) refers to bsp_tim.o(i.BSP_TIM_InitConfig) for BSP_TIM_InitConfig
-    task_sysinit.o(i.Task_SysInit) refers to bsp_nvic.o(i.BSP_NVIC_InitConfig) for BSP_NVIC_InitConfig
+    task_sysinit.o(i.Task_SysInit) refers to bsp_gpio.o(i.BSP_GPIO_Init) for BSP_GPIO_Init
+    task_sysinit.o(i.Task_SysInit) refers to bsp_can.o(i.BSP_CAN_Init) for BSP_CAN_Init
+    task_sysinit.o(i.Task_SysInit) refers to bsp_uart.o(i.BSP_UART_Init) for BSP_UART_Init
+    task_sysinit.o(i.Task_SysInit) refers to bsp_dma.o(i.BSP_DMA_Init) for BSP_DMA_Init
+    task_sysinit.o(i.Task_SysInit) refers to bsp_tim.o(i.BSP_TIM_Init) for BSP_TIM_Init
+    task_sysinit.o(i.Task_SysInit) refers to bsp_nvic.o(i.BSP_NVIC_Init) for BSP_NVIC_Init
     task_sysinit.o(i.Task_SysInit) refers to queue.o(i.xQueueGenericCreate) for xQueueGenericCreate
     task_sysinit.o(i.Task_SysInit) refers to tasks.o(i.xTaskCreate) for xTaskCreate
     task_sysinit.o(i.Task_SysInit) refers to tasks.o(i.vTaskSuspend) for vTaskSuspend
     task_sysinit.o(i.Task_SysInit) refers to tasks.o(i.vTaskDelete) for vTaskDelete
     task_sysinit.o(i.Task_SysInit) refers to port.o(i.vPortExitCritical) for vPortExitCritical
-    task_sysinit.o(i.Task_SysInit) refers to task_sysinit.o(.data) for queue_test
+    task_sysinit.o(i.Task_SysInit) refers to task_sysinit.o(.data) for QueueTest
     task_sysinit.o(i.Task_SysInit) refers to task_irq.o(i.Task_Debug) for Task_Debug
-    task_sysinit.o(i.Task_SysInit) refers to task_irq.o(i.Task_DBUS) for Task_DBUS
+    task_sysinit.o(i.Task_SysInit) refers to task_irq.o(i.Task_DBus) for Task_DBus
     task_sysinit.o(i.Task_SysInit) refers to task_low.o(i.Task_Blink) for Task_Blink
     __2printf.o(.text) refers to _printf_char_file.o(.text) for _printf_char_file
     __2printf.o(.text) refers to usart.o(.data) for __stdout
@@ -1559,7 +1559,7 @@ Removing Unused input sections from the image.
     Removing driver_can.o(i.Set_Hook_Armour_Speed), (144 bytes).
     Removing driver_dbus.o(.rev16_text), (4 bytes).
     Removing driver_dbus.o(.revsh_text), (4 bytes).
-    Removing driver_dbus.o(i.DBUS_InitConfig), (28 bytes).
+    Removing driver_dbus.o(i.Dbus_Init), (28 bytes).
     Removing driver_hookcontroller.o(.rev16_text), (4 bytes).
     Removing driver_hookcontroller.o(.revsh_text), (4 bytes).
     Removing driver_hookcontroller.o(i.HookAnglePID), (160 bytes).
@@ -1913,12 +1913,12 @@ Image Symbol Table
     .text                                    0x080008a8   Section        2  use_no_semi.o(.text)
     .text                                    0x080008aa   Section        0  indicate_semi.o(.text)
     i.BEEP_Init                              0x080008ac   Section        0  beep.o(i.BEEP_Init)
-    i.BSP_CAN_InitConfig                     0x0800094c   Section        0  bsp_can.o(i.BSP_CAN_InitConfig)
-    i.BSP_DMA_InitConfig                     0x08000a54   Section        0  bsp_dma.o(i.BSP_DMA_InitConfig)
-    i.BSP_GPIO_InitConfig                    0x08000abc   Section        0  bsp_gpio.o(i.BSP_GPIO_InitConfig)
-    i.BSP_NVIC_InitConfig                    0x08000c50   Section        0  bsp_nvic.o(i.BSP_NVIC_InitConfig)
-    i.BSP_TIM_InitConfig                     0x08000d0c   Section        0  bsp_tim.o(i.BSP_TIM_InitConfig)
-    i.BSP_UART_InitConfig                    0x08000e14   Section        0  bsp_uart.o(i.BSP_UART_InitConfig)
+    i.BSP_CAN_Init                           0x0800094c   Section        0  bsp_can.o(i.BSP_CAN_Init)
+    i.BSP_DMA_Init                           0x08000a54   Section        0  bsp_dma.o(i.BSP_DMA_Init)
+    i.BSP_GPIO_Init                          0x08000abc   Section        0  bsp_gpio.o(i.BSP_GPIO_Init)
+    i.BSP_NVIC_Init                          0x08000c50   Section        0  bsp_nvic.o(i.BSP_NVIC_Init)
+    i.BSP_TIM_Init                           0x08000d0c   Section        0  bsp_tim.o(i.BSP_TIM_Init)
+    i.BSP_UART_Init                          0x08000e14   Section        0  bsp_uart.o(i.BSP_UART_Init)
     i.BusFault_Handler                       0x08000e60   Section        0  stm32f4xx_it.o(i.BusFault_Handler)
     i.CAN1_RX0_IRQHandler                    0x08000e80   Section        0  stm32f4xx_it.o(i.CAN1_RX0_IRQHandler)
     i.CAN2_RX0_IRQHandler                    0x08000f44   Section        0  stm32f4xx_it.o(i.CAN2_RX0_IRQHandler)
@@ -1926,12 +1926,12 @@ Image Symbol Table
     i.CAN_ITConfig                           0x080010e8   Section        0  stm32f4xx_can.o(i.CAN_ITConfig)
     i.CAN_Init                               0x080010fa   Section        0  stm32f4xx_can.o(i.CAN_Init)
     i.CAN_Receive                            0x0800120e   Section        0  stm32f4xx_can.o(i.CAN_Receive)
-    i.DBUS_DataDecoding                      0x08001300   Section        0  driver_dbus.o(i.DBUS_DataDecoding)
-    i.DMA_ClearFlag                          0x08001414   Section        0  stm32f4xx_dma.o(i.DMA_ClearFlag)
-    i.DMA_Cmd                                0x08001448   Section        0  stm32f4xx_dma.o(i.DMA_Cmd)
-    i.DMA_GetCmdStatus                       0x0800145e   Section        0  stm32f4xx_dma.o(i.DMA_GetCmdStatus)
-    i.DMA_Init                               0x08001474   Section        0  stm32f4xx_dma.o(i.DMA_Init)
-    i.DMA_SetCurrDataCounter                 0x080014cc   Section        0  stm32f4xx_dma.o(i.DMA_SetCurrDataCounter)
+    i.DMA_ClearFlag                          0x08001300   Section        0  stm32f4xx_dma.o(i.DMA_ClearFlag)
+    i.DMA_Cmd                                0x08001334   Section        0  stm32f4xx_dma.o(i.DMA_Cmd)
+    i.DMA_GetCmdStatus                       0x0800134a   Section        0  stm32f4xx_dma.o(i.DMA_GetCmdStatus)
+    i.DMA_Init                               0x08001360   Section        0  stm32f4xx_dma.o(i.DMA_Init)
+    i.DMA_SetCurrDataCounter                 0x080013b8   Section        0  stm32f4xx_dma.o(i.DMA_SetCurrDataCounter)
+    i.Dbus_Decode_Remote_Control_Data        0x080013bc   Section        0  driver_dbus.o(i.Dbus_Decode_Remote_Control_Data)
     i.DebugMon_Handler                       0x080014d0   Section        0  stm32f4xx_it.o(i.DebugMon_Handler)
     i.EXTI1_IRQHandler                       0x080014f0   Section        0  mpu6500_interrupt.o(i.EXTI1_IRQHandler)
     i.EXTI_ClearFlag                         0x08001518   Section        0  stm32f4xx_exti.o(i.EXTI_ClearFlag)
@@ -1979,7 +1979,7 @@ Image Symbol Table
     i.TIM_OC1PreloadConfig                   0x08001fd4   Section        0  stm32f4xx_tim.o(i.TIM_OC1PreloadConfig)
     i.TIM_TimeBaseInit                       0x08001fe8   Section        0  stm32f4xx_tim.o(i.TIM_TimeBaseInit)
     i.Task_Blink                             0x0800206c   Section        0  task_low.o(i.Task_Blink)
-    i.Task_DBUS                              0x08002090   Section        0  task_irq.o(i.Task_DBUS)
+    i.Task_DBus                              0x08002090   Section        0  task_irq.o(i.Task_DBus)
     i.Task_Debug                             0x080020dc   Section        0  task_irq.o(i.Task_Debug)
     i.Task_SysInit                           0x0800220c   Section        0  task_sysinit.o(i.Task_SysInit)
     i.USART1_IRQHandler                      0x080022d0   Section        0  stm32f4xx_it.o(i.USART1_IRQHandler)
@@ -2400,12 +2400,12 @@ Image Symbol Table
     __use_no_semihosting_swi                 0x080008a9   Thumb Code     2  use_no_semi.o(.text)
     __semihosting_library_function           0x080008ab   Thumb Code     0  indicate_semi.o(.text)
     BEEP_Init                                0x080008ad   Thumb Code   150  beep.o(i.BEEP_Init)
-    BSP_CAN_InitConfig                       0x0800094d   Thumb Code   254  bsp_can.o(i.BSP_CAN_InitConfig)
-    BSP_DMA_InitConfig                       0x08000a55   Thumb Code    92  bsp_dma.o(i.BSP_DMA_InitConfig)
-    BSP_GPIO_InitConfig                      0x08000abd   Thumb Code   386  bsp_gpio.o(i.BSP_GPIO_InitConfig)
-    BSP_NVIC_InitConfig                      0x08000c51   Thumb Code   174  bsp_nvic.o(i.BSP_NVIC_InitConfig)
-    BSP_TIM_InitConfig                       0x08000d0d   Thumb Code   252  bsp_tim.o(i.BSP_TIM_InitConfig)
-    BSP_UART_InitConfig                      0x08000e15   Thumb Code    68  bsp_uart.o(i.BSP_UART_InitConfig)
+    BSP_CAN_Init                             0x0800094d   Thumb Code   254  bsp_can.o(i.BSP_CAN_Init)
+    BSP_DMA_Init                             0x08000a55   Thumb Code    92  bsp_dma.o(i.BSP_DMA_Init)
+    BSP_GPIO_Init                            0x08000abd   Thumb Code   386  bsp_gpio.o(i.BSP_GPIO_Init)
+    BSP_NVIC_Init                            0x08000c51   Thumb Code   174  bsp_nvic.o(i.BSP_NVIC_Init)
+    BSP_TIM_Init                             0x08000d0d   Thumb Code   252  bsp_tim.o(i.BSP_TIM_Init)
+    BSP_UART_Init                            0x08000e15   Thumb Code    68  bsp_uart.o(i.BSP_UART_Init)
     BusFault_Handler                         0x08000e61   Thumb Code    10  stm32f4xx_it.o(i.BusFault_Handler)
     CAN1_RX0_IRQHandler                      0x08000e81   Thumb Code   188  stm32f4xx_it.o(i.CAN1_RX0_IRQHandler)
     CAN2_RX0_IRQHandler                      0x08000f45   Thumb Code   148  stm32f4xx_it.o(i.CAN2_RX0_IRQHandler)
@@ -2413,12 +2413,12 @@ Image Symbol Table
     CAN_ITConfig                             0x080010e9   Thumb Code    18  stm32f4xx_can.o(i.CAN_ITConfig)
     CAN_Init                                 0x080010fb   Thumb Code   276  stm32f4xx_can.o(i.CAN_Init)
     CAN_Receive                              0x0800120f   Thumb Code   240  stm32f4xx_can.o(i.CAN_Receive)
-    DBUS_DataDecoding                        0x08001301   Thumb Code   262  driver_dbus.o(i.DBUS_DataDecoding)
-    DMA_ClearFlag                            0x08001415   Thumb Code    38  stm32f4xx_dma.o(i.DMA_ClearFlag)
-    DMA_Cmd                                  0x08001449   Thumb Code    22  stm32f4xx_dma.o(i.DMA_Cmd)
-    DMA_GetCmdStatus                         0x0800145f   Thumb Code    20  stm32f4xx_dma.o(i.DMA_GetCmdStatus)
-    DMA_Init                                 0x08001475   Thumb Code    82  stm32f4xx_dma.o(i.DMA_Init)
-    DMA_SetCurrDataCounter                   0x080014cd   Thumb Code     4  stm32f4xx_dma.o(i.DMA_SetCurrDataCounter)
+    DMA_ClearFlag                            0x08001301   Thumb Code    38  stm32f4xx_dma.o(i.DMA_ClearFlag)
+    DMA_Cmd                                  0x08001335   Thumb Code    22  stm32f4xx_dma.o(i.DMA_Cmd)
+    DMA_GetCmdStatus                         0x0800134b   Thumb Code    20  stm32f4xx_dma.o(i.DMA_GetCmdStatus)
+    DMA_Init                                 0x08001361   Thumb Code    82  stm32f4xx_dma.o(i.DMA_Init)
+    DMA_SetCurrDataCounter                   0x080013b9   Thumb Code     4  stm32f4xx_dma.o(i.DMA_SetCurrDataCounter)
+    Dbus_Decode_Remote_Control_Data          0x080013bd   Thumb Code   262  driver_dbus.o(i.Dbus_Decode_Remote_Control_Data)
     DebugMon_Handler                         0x080014d1   Thumb Code    10  stm32f4xx_it.o(i.DebugMon_Handler)
     EXTI1_IRQHandler                         0x080014f1   Thumb Code    34  mpu6500_interrupt.o(i.EXTI1_IRQHandler)
     EXTI_ClearFlag                           0x08001519   Thumb Code     6  stm32f4xx_exti.o(i.EXTI_ClearFlag)
@@ -2464,7 +2464,7 @@ Image Symbol Table
     TIM_OC1PreloadConfig                     0x08001fd5   Thumb Code    18  stm32f4xx_tim.o(i.TIM_OC1PreloadConfig)
     TIM_TimeBaseInit                         0x08001fe9   Thumb Code   104  stm32f4xx_tim.o(i.TIM_TimeBaseInit)
     Task_Blink                               0x0800206d   Thumb Code    30  task_low.o(i.Task_Blink)
-    Task_DBUS                                0x08002091   Thumb Code    38  task_irq.o(i.Task_DBUS)
+    Task_DBus                                0x08002091   Thumb Code    38  task_irq.o(i.Task_DBus)
     Task_Debug                               0x080020dd   Thumb Code   104  task_irq.o(i.Task_Debug)
     Task_SysInit                             0x0800220d   Thumb Code   132  task_sysinit.o(i.Task_SysInit)
     USART1_IRQHandler                        0x080022d1   Thumb Code    74  stm32f4xx_it.o(i.USART1_IRQHandler)
@@ -2540,18 +2540,18 @@ Image Symbol Table
     AHBPrescTable                            0x2000009c   Data          16  system_stm32f4xx.o(.data)
     isMPU6500_is_DRY                         0x200000ac   Data           1  mpu6500_interrupt.o(.data)
     Task_Debug_Sign                          0x200000b0   Data           4  task_irq.o(.data)
-    taskHandler_DBUS                         0x200000b4   Data           4  task_sysinit.o(.data)
-    taskHandler_Debug                        0x200000b8   Data           4  task_sysinit.o(.data)
-    taskHandler_Blink                        0x200000bc   Data           4  task_sysinit.o(.data)
-    queue_test                               0x200000c0   Data           4  task_sysinit.o(.data)
+    TaskHandler_Dbus                         0x200000b4   Data           4  task_sysinit.o(.data)
+    TaskHandler_Debug                        0x200000b8   Data           4  task_sysinit.o(.data)
+    TaskHandler_Blink                        0x200000bc   Data           4  task_sysinit.o(.data)
+    QueueTest                                0x200000c0   Data           4  task_sysinit.o(.data)
     xQueueRegistry                           0x200000c4   Data          64  queue.o(.bss)
     Motor_Feedback                           0x20012e1c   Data          28  driver_can.o(.bss)
     Hook_Encoder                             0x20012e38   Data          68  driver_can.o(.bss)
     Armour1_Encoder                          0x20012e7c   Data          68  driver_can.o(.bss)
     Armour2_Encoder                          0x20012ec0   Data          68  driver_can.o(.bss)
-    DBUSBuffer                               0x20012f04   Data          19  driver_dbus.o(.bss)
-    DBUS_ReceiveData                         0x20012f18   Data          24  driver_dbus.o(.bss)
-    LASTDBUS_ReceiveData                     0x20012f30   Data          24  driver_dbus.o(.bss)
+    dbusBuffer                               0x20012f04   Data          19  driver_dbus.o(.bss)
+    DbusData                                 0x20012f18   Data          24  driver_dbus.o(.bss)
+    OldDbusData                              0x20012f30   Data          24  driver_dbus.o(.bss)
     mpu6500_data                             0x20012f48   Data          20  mpu6500_driver.o(.bss)
     mpu_buf                                  0x20012f5c   Data          20  mpu6500_driver.o(.bss)
     __libspace_start                         0x20012f70   Data          96  libspace.o(.bss)
@@ -2658,12 +2658,12 @@ Memory Map of the image
     0x080008aa   0x00000000   Code   RO         4663    .text               c_w.l(indicate_semi.o)
     0x080008aa   0x00000002   PAD
     0x080008ac   0x000000a0   Code   RO            3    i.BEEP_Init         beep.o
-    0x0800094c   0x00000108   Code   RO          157    i.BSP_CAN_InitConfig  bsp_can.o
-    0x08000a54   0x00000068   Code   RO          301    i.BSP_DMA_InitConfig  bsp_dma.o
-    0x08000abc   0x00000194   Code   RO          321    i.BSP_GPIO_InitConfig  bsp_gpio.o
-    0x08000c50   0x000000bc   Code   RO          341    i.BSP_NVIC_InitConfig  bsp_nvic.o
-    0x08000d0c   0x00000108   Code   RO          361    i.BSP_TIM_InitConfig  bsp_tim.o
-    0x08000e14   0x0000004c   Code   RO          390    i.BSP_UART_InitConfig  bsp_uart.o
+    0x0800094c   0x00000108   Code   RO          157    i.BSP_CAN_Init      bsp_can.o
+    0x08000a54   0x00000068   Code   RO          301    i.BSP_DMA_Init      bsp_dma.o
+    0x08000abc   0x00000194   Code   RO          321    i.BSP_GPIO_Init     bsp_gpio.o
+    0x08000c50   0x000000bc   Code   RO          341    i.BSP_NVIC_Init     bsp_nvic.o
+    0x08000d0c   0x00000108   Code   RO          361    i.BSP_TIM_Init      bsp_tim.o
+    0x08000e14   0x0000004c   Code   RO          390    i.BSP_UART_Init     bsp_uart.o
     0x08000e60   0x00000020   Code   RO         3622    i.BusFault_Handler  stm32f4xx_it.o
     0x08000e80   0x000000c4   Code   RO         3623    i.CAN1_RX0_IRQHandler  stm32f4xx_it.o
     0x08000f44   0x0000009c   Code   RO         3624    i.CAN2_RX0_IRQHandler  stm32f4xx_it.o
@@ -2672,13 +2672,13 @@ Memory Map of the image
     0x080010fa   0x00000114   Code   RO          514    i.CAN_Init          stm32f4xx_can.o
     0x0800120e   0x000000f0   Code   RO          517    i.CAN_Receive       stm32f4xx_can.o
     0x080012fe   0x00000002   PAD
-    0x08001300   0x00000114   Code   RO         3888    i.DBUS_DataDecoding  driver_dbus.o
-    0x08001414   0x00000034   Code   RO          664    i.DMA_ClearFlag     stm32f4xx_dma.o
-    0x08001448   0x00000016   Code   RO          666    i.DMA_Cmd           stm32f4xx_dma.o
-    0x0800145e   0x00000014   Code   RO          671    i.DMA_GetCmdStatus  stm32f4xx_dma.o
-    0x08001472   0x00000002   PAD
-    0x08001474   0x00000058   Code   RO          678    i.DMA_Init          stm32f4xx_dma.o
-    0x080014cc   0x00000004   Code   RO          681    i.DMA_SetCurrDataCounter  stm32f4xx_dma.o
+    0x08001300   0x00000034   Code   RO          664    i.DMA_ClearFlag     stm32f4xx_dma.o
+    0x08001334   0x00000016   Code   RO          666    i.DMA_Cmd           stm32f4xx_dma.o
+    0x0800134a   0x00000014   Code   RO          671    i.DMA_GetCmdStatus  stm32f4xx_dma.o
+    0x0800135e   0x00000002   PAD
+    0x08001360   0x00000058   Code   RO          678    i.DMA_Init          stm32f4xx_dma.o
+    0x080013b8   0x00000004   Code   RO          681    i.DMA_SetCurrDataCounter  stm32f4xx_dma.o
+    0x080013bc   0x00000114   Code   RO         3888    i.Dbus_Decode_Remote_Control_Data  driver_dbus.o
     0x080014d0   0x00000020   Code   RO         3625    i.DebugMon_Handler  stm32f4xx_it.o
     0x080014f0   0x00000028   Code   RO         4231    i.EXTI1_IRQHandler  mpu6500_interrupt.o
     0x08001518   0x0000000c   Code   RO          920    i.EXTI_ClearFlag    stm32f4xx_exti.o
@@ -2728,7 +2728,7 @@ Memory Map of the image
     0x08001fe6   0x00000002   PAD
     0x08001fe8   0x00000084   Code   RO         1812    i.TIM_TimeBaseInit  stm32f4xx_tim.o
     0x0800206c   0x00000024   Code   RO         4292    i.Task_Blink        task_low.o
-    0x08002090   0x0000004c   Code   RO         4263    i.Task_DBUS         task_irq.o
+    0x08002090   0x0000004c   Code   RO         4263    i.Task_DBus         task_irq.o
     0x080020dc   0x00000130   Code   RO         4264    i.Task_Debug        task_irq.o
     0x0800220c   0x000000c4   Code   RO         4312    i.Task_SysInit      task_sysinit.o
     0x080022d0   0x00000058   Code   RO         3630    i.USART1_IRQHandler  stm32f4xx_it.o
@@ -2868,15 +2868,15 @@ Image component sizes
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
        160         10          0          0          0     309636   beep.o
-       264         10          0          0          0      13269   bsp_can.o
-       104         12          0          0          0        605   bsp_dma.o
-       404         18          0          0          0        746   bsp_gpio.o
-       188         14          0          0          0        614   bsp_nvic.o
-       264         12          0          4          0       1285   bsp_tim.o
-        76          8          0          0          0        554   bsp_uart.o
+       264         10          0          0          0      13259   bsp_can.o
+       104         12          0          0          0        595   bsp_dma.o
+       404         18          0          0          0        732   bsp_gpio.o
+       188         14          0          0          0        600   bsp_nvic.o
+       264         12          0          4          0       1275   bsp_tim.o
+        76          8          0          0          0        544   bsp_uart.o
        100          8          0          4          0       1259   delay.o
          0          0          0          0        232       1426   driver_can.o
-       276         14          0          0         68       1795   driver_dbus.o
+       276         14          0          0         68       1776   driver_dbus.o
          0          0          0          0          0      11820   event_groups.o
        692         62          0         24      76800       4439   heap_4.o
        116          8          0          0          0        543   led.o
@@ -2900,13 +2900,13 @@ Image component sizes
        392         32          0         20          0       1797   system_stm32f4xx.o
        380        238          0          4          0       1419   task_irq.o
         36          6          0          0          0        561   task_low.o
-       196         64          0         16          0        977   task_sysinit.o
+       196         64          0         16          0        976   task_sysinit.o
       4634        576          0         68        240      31833   tasks.o
       1142        118          0         20         40      17431   timers.o
        204         14          0          4          0       3062   usart.o
 
     ----------------------------------------------------------------------
-     17192       1906        460        196      82604     479369   Object Totals
+     17192       1906        460        196      82604     479281   Object Totals
          0          0         32          0          0          0   (incl. Generated)
         22          0          0          3          0          0   (incl. Padding)
 
@@ -2981,8 +2981,8 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     18748       1958        460        196      82700     464829   Grand Totals
-     18748       1958        460        196      82700     464829   ELF Image Totals
+     18748       1958        460        196      82700     464741   Grand Totals
+     18748       1958        460        196      82700     464741   ELF Image Totals
      18748       1958        460        196          0          0   ROM Totals
 
 ==============================================================================

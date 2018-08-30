@@ -19,56 +19,56 @@ void PanTargetAngleInit(void)
 
 /**
  * @brief  地盘yaw角度
- * @param  
-	*         
+ * @param
+	*
  * @return PID输出Wv 转动速度
  */
 
 void PanYawSpeedPID(PANPID_Type * pid, int angle, int feed)
-{	
+{
 	pid->TargetAngle=angle;
 	pid->AngleFeed=feed;
-	pid->CurrentError = pid->TargetAngle - pid->AngleFeed;	
-	
+	pid->CurrentError = pid->TargetAngle - pid->AngleFeed;
+
 	pid->Pout = pid->P * pid->CurrentError;
 
 	pid->Iout += pid->I * pid->CurrentError;
 	pid->Iout = pid->Iout > pid->IMax ? pid->IMax : pid->Iout;
 	pid->Iout = pid->Iout < -pid->IMax ? -pid->IMax : pid->Iout;
-	
+
 	pid->PIDout = (pid->Pout + pid->Iout + pid->Dout);
-	
+
 	pid->PIDout = pid->PIDout > pid->PIDMax ? pid->PIDMax : pid->PIDout;
 	pid->PIDout = pid->PIDout < -pid->PIDMax ? -pid->PIDMax : pid->PIDout;
-	
+
 	pid->LastError = pid->CurrentError;
 }
 
 
 /**
  * @brief  地盘yaw角度
- * @param  
-	*         
+ * @param
+	*
  * @return PID输出Wv 转动速度
  */
 
 void PanAnglePID(PANPID_Type * pid, int angle, int feed)
-{	
+{
 	pid->TargetAngle=angle;
 	pid->AngleFeed=feed;
-	pid->CurrentError = pid->TargetAngle - pid->AngleFeed;	
-	
+	pid->CurrentError = pid->TargetAngle - pid->AngleFeed;
+
 	pid->Pout = pid->P * pid->CurrentError;
 
 	pid->Iout += pid->I * pid->CurrentError;
 	pid->Iout = pid->Iout > pid->IMax ? pid->IMax : pid->Iout;
 	pid->Iout = pid->Iout < -pid->IMax ? -pid->IMax : pid->Iout;
-	
+
 	pid->PIDout = (pid->Pout + pid->Iout + pid->Dout);
-	
+
 	pid->PIDout = pid->PIDout > pid->PIDMax ? pid->PIDMax : pid->PIDout;
 	pid->PIDout = pid->PIDout < -pid->PIDMax ? -pid->PIDMax : pid->PIDout;
-	
+
 	pid->LastError = pid->CurrentError;
 }
 
@@ -81,22 +81,22 @@ void PanAnglePID(PANPID_Type * pid, int angle, int feed)
  */
 
 void PANSpeedPID(PANPID_Type * pid, int speed, int feed)
-{	
+{
 	pid->TargetSpeed=speed;
 	pid->SpeedFeed=feed;
-	pid->CurrentError = pid->TargetSpeed - pid->SpeedFeed;	
-	
+	pid->CurrentError = pid->TargetSpeed - pid->SpeedFeed;
+
 	pid->Pout = pid->P * pid->CurrentError;
 
 	pid->Iout += pid->I * pid->CurrentError;
 	pid->Iout = pid->Iout > pid->IMax ? pid->IMax : pid->Iout;
 	pid->Iout = pid->Iout < -pid->IMax ? -pid->IMax : pid->Iout;
-	
+
 	pid->PIDout = (pid->Pout + pid->Iout + pid->Dout);
-	
+
 	pid->PIDout = pid->PIDout > pid->PIDMax ? pid->PIDMax : pid->PIDout;
 	pid->PIDout = pid->PIDout < -pid->PIDMax ? -pid->PIDMax : pid->PIDout;
-	
+
 	pid->LastError = pid->CurrentError;
 }
 /**
@@ -109,19 +109,19 @@ void PANSpeedPIDInit(PANPID_Type * pid, float Kp,float Ki, float Kd)
 	pid->P = Kp;
 	pid->I = Ki;
 	pid->D = Kd;
-	
+
 	pid->CurrentError = 0;
 	pid->LastError = 0;
 	pid->Pout = 0;
 	pid->Iout = 0;
 	pid->Dout = 0;
 	pid->PIDout = 0;
-	
+
 	pid->IMax = 4000;
 	pid->PIDMax = 8000;//2750
 	pid->Iindex = 1;
 	pid->PIDindex = 1;
-	
+
 	pid->TargetAngle = 0;
 	pid->TargetSpeed = 0;
 	pid->AngleFeed = 0;
@@ -133,19 +133,19 @@ void PanYawSpeedPIDInit(PANPID_Type * pid, float Kp,float Ki, float Kd)
 	pid->P = Kp;
 	pid->I = Ki;
 	pid->D = Kd;
-	
+
 	pid->CurrentError = 0;
 	pid->LastError = 0;
 	pid->Pout = 0;
 	pid->Iout = 0;
 	pid->Dout = 0;
 	pid->PIDout = 0;
-	
+
 	pid->IMax = 330;
 	pid->PIDMax = 660;//2750
 	pid->Iindex = 1;
 	pid->PIDindex = 1;
-	
+
 	pid->TargetAngle = 0;
 	pid->TargetSpeed = 0;
 	pid->AngleFeed = 0;
@@ -162,19 +162,19 @@ void PANAnglePIDInit(PANPID_Type * pid, float Kp,float Ki, float Kd)
 	pid->P = Kp;
 	pid->I = Ki;
 	pid->D = Kd;
-	
+
 	pid->CurrentError = 0;
 	pid->LastError = 0;
 	pid->Pout = 0;
 	pid->Iout = 0;
 	pid->Dout = 0;
 	pid->PIDout = 0;
-	
+
 	pid->IMax = 330;
 	pid->PIDMax = 660;//2750
 	pid->Iindex = 1;
 	pid->PIDindex = 1;
-	
+
 	pid->TargetAngle = 0;
 	pid->TargetSpeed = 0;
 	pid->AngleFeed = 0;
@@ -201,7 +201,7 @@ void GetXYWSpeed(int dir, int Mode)
 
 			YawSpeedFeed = mpu6500_data.gz/16.4;
 
-			//if(ABS(DBUS_ReceiveData.ch1)<5)
+			//if(ABS(DbusData.ch1)<5)
 			if(Mode == 2)
 			{
 				if(LastMode != 2)
@@ -216,8 +216,8 @@ void GetXYWSpeed(int dir, int Mode)
 
 				PanAnglePID(&YawAnglePID,TargetYawAngle,YawAngleFeed);//??pid?? ??????
 				PanYawSpeedPID(&YawSpeedPID1,YawAnglePID.PIDout,YawSpeedFeed);
-				
-				Chassis_SpeedSet(-DBUS_ReceiveData.ch4*dir,DBUS_ReceiveData.ch3*dir,YawSpeedPID1.PIDout);
+
+				Chassis_SpeedSet(-DbusData.ch4*dir,DbusData.ch3*dir,YawSpeedPID1.PIDout);
 				LastMode = 2;
 			}
 			else if(Mode == 1)
@@ -229,20 +229,20 @@ void GetXYWSpeed(int dir, int Mode)
 					YawSpeedPID2.Iout = 0;
 				}
 
-				PanYawSpeedPID(&YawSpeedPID2,-DBUS_ReceiveData.ch1/6,YawSpeedFeed);
-			
-				Chassis_SpeedSet(-DBUS_ReceiveData.ch4*dir,DBUS_ReceiveData.ch3*dir,YawSpeedPID2.PIDout);
-				
-				
+				PanYawSpeedPID(&YawSpeedPID2,-DbusData.ch1/6,YawSpeedFeed);
+
+				Chassis_SpeedSet(-DbusData.ch4*dir,DbusData.ch3*dir,YawSpeedPID2.PIDout);
+
+
 				LastMode = 1;
 			}
 			else if(Mode == 0)
 			{
 				Set_CM_Speed(CAN1, 0, 0, 0, 0);
-				
-				
+
+
 			}
-	
+
 
 }
 
@@ -251,7 +251,7 @@ void LimitWheelSpeed(int WheelSpeedOrigin[4],int WheelSpeedRes[4],int MaxWheelSp
 	float MaxSpeed = 0;
 	float Param = 0;
 	int index = 0;
-	
+
 	for(; index < 4; index++)
 	{
 			if(ABS(WheelSpeedOrigin[index]) > MaxSpeed)
@@ -259,22 +259,22 @@ void LimitWheelSpeed(int WheelSpeedOrigin[4],int WheelSpeedRes[4],int MaxWheelSp
 					MaxSpeed = ABS(WheelSpeedOrigin[index]);
 			}
 	}
-	
+
 		if(MaxWheelSpeed < MaxSpeed)
 		{
 			Param = (float)MaxWheelSpeed / MaxSpeed;
 			WheelSpeedRes[0] = WheelSpeedOrigin[0] * Param;
 			WheelSpeedRes[1] = WheelSpeedOrigin[1] * Param;
 			WheelSpeedRes[2] = WheelSpeedOrigin[2] * Param;
-			WheelSpeedRes[3] = WheelSpeedOrigin[3] * Param; 
+			WheelSpeedRes[3] = WheelSpeedOrigin[3] * Param;
 		}
 		else
 		{
 			WheelSpeedRes[0] = WheelSpeedOrigin[0];
 			WheelSpeedRes[1] = WheelSpeedOrigin[1];
 			WheelSpeedRes[2] = WheelSpeedOrigin[2];
-			WheelSpeedRes[3] = WheelSpeedOrigin[3]; 
+			WheelSpeedRes[3] = WheelSpeedOrigin[3];
 		}
-	
+
 }
 

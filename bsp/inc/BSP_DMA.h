@@ -5,7 +5,7 @@
 #include "stm32f4xx.h"
 
 
-void BSP_DMA_InitConfig(void);
+void BSP_DMA_Init(void);
 
 
 #endif

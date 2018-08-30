@@ -6,10 +6,10 @@
  * @return void
  * USART6 用作无线串口,定义在usart.c中
  */
-void BSP_NVIC_InitConfig(void) {
+void BSP_NVIC_Init(void) {
     NVIC_InitTypeDef NVIC_InitStructure;
 
-    // UART(DBUS)
+    // UART(DBus)
     NVIC_InitStructure.NVIC_IRQChannel                   = USART1_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
