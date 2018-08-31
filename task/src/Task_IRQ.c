@@ -7,11 +7,11 @@
  * 暂时作消息体测试
  */
 
-void Task_Dbus(void *Parameters) {
+void Task_DBus(void *Parameters) {
     u32 data;
 
     while (1) {
-        if (xQueueReceive(QueueTest, &data, portMAX_DELAY)) {
+        if (xQueueReceive(Queue_Test, &data, portMAX_DELAY)) {
             printf("Received message: %d\r\n", data);
         } else {
             printf("Failed");

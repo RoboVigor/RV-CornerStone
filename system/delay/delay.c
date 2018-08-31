@@ -40,7 +40,7 @@ static u16 fac_ms = 0; // ms延时倍乘数,在os下,代表每个节拍的ms数
 //当delay_us/delay_ms需要支持OS的时候需要三个与OS相关的宏定义和函数来支持
 //首先是3个宏定义:
 // delay_osrunning:用于表示OS当前是否正在运行,以决定是否可以使用相关函数
-// delay_ostickspersec:用于表示OS设定的时钟节拍,delay_init将根据这个参数来初始哈systick
+// delay_ostickspersec:用于表示OS设定的时钟节拍,Delay_Init将根据这个参数来初始哈systick
 // delay_osintnesting:用于表示OS中断嵌套级别,因为中断里面不可以调度,delay_ms使用该参数来决定如何运行
 //然后是3个函数:
 // delay_osschedlock:用于锁定OS任务调度,禁止调度
@@ -112,7 +112,7 @@ void        SysTick_Handler(void) {
 //当使用OS的时候,此函数会初始化OS的时钟节拍
 // SYSTICK的时钟固定为AHB时钟的1/8
 // SYSCLK:系统时钟频率
-void delay_init(u8 SYSCLK) {
+void Delay_Init(u8 SYSCLK) {
 #if SYSTEM_SUPPORT_OS //如果需要支持OS.
     u32 reload;
 #endif

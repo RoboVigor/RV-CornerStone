@@ -3,7 +3,7 @@
 #include "sys.h"
 
 #define LED1 PFout(14)	// DS0
-#define LED2 PEout(7)	// DS1	 
+#define LED2 PEout(7)	// DS1
 
 #define GREEN_LIGHT_ON  	GPIO_ResetBits(GPIOF,GPIO_Pin_14)
 #define GREEN_LIGHT_OFF 	GPIO_SetBits(GPIOF,GPIO_Pin_14)

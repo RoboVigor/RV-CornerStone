@@ -7,13 +7,13 @@
  * @param  void
  * @return void
  */
-void Dbus_Init(void) {
-    DbusData.ch1                  = 0;
-    DbusData.ch2                  = 0;
-    DbusData.ch3                  = 0;
-    DbusData.ch4                  = 0;
-    DbusData.keyBoard.keyCode     = 0;
-    DbusData.keyBoard.jumpKeyCode = 0;
+void DBus_Init(void) {
+    DBusData.ch1                  = 0;
+    DBusData.ch2                  = 0;
+    DBusData.ch3                  = 0;
+    DBusData.ch4                  = 0;
+    DBusData.keyBoard.keyCode     = 0;
+    DBusData.keyBoard.jumpKeyCode = 0;
 }
 
 /**
@@ -21,27 +21,27 @@ void Dbus_Init(void) {
  * @param  void
  * @return void
  */
-void Dbus_Decode_Remote_Control_Data(void) {
-    OldDbusData = DbusData;
+void DBus_Decode_Remote_Control_Data(void) {
+    LastDBusData = DBusData;
 
-    DbusData.ch1 = (dbusBuffer[0] | dbusBuffer[1] << 8) & 0x07FF;
-    DbusData.ch1 -= 1024;
-    DbusData.ch2 = (dbusBuffer[1] >> 3 | dbusBuffer[2] << 5) & 0x07FF;
-    DbusData.ch2 -= 1024;
-    DbusData.ch3 = (dbusBuffer[2] >> 6 | dbusBuffer[3] << 2 | dbusBuffer[4] << 10) & 0x07FF;
-    DbusData.ch3 -= 1024;
-    DbusData.ch4 = (dbusBuffer[4] >> 1 | dbusBuffer[5] << 7) & 0x07FF;
-    DbusData.ch4 -= 1024;
+    DBusData.ch1 = (dBusBuffer[0] | dBusBuffer[1] << 8) & 0x07FF;
+    DBusData.ch1 -= 1024;
+    DBusData.ch2 = (dBusBuffer[1] >> 3 | dBusBuffer[2] << 5) & 0x07FF;
+    DBusData.ch2 -= 1024;
+    DBusData.ch3 = (dBusBuffer[2] >> 6 | dBusBuffer[3] << 2 | dBusBuffer[4] << 10) & 0x07FF;
+    DBusData.ch3 -= 1024;
+    DBusData.ch4 = (dBusBuffer[4] >> 1 | dBusBuffer[5] << 7) & 0x07FF;
+    DBusData.ch4 -= 1024;
 
-    DbusData.switchLeft  = ((dbusBuffer[5] >> 4) & 0x000C) >> 2;
-    DbusData.switchRight = (dbusBuffer[5] >> 4) & 0x0003;
+    DBusData.switchLeft  = ((dBusBuffer[5] >> 4) & 0x000C) >> 2;
+    DBusData.switchRight = (dBusBuffer[5] >> 4) & 0x0003;
 
-    DbusData.mouse.x = dbusBuffer[6] | (dbusBuffer[7] << 8); // x axis
-    DbusData.mouse.y = dbusBuffer[8] | (dbusBuffer[9] << 8);
-    DbusData.mouse.z = dbusBuffer[10] | (dbusBuffer[11] << 8);
+    DBusData.mouse.x = dBusBuffer[6] | (dBusBuffer[7] << 8); // x axis
+    DBusData.mouse.y = dBusBuffer[8] | (dBusBuffer[9] << 8);
+    DBusData.mouse.z = dBusBuffer[10] | (dBusBuffer[11] << 8);
 
-    DbusData.mouse.pressLeft  = dbusBuffer[12]; // is pressed?
-    DbusData.mouse.pressRight = dbusBuffer[13];
+    DBusData.mouse.pressLeft  = dBusBuffer[12]; // is pressed?
+    DBusData.mouse.pressRight = dBusBuffer[13];
 
-    DbusData.keyBoard.keyCode = dbusBuffer[14] | dbusBuffer[15] << 8; // key borad code
+    DBusData.keyBoard.keyCode = dBusBuffer[14] | dBusBuffer[15] << 8; // key borad code
 }

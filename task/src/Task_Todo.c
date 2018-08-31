@@ -16,12 +16,12 @@ int panPIDMode = 1;
 
 void mainTask(void) {
 
-  if (DbusData.switchRight == 2) {
-    Can_Set_CM_Speed(CAN1, 0, 0, 0, 0);
+  if (DBusData.switchRight == 2) {
+    CAN_Set_CM_Speed(CAN1, 0, 0, 0, 0);
     return;
   }
   Gyroscope_Update_Angle_Data();
-  if (ABS(DbusData.ch1) < 5) {
+  if (ABS(DBusData.ch1) < 5) {
     panPIDMode = 2;
   } else {
     panPIDMode = 1;
@@ -37,8 +37,8 @@ void mainTask(void) {
 
   yawAngleFeedDiff = yawAngleFeed - lastYawAngleFeed;
 
-  if (ABS(DbusData.ch1) < 10 && ABS(DbusData.ch3) < 10 &&
-      ABS(DbusData.ch4) < 10)
+  if (ABS(DBusData.ch1) < 10 && ABS(DBusData.ch3) < 10 &&
+      ABS(DBusData.ch4) < 10)
   // if(1)
   {
     if (ABS(yawAngleFeedDiff) < yawAngleFeedThreshold) {
@@ -53,7 +53,7 @@ void mainTask(void) {
       lastYawAngleFeed = yawAngleFeed;
     }
   } else {
-    if (DbusData.switchRight == 1) {
+    if (DBusData.switchRight == 1) {
       yawAngleFeedOffset +=
           yawAngleFeedOffsetSample / yawAngleFeedOffsetSampleCounter;
     }
@@ -62,17 +62,17 @@ void mainTask(void) {
     lastYawAngleFeed = yawAngleFeed;
   }
 
-  if (DbusData.switchLeft == 1) //摄像头朝向丝杆 功能:移动
+  if (DBusData.switchLeft == 1) //摄像头朝向丝杆 功能:移动
   {
 
     TIM_SetCompare1(TIM4, 23);
     //			-------------------------------------------------------------------------------------------------------------------------------
 
-    Can_Update_Encoder_Data(&Hook_Encoder, Motor_Feedback.motor205Angle);
+    CAN_Update_Encoder_Data(&Hook_Encoder, Motor_Feedback.motor205Angle);
 
     HookSpeedPID(&Hook_SpeedPID, 0, Motor_Feedback.motor205Speed);
 
-    Can_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
+    CAN_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
 
     //			-------------------------------------------------------------------------------------------------------------------------------
 
@@ -97,17 +97,17 @@ void mainTask(void) {
                  CM4PID.PIDout); //得到电流发送给电调
   }
   //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  else if (DbusData.switchLeft == 3) {
+  else if (DBusData.switchLeft == 3) {
     TIM_SetCompare1(TIM4, 5);
 
-    Can_Update_Encoder_Data(&Hook_Encoder, Motor_Feedback.motor205Angle);
+    CAN_Update_Encoder_Data(&Hook_Encoder, Motor_Feedback.motor205Angle);
 
     HookFeedAngle = Hook_Encoder.ecdAngle;
 
-    HookSpeedPID(&Hook_SpeedPID, DbusData.ch2,
+    HookSpeedPID(&Hook_SpeedPID, DBusData.ch2,
                  Motor_Feedback.motor205Speed);
 
-    Can_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
+    CAN_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
 
     //=======移动=============================================================================
 
@@ -140,11 +140,11 @@ void mainTask(void) {
 
   // delay_ms(3000);
   // Hook_Encoder.ecdBias = Motor_Feedback.motor205Angle;
-  // Can_Get_Encoder_Bias(&Hook_Encoder);
+  // CAN_Get_Encoder_Bias(&Hook_Encoder);
   // Armour1_Encoder.ecdBias = Motor_Feedback.motor206Angle;
   // Armour2_Encoder.ecdBias = Motor_Feedback.motor207Angle;
-  // Can_Get_Encoder_Bias(&Armour1_Encoder);
-  // Can_Get_Encoder_Bias(&Armour2_Encoder);
+  // CAN_Get_Encoder_Bias(&Armour1_Encoder);
+  // CAN_Get_Encoder_Bias(&Armour2_Encoder);
 
   // MPU6500_Initialize();
 

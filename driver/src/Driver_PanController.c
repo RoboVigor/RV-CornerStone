@@ -186,7 +186,7 @@ void Chassis_Get_XYW_Speed(int dir, int Mode) {
 
     yawSpeedFeed = mpu6500_data.gz / 16.4;
 
-    // if(ABS(DbusData.ch1)<5)
+    // if(ABS(DBusData.ch1)<5)
     if (Mode == 2) {
         if (LastMode != 2) {
             YawAnglePID.Iout  = 0;
@@ -198,7 +198,7 @@ void Chassis_Get_XYW_Speed(int dir, int Mode) {
         PanAnglePID(&YawAnglePID, targetYawAngle, yawAngleFeed); //??pid?? ??????
         PanYawSpeedPID(&YawSpeedPID1, YawAnglePID.PIDout, yawSpeedFeed);
 
-        Chassis_Set_Wheel_Speed(-DbusData.ch4 * dir, DbusData.ch3 * dir, YawSpeedPID1.PIDout);
+        Chassis_Set_Wheel_Speed(-DBusData.ch4 * dir, DBusData.ch3 * dir, YawSpeedPID1.PIDout);
         LastMode = 2;
     } else if (Mode == 1) {
         if (LastMode != 1) {
@@ -207,13 +207,13 @@ void Chassis_Get_XYW_Speed(int dir, int Mode) {
             YawSpeedPID2.Iout = 0;
         }
 
-        PanYawSpeedPID(&YawSpeedPID2, -DbusData.ch1 / 6, yawSpeedFeed);
+        PanYawSpeedPID(&YawSpeedPID2, -DBusData.ch1 / 6, yawSpeedFeed);
 
-        Chassis_Set_Wheel_Speed(-DbusData.ch4 * dir, DbusData.ch3 * dir, YawSpeedPID2.PIDout);
+        Chassis_Set_Wheel_Speed(-DBusData.ch4 * dir, DBusData.ch3 * dir, YawSpeedPID2.PIDout);
 
         LastMode = 1;
     } else if (Mode == 0) {
-        Can_Set_CM_Speed(CAN1, 0, 0, 0, 0);
+        CAN_Set_CM_Speed(CAN1, 0, 0, 0, 0);
     }
 }
 

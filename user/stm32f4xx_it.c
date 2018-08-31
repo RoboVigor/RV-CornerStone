@@ -22,7 +22,7 @@ void USART1_IRQHandler(void) {
 
     //数据量正确
     if (DMA2_Stream2->NDTR == DBUS_BACK_LENGTH) {
-        Dbus_Decode_Remote_Control_Data(); //解码
+        DBus_Decode_Remote_Control_Data(); //解码
     }
 
     //重启DMA
@@ -52,7 +52,7 @@ void USART6_IRQHandler(void) {
     if (res == 's') {
         printf("send message\r\n");
         data = 886;
-        err  = xQueueSendFromISR(QueueTest, &data, &xHigherPriorityTaskWoken);
+        err  = xQueueSendFromISR(Queue_Test, &data, &xHigherPriorityTaskWoken);
         if (err == pdTRUE) {
             printf("Message sent!\r\n");
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

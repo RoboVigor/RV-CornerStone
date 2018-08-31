@@ -10,7 +10,7 @@
 	*					i_204 0x204地址电机给定电流值,范围-32768~32768
  * @return void
  */
-	void Can_Set_CM_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204)
+	void CAN_Set_CM_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204)
 {
     CanTxMsg tx_message;
     tx_message.StdId = 0x200;
@@ -42,7 +42,7 @@
 
 
 
-void Can_Set_HookArmour_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204)
+void CAN_Set_HookArmour_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204)
 {
 
     CanTxMsg tx_message;
@@ -81,7 +81,7 @@ void Can_Set_HookArmour_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, i
  * @param  void
  * @return void
  */
-void Can_Get_Encoder_Bias(volatile canEncoder_Type *v)
+void CAN_Get_Encoder_Bias(volatile CANEncoder_Type *v)
 {
 //		int i;
 	//v->ecdBias = 4333;  //保存初始编码器值作为偏差
@@ -97,7 +97,7 @@ void Can_Get_Encoder_Bias(volatile canEncoder_Type *v)
  */
 
 
- void Can_Update_Encoder_Data(volatile canEncoder_Type *v,uint16_t agree)
+ void CAN_Update_Encoder_Data(volatile CANEncoder_Type *v,uint16_t agree)
 {
 	int i=0;
 	int32_t temp_sum = 0;

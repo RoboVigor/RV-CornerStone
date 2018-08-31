@@ -36,18 +36,18 @@ typedef struct {
 
 typedef struct {
     int32_t rawValue;               //编码器不经处理的原始值
-    int32_t lastRawValue;          //上一次的编码器原始值
+    int32_t lastRawValue;           //上一次的编码器原始值
     int32_t ecdValue;               //经过处理后连续的编码器值
-    int32_t diff;                    //两次编码器之间的差值
+    int32_t diff;                   //两次编码器之间的差值
     int32_t tempCount;              //计数用
     uint8_t bufCount;               //滤波更新buf用
     int32_t ecdBias;                //初始编码器值
-    int32_t ecdRawRate;            //通过编码器计算得到的速度原始值
+    int32_t ecdRawRate;             //通过编码器计算得到的速度原始值
     int32_t rateBuf[RATE_BUF_SIZE]; // buf,for filter
     int32_t roundCnt;               //圈数
     int32_t filterRate;             //速度
     float   ecdAngle;               //角度
-} canEncoder_Type;
+} CANEncoder_Type;
 
 #ifdef __DRIVER_CAN_GLOBALS
 #define __DRIVER_CAN_EXT
@@ -55,12 +55,12 @@ typedef struct {
 #define __DRIVER_CAN_EXT extern
 #endif
 
-__DRIVER_CAN_EXT MotorFeedback_Type Motor_Feedback;
-__DRIVER_CAN_EXT volatile canEncoder_Type         Hook_Encoder, Armour1_Encoder, Armour2_Encoder;
+__DRIVER_CAN_EXT MotorFeedback_Type       Motor_Feedback;
+__DRIVER_CAN_EXT volatile CANEncoder_Type Hook_Encoder, Armour1_Encoder, Armour2_Encoder;
 
-void Can_Set_CM_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204);
-void Can_Get_Encoder_Bias(volatile canEncoder_Type *v);
-void Can_Update_Encoder_Data(volatile canEncoder_Type *v, uint16_t agree);
-void Can_Set_HookArmour_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204); // 201(205)是hook的 202(206) 203(207)是armour的
+void CAN_Set_CM_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204);
+void CAN_Get_Encoder_Bias(volatile CANEncoder_Type *v);
+void CAN_Update_Encoder_Data(volatile CANEncoder_Type *v, uint16_t agree);
+void CAN_Set_HookArmour_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204); // 201(205)是hook的 202(206) 203(207)是armour的
 
 #endif

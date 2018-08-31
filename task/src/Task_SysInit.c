@@ -8,7 +8,7 @@
  * @return void
  */
 
-void Task_SysInit(void *Parameters) {
+void Task_Sys_Init(void *Parameters) {
     // 进入临界区
     taskENTER_CRITICAL();
 
@@ -21,15 +21,15 @@ void Task_SysInit(void *Parameters) {
     BSP_NVIC_Init();
 
     // 初始化消息体
-    QueueTest = xQueueCreate(10, sizeof(u32));
+    Queue_Test = xQueueCreate(10, sizeof(u32));
 
     // 建立IRQ任务
-    xTaskCreate(Task_Debug, "Task_Debug", 500, NULL, 6, &TaskHandler_Debug);
-    xTaskCreate(Task_Dbus, "Task_Dbus", 400, NULL, 6, &TaskHandler_Dbus);
-    vTaskSuspend(TaskHandler_Debug);
+    xTaskCreate(Task_Debug, "Task_Debug", 500, NULL, 6, &TaskHandle_Debug);
+    xTaskCreate(Task_DBus, "Task_DBus", 400, NULL, 6, &TaskHandle_DBus);
+    vTaskSuspend(TaskHandle_Debug);
 
     // 建立低优先级任务
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, &TaskHandler_Blink);
+    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, &TaskHandle_Blink);
 
     // 完成使命
     vTaskDelete(NULL);

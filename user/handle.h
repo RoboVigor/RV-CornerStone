@@ -7,10 +7,10 @@
 #define __HANDLE_EXT   extern
 #endif
 
-__HANDLE_EXT TaskHandle_t TaskHandler_Dbus;
-__HANDLE_EXT TaskHandle_t TaskHandler_Debug;
-__HANDLE_EXT TaskHandle_t TaskHandler_Blink;
+__HANDLE_EXT TaskHandle_t TaskHandle_DBus;
+__HANDLE_EXT TaskHandle_t TaskHandle_Debug;
+__HANDLE_EXT TaskHandle_t TaskHandle_Blink;
 
-__HANDLE_EXT QueueHandle_t QueueTest;
+__HANDLE_EXT QueueHandle_t Queue_Test;
 
 #endif

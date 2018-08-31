@@ -54,7 +54,7 @@ typedef struct {
         uint16_t keyCode;     //原始键值
         uint16_t jumpKeyCode; //跳变后的键值
     } keyBoard;
-} DbusData_Type;
+} DBusData_Type;
 
 #ifdef __DBUS_GLOBALS
 #define __DBUS_EXT
@@ -62,10 +62,10 @@ typedef struct {
 #define __DBUS_EXT extern
 #endif
 
-__DBUS_EXT uint8_t dbusBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH]; // DBUS,DMA接收缓存
-__DBUS_EXT DbusData_Type DbusData, OldDbusData;                // DBUS解码后的数据
+__DBUS_EXT uint8_t dBusBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH]; // DBUS,DMA接收缓存
+__DBUS_EXT DBusData_Type DBusData, LastDBusData;                // DBUS解码后的数据
 
-void Dbus_Init(void);
-void Dbus_Decode_Remote_Control_Data(void);
+void DBus_Init(void);
+void DBus_Decode_Remote_Control_Data(void);
 
 #endif
