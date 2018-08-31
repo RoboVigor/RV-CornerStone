@@ -35,7 +35,7 @@ typedef struct {
     float TargetVY;
     float TargetWR;
     int   WheelSpeed[4];
-} ChassisParamTypeDef;
+} ChassisParam_Type;
 
 #ifdef __PanController_Global
 #define __PanController_EXT
@@ -44,7 +44,7 @@ typedef struct {
 #endif
 
 __PanController_EXT PANPID_Type CM1PID, CM2PID, CM3PID, CM4PID, YawAnglePID, YawSpeedPID1, YawSpeedPID2;
-__PanController_EXT ChassisParamTypeDef ChassisParam;
+__PanController_EXT ChassisParam_Type ChassisParam;
 __PanController_EXT float               targetYawAngle, yawAngleFeed, yawSpeedFeed;
 
 void PANAnglePIDInit(PANPID_Type *pid, float Kp, float Ki, float Kd);

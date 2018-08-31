@@ -62,7 +62,7 @@ typedef struct {
 #define __DBUS_EXT extern
 #endif
 
-__DBUS_EXT uint8_t dBusBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH]; // DBUS,DMA接收缓存
+__DBUS_EXT uint8_t DBusBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH]; // DBUS,DMA接收缓存
 __DBUS_EXT DBusData_Type DBusData, LastDBusData;                // DBUS解码后的数据
 
 void DBus_Init(void);
