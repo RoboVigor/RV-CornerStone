@@ -17,7 +17,7 @@ int PanPIDMode = 1;
 void mainTask(void) {
 
   if (DbusData.switchRight == 2) {
-    Set_CM_Speed(CAN1, 0, 0, 0, 0);
+    Can_Set_CM_Speed(CAN1, 0, 0, 0, 0);
     return;
   }
   Motion_Update();
@@ -68,11 +68,11 @@ void mainTask(void) {
     TIM_SetCompare1(TIM4, 23);
     //			-------------------------------------------------------------------------------------------------------------------------------
 
-    EncoderProcess(&Hook_Encoder, Motor_Feedback.Motor_205_Agree);
+    Can_Update_Encoder_Data(&Hook_Encoder, Motor_Feedback.motor205Angle);
 
-    HookSpeedPID(&Hook_SpeedPID, 0, Motor_Feedback.Motor_205_Speed);
+    HookSpeedPID(&Hook_SpeedPID, 0, Motor_Feedback.motor205Speed);
 
-    Set_Hook_Armour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
+    Can_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
 
     //			-------------------------------------------------------------------------------------------------------------------------------
 
@@ -84,30 +84,30 @@ void mainTask(void) {
 
     //速度pid
     PANSpeedPID(&CM1PID, ArmatureRotateSpeed[0],
-                Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
+                Motor_Feedback.motor201Speed * 2 * 3.14 / 60);
     PANSpeedPID(&CM2PID, ArmatureRotateSpeed[1],
-                Motor_Feedback.Motor_202_Speed * 2 * 3.14 / 60);
+                Motor_Feedback.motor202Speed * 2 * 3.14 / 60);
     PANSpeedPID(&CM3PID, ArmatureRotateSpeed[2],
-                Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
+                Motor_Feedback.motor203Speed * 2 * 3.14 / 60);
     PANSpeedPID(&CM4PID, ArmatureRotateSpeed[3],
-                Motor_Feedback.Motor_204_Speed * 2 * 3.14 /
+                Motor_Feedback.motor204Speed * 2 * 3.14 /
                     60); //都是rad/s 反馈转子转速
 
-    Set_CM_Speed(CAN1, CM1PID.PIDout, CM2PID.PIDout, CM3PID.PIDout,
+    Can_Set_CM_Speed(CAN1, CM1PID.PIDout, CM2PID.PIDout, CM3PID.PIDout,
                  CM4PID.PIDout); //得到电流发送给电调
   }
   //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   else if (DbusData.switchLeft == 3) {
     TIM_SetCompare1(TIM4, 5);
 
-    EncoderProcess(&Hook_Encoder, Motor_Feedback.Motor_205_Agree);
+    Can_Update_Encoder_Data(&Hook_Encoder, Motor_Feedback.motor205Angle);
 
-    HookFeedAngle = Hook_Encoder.ecd_angle;
+    HookFeedAngle = Hook_Encoder.ecdAngle;
 
     HookSpeedPID(&Hook_SpeedPID, DbusData.ch2,
-                 Motor_Feedback.Motor_205_Speed);
+                 Motor_Feedback.motor205Speed);
 
-    Set_Hook_Armour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
+    Can_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
 
     //=======移动=============================================================================
 
@@ -119,16 +119,16 @@ void mainTask(void) {
 
     //速度pid
     PANSpeedPID(&CM1PID, ArmatureRotateSpeed[0],
-                Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
+                Motor_Feedback.motor201Speed * 2 * 3.14 / 60);
     PANSpeedPID(&CM2PID, ArmatureRotateSpeed[1],
-                Motor_Feedback.Motor_202_Speed * 2 * 3.14 / 60);
+                Motor_Feedback.motor202Speed * 2 * 3.14 / 60);
     PANSpeedPID(&CM3PID, ArmatureRotateSpeed[2],
-                Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
+                Motor_Feedback.motor203Speed * 2 * 3.14 / 60);
     PANSpeedPID(&CM4PID, ArmatureRotateSpeed[3],
-                Motor_Feedback.Motor_204_Speed * 2 * 3.14 /
+                Motor_Feedback.motor204Speed * 2 * 3.14 /
                     60); //都是rad/s 反馈转子转速
 
-    Set_CM_Speed(CAN1, CM1PID.PIDout, CM2PID.PIDout, CM3PID.PIDout,
+    Can_Set_CM_Speed(CAN1, CM1PID.PIDout, CM2PID.PIDout, CM3PID.PIDout,
                  CM4PID.PIDout); //得到电流发送给电调
   }
 }
@@ -139,12 +139,12 @@ void mainTask(void) {
   // MPU6500_IntConfiguration();
 
   // delay_ms(3000);
-  // Hook_Encoder.ecd_bias = Motor_Feedback.Motor_205_Agree;
-  // GetEncoderBias(&Hook_Encoder);
-  // Armour1_Encoder.ecd_bias = Motor_Feedback.Motor_206_Agree;
-  // Armour2_Encoder.ecd_bias = Motor_Feedback.Motor_207_Agree;
-  // GetEncoderBias(&Armour1_Encoder);
-  // GetEncoderBias(&Armour2_Encoder);
+  // Hook_Encoder.ecdBias = Motor_Feedback.motor205Angle;
+  // Can_Get_Encoder_Bias(&Hook_Encoder);
+  // Armour1_Encoder.ecdBias = Motor_Feedback.motor206Angle;
+  // Armour2_Encoder.ecdBias = Motor_Feedback.motor207Angle;
+  // Can_Get_Encoder_Bias(&Armour1_Encoder);
+  // Can_Get_Encoder_Bias(&Armour2_Encoder);
 
   // MPU6500_Initialize();
 

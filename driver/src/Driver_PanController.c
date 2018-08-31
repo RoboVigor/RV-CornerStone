@@ -238,7 +238,7 @@ void GetXYWSpeed(int dir, int Mode)
 			}
 			else if(Mode == 0)
 			{
-				Set_CM_Speed(CAN1, 0, 0, 0, 0);
+				Can_Set_CM_Speed(CAN1, 0, 0, 0, 0);
 
 
 			}

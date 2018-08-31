@@ -30,7 +30,7 @@ typedef struct{
 } Euler_AngleType;
 
 typedef struct{
-	double raw_value;
+	double rawValue;
 	double xbuf[8];
 	double ybuf[8];
 	double filtered_value;
