@@ -60,10 +60,10 @@ typedef struct{
 __DRIVER_CAN_EXT Motor_Feedback_Structure Motor_Feedback;
 __DRIVER_CAN_EXT volatile Encoder Hook_Encoder,Armour1_Encoder,Armour2_Encoder;
 
-void Set_CM_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204);
+void Can_Set_Motor_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204);
 void GetEncoderBias(volatile Encoder *v);
 void EncoderProcess(volatile Encoder *v,uint16_t agree);
-void Set_Hook_Armour_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204);//201(205)是hook的 202(206) 203(207)是armour的
+void Can_Set_Hook__Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204);//201(205)是hook的 202(206) 203(207)是armour的
 
 #endif
 

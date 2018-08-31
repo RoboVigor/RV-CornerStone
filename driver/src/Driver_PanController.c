@@ -12,9 +12,9 @@
 
 int LastMode = 0;
 
-void PanTargetAngleInit(void)
+void Chassis_Init_Yaw_Angle(void)
 {
-	TargetYawAngle = 0;
+	targetYawAngle = 0;
 }
 
 /**
@@ -80,7 +80,7 @@ void PanAnglePID(PANPID_Type * pid, int angle, int feed)
  * @return void
  */
 
-void PANSpeedPID(PANPID_Type * pid, int speed, int feed)
+void PID_Set_Pan_Speed(PANPID_Type * pid, int speed, int feed)
 {
 	pid->TargetSpeed=speed;
 	pid->SpeedFeed=feed;
@@ -180,13 +180,13 @@ void PANAnglePIDInit(PANPID_Type * pid, float Kp,float Ki, float Kd)
 	pid->AngleFeed = 0;
 	pid->SpeedFeed = 0;
 }
-void Chassis_SpeedSet(int XSpeed, int YSpeed,int WSpeed)
+void Chassis_Set_Wheel_Speed(int XSpeed, int YSpeed,int WSpeed)
 {
     ChassisParam.TargetVX = (float)XSpeed/660*5;
     ChassisParam.TargetVY = (float)YSpeed/660*5;
 	  ChassisParam.TargetWR = (float)WSpeed/660*15;//4*1.5*2
 }
-void MecanumCalculation(int buffer[4])
+void Chassis_Update_Mecanum_Data(int buffer[4])
 {
 			float K = 0.946;
 			buffer[0] = 13.16*((ChassisParam.TargetVX)-(ChassisParam.TargetVY)+ChassisParam.TargetWR*(-K))*19.2;//麦克解算遥控器来的数值来礵e
@@ -196,10 +196,10 @@ void MecanumCalculation(int buffer[4])
 
 }
 
-void GetXYWSpeed(int dir, int Mode)
+void Chassis_Get_XYW_Speed(int dir, int Mode)
 {
 
-			YawSpeedFeed = mpu6500_data.gz/16.4;
+			yawSpeedFeed = mpu6500_data.gz/16.4;
 
 			//if(ABS(DbusData.ch1)<5)
 			if(Mode == 2)
@@ -209,15 +209,15 @@ void GetXYWSpeed(int dir, int Mode)
 					YawAnglePID.Iout = 0;
 					YawSpeedPID1.Iout = 0;
 					YawSpeedPID2.Iout = 0;
-					TargetYawAngle = YawAngleFeed;
+					targetYawAngle = yawAngleFeed;
 				}
 
 
 
-				PanAnglePID(&YawAnglePID,TargetYawAngle,YawAngleFeed);//??pid?? ??????
-				PanYawSpeedPID(&YawSpeedPID1,YawAnglePID.PIDout,YawSpeedFeed);
+				PanAnglePID(&YawAnglePID,targetYawAngle,yawAngleFeed);//??pid?? ??????
+				PanYawSpeedPID(&YawSpeedPID1,YawAnglePID.PIDout,yawSpeedFeed);
 
-				Chassis_SpeedSet(-DbusData.ch4*dir,DbusData.ch3*dir,YawSpeedPID1.PIDout);
+				Chassis_Set_Wheel_Speed(-DbusData.ch4*dir,DbusData.ch3*dir,YawSpeedPID1.PIDout);
 				LastMode = 2;
 			}
 			else if(Mode == 1)
@@ -229,16 +229,16 @@ void GetXYWSpeed(int dir, int Mode)
 					YawSpeedPID2.Iout = 0;
 				}
 
-				PanYawSpeedPID(&YawSpeedPID2,-DbusData.ch1/6,YawSpeedFeed);
+				PanYawSpeedPID(&YawSpeedPID2,-DbusData.ch1/6,yawSpeedFeed);
 
-				Chassis_SpeedSet(-DbusData.ch4*dir,DbusData.ch3*dir,YawSpeedPID2.PIDout);
+				Chassis_Set_Wheel_Speed(-DbusData.ch4*dir,DbusData.ch3*dir,YawSpeedPID2.PIDout);
 
 
 				LastMode = 1;
 			}
 			else if(Mode == 0)
 			{
-				Set_CM_Speed(CAN1, 0, 0, 0, 0);
+				Can_Set_Motor_Speed(CAN1, 0, 0, 0, 0);
 
 
 			}
@@ -246,7 +246,7 @@ void GetXYWSpeed(int dir, int Mode)
 
 }
 
-void LimitWheelSpeed(int WheelSpeedOrigin[4],int WheelSpeedRes[4],int MaxWheelSpeed)
+void Chassis_Limit_Wheel_Speed(int WheelSpeedOrigin[4],int WheelSpeedRes[4],int MaxWheelSpeed)
 {
 	float MaxSpeed = 0;
 	float Param = 0;

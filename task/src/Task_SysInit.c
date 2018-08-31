@@ -25,7 +25,7 @@ void Task_SysInit(void *Parameters) {
 
     // 建立IRQ任务
     xTaskCreate(Task_Debug, "Task_Debug", 500, NULL, 6, &TaskHandler_Debug);
-    xTaskCreate(Task_DBus, "Task_DBus", 400, NULL, 6, &TaskHandler_Dbus);
+    xTaskCreate(Task_Dbus, "Task_Dbus", 400, NULL, 6, &TaskHandler_Dbus);
     vTaskSuspend(TaskHandler_Debug);
 
     // 建立低优先级任务

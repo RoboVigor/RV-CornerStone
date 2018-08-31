@@ -43,14 +43,14 @@ typedef struct{
 #endif
 
 
-__DRIVER_ANGULAR_EXT volatile Euler_AngleType Euler_Angle;
+__DRIVER_ANGULAR_EXT volatile Euler_AngleType EulerAngle;
 __DRIVER_ANGULAR_EXT i_euler e_index;
 __DRIVER_ANGULAR_EXT i_qud   q_index;
 extern volatile float angle[3];
 
 void q2euler(float* q_num,float* e_num);
 void q_fresh( float* q_num, float* a_num, float* a_num2,float time);
-void Motion_Update(void);
+void Gyroscope_Update_Angle_Data(void);
 double Chebyshev10HzLPF(Filter_t *F);
 void q2euler2(float *q_num, float *e_num);
 ///////////////////////////////////////////////////

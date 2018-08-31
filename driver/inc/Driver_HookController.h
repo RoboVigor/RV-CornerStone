@@ -54,7 +54,7 @@ void HookAnglePIDInit(HookPID_Type * pid, float Kp,float Ki, float Kd);
 	
 void HookSpeedPID(HookPID_Type * pid, int speed, int feed);
 
-void Chassis_SpeedSet(int XSpeed, int YSpeed,int WSpeed);
+void Chassis_Set_Wheel_Speed(int XSpeed, int YSpeed,int WSpeed);
 
 void HookAnglePID(HookPID_Type * pid, int angle, int feed);
 

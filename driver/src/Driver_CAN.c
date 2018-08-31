@@ -10,7 +10,7 @@
 	*					i_204 0x204地址电机给定电流值,范围-32768~32768
  * @return void
  */
-	void Set_CM_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204)
+	void Can_Set_Motor_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204)
 {
     CanTxMsg tx_message;
     tx_message.StdId = 0x200;
@@ -42,7 +42,7 @@
 
 
 
-void Set_Hook_Armour_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204)
+void Can_Set_Hook__Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204)
 {
 
     CanTxMsg tx_message;

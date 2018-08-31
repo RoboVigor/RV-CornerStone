@@ -48,13 +48,13 @@ const uint16_t tone_tab[] =
   955,   851,  758,  715,   637, 568,   506,	//treble 1~7
 };
 
-const Sound_tone_e Mavic_Startup_music[Startup_Success_music_len] = 
+const Sound_Tone_Type Mavic_Startup_music[Startup_Success_music_len] = 
 {
   So5L, So5L, So5L, So5L, La6L, La6L, La6L, La6L, Mi3M, Mi3M, Mi3M, Mi3M, Mi3M, Silent,
 };
 
 //
-void Sing(Sound_tone_e tone)
+void Sing(Sound_Tone_Type tone)
 {
   if(Silent == tone)
     BEEP_CH = 0;
