@@ -10,7 +10,7 @@
 	*					i_204 0x204地址电机给定电流值,范围-32768~32768
  * @return void
  */
-	void Can_Set_Motor_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204)
+	void Can_Set_CM_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204)
 {
     CanTxMsg tx_message;
     tx_message.StdId = 0x200;
@@ -42,7 +42,7 @@
 
 
 
-void Can_Set_Hook__Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204)
+void Can_Set_HookArmour_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204)
 {
 
     CanTxMsg tx_message;
@@ -81,13 +81,13 @@ void Can_Set_Hook__Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_
  * @param  void
  * @return void
  */
-void GetEncoderBias(volatile Encoder *v)
+void Can_Get_Encoder_Bias(volatile canEncoder_Type *v)
 {
 //		int i;
-	//v->ecd_bias = 4333;  //保存初始编码器值作为偏差
-    v->raw_value = v->ecd_bias;
-    v->last_raw_value = v->ecd_bias;
-		v->round_cnt=0;
+	//v->ecdBias = 4333;  //保存初始编码器值作为偏差
+    v->rawValue = v->ecdBias;
+    v->lastRawValue = v->ecdBias;
+		v->roundCnt=0;
 }
 
 /**
@@ -97,42 +97,42 @@ void GetEncoderBias(volatile Encoder *v)
  */
 
 
- void EncoderProcess(volatile Encoder *v,uint16_t agree)
+ void Can_Update_Encoder_Data(volatile canEncoder_Type *v,uint16_t agree)
 {
 	int i=0;
 	int32_t temp_sum = 0;
-	v->last_raw_value = v->raw_value;
-	v->raw_value = agree;
-	v->diff = v->raw_value - v->last_raw_value;
+	v->lastRawValue = v->rawValue;
+	v->rawValue = agree;
+	v->diff = v->rawValue - v->lastRawValue;
 	if(v->diff < -4200)    //两次编码器的反馈值差别太大,表示圈数发生了改变
 	{
-		v->round_cnt++;
-		v->ecd_raw_rate = v->diff + 8192;
+		v->roundCnt++;
+		v->ecdRawRate = v->diff + 8192;
 	}
 	else if(v->diff>4200)
 	{
-		v->round_cnt--;
-		v->ecd_raw_rate = v->diff- 8192;
+		v->roundCnt--;
+		v->ecdRawRate = v->diff- 8192;
 	}
 	else
 	{
-		v->ecd_raw_rate = v->diff;
+		v->ecdRawRate = v->diff;
 	}
 	//计算得到连续的编码器输出值
-	v->ecd_value = v->raw_value + v->round_cnt * 8192;
+	v->ecdValue = v->rawValue + v->roundCnt * 8192;
 	//计算得到角度值,范围正负无穷大
-	v->ecd_angle = (float)(v->raw_value - v->ecd_bias)*360/8192 + v->round_cnt * 360;
-	v->rate_buf[v->buf_count++] = v->ecd_raw_rate;
-	if(v->buf_count == RATE_BUF_SIZE)
+	v->ecdAngle = (float)(v->rawValue - v->ecdBias)*360/8192 + v->roundCnt * 360;
+	v->rateBuf[v->bufCount++] = v->ecdRawRate;
+	if(v->bufCount == RATE_BUF_SIZE)
 	{
-		v->buf_count = 0;
+		v->bufCount = 0;
 	}
 	//计算速度平均值
 	for(i = 0;i < RATE_BUF_SIZE; i++)
 	{
-		temp_sum += v->rate_buf[i];
+		temp_sum += v->rateBuf[i];
 	}
-	v->filter_rate = (int32_t)(temp_sum/RATE_BUF_SIZE);
+	v->filterRate = (int32_t)(temp_sum/RATE_BUF_SIZE);
 }
 
 

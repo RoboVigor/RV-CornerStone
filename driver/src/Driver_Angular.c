@@ -155,8 +155,8 @@ void Gyroscope_Update_Angle_Data(void)
 	//	if(startcount>=7000)
 	//	{
 	//		startcount=7000;
-	//		if(Motor_Feedback.Motor_201_Speed==0 && Motor_Feedback.Motor_202_Speed==0 &&
-	//		Motor_Feedback.Motor_203_Speed==0 && Motor_Feedback.Motor_204_Speed==0 && yaw_c==0 && YAW_Encoder.ecd_angle==0)
+	//		if(Motor_Feedback.motor201Speed==0 && Motor_Feedback.motor202Speed==0 &&
+	//		Motor_Feedback.motor203Speed==0 && Motor_Feedback.motor204Speed==0 && yaw_c==0 && YAW_Encoder.ecdAngle==0)
 	//		{
 	//			if(yaw_state)
 	//			{
@@ -345,7 +345,7 @@ void q2euler(float *q_num, float *e_num)
 //		F->ybuf[i] = F->ybuf[i-1];
 //		F->xbuf[i] = F->xbuf[i-1];
 //	}
-//	F->xbuf[0] = F->raw_value;
+//	F->xbuf[0] = F->rawValue;
 //	F->ybuf[0] = NUM[0] * F->xbuf[0];
 //	for(i=1;i<8;i++)
 //	{
