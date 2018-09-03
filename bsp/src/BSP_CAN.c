@@ -5,7 +5,7 @@
  * @param  void
  * @return void
  */
-void BSP_CAN_InitConfig(void) {
+void BSP_CAN_Init(void) {
     CAN_InitTypeDef       CAN_InitStructure;
     CAN_FilterInitTypeDef CAN_FilterInitStructure;
 

@@ -1,17 +1,17 @@
 #include "main.h"
 
 /**
- * @brief  DBUS处理任务
+ * @brief  DBus处理任务
  * @param  void *Parameters
  * @return void
  * 暂时作消息体测试
  */
 
-void Task_DBUS(void *Parameters) {
+void Task_DBus(void *Parameters) {
     u32 data;
 
     while (1) {
-        if (xQueueReceive(queue_test, &data, portMAX_DELAY)) {
+        if (xQueueReceive(Queue_Test, &data, portMAX_DELAY)) {
             printf("Received message: %d\r\n", data);
         } else {
             printf("Failed");
@@ -31,14 +31,14 @@ void Task_DBUS(void *Parameters) {
  */
 
 extern volatile uint32_t ulHighFrequencyTimerTicks;
-int                      Task_Debug_Sign = 0;
+int                      taskDebug_Sign = 0;
 
 void Task_Debug(void *Parameters) {
     while (1) {
         u8 pcWriteBuffer[ 1000 ];
         printf("=========================\r\n");
         printf("time:    %d\r\n", ulHighFrequencyTimerTicks);
-        if (Task_Debug_Sign) {
+        if (taskDebug_Sign) {
             printf("\r\nName            Count              Usage\r\n");
             vTaskGetRunTimeStats((char *) &pcWriteBuffer);
             printf("%s\r\n", pcWriteBuffer);
@@ -47,7 +47,7 @@ void Task_Debug(void *Parameters) {
             vTaskList((char *) &pcWriteBuffer);
             printf("%s\r\n", pcWriteBuffer);
         }
-        Task_Debug_Sign = Task_Debug_Sign ? 0 : 1;
+        taskDebug_Sign = taskDebug_Sign ? 0 : 1;
 
         printf("=========================\r\n\r\n\r\n");
         vTaskDelay(5000);

@@ -5,7 +5,7 @@
 #include "stm32f4xx.h"
 
 
-void BSP_UART_InitConfig(void);
+void BSP_UART_Init(void);
 
 
 #endif

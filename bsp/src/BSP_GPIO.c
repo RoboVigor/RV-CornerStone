@@ -5,7 +5,7 @@
  * @param  void
  * @return void
  */
-void BSP_GPIO_InitConfig(void) {
+void BSP_GPIO_Init(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
 
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -13,7 +13,7 @@ void BSP_GPIO_InitConfig(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
 
-    // UART1(DBUS)
+    // UART1(DBus)
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_7;

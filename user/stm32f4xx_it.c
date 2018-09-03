@@ -7,7 +7,7 @@
 #include "stm32f4xx_it.h"
 
 /**
- * @brief  DBUS空闲中断(USART1)
+ * @brief  DBus空闲中断(USART1)
  * @param  void
  * @return void
  */
@@ -21,15 +21,15 @@ void USART1_IRQHandler(void) {
     DMA_Cmd(DMA2_Stream2, DISABLE);
 
     //数据量正确
-    if (DMA2_Stream2->NDTR == DBUSBackLength) {
-        DBUS_DataDecoding(); //解码
+    if (DMA2_Stream2->NDTR == DBUS_BACK_LENGTH) {
+        DBus_Decode_Remote_Control_Data(); //解码
     }
 
     //重启DMA
     DMA_ClearFlag(DMA2_Stream2, DMA_FLAG_TCIF2 | DMA_FLAG_HTIF2);
     while (DMA_GetCmdStatus(DMA2_Stream2) != DISABLE) {
     }
-    DMA_SetCurrDataCounter(DMA2_Stream2, DBUSLength + DBUSBackLength);
+    DMA_SetCurrDataCounter(DMA2_Stream2, DBUS_LENGTH + DBUS_BACK_LENGTH);
     DMA_Cmd(DMA2_Stream2, ENABLE);
 }
 
@@ -52,7 +52,7 @@ void USART6_IRQHandler(void) {
     if (res == 's') {
         printf("send message\r\n");
         data = 886;
-        err  = xQueueSendFromISR(queue_test, &data, &xHigherPriorityTaskWoken);
+        err  = xQueueSendFromISR(Queue_Test, &data, &xHigherPriorityTaskWoken);
         if (err == pdTRUE) {
             printf("Message sent!\r\n");
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -74,23 +74,23 @@ void CAN1_RX0_IRQHandler(void) {
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
     switch (CanRxData.StdId) {
     case WHEEL_1_ID:
-        Motor_Feedback.Motor_201_Agree = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
-        Motor_Feedback.Motor_201_Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
+        Motor_Feedback.motor201Angle = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
+        Motor_Feedback.motor201Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
         break;
 
     case WHEEL_2_ID:
-        Motor_Feedback.Motor_202_Agree = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
-        Motor_Feedback.Motor_202_Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
+        Motor_Feedback.motor202Angle = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
+        Motor_Feedback.motor202Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
         break;
 
     case WHEEL_3_ID:
-        Motor_Feedback.Motor_203_Agree = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
-        Motor_Feedback.Motor_203_Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
+        Motor_Feedback.motor203Angle = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
+        Motor_Feedback.motor203Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
         break;
 
     case WHEEL_4_ID:
-        Motor_Feedback.Motor_204_Agree = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
-        Motor_Feedback.Motor_204_Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
+        Motor_Feedback.motor204Angle = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
+        Motor_Feedback.motor204Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
         break;
 
     default:
@@ -111,20 +111,20 @@ void CAN2_RX0_IRQHandler(void) {
     switch (CanRxData.StdId) {
     // RED_LIGHT_ON;
     case 0x201: //钩子电机
-        Motor_Feedback.Motor_205_Agree = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
-        Motor_Feedback.Motor_205_Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
+        Motor_Feedback.motor205Angle = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
+        Motor_Feedback.motor205Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
         break;
 
     case 0x202:
 
-        Motor_Feedback.Motor_206_Agree = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
-        Motor_Feedback.Motor_206_Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
+        Motor_Feedback.motor206Angle = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
+        Motor_Feedback.motor206Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
 
         break;
 
     case 0x203:
-        Motor_Feedback.Motor_207_Agree = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
-        Motor_Feedback.Motor_207_Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
+        Motor_Feedback.motor207Angle = (short) ((int) CanRxData.Data[ 0 ] << 8 | CanRxData.Data[ 1 ]);
+        Motor_Feedback.motor207Speed = (short) ((int) CanRxData.Data[ 2 ] << 8 | CanRxData.Data[ 3 ]);
 
         break;
 

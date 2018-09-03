@@ -6,129 +6,129 @@
 int ArmatureRotateSpeed[4], Buffer[4];
 int isDoublePID = 0; // 0为单速度pid
 
-float LastYawAngleFeed = 0;
-float YawAngleFeedOffset = 0;
-float YawAngleFeedThreshold = 0.003;
-float YawAngleFeedDiff = 0;
-float YawAngleFeedOffsetSample = 0;
-float YawAngleFeedOffsetSampleCounter = 0;
-int PanPIDMode = 1;
+float lastYawAngleFeed = 0;
+float yawAngleFeedOffset = 0;
+float yawAngleFeedThreshold = 0.003;
+float yawAngleFeedDiff = 0;
+float yawAngleFeedOffsetSample = 0;
+float yawAngleFeedOffsetSampleCounter = 0;
+int panPIDMode = 1;
 
 void mainTask(void) {
 
-  if (DBUS_ReceiveData.switch_right == 2) {
-    Set_CM_Speed(CAN1, 0, 0, 0, 0);
+  if (DBusData.switchRight == 2) {
+    CAN_Set_CM_Speed(CAN1, 0, 0, 0, 0);
     return;
   }
-  Motion_Update();
-  if (ABS(DBUS_ReceiveData.ch1) < 5) {
-    PanPIDMode = 2;
+  Gyroscope_Update_Angle_Data();
+  if (ABS(DBusData.ch1) < 5) {
+    panPIDMode = 2;
   } else {
-    PanPIDMode = 1;
+    panPIDMode = 1;
   }
 
-  if (Euler_Angle.Yaw - YawAngleFeedOffset - LastYawAngleFeed > 300) {
-    YawAngleFeedOffset += 360;
-  } else if (Euler_Angle.Yaw - YawAngleFeedOffset - LastYawAngleFeed < -300) {
-    YawAngleFeedOffset -= 360;
+  if (EulerAngle.Yaw - yawAngleFeedOffset - lastYawAngleFeed > 300) {
+    yawAngleFeedOffset += 360;
+  } else if (EulerAngle.Yaw - yawAngleFeedOffset - lastYawAngleFeed < -300) {
+    yawAngleFeedOffset -= 360;
   }
 
-  YawAngleFeed = Euler_Angle.Yaw - YawAngleFeedOffset;
+  yawAngleFeed = EulerAngle.Yaw - yawAngleFeedOffset;
 
-  YawAngleFeedDiff = YawAngleFeed - LastYawAngleFeed;
+  yawAngleFeedDiff = yawAngleFeed - lastYawAngleFeed;
 
-  if (ABS(DBUS_ReceiveData.ch1) < 10 && ABS(DBUS_ReceiveData.ch3) < 10 &&
-      ABS(DBUS_ReceiveData.ch4) < 10)
+  if (ABS(DBusData.ch1) < 10 && ABS(DBusData.ch3) < 10 &&
+      ABS(DBusData.ch4) < 10)
   // if(1)
   {
-    if (ABS(YawAngleFeedDiff) < YawAngleFeedThreshold) {
-      YawAngleFeedOffset += YawAngleFeedDiff;
-      YawAngleFeed = LastYawAngleFeed;
-      PanPIDMode = 0;
-      if (YawAngleFeedOffsetSampleCounter < 100) {
-        YawAngleFeedOffsetSample += YawAngleFeedDiff;
-        YawAngleFeedOffsetSampleCounter += 1;
+    if (ABS(yawAngleFeedDiff) < yawAngleFeedThreshold) {
+      yawAngleFeedOffset += yawAngleFeedDiff;
+      yawAngleFeed = lastYawAngleFeed;
+      panPIDMode = 0;
+      if (yawAngleFeedOffsetSampleCounter < 100) {
+        yawAngleFeedOffsetSample += yawAngleFeedDiff;
+        yawAngleFeedOffsetSampleCounter += 1;
       }
     } else {
-      LastYawAngleFeed = YawAngleFeed;
+      lastYawAngleFeed = yawAngleFeed;
     }
   } else {
-    if (DBUS_ReceiveData.switch_right == 1) {
-      YawAngleFeedOffset +=
-          YawAngleFeedOffsetSample / YawAngleFeedOffsetSampleCounter;
+    if (DBusData.switchRight == 1) {
+      yawAngleFeedOffset +=
+          yawAngleFeedOffsetSample / yawAngleFeedOffsetSampleCounter;
     }
-    YawAngleFeed = Euler_Angle.Yaw - YawAngleFeedOffset;
-    YawAngleFeedDiff = YawAngleFeed - LastYawAngleFeed;
-    LastYawAngleFeed = YawAngleFeed;
+    yawAngleFeed = EulerAngle.Yaw - yawAngleFeedOffset;
+    yawAngleFeedDiff = yawAngleFeed - lastYawAngleFeed;
+    lastYawAngleFeed = yawAngleFeed;
   }
 
-  if (DBUS_ReceiveData.switch_left == 1) //摄像头朝向丝杆 功能:移动
+  if (DBusData.switchLeft == 1) //摄像头朝向丝杆 功能:移动
   {
 
     TIM_SetCompare1(TIM4, 23);
     //			-------------------------------------------------------------------------------------------------------------------------------
 
-    EncoderProcess(&Hook_Encoder, Motor_Feedback.Motor_205_Agree);
+    CAN_Update_Encoder_Data(&Hook_Encoder, Motor_Feedback.motor205Angle);
 
-    HookSpeedPID(&Hook_SpeedPID, 0, Motor_Feedback.Motor_205_Speed);
+    HookSpeedPID(&Hook_SpeedPID, 0, Motor_Feedback.motor205Speed);
 
-    Set_Hook_Armour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
+    CAN_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
 
     //			-------------------------------------------------------------------------------------------------------------------------------
 
-    GetXYWSpeed(FORWARD, PanPIDMode);
+    Chassis_Get_XYW_Speed(FORWARD, panPIDMode);
 
-    MecanumCalculation(Buffer);
+    Chassis_Update_Mecanum_Data(Buffer);
 
-    LimitWheelSpeed(Buffer, ArmatureRotateSpeed, MAXWHEELSPEED);
+    Chassis_Limit_Wheel_Speed(Buffer, ArmatureRotateSpeed, MAXWHEELSPEED);
 
     //速度pid
-    PANSpeedPID(&CM1PID, ArmatureRotateSpeed[0],
+    PID_Set_Pan_Speed(&CM1PID, ArmatureRotateSpeed[0],
                 Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
-    PANSpeedPID(&CM2PID, ArmatureRotateSpeed[1],
+    PID_Set_Pan_Speed(&CM2PID, ArmatureRotateSpeed[1],
                 Motor_Feedback.Motor_202_Speed * 2 * 3.14 / 60);
-    PANSpeedPID(&CM3PID, ArmatureRotateSpeed[2],
+    PID_Set_Pan_Speed(&CM3PID, ArmatureRotateSpeed[2],
                 Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
-    PANSpeedPID(&CM4PID, ArmatureRotateSpeed[3],
+    PID_Set_Pan_Speed(&CM4PID, ArmatureRotateSpeed[3],
                 Motor_Feedback.Motor_204_Speed * 2 * 3.14 /
                     60); //都是rad/s 反馈转子转速
 
-    Set_CM_Speed(CAN1, CM1PID.PIDout, CM2PID.PIDout, CM3PID.PIDout,
+    Can_Set_Motor_Speed(CAN1, CM1PID.PIDout, CM2PID.PIDout, CM3PID.PIDout,
                  CM4PID.PIDout); //得到电流发送给电调
   }
   //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  else if (DBUS_ReceiveData.switch_left == 3) {
+  else if (DBusData.switchLeft == 3) {
     TIM_SetCompare1(TIM4, 5);
 
-    EncoderProcess(&Hook_Encoder, Motor_Feedback.Motor_205_Agree);
+    CAN_Update_Encoder_Data(&Hook_Encoder, Motor_Feedback.motor205Angle);
 
-    HookFeedAngle = Hook_Encoder.ecd_angle;
+    HookFeedAngle = Hook_Encoder.ecdAngle;
 
-    HookSpeedPID(&Hook_SpeedPID, DBUS_ReceiveData.ch2,
-                 Motor_Feedback.Motor_205_Speed);
+    HookSpeedPID(&Hook_SpeedPID, DBusData.ch2,
+                 Motor_Feedback.motor205Speed);
 
-    Set_Hook_Armour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
+    CAN_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
 
     //=======移动=============================================================================
 
-    GetXYWSpeed(BACKWARD, PanPIDMode);
+    Chassis_Get_XYW_Speed(BACKWARD, panPIDMode);
 
-    MecanumCalculation(Buffer);
+    Chassis_Update_Mecanum_Data(Buffer);
 
-    LimitWheelSpeed(Buffer, ArmatureRotateSpeed, MAXWHEELSPEED);
+    Chassis_Limit_Wheel_Speed(Buffer, ArmatureRotateSpeed, MAXWHEELSPEED);
 
     //速度pid
-    PANSpeedPID(&CM1PID, ArmatureRotateSpeed[0],
+    PID_Set_Pan_Speed(&CM1PID, ArmatureRotateSpeed[0],
                 Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
-    PANSpeedPID(&CM2PID, ArmatureRotateSpeed[1],
+    PID_Set_Pan_Speed(&CM2PID, ArmatureRotateSpeed[1],
                 Motor_Feedback.Motor_202_Speed * 2 * 3.14 / 60);
-    PANSpeedPID(&CM3PID, ArmatureRotateSpeed[2],
+    PID_Set_Pan_Speed(&CM3PID, ArmatureRotateSpeed[2],
                 Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
-    PANSpeedPID(&CM4PID, ArmatureRotateSpeed[3],
+    PID_Set_Pan_Speed(&CM4PID, ArmatureRotateSpeed[3],
                 Motor_Feedback.Motor_204_Speed * 2 * 3.14 /
                     60); //都是rad/s 反馈转子转速
 
-    Set_CM_Speed(CAN1, CM1PID.PIDout, CM2PID.PIDout, CM3PID.PIDout,
+    Can_Set_Motor_Speed(CAN1, CM1PID.PIDout, CM2PID.PIDout, CM3PID.PIDout,
                  CM4PID.PIDout); //得到电流发送给电调
   }
 }
@@ -139,12 +139,12 @@ void mainTask(void) {
   // MPU6500_IntConfiguration();
 
   // delay_ms(3000);
-  // Hook_Encoder.ecd_bias = Motor_Feedback.Motor_205_Agree;
-  // GetEncoderBias(&Hook_Encoder);
-  // Armour1_Encoder.ecd_bias = Motor_Feedback.Motor_206_Agree;
-  // Armour2_Encoder.ecd_bias = Motor_Feedback.Motor_207_Agree;
-  // GetEncoderBias(&Armour1_Encoder);
-  // GetEncoderBias(&Armour2_Encoder);
+  // Hook_Encoder.ecdBias = Motor_Feedback.motor205Angle;
+  // CAN_Get_Encoder_Bias(&Hook_Encoder);
+  // Armour1_Encoder.ecdBias = Motor_Feedback.motor206Angle;
+  // Armour2_Encoder.ecdBias = Motor_Feedback.motor207Angle;
+  // CAN_Get_Encoder_Bias(&Armour1_Encoder);
+  // CAN_Get_Encoder_Bias(&Armour2_Encoder);
 
   // MPU6500_Initialize();
 
@@ -158,7 +158,7 @@ void mainTask(void) {
 
   // // 目标值初始化
   // HookTargetAngleInit();
-  // PanTargetAngleInit();
+  // Chassis_Init_Yaw_Angle();
   // ArmourTargetAngleInit();
 
   // PanYawSpeedPIDInit(&YawSpeedPID1, 2, 0, 0);

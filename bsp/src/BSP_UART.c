@@ -6,12 +6,12 @@
  * @return void
  * USART6 用作无线串口,定义在usart.c中
  */
-void BSP_UART_InitConfig(void) {
+void BSP_UART_Init(void) {
     USART_InitTypeDef USART_InitStructure;
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 
-    // UART1(DBUS)
+    // UART1(DBus)
     USART_InitStructure.USART_BaudRate            = 100000;
     USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
     USART_InitStructure.USART_Mode                = USART_Mode_Rx;

@@ -6,13 +6,13 @@ int main(void) {
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
     //调试相关
-    delay_init(180); // 初始化延时
-    uart_init(9600); // 初始化串口
+    Delay_Init(180); // 初始化延时
+    UART_Init(9600); // 初始化串口
     LED_Init();      // 初始化LED
-    BEEP_Init();     // 初始化蜂鸣器
+    Beep_Init();     // 初始化蜂鸣器
 
     //创建系统初始化任务
-    xTaskCreate(Task_SysInit, "Task_SysInit", 400, NULL, 1, NULL);
+    xTaskCreate(Task_Sys_Init, "Task_Sys_Init", 400, NULL, 1, NULL);
 
     //启动调度,开始执行任务
     vTaskStartScheduler();

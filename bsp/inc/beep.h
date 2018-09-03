@@ -1,6 +1,6 @@
 #ifndef __BEEP_H
-#define __BEEP_H	 
-#include "sys.h" 
+#define __BEEP_H
+#include "sys.h"
 
 #define Startup_Success_music_len 14
 
@@ -37,11 +37,11 @@ typedef enum{
   Si7H,     ///*1975.53Hz*/   506us
 
   Silent,
-}Sound_tone_e;
+}Sound_Tone_Type;
 
-void BEEP_Init(void);//初始化		 	
+void Beep_Init(void);//初始化
 
-void Sing(Sound_tone_e tone);
+void Sing(Sound_Tone_Type tone);
 void Sing_Startup_music(uint32_t index);
 
 #endif

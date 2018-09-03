@@ -61,7 +61,7 @@ float q1_;
 float q2_;
 float q3_;
 
-void Motion_Update(void)
+void Gyroscope_Update_Angle_Data(void)
 {
 	//uint8_t count;
 
@@ -147,44 +147,44 @@ void Motion_Update(void)
 	else
 		e_angle[1] += 180.0;
 
-	Euler_Angle.Yaw = e_angle[2];
-	Euler_Angle.Pitch = -e_angle[1];
-	Euler_Angle.Pitch += Euler_Angle.Pitch_offset;
-	Euler_Angle.Roll = e_angle[0];
+	EulerAngle.Yaw = e_angle[2];
+	EulerAngle.Pitch = -e_angle[1];
+	EulerAngle.Pitch += EulerAngle.Pitch_offset;
+	EulerAngle.Roll = e_angle[0];
 
 	//	if(startcount>=7000)
 	//	{
 	//		startcount=7000;
-	//		if(Motor_Feedback.Motor_201_Speed==0 && Motor_Feedback.Motor_202_Speed==0 &&
-	//		Motor_Feedback.Motor_203_Speed==0 && Motor_Feedback.Motor_204_Speed==0 && yaw_c==0 && YAW_Encoder.ecd_angle==0)
+	//		if(Motor_Feedback.motor201Speed==0 && Motor_Feedback.motor202Speed==0 &&
+	//		Motor_Feedback.motor203Speed==0 && Motor_Feedback.motor204Speed==0 && yaw_c==0 && YAW_Encoder.ecdAngle==0)
 	//		{
 	//			if(yaw_state)
 	//			{
-	//				start_yaw=(int)Euler_Angle.Yaw;
+	//				start_yaw=(int)EulerAngle.Yaw;
 	//				yaw_state=0;
 	//			}
-	//			Euler_Angle.Yaw = start_yaw;
+	//			EulerAngle.Yaw = start_yaw;
 	//		}
 	//		else
 	//		{
 	//			if(yaw_state==0)
 	//			{
-	//				final_yaw=(int)Euler_Angle.Yaw;
-	//				Euler_Angle.Yaw_offset+=(start_yaw-final_yaw);
+	//				final_yaw=(int)EulerAngle.Yaw;
+	//				EulerAngle.Yaw_offset+=(start_yaw-final_yaw);
 	//				yaw_state=1;
 	//			}
 	//		}
 	//	}
-	//	Euler_Angle.Yaw +=Euler_Angle.Yaw_offset;
-	//	if(Euler_Angle.Yaw>180)
-	//		Euler_Angle.Yaw -=360;
-	//	else if(Euler_Angle.Yaw<-180)
-	//		Euler_Angle.Yaw +=360;
+	//	EulerAngle.Yaw +=EulerAngle.Yaw_offset;
+	//	if(EulerAngle.Yaw>180)
+	//		EulerAngle.Yaw -=360;
+	//	else if(EulerAngle.Yaw<-180)
+	//		EulerAngle.Yaw +=360;
 
 	//JLINK测试用
-	yaw_32 = (int32_t)(Euler_Angle.Yaw);	 //*1000);
-	pitch_32 = (int32_t)(Euler_Angle.Pitch); //*1000);
-	roll_32 = (int32_t)(Euler_Angle.Roll);   //*1000);
+	yaw_32 = (int32_t)(EulerAngle.Yaw);	 //*1000);
+	pitch_32 = (int32_t)(EulerAngle.Pitch); //*1000);
+	roll_32 = (int32_t)(EulerAngle.Roll);   //*1000);
 											 //pitchint=(int)Pitch_Encoder.ecd_angle;
 
 	//	startcount++;
@@ -345,7 +345,7 @@ void q2euler(float *q_num, float *e_num)
 //		F->ybuf[i] = F->ybuf[i-1];
 //		F->xbuf[i] = F->xbuf[i-1];
 //	}
-//	F->xbuf[0] = F->raw_value;
+//	F->xbuf[0] = F->rawValue;
 //	F->ybuf[0] = NUM[0] * F->xbuf[0];
 //	for(i=1;i<8;i++)
 //	{
@@ -748,12 +748,12 @@ void q2euler(float *q_num, float *e_num)
 //	{
 //		yaw_count++;
 //	}
-//	Euler_Angle.Yaw = yaw_temp + yaw_count*360;  //yaw轴角度
-//	Euler_Angle.Pitch = angle[1];
-//  Euler_Angle.Roll = angle[2];
-//	yaw_32=(int32_t)(Euler_Angle.Yaw);//*1000);
-//	pitch_32=(int32_t)(Euler_Angle.Pitch);//*1000);
-//	roll_32=(int32_t)(Euler_Angle.Roll);//*1000);
+//	EulerAngle.Yaw = yaw_temp + yaw_count*360;  //yaw轴角度
+//	EulerAngle.Pitch = angle[1];
+//  EulerAngle.Roll = angle[2];
+//	yaw_32=(int32_t)(EulerAngle.Yaw);//*1000);
+//	pitch_32=(int32_t)(EulerAngle.Pitch);//*1000);
+//	roll_32=(int32_t)(EulerAngle.Roll);//*1000);
 //}
 
 ////////////////////////////////////////////////////////////////////////

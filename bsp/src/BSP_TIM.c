@@ -7,7 +7,7 @@
  * @param  void
  * @return void
  */
-void BSP_TIM_InitConfig(void) {
+void BSP_TIM_Init(void) {
     TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure; // TIM 频率
     GPIO_InitTypeDef        GPIO_InitStructure;        // TIM4_PWM GPIO口设置
     TIM_OCInitTypeDef       TIM_OCInitStructure;       // TIM4_PWM PWM模式

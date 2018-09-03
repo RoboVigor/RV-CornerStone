@@ -5,7 +5,7 @@
 #include "stm32f4xx.h"
 
 
-void BSP_GPIO_InitConfig(void);
+void BSP_GPIO_Init(void);
 
 
 #endif

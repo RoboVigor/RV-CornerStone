@@ -21,7 +21,7 @@ AlignTrailingComments: true
 # 换行的时候对齐操作符
 #AlignOperands: true
 # 中括号两边空格 []
-SpacesInSquareBrackets: true
+SpacesInSquareBrackets: false
 # 小括号两边添加空格
 SpacesInParentheses : false
 #多行声明语句按照=对齐
