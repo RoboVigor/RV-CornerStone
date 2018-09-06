@@ -24,11 +24,14 @@ void Task_Sys_Init(void *Parameters) {
     Queue_Test = xQueueCreate(10, sizeof(u32));
 
     // 建立IRQ任务
+    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, &TaskHandle_Safe_Mode);
     xTaskCreate(Task_Debug, "Task_Debug", 500, NULL, 6, &TaskHandle_Debug);
     xTaskCreate(Task_DBus, "Task_DBus", 400, NULL, 6, &TaskHandle_DBus);
-    vTaskSuspend(TaskHandle_Debug);
+    // vTaskSuspend(TaskHandle_Debug);
 
     // 建立低优先级任务
+
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, &TaskHandle_Chassis);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, &TaskHandle_Blink);
 
     // 完成使命

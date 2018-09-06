@@ -35,7 +35,7 @@ int                      taskDebug_Sign = 0;
 
 void Task_Debug(void *Parameters) {
     while (1) {
-        u8 pcWriteBuffer[ 1000 ];
+        u8 pcWriteBuffer[1000];
         printf("=========================\r\n");
         printf("time:    %d\r\n", ulHighFrequencyTimerTicks);
         if (taskDebug_Sign) {
@@ -52,5 +52,24 @@ void Task_Debug(void *Parameters) {
         printf("=========================\r\n\r\n\r\n");
         vTaskDelay(5000);
     }
+    vTaskDelete(NULL);
+}
+
+/**
+ * @brief  安全模式
+ * @param  void *Parameters
+ * @return void
+ */
+
+void Task_Safe_Mode(void *Parameters) {
+
+    while (1) {
+        if (DBusData.switchRight == 2) {
+            Can_Set_CM_Current(CAN1, 0, 0, 0, 0);
+            vTaskSuspendAll();
+        }
+        vTaskDelay(100);
+    }
+
     vTaskDelete(NULL);
 }
