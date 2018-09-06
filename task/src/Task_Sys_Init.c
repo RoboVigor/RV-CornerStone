@@ -25,7 +25,7 @@ void Task_Sys_Init(void *Parameters) {
 
     // 建立IRQ任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, &TaskHandle_Safe_Mode);
-    xTaskCreate(Task_Debug, "Task_Debug", 500, NULL, 6, &TaskHandle_Debug);
+    // xTaskCreate(Task_Debug, "Task_Debug", 500, NULL, 6, &TaskHandle_Debug);
     xTaskCreate(Task_DBus, "Task_DBus", 400, NULL, 6, &TaskHandle_DBus);
     // vTaskSuspend(TaskHandle_Debug);
 

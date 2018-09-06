@@ -29,6 +29,9 @@ void Task_Chassis(void *Parameters) {
     int        targetSpeed;
 
     while (1) {
+        Can_Set_CM_Current(CAN1, 400, -400, -400, 400);
+        vTaskDelayUntil(&LastWakeTime, 200);
+        continue;
 
         PANSpeedPIDInit(&CM1PID, 12, 0, 0);
         PANSpeedPIDInit(&CM2PID, 12, 0, 0);

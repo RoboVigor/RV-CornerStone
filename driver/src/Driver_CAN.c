@@ -32,9 +32,10 @@ void Can_Set_CM_Current(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t
     tx_message.Data[6] = (uint8_t)(i_204 >> 8);
     tx_message.Data[7] = (uint8_t) i_204;
 
-    // CAN故障重启
     do {
         if (CAN1->ESR) {
+            printf("error: %x\r\n", CAN1->ESR);
+            return;
             CAN1->MCR |= 0x02;
             CAN1->MCR &= 0xFD;
         }
