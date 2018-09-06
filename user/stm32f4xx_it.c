@@ -100,6 +100,7 @@ void CAN1_RX0_IRQHandler(void) {
 
 void CAN1_SCE_IRQHandler(void) {
     printf("123");
+    RED_LIGHT_ON;
     CAN_ClearITPendingBit(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR);
 }
 
