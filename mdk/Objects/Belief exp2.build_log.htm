@@ -29,27 +29,17 @@ Project File Date:  09/03/2018
 Build target 'Target 1'
 compiling Driver_CAN.c...
 ..\driver\src\Driver_CAN.c(37): warning:  #223-D: function "printf" declared implicitly
-              printf("error: %x\r\n", CAN1->ESR);
-..\driver\src\Driver_CAN.c(39): warning:  #111-D: statement is unreachable
+              printf("ESR: %x\r\n", CAN1->ESR);
+..\driver\src\Driver_CAN.c(40): warning:  #223-D: function "delay_ms" declared implicitly
+              delay_ms(500);
+..\driver\src\Driver_CAN.c(42): warning:  #111-D: statement is unreachable
               
 AN1->MCR |= 0x02;
-..\driver\src\Driver_CAN.c: 2 warnings, 0 errors
-compiling Task_Low.c...
-..\task\src\Task_Low.c(16): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_Low.c(36): warning:  #111-D: statement is unreachable
-          PANSpeedPIDInit(&CM1PID, 12, 0, 0);
-..\task\src\Task_Low.c(59): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_Low.c(27): warning:  #177-D: variable "ArmatureRotateSpeed" was declared but never referenced
-      int        ArmatureRotateSpeed[4], Buffer[4];
-..\task\src\Task_Low.c(27): warning:  #177-D: variable "Buffer" was declared but never referenced
-      int        ArmatureRotateSpeed[4], Buffer[4];
-..\task\src\Task_Low.c: 5 warnings, 0 errors
+..\driver\src\Driver_CAN.c: 3 warnings, 0 errors
 linking...
-Program Size: Code=17706 RO-data=502 RW-data=200 ZI-data=82704  
+Program Size: Code=17902 RO-data=502 RW-data=200 ZI-data=82704  
 FromELF: creating hex file...
-".\Objects\Belief exp2.axf" - 0 Error(s), 7 Warning(s).
+".\Objects\Belief exp2.axf" - 0 Error(s), 3 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE
