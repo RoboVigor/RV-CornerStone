@@ -43,7 +43,7 @@ typedef struct {
 #define __PanController_EXT extern
 #endif
 
-__PanController_EXT PANPID_Type CM1PID, CM2PID, CM3PID, CM4PID, YawAnglePID, YawSpeedPID1, YawSpeedPID2;
+__PanController_EXT PANPID_Type CM1PID, CM2PID, CM3PID, CM4PID, YawAnglePID, YawSpeedPID1, YawSpeedPID2,YawSpeedPID;
 __PanController_EXT ChassisParam_Type ChassisParam;
 __PanController_EXT float               targetYawAngle, yawAngleFeed, yawSpeedFeed;
 
