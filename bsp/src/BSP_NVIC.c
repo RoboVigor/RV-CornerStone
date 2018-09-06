@@ -20,10 +20,10 @@ void BSP_NVIC_Init(void) {
     // CAN1
     NVIC_InitStructure.NVIC_IRQChannel                   = CAN1_RX0_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 10;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
     NVIC_Init(&NVIC_InitStructure);
-    CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
+    CAN_ITConfig(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR | CAN_IT_WKU | CAN_IT_SLK, ENABLE);
 
     // CAN2
     NVIC_InitStructure.NVIC_IRQChannel                   = CAN2_RX0_IRQn;
