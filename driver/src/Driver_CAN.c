@@ -34,7 +34,10 @@ void Can_Set_CM_Current(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t
 
     do {
         if (CAN1->ESR) {
-            printf("error: %x\r\n", CAN1->ESR);
+            printf("ESR: %x\r\n", CAN1->ESR);
+            printf("IER: %x\r\n", CAN1->IER);
+            printf("MSR: %x\r\n\r\n", CAN1->MSR);
+            delay_ms(500);
             return;
             CAN1->MCR |= 0x02;
             CAN1->MCR &= 0xFD;
