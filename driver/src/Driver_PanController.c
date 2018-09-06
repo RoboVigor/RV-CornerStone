@@ -213,7 +213,7 @@ void Chassis_Get_XYW_Speed(int dir, int Mode) {
 
         LastMode = 1;
     } else if (Mode == 0) {
-        CAN_Set_CM_Speed(CAN1, 0, 0, 0, 0);
+        Can_Set_CM_Current(CAN1, 0, 0, 0, 0);
     }
 }
 
