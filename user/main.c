@@ -7,7 +7,7 @@ int main(void) {
 
     //调试相关
     Delay_Init(180); // 初始化延时
-    UART_Init(9600); // 初始化串口
+    uart_init(9600); // 初始化串口
     LED_Init();      // 初始化LED
     Beep_Init();     // 初始化蜂鸣器
 

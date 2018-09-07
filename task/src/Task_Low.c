@@ -24,15 +24,41 @@ void Task_Blink(void *Parameters) {
 void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     int        WheelSpeedRes[4], Buffer[4];
-    int        kFeedback  = 2 * 3.14 / 60;
-    int        debugValue = 0;
+    int        kFeedback = 2 * 3.14 / 60;
+
+    int debugValue;
+
+    USART_Set_Default_Debug_Number(0);
 
     while (1) {
-        printf("STA:%d\r\n", USART_RX_STA);
-        if (USART_RX_STA & 0x8000 > 0) {
-            printf("length:%d \r\n", USART_RX_STA - 0x8000);
-        }
-        vTaskDelayUntil(&LastWakeTime, 500);
+        // printf("STA:%d\r\n", USART_RX_STA & 0x8000);
+        // if ((USART_RX_STA & 0x8000) > 0) {
+        //     debugValueLength = USART_RX_STA - 0xC000;
+        //     debugValue       = 0;
+        //     for (int i = 0; i < debugValueLength; i++) {
+        //         debugValue += pow(10.0, debugValueLength - i - 1) * (USART_RX_BUF[i] - 48);
+        //         USART_RX_BUF[i] = 0;
+        //     }
+        //     USART_RX_STA = 0;
+        //     printf("debugValue: %d\r\n", debugValue);
+        // }
+
+        debugValue = USART_Get_Debug_Number();
+
+        PANSpeedPIDInit(&CM1PID, 12, 0, 0);
+        PANSpeedPIDInit(&CM2PID, 12, 0, 0);
+        PANSpeedPIDInit(&CM3PID, 12, 0, 0);
+        PANSpeedPIDInit(&CM4PID, 12, 0, 0);
+
+        PID_Set_Pan_Speed(&CM1PID, debugValue, Motor_Feedback.motor201Speed * kFeedback);
+        PID_Set_Pan_Speed(&CM2PID, debugValue, Motor_Feedback.motor202Speed * kFeedback);
+        PID_Set_Pan_Speed(&CM3PID, debugValue, Motor_Feedback.motor203Speed * kFeedback);
+        PID_Set_Pan_Speed(&CM4PID, debugValue, Motor_Feedback.motor204Speed * kFeedback);
+
+        Can_Set_CM_Current(CAN1, CM1PID.PIDout, -CM2PID.PIDout, -CM3PID.PIDout, CM4PID.PIDout);
+        // USART_Get_Debug_Number();
+
+        vTaskDelayUntil(&LastWakeTime, 100);
         continue;
 
         yawSpeedFeed = mpu6500_data.gz / 16.4;

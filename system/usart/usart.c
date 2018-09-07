@@ -1,7 +1,9 @@
+#define __SYSTEM_USART_GLOBALS
+
 #include "usart.h"
 #include "string.h"
 #include "sys.h"
-
+#include "math.h"
 //加入以下代码,支持printf函数,而不需要选择use MicroLIB
 #if 1
 
@@ -27,7 +29,7 @@ int fputc(int ch, FILE *f) {
 
 //初始化IO 串口3
 // bound:波特率
-void UART_Init(u32 bound) {
+void uart_init(u32 bound) {
     // GPIO端口设置
     GPIO_InitTypeDef  GPIO_InitStructure;
     USART_InitTypeDef USART_InitStructure;
@@ -116,4 +118,34 @@ void USART6_Send_Package(uint8_t *data, uint8_t count) {
         USART6->DR = data[i];
     }
     memset(data, 0, count);
+}
+
+int USART_Last_Debug_Number    = -1;
+int USART_Default_Debug_Number = 0;
+
+void USART_Set_Default_Debug_Number(int defaultNumber) {
+    USART_Default_Debug_Number = defaultNumber;
+}
+
+int USART_Get_Debug_Number(void) {
+    int result = 0;
+    int length = 0;
+
+    if ((USART_RX_STA & 0x8000) > 0) {
+        length = USART_RX_STA - 0xC000;
+        result = 0;
+        for (int i = 0; i < length; i++) {
+            result += pow(10.0, length - i - 1) * (USART_RX_BUF[i] - 48);
+            USART_RX_BUF[i] = 0;
+        }
+        USART_RX_STA            = 0;
+        USART_Last_Debug_Number = result;
+        return result;
+    } else {
+        if (USART_Last_Debug_Number != -1) {
+            return USART_Last_Debug_Number;
+        } else {
+            return USART_Default_Debug_Number;
+        }
+    }
 }

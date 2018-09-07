@@ -650,9 +650,9 @@
               <FilePath>..\task\src\Task_Low.c</FilePath>
             </File>
             <File>
-              <FileName>Task_SysInit.c</FileName>
+              <FileName>Task_Sys_Init.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\task\src\Task_SysInit.c</FilePath>
+              <FilePath>..\task\src\Task_Sys_Init.c</FilePath>
             </File>
           </Files>
         </Group>

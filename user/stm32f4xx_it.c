@@ -3,8 +3,6 @@
  * @rule   不应在此(包括头文件)声明任何全局变量
  */
 
-#define __SYSTEM_USART_GLOBALS
-
 #include "main.h"
 #include "stm32f4xx_it.h"
 
@@ -43,27 +41,28 @@ void USART1_IRQHandler(void) {
  */
 
 void USART6_IRQHandler(void) {
-    u8 data      = 0;
-    USART_RX_STA = 10;
-    // if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
-    //     data = USART_ReceiveData(USART6);                    // 读取数据
-    // }
-    // if ((USART_RX_STA & 0x8000) == 0) { // 接收未完成
-    //     if (USART_RX_STA & 0x4000) {    // 接收到 0x0d
-    //         if (data != 0x0a)           // 接收错误，重新开始
-    //             USART_RX_STA = 0;
-    //         else // 接收完成
-    //             USART_RX_STA |= 0x8000;
-    //     } else { // 未接收到 0x0d
-    //         if (data == 0x0d)
-    //             USART_RX_STA |= 0x4000;
-    //         else {
-    //             USART_RX_BUF[USART_RX_STA & 0X3FFF] = data;
-    //             USART_RX_STA++;
-    //             if (USART_RX_STA > (USART_REC_LEN - 1)) USART_RX_STA = 0; // 接收数据错误，重新开始接收
-    //         }
-    //     }
-    // }
+    u8 res;
+
+    if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
+        res = USART_ReceiveData(USART6);                     // 读取数据
+        // USART6->DR = res;
+    }
+    if ((USART_RX_STA & 0x8000) == 0) { // 接收未完成
+        if (USART_RX_STA & 0x4000) {    // 接收到 0x0d
+            if (res != 0x0a)            // 接收错误，重新开始
+                USART_RX_STA = 0;
+            else // 接收完成
+                USART_RX_STA |= 0x8000;
+        } else { // 未接收到 0x0d
+            if (res == 0x0d) {
+                USART_RX_STA |= 0x4000;
+            } else {
+                USART_RX_BUF[USART_RX_STA & 0X3FFF] = res;
+                USART_RX_STA++;
+                if (USART_RX_STA > (USART_REC_LEN - 1)) USART_RX_STA = 0; // 接收数据错误，重新开始接收
+            }
+        }
+    }
 }
 
 /**
