@@ -26,8 +26,18 @@ void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     int        WheelSpeedRes[4], Buffer[4];
     int        kFeedback = 2 * 3.14 / 60;
+    int        debugValue=0;
 
     while (1) {
+
+        if (USART_RX_STA==0x8000){
+           printf("%d \r\n", USART_RX_STA & 0x8000);
+            // for(int i=0)
+        }
+        vTaskDelayUntil(&LastWakeTime, 50);
+        continue;
+
+
         yawSpeedFeed = mpu6500_data.gz / 16.4;
         yawAngleFeed = EulerAngle.Yaw;
         PANAnglePIDInit(&YawAnglePID, 15, 0, 0);

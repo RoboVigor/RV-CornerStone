@@ -1,6 +1,9 @@
 #include "usart.h"
 #include "string.h"
 #include "sys.h"
+
+#define __SYSTEM_USART_GLOBALS
+
 //加入以下代码,支持printf函数,而不需要选择use MicroLIB
 #if 1
 
