@@ -33,6 +33,31 @@ void USART1_IRQHandler(void) {
     DMA_Cmd(DMA2_Stream2, ENABLE);
 }
 
+// void USART1_IRQHandler(void) {
+//     u8 data = 0;
+
+//     if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
+//         data = USART_ReceiveData(USART1);                    // 读取数据
+//         print("/r/n %d \r\n", data);
+//     }
+//     if ((USART_RX_STA & 0x8000) == 0) {     // 接收未完成
+//         if (USART_RX_STA & 0x4000) {        // 接收到 0x0d
+//             if (data != 0x0a)               // 接收错误，重新开始
+//                 USART_RX_STA = 0;
+//             else                            // 接收完成
+//                 USART_RX_STA |= 0x8000;
+//         } else {                            // 未接收到 0x0d
+//             if (data == 0x0d)
+//                 USART_RX_STA |= 0x4000;
+//             else {
+//                 USART_RX_BUF[USART_RX_STA & 0X3FFF] = data;
+//                 USART_RX_STA++;
+//                 if (USART_RX_STA > (USART_REC_LEN - 1)) USART_RX_STA = 0;   // 接收数据错误，重新开始接收
+//             }
+//         }
+//     }
+// }
+
 /**
  * @brief  无线串口中断(USART6)
  * @param  void
@@ -40,24 +65,30 @@ void USART1_IRQHandler(void) {
  * 接收到s时往消息体里塞数据
  */
 
+u8  USART_RX_BUF[USART_REC_LEN];
+u16 USART_RX_STA;
+
 void USART6_IRQHandler(void) {
-    u8         res;
-    u32        data;
-    BaseType_t err;
-    BaseType_t xHigherPriorityTaskWoken;
+    u8 data = 0;
 
-    res = USART_ReceiveData(USART6);
-    printf(">>>");
-
-    if (res == 's') {
-        printf("send message\r\n");
-        data = 886;
-        err  = xQueueSendFromISR(Queue_Test, &data, &xHigherPriorityTaskWoken);
-        if (err == pdTRUE) {
-            printf("Message sent!\r\n");
-            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-        } else {
-            printf("Queue full!\r\n");
+    if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
+        data = USART_ReceiveData(USART6);                    // 读取数据
+        //printf("/r/n %d \r\n", data);
+    }
+    if ((USART_RX_STA & 0x8000) == 0) {     // 接收未完成
+        if (USART_RX_STA & 0x4000) {        // 接收到 0x0d
+            if (data != 0x0a)               // 接收错误，重新开始
+                USART_RX_STA = 0;
+            else                            // 接收完成
+                USART_RX_STA |= 0x8000;
+        } else {                            // 未接收到 0x0d
+            if (data == 0x0d)
+                USART_RX_STA |= 0x4000;
+            else {
+                USART_RX_BUF[USART_RX_STA & 0X3FFF] = data;
+                USART_RX_STA++;
+                if (USART_RX_STA > (USART_REC_LEN - 1)) USART_RX_STA = 0;   // 接收数据错误，重新开始接收
+            }
         }
     }
 }
