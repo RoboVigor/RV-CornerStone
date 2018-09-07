@@ -5,7 +5,7 @@
 <h2>Tool Versions:</h2>
 IDE-Version: μVision V5.21.1.0
 Copyright (C) 2016 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: Kelvin Cao, SBC, LIC=DSNGK-ZSSDI-TIJ5L-05SC3-HSE4F-F0YID
+License Information: Link Wu Wu, FuXing PS, LIC=Z3CSB-21H71-48BFA-1PZ03-ALN2N-S4CAZ
  
 Tool Versions:
 Toolchain:       MDK-ARM Professional  Version: 5.21a
@@ -21,20 +21,40 @@ Target DLL:      Segger\JL2CM3.dll V2.99.23.0
 Dialog DLL:      TCM.DLL V1.14.14.0
  
 <h2>Project:</h2>
-D:\OneDrive - o0ent3\Files\Robomaster\RV-CornerStone\mdk\Belief exp2.uvprojx
+C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\Belief exp2.uvprojx
 Project File Date:  09/07/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-".\Objects\Belief exp2.axf" - 0 Error(s), 0 Warning(s).
+compiling usart.c...
+compiling Task_Low.c...
+..\task\src\Task_Low.c(16): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Low.c(38): warning:  #111-D: statement is unreachable
+          yawSpeedFeed = mpu6500_data.gz / 16.4;
+..\task\src\Task_Low.c(65): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Low.c(28): warning:  #177-D: variable "debugValue" was declared but never referenced
+      int        debugValue = 0;
+..\task\src\Task_Low.c: 4 warnings, 0 errors
+compiling stm32f4xx_it.c...
+..\user\stm32f4xx_it.c(18): warning:  #550-D: variable "UARTtemp" was set but never used
+      uint8_t UARTtemp;
+..\user\stm32f4xx_it.c(46): warning:  #177-D: variable "data" was declared but never referenced
+      u8 data      = 0;
+..\user\stm32f4xx_it.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=17524 RO-data=460 RW-data=204 ZI-data=82700  
+FromELF: creating hex file...
+".\Objects\Belief exp2.axf" - 0 Error(s), 6 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
-  D:\OneDrive - o0ent3\Files\Robomaster\RV-CornerStone\mdk\RTE
-  C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.9.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
+  C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE
+  C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>

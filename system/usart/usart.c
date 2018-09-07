@@ -2,8 +2,6 @@
 #include "string.h"
 #include "sys.h"
 
-#define __SYSTEM_USART_GLOBALS
-
 //加入以下代码,支持printf函数,而不需要选择use MicroLIB
 #if 1
 
@@ -115,7 +113,7 @@ void USART6_Send_Package(uint8_t *data, uint8_t count) {
     for (i = 0; i < count; i++) {
         while (USART_GetFlagStatus(USART6, USART_FLAG_TC) == RESET)
             ;
-        USART6->DR = data[ i ];
+        USART6->DR = data[i];
     }
     memset(data, 0, count);
 }
