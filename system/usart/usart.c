@@ -132,9 +132,11 @@ int USART_Get_Debug_Number(void) {
     int length = 0;
 
     if ((USART_RX_STA & 0x8000) > 0) {
+        uint8_t i = 0;
+
         length = USART_RX_STA - 0xC000;
         result = 0;
-        for (int i = 0; i < length; i++) {
+        for (i = 0; i < length; i++) {
             result += pow(10.0, length - i - 1) * (USART_RX_BUF[i] - 48);
             USART_RX_BUF[i] = 0;
         }
