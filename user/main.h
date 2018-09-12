@@ -12,6 +12,9 @@
 #include "stm32f4xx.h"
 #include "OSinclude.h"
 
+#include "config.h"
+#include "macro.h"
+
 #include "BSP_GPIO.h"
 #include "BSP_NVIC.h"
 #include "BSP_UART.h"
@@ -19,6 +22,7 @@
 #include "BSP_CAN.h"
 #include "BSP_TIM.h"
 
+#include "Driver_PID.h"
 #include "Driver_DBUS.h"
 #include "Driver_CAN.h"
 #include "Driver_PanController.h"
@@ -31,9 +35,3 @@
 #include "Task_IRQ.h"
 #include "Task_LOW.h"
 #include "Task_Sys_Init.h"
-
-#define ABS(x) ((x) >= 0 ? (x) : -(x))
-
-#define FORWARD 1
-#define BACKWARD -1
-#define MAXWHEELSPEED 1150
