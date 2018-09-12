@@ -27,18 +27,46 @@ Project File Date:  09/12/2018
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
+compiling BSP_DMA.c...
+compiling BSP_CAN.c...
+compiling BSP_GPIO.c...
 compiling BSP_UART.c...
+compiling BSP_NVIC.c...
+compiling BSP_TIM.c...
+compiling main.c...
+compiling Driver_PID.c...
+compiling stm32f4xx_it.c...
+..\user\stm32f4xx_it.c(16): warning:  #550-D: variable "UARTtemp" was set but never used
+      uint8_t UARTtemp;
+..\user\stm32f4xx_it.c: 1 warning, 0 errors
+compiling Task_Sys_Init.c...
+compiling Task_IRQ.c...
+..\task\src\Task_IRQ.c(21): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_IRQ.c(55): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_IRQ.c(74): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_IRQ.c: 3 warnings, 0 errors
+compiling Task_Low.c...
+..\task\src\Task_Low.c(16): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Low.c(64): warning:  #111-D: statement is unreachable
+          yawSpeedFeed = mpu6500_data.gz / 16.4;
+..\task\src\Task_Low.c(91): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Low.c: 3 warnings, 0 errors
 linking...
 Program Size: Code=25220 RO-data=604 RW-data=212 ZI-data=83540  
 FromELF: creating hex file...
-".\Objects\Belief exp2.axf" - 0 Error(s), 0 Warning(s).
+".\Objects\Belief exp2.axf" - 0 Error(s), 7 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE
   C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:05
 </pre>
 </body>
 </html>
