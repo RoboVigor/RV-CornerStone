@@ -907,17 +907,18 @@ ARM Macro Assembler    Page 14
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
 erwork --depend=.\objects\startup_stm32f427xx.d -o.\objects\startup_stm32f427xx
-.o -IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE -I"C:\Users\Tccoin\Deskto
+.o -I"D:\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\RTE" 
 
 
 
 ARM Macro Assembler    Page 15 
 
 
-p\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\
-1.0.8\Device\Include" -IC:\Keil_v5\ARM\CMSIS\Include --predefine="__UVISION_VER
-SION SETA 521" --predefine="STM32F427_437xx SETA 1" --list=.\startup_stm32f427x
-x.lst ..\core\startup_stm32f427xx.s
+-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.9.0\Drivers\CMSIS\Device\ST\STM32F4x
+x\Include -IC:\Keil_v5\ARM\CMSIS\Include -IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_D
+FP\2.9.0\Device\Include --predefine="__UVISION_VERSION SETA 521" --predefine="S
+TM32F427xx SETA 1" --list=.\startup_stm32f427xx.lst ..\core\startup_stm32f427xx
+.s
 
 
 
