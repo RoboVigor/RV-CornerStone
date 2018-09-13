@@ -4,7 +4,6 @@
  * @file Driver_CAN.c
  */
 
-#define __DRIVER_CAN_GLOBALS
 #include "Driver_CAN.h"
 
 /**

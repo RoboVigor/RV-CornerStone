@@ -49,15 +49,6 @@ typedef struct {
     float   ecdAngle;               //角度
 } CANEncoder_Type;
 
-#ifdef __DRIVER_CAN_GLOBALS
-#define __DRIVER_CAN_EXT
-#else
-#define __DRIVER_CAN_EXT extern
-#endif
-
-__DRIVER_CAN_EXT MotorFeedback_Type       Motor_Feedback;
-__DRIVER_CAN_EXT volatile CANEncoder_Type Hook_Encoder, Armour1_Encoder, Armour2_Encoder;
-
 void Can_Set_CM_Current(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204);
 void CAN_Get_Encoder_Bias(volatile CANEncoder_Type *v);
 void CAN_Update_Encoder_Data(volatile CANEncoder_Type *v, uint16_t agree);

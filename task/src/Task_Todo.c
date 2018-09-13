@@ -70,7 +70,7 @@ void mainTask(void) {
 
         HookSpeedPID(&Hook_SpeedPID, 0, Motor_Feedback.motor205Speed);
 
-        CAN_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
+        CAN_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.output, 0, 0, 0);
 
         //			-------------------------------------------------------------------------------------------------------------------------------
 
@@ -86,8 +86,8 @@ void mainTask(void) {
         PID_Set_Pan_Speed(&CM3PID, ArmatureRotateSpeed[2], Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
         PID_Set_Pan_Speed(&CM4PID, ArmatureRotateSpeed[3], Motor_Feedback.Motor_204_Speed * 2 * 3.14 / 60);
 
-        Can_Set_CM_Current(CAN1, CM1PID.PIDout, CM2PID.PIDout, CM3PID.PIDout,
-                           CM4PID.PIDout); //得到电流发送给电调
+        Can_Set_CM_Current(CAN1, CM1PID.output, CM2PID.output, CM3PID.output,
+                           CM4PID.output); //得到电流发送给电调
     }
     //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     else if (DBusData.switchLeft == 3) {
@@ -99,7 +99,7 @@ void mainTask(void) {
 
         HookSpeedPID(&Hook_SpeedPID, DBusData.ch2, Motor_Feedback.motor205Speed);
 
-        CAN_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.PIDout, 0, 0, 0);
+        CAN_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.output, 0, 0, 0);
 
         //=======移动=============================================================================
 
@@ -116,8 +116,8 @@ void mainTask(void) {
         PID_Set_Pan_Speed(&CM4PID, ArmatureRotateSpeed[3],
                           Motor_Feedback.Motor_204_Speed * 2 * 3.14 / 60); //都是rad/s 反馈转子转速
 
-        Can_Set_CM_Current(CAN1, CM1PID.PIDout, CM2PID.PIDout, CM3PID.PIDout,
-                           CM4PID.PIDout); //得到电流发送给电调
+        Can_Set_CM_Current(CAN1, CM1PID.output, CM2PID.output, CM3PID.output,
+                           CM4PID.output); //得到电流发送给电调
     }
 }
 

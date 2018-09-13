@@ -24,66 +24,45 @@ void Task_Blink(void *Parameters) {
 void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     int        WheelSpeedRes[4], Buffer[4];
-    int        kFeedback = 2 * 3.14 / 60;
+    float      kFeedback = 2 * 3.14 / 60;
 
-    int debugValue;
-
-    USART_Set_Default_Debug_Number(0);
+    PID_Init(&CM1PID, 2, 0.2, 0, 1000);
+    PID_Init(&CM2PID, 0, 0, 0, 1000);
+    PID_Init(&CM3PID, 0, 0, 0, 1000);
+    PID_Init(&CM4PID, 0, 0, 0, 1000);
 
     while (1) {
-        // printf("STA:%d\r\n", USART_RX_STA & 0x8000);
-        // if ((USART_RX_STA & 0x8000) > 0) {
-        //     debugValueLength = USART_RX_STA - 0xC000;
-        //     debugValue       = 0;
-        //     for (int i = 0; i < debugValueLength; i++) {
-        //         debugValue += pow(10.0, debugValueLength - i - 1) * (USART_RX_BUF[i] - 48);
-        //         USART_RX_BUF[i] = 0;
-        //     }
-        //     USART_RX_STA = 0;
-        //     printf("debugValue: %d\r\n", debugValue);
-        // }
 
-        debugValue = USART_Get_Debug_Number();
+        PID_Calculate(&CM1PID, MagicNumber, Motor_Feedback.motor201Speed * kFeedback);
+        PID_Calculate(&CM2PID, MagicNumber, Motor_Feedback.motor202Speed * kFeedback);
+        PID_Calculate(&CM3PID, MagicNumber, Motor_Feedback.motor203Speed * kFeedback);
+        PID_Calculate(&CM4PID, MagicNumber, Motor_Feedback.motor204Speed * kFeedback);
 
-        PANSpeedPIDInit(&CM1PID, 12, 0, 0);
-        PANSpeedPIDInit(&CM2PID, 12, 0, 0);
-        PANSpeedPIDInit(&CM3PID, 12, 0, 0);
-        PANSpeedPIDInit(&CM4PID, 12, 0, 0);
-
-        PID_Set_Pan_Speed(&CM1PID, debugValue, Motor_Feedback.motor201Speed * kFeedback);
-        PID_Set_Pan_Speed(&CM2PID, debugValue, Motor_Feedback.motor202Speed * kFeedback);
-        PID_Set_Pan_Speed(&CM3PID, debugValue, Motor_Feedback.motor203Speed * kFeedback);
-        PID_Set_Pan_Speed(&CM4PID, debugValue, Motor_Feedback.motor204Speed * kFeedback);
-
-        Can_Set_CM_Current(CAN1, CM1PID.PIDout, -CM2PID.PIDout, -CM3PID.PIDout, CM4PID.PIDout);
-        // USART_Get_Debug_Number();
+        Can_Set_CM_Current(CAN1, CM1PID.output, -CM2PID.output, -CM3PID.output, CM4PID.output);
 
         vTaskDelayUntil(&LastWakeTime, 100);
+
         continue;
 
         yawSpeedFeed = mpu6500_data.gz / 16.4;
         yawAngleFeed = EulerAngle.Yaw;
-        PANAnglePIDInit(&YawAnglePID, 15, 0, 0);
-        PanYawSpeedPIDInit(&YawSpeedPID, 2, 0, 0);
-        PANSpeedPIDInit(&CM1PID, 12, 0, 0);
-        PANSpeedPIDInit(&CM2PID, 12, 0, 0);
-        PANSpeedPIDInit(&CM3PID, 12, 0, 0);
-        PANSpeedPIDInit(&CM4PID, 12, 0, 0);
+        PID_Init(&YawAnglePID, 15, 0, 0, 660);
+        PID_Init(&YawSpeedPID, 2, 0, 0, 660);
 
-        PanAnglePID(&YawAnglePID, DBusData.ch1, yawAngleFeed);
-        PanYawSpeedPID(&YawSpeedPID, YawAnglePID.PIDout, yawSpeedFeed);
-        Chassis_Set_Wheel_Speed(DBusData.ch4, DBusData.ch3, YawSpeedPID.PIDout); //设定XYZ三个轴的速度
+        PID_Calculate(&YawAnglePID, DBusData.ch1, yawAngleFeed);
+        PID_Calculate(&YawSpeedPID, YawAnglePID.output, yawSpeedFeed);
+        Chassis_Set_Wheel_Speed(DBusData.ch4, DBusData.ch3, YawSpeedPID.output); //设定XYZ三个轴的速度
 
         Chassis_Update_Mecanum_Data(Buffer); //麦轮的解算
 
         Chassis_Limit_Wheel_Speed(Buffer, WheelSpeedRes, MAXWHEELSPEED); //限幅
 
-        PID_Set_Pan_Speed(&CM1PID, WheelSpeedRes[0], Motor_Feedback.motor201Speed * kFeedback);
-        PID_Set_Pan_Speed(&CM2PID, WheelSpeedRes[1], Motor_Feedback.motor202Speed * kFeedback);
-        PID_Set_Pan_Speed(&CM3PID, WheelSpeedRes[2], Motor_Feedback.motor203Speed * kFeedback);
-        PID_Set_Pan_Speed(&CM4PID, WheelSpeedRes[3], Motor_Feedback.motor204Speed * kFeedback);
+        PID_Calculate(&CM1PID, WheelSpeedRes[0], Motor_Feedback.motor201Speed * kFeedback);
+        PID_Calculate(&CM2PID, WheelSpeedRes[1], Motor_Feedback.motor202Speed * kFeedback);
+        PID_Calculate(&CM3PID, WheelSpeedRes[2], Motor_Feedback.motor203Speed * kFeedback);
+        PID_Calculate(&CM4PID, WheelSpeedRes[3], Motor_Feedback.motor204Speed * kFeedback);
 
-        Can_Set_CM_Current(CAN1, CM1PID.PIDout, -CM2PID.PIDout, -CM3PID.PIDout, CM4PID.PIDout);
+        Can_Set_CM_Current(CAN1, CM1PID.output, -CM2PID.output, -CM3PID.output, CM4PID.output);
 
         vTaskDelayUntil(&LastWakeTime, 50);
     }
