@@ -26,7 +26,7 @@ void Task_Chassis(void *Parameters) {
     int        WheelSpeedRes[4], Buffer[4];
     float      kFeedback = 2 * 3.14 / 60;
 
-    PID_Init(&CM1PID, 2, 0.2, 0, 1000);
+    PID_Init(&CM1PID, 3, 0, 0, 1000);
     PID_Init(&CM2PID, 0, 0, 0, 1000);
     PID_Init(&CM3PID, 0, 0, 0, 1000);
     PID_Init(&CM4PID, 0, 0, 0, 1000);

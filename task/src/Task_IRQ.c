@@ -77,7 +77,7 @@ void Task_MagicSend(void *Parameters) {
         taskENTER_CRITICAL();
         printf("----- \r\n");
         printf("i:%d \r\n", i);
-        printf("error: %f \r\n", CM1PID.feedback);
+        printf("error: %f \r\n", CM1PID.error);
         printf("target: %f \r\n", CM1PID.target);
         printf("feedback: %f \r\n", CM1PID.feedback);
         // printf("%d %d %f %d\r\n", MagicNumber, CM1PID.error, CM1PID.output, i);
