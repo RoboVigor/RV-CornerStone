@@ -24,7 +24,7 @@ void Task_Blink(void *Parameters) {
 void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     int        WheelSpeedRes[4], Buffer[4];
-    float      kFeedback = 2 * 3.14 / 60;
+    float      kFeedback = 3.14 / 60;
 
     PID_Init(&CM1PID, 3, 0, 0, 1000);
     PID_Init(&CM2PID, 0, 0, 0, 1000);
@@ -33,12 +33,12 @@ void Task_Chassis(void *Parameters) {
 
     while (1) {
 
-        PID_Calculate(&CM1PID, MagicNumber, Motor_Feedback.motor201Speed * kFeedback);
-        PID_Calculate(&CM2PID, MagicNumber, Motor_Feedback.motor202Speed * kFeedback);
-        PID_Calculate(&CM3PID, MagicNumber, Motor_Feedback.motor203Speed * kFeedback);
-        PID_Calculate(&CM4PID, MagicNumber, Motor_Feedback.motor204Speed * kFeedback);
+        PID_Calculate(&CM1PID, 0, Motor_Feedback.motor201Speed * kFeedback);
+        // PID_Calculate(&CM2PID, MagicNumber, Motor_Feedback.motor202Speed * kFeedback);
+        // PID_Calculate(&CM3PID, MagicNumber, Motor_Feedback.motor203Speed * kFeedback);
+        // PID_Calculate(&CM4PID, MagicNumber, Motor_Feedback.motor204Speed * kFeedback);
 
-        Can_Set_CM_Current(CAN1, CM1PID.output, -CM2PID.output, -CM3PID.output, CM4PID.output);
+        Can_Set_CM_Current(CAN1, MagicNumber, -CM2PID.output, -CM3PID.output, CM4PID.output);
 
         vTaskDelayUntil(&LastWakeTime, 100);
 
