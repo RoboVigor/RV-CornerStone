@@ -76,10 +76,11 @@ void Task_MagicSend(void *Parameters) {
         MIAO(i, 1, 2);
         taskENTER_CRITICAL();
         printf("----- \r\n");
-        printf("i:%d \r\n", i);
-        printf("error: %f \r\n", CM1PID.error);
-        printf("target: %f \r\n", CM1PID.target);
+        // printf("p:%f \r\n", CM1PID.p);
+        // printf("error: %f \r\n", CM1PID.error);
+        // printf("target: %f \r\n", CM1PID.target);
         printf("feedback: %f \r\n", CM1PID.feedback);
+        printf("output: %d \r\n", MagicNumber);
         // printf("%d %d %f %d\r\n", MagicNumber, CM1PID.error, CM1PID.output, i);
         taskEXIT_CRITICAL();
         vTaskDelayUntil(&LastWakeTime, 3000);
