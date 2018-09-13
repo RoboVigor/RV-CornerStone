@@ -1,3 +1,4 @@
+#define __HANDLE_GLOBALS
 #include "main.h"
 
 int main(void) {

@@ -1,6 +1,6 @@
-#define __DBUS_GLOBALS
-
 #include "Driver_DBUS.h"
+
+#include "handle.h"
 
 /**
  * @brief  DBUS参数初始化

@@ -1,6 +1,5 @@
 /**
  * @brief  中断服务函数根据地
- * @rule   不应在此(包括头文件)声明任何全局变量
  */
 
 #include "main.h"
@@ -45,7 +44,7 @@ void USART6_IRQHandler(void) {
 
     if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
         res = USART_ReceiveData(USART6);                     // 读取数据
-        // USART6->DR = res;
+        RED_LIGHT_TOGGLE;
     }
     if ((USART_RX_STA & 0x8000) == 0) { // 接收未完成
         if (USART_RX_STA & 0x4000) {    // 接收到 0x0d

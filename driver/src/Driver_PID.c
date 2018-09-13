@@ -15,7 +15,7 @@ void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput) {
     pid->d         = d;
     pid->maxOutput = maxOutput;
 
-    pid->maxOutput_I = 0;
+    pid->maxOutput_I = maxOutput;
     pid->target      = 0;
     pid->feedback    = 0;
     pid->error       = 0;
