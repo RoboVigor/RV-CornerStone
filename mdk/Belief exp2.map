@@ -3172,47 +3172,47 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
-       160         10          0          0          0     309740   beep.o
-       260          8          0          0          0      16499   bsp_can.o
-       104         12          0          0          0        595   bsp_dma.o
-       404         18          0          0          0        732   bsp_gpio.o
-       208         18          0          0          0        604   bsp_nvic.o
-       264         12          0          0          0        739   bsp_tim.o
-        76          8          0          0          0        544   bsp_uart.o
-       100          8          0          4          0       1259   delay.o
-       124          6          0          0          0       1169   driver_can.o
-       276         14          0          0          0        586   driver_dbus.o
-       420         36          0          8          0       4645   driver_magic.o
-       334          4          0          0          0       1667   driver_pid.o
-         0          0          0          0          0      11820   event_groups.o
-       692         62          0         24      76800       4439   heap_4.o
-       116          8          0          0          0        543   led.o
-       148          0          0          0          0       3254   list.o
-        84         22          0         44        988       2413   main.o
-       180         24          0          0          0       2081   misc.o
-       248         14          0          0         40       2554   mpu6500_driver.o
-       822        128          0          0          0       6122   mpu6500_i2c.o
-        40          6          0          1          0        762   mpu6500_interrupt.o
-       954         92          0         12          0      11481   port.o
-      1872         22          0          0         64      13641   queue.o
-        64         26        428          0       5120        828   startup_stm32f427xx.o
-      1260         12          0          0          0       5080   stm32f4xx_can.o
-       186         20          0          0          0       4173   stm32f4xx_dma.o
-        48         16          0          0          0       1665   stm32f4xx_exti.o
-       230          0          0          0          0       3449   stm32f4xx_gpio.o
-       860        188          0          0          0       6213   stm32f4xx_it.o
-       328         36          0         16          0       4611   stm32f4xx_rcc.o
-       386         38          0          0          0       6150   stm32f4xx_tim.o
-       422          8          0          0          0       4885   stm32f4xx_usart.o
-       392         32          0         20          0       1797   system_stm32f4xx.o
-       332        106          0          0          0       2354   task_irq.o
-       268         48          0          0          0       1252   task_low.o
-       328        138          0          0          0        612   task_sys_init.o
-      3364        438          0         68        240      24741   tasks.o
-      1142        118          0         20         40      17431   timers.o
+       160         10          0          0          0     310056   beep.o
+       260          8          0          0          0      16891   bsp_can.o
+       104         12          0          0          0        627   bsp_dma.o
+       404         18          0          0          0        768   bsp_gpio.o
+       208         18          0          0          0        640   bsp_nvic.o
+       264         12          0          0          0        775   bsp_tim.o
+        76          8          0          0          0        576   bsp_uart.o
+       100          8          0          4          0       1367   delay.o
+       124          6          0          0          0       1237   driver_can.o
+       276         14          0          0          0        622   driver_dbus.o
+       420         36          0          8          0       4853   driver_magic.o
+       334          4          0          0          0       1771   driver_pid.o
+         0          0          0          0          0      11984   event_groups.o
+       692         62          0         24      76800       4651   heap_4.o
+       116          8          0          0          0        579   led.o
+       148          0          0          0          0       3466   list.o
+        84         22          0         44        988       2517   main.o
+       180         24          0          0          0       2225   misc.o
+       248         14          0          0         40       2726   mpu6500_driver.o
+       822        128          0          0          0       6470   mpu6500_i2c.o
+        40          6          0          1          0        834   mpu6500_interrupt.o
+       954         92          0         12          0      11909   port.o
+      1872         22          0          0         64      14169   queue.o
+        64         26        428          0       5120        864   startup_stm32f427xx.o
+      1260         12          0          0          0       5324   stm32f4xx_can.o
+       186         20          0          0          0       4381   stm32f4xx_dma.o
+        48         16          0          0          0       1769   stm32f4xx_exti.o
+       230          0          0          0          0       3661   stm32f4xx_gpio.o
+       860        188          0          0          0       6637   stm32f4xx_it.o
+       328         36          0         16          0       4827   stm32f4xx_rcc.o
+       386         38          0          0          0       6498   stm32f4xx_tim.o
+       422          8          0          0          0       5121   stm32f4xx_usart.o
+       392         32          0         20          0       1941   system_stm32f4xx.o
+       332        106          0          0          0       2494   task_irq.o
+       268         48          0          0          0       1320   task_low.o
+       328        138          0          0          0        648   task_sys_init.o
+      3364        438          0         68        240      25785   tasks.o
+      1142        118          0         20         40      17979   timers.o
 
     ----------------------------------------------------------------------
-     17514       1756        460        220      83292     483130   Object Totals
+     17514       1756        460        220      83292     490962   Object Totals
          0          0         32          0          0          0   (incl. Generated)
         18          0          0          3          0          0   (incl. Padding)
 
@@ -3317,8 +3317,8 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     29508       2556        780        220      83388     470090   Grand Totals
-     29508       2556        780        220      83388     470090   ELF Image Totals
+     29508       2556        780        220      83388     477922   Grand Totals
+     29508       2556        780        220      83388     477922   ELF Image Totals
      29508       2556        780        220          0          0   ROM Totals
 
 ==============================================================================
