@@ -7,10 +7,10 @@ int main(void) {
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
     //调试相关
-    Delay_Init(180); // 初始化延时
-    uart_init(9600); // 初始化串口
-    LED_Init();      // 初始化LED
-    Beep_Init();     // 初始化蜂鸣器
+    Delay_Init(180);         // 初始化延时
+    LED_Init();              // 初始化LED
+    Beep_Init();             // 初始化蜂鸣器
+    Magic_Init_Config(9600); // 初始化串口
 
     //创建系统初始化任务
     xTaskCreate(Task_Sys_Init, "Task_Sys_Init", 400, NULL, 1, NULL);
