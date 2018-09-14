@@ -56,17 +56,17 @@ void Task_Debug(void *Parameters) {
 }
 
 /**
- * @brief 
- * 
- * @param Parameters 
+ * @brief
+ *
+ * @param Parameters
  */
 void Task_MagicReceive(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    USART_Set_Default_Debug_Number(0);
+    Magic_Init_Handle(&magic, 0);
     while (1) {
         taskENTER_CRITICAL();
-        MagicNumber = USART_Get_Debug_Number();
+        Magic_Get_Debug_Value(&magic);
         taskEXIT_CRITICAL();
         vTaskDelayUntil(&LastWakeTime, 50);
     }
@@ -85,8 +85,8 @@ void Task_MagicSend(void *Parameters) {
         // printf("error: %f \r\n", CM1PID.error);
         // printf("target: %f \r\n", CM1PID.target);
         printf("feedback: %f \r\n", CM1PID.feedback);
-        printf("output: %d \r\n", MagicNumber);
-        // printf("%d %d %f %d\r\n", MagicNumber, CM1PID.error, CM1PID.output, i);
+        printf("output: %d \r\n", magic.value);
+        // printf("%d %d %f %d\r\n", magic.value, CM1PID.error, CM1PID.output, i);
         taskEXIT_CRITICAL();
         vTaskDelayUntil(&LastWakeTime, 3000);
     }

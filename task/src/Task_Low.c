@@ -34,11 +34,11 @@ void Task_Chassis(void *Parameters) {
     while (1) {
 
         PID_Calculate(&CM1PID, 0, Motor_Feedback.motor201Speed * kFeedback);
-        // PID_Calculate(&CM2PID, MagicNumber, Motor_Feedback.motor202Speed * kFeedback);
-        // PID_Calculate(&CM3PID, MagicNumber, Motor_Feedback.motor203Speed * kFeedback);
-        // PID_Calculate(&CM4PID, MagicNumber, Motor_Feedback.motor204Speed * kFeedback);
+        // PID_Calculate(&CM2PID, magic.value, Motor_Feedback.motor202Speed * kFeedback);
+        // PID_Calculate(&CM3PID, magic.value, Motor_Feedback.motor203Speed * kFeedback);
+        // PID_Calculate(&CM4PID, magic.value, Motor_Feedback.motor204Speed * kFeedback);
 
-        Can_Set_CM_Current(CAN1, MagicNumber, -CM2PID.output, -CM3PID.output, CM4PID.output);
+        Can_Set_CM_Current(CAN1, magic.value, -CM2PID.output, -CM3PID.output, CM4PID.output);
 
         vTaskDelayUntil(&LastWakeTime, 100);
 

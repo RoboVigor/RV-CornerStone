@@ -2,6 +2,7 @@
 #define __HANDLE_H
 
 #include "OSinclude.h"
+#include "Driver_Magic.h"
 #include "Driver_PID.h"
 #include "Driver_DBUS.h"
 #include "Driver_CAN.h"
@@ -32,9 +33,9 @@ __HANDLE_EXT ChassisParam_Type ChassisParam;
 __HANDLE_EXT float             targetYawAngle, yawAngleFeed, yawSpeedFeed;
 
 // Magic
-__HANDLE_EXT u8 USART_RX_BUF[200]; //接收缓冲,最大USART_REC_LEN个字节.末字节为换行符
-__HANDLE_EXT u16 USART_RX_STA;     //接收状态标记
-__HANDLE_EXT int MagicNumber;
+__HANDLE_EXT u8 USART_RX_BUF[200];
+__HANDLE_EXT u16 USART_RX_STA;
+__HANDLE_EXT MagicHandle_Type magic;
 
 // RTOS
 __HANDLE_EXT TaskHandle_t TaskHandle_DBus;
