@@ -55,6 +55,11 @@ void Task_Debug(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+/**
+ * @brief 
+ * 
+ * @param Parameters 
+ */
 void Task_MagicReceive(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
@@ -93,7 +98,6 @@ void Task_MagicSend(void *Parameters) {
  * @param  void *Parameters
  * @return void
  */
-
 void Task_Safe_Mode(void *Parameters) {
 
     while (1) {
