@@ -1,9 +1,12 @@
-#include "usart.h"
+#include "Driver_Magic.h"
 #include "string.h"
 #include "sys.h"
 #include "math.h"
-
 #include "handle.h"
+
+int USART_Last_Debug_Number    = -1;
+int USART_Default_Debug_Number = 0;
+
 //加入以下代码,支持printf函数,而不需要选择use MicroLIB
 #if 1
 
@@ -27,9 +30,12 @@ int fputc(int ch, FILE *f) {
 //串口3中断服务程序
 //注意,读取USARTx->SR能避免莫名其妙的错误
 
-//初始化IO 串口3
-// bound:波特率
-void uart_init(u32 bound) {
+/**
+ * @brief 串口 USART6 初始化 (IO3)
+ * 
+ * @param bound - 波特率
+ */
+void Magic_Init(u32 bound){
     // GPIO端口设置
     GPIO_InitTypeDef  GPIO_InitStructure;
     USART_InitTypeDef USART_InitStructure;
@@ -75,16 +81,43 @@ void uart_init(u32 bound) {
     NVIC_Init(&NVIC_InitStructure);                                     //根据指定的参数初始化VIC寄存器
 }
 
-#endif
+# endif
 
-void USART6_Send_Package(uint8_t *data, uint8_t count) {
-    uint8_t i;
-
-    for (i = 0; i < count; i++) {
-        while (USART_GetFlagStatus(USART6, USART_FLAG_TC) == RESET)
-            ;
-        USART6->DR = data[i];
-    }
-    memset(data, 0, count);
+/**
+ * @brief 
+ * 
+ * @param defaultNumber 
+ */
+void  Magic_Set_Default_Number(int defaultNumber) {
+    MagicTypedef->defaultNumber = defaultNumber;
 }
 
+/**
+ * @brief 
+ * 
+ * @return int 
+ */
+int Magic_Get_Debug_Number(void) {
+    int result = 0;
+    int length = 0;
+
+    if ((USART_RX_STA & 0x8000) > 0) {
+        uint8_t i = 0;
+
+        length = USART_RX_STA - 0xC000;
+        result = 0;
+        for (i = 0; i < length; i++) {
+            result += pow(10.0, length - i - 1) * (USART_RX_BUF[i] - 48);
+            USART_RX_BUF[i] = 0;
+        }
+        USART_RX_STA            = 0;
+        USART_Last_Debug_Number = result;
+        return result;
+    } else {
+        if (USART_Last_Debug_Number != -1) {
+            return USART_Last_Debug_Number;
+        } else {
+            return USART_Default_Debug_Number;
+        }
+    }
+}

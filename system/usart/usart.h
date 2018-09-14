@@ -16,6 +16,4 @@
 // __SYSTEM_USART_EXT u16 USART_RX_STA;               //接收状态标记
 
 void uart_init(u32 bound);
-int  USART_Get_Debug_Number(void);
-void USART_Set_Default_Debug_Number(int);
 #endif
