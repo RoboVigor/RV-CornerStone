@@ -38,8 +38,9 @@ void Task_Chassis(void *Parameters) {
         // PID_Calculate(&CM3PID, magic.value, Motor_Feedback.motor203Speed * kFeedback);
         // PID_Calculate(&CM4PID, magic.value, Motor_Feedback.motor204Speed * kFeedback);
 
-        Can_Set_CM_Current(CAN1, magic.value, 0, 0, 0);
-
+        if (magic.value > 0 && magic.value < 2000) { // 防止 CAN 线挂断
+            Can_Set_CM_Current(CAN1, magic.value, 0, 0, 0);
+        }
         vTaskDelayUntil(&LastWakeTime, 100);
 
         continue;
