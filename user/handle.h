@@ -33,7 +33,7 @@ __HANDLE_EXT ChassisParam_Type ChassisParam;
 __HANDLE_EXT float             targetYawAngle, yawAngleFeed, yawSpeedFeed;
 
 // Magic
-__HANDLE_EXT u8 USART_RX_BUF[200];
+__HANDLE_EXT u8 USART_RX_BUF[MAGIC_MAX_LENGTH];
 __HANDLE_EXT u16 USART_RX_STA;
 __HANDLE_EXT MagicHandle_Type magic;
 

@@ -58,7 +58,8 @@ void USART6_IRQHandler(void) {
             } else {
                 USART_RX_BUF[USART_RX_STA & 0X3FFF] = res;
                 USART_RX_STA++;
-                if (USART_RX_STA > (USART_REC_LEN - 1)) USART_RX_STA = 0; // 接收数据错误，重新开始接收
+                // USART6->DR = res;
+                if (USART_RX_STA > (MAGIC_MAX_LENGTH - 1)) USART_RX_STA = 0; // 接收数据错误，重新开始接收
             }
         }
     }
