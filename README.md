@@ -12,7 +12,7 @@ RoboVigor 电控基石。
 
 ## 规划
 
-[Projects](https://github.com/tccoin/RV-CornerStone/projects/1)
+[Projects](https://github.com/orgs/RoboVigor/projects/1)
 
 ## 历史
 
