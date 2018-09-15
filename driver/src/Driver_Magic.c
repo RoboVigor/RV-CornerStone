@@ -83,12 +83,13 @@ void Magic_Init_Handle(MagicHandle_Type *magic, int defaultValue) {
 /**
  * @brief 调试数据接收函数
  *
- * @return int - 返回给系统的调试数据
+ * @return void
  */
 
-int lastResult = -1; // 记录接收到的调试数据
+int lastResult   = -1; // 记录接收到的调试数据
+int receivedSign = 0;
 
-int Magic_Get_Debug_Value(MagicHandle_Type *magic) {
+void Magic_Get_Debug_Value(MagicHandle_Type *magic) {
     int result = 0;
     int length = 0;
 
@@ -104,12 +105,13 @@ int Magic_Get_Debug_Value(MagicHandle_Type *magic) {
         }
         USART_RX_STA = 0;      // 清空串口的接收缓存
         lastResult   = result; // 记录接收到的调试数据
-        return result;
-    } else {                            // 串口 没有 接收到调试数据
-        if (lastResult != -1) {         // 之前 已经 接收过数据
-            return lastResult;          // 返回上一次接收的调试数据
-        } else {                        // 之前 没有 接收过数据
-            return magic->defaultValue; // 返回设定的默认值
+        receivedSign = 1;
+    } else {                              // 串口 没有 接收到调试数据
+        if (receivedSign == 1) {          // 之前 已经 接收过数据
+            result = lastResult;          // 返回上一次接收的调试数据
+        } else {                          // 之前 没有 接收过数据
+            result = magic->defaultValue; // 返回设定的默认值
         }
     }
+    magic->value = result;
 }

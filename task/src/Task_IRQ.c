@@ -63,20 +63,20 @@ void Task_Debug(void *Parameters) {
 void Task_MagicReceive(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    Magic_Init_Handle(&magic, 0);               // 初始化调试数据的默认值
+    Magic_Init_Handle(&magic, 200); // 初始化调试数据的默认值
     while (1) {
-        taskENTER_CRITICAL();                   // 进入临界段代码（在不进入的情况下有被抢占的情况）
-        Magic_Get_Debug_Value(&magic);          // 接收调试数据
-        taskEXIT_CRITICAL();                    // 退出临界段代码
-        vTaskDelayUntil(&LastWakeTime, 50);
+        taskENTER_CRITICAL();          // 进入临界段代码（在不进入的情况下有被抢占的情况）
+        Magic_Get_Debug_Value(&magic); // 接收调试数据
+        taskEXIT_CRITICAL();           // 退出临界段代码
+        vTaskDelayUntil(&LastWakeTime, 1000);
     }
     vTaskDelete(NULL);
 }
 
 /**
  * @brief 地面站 反馈数据 发送函数
- * 
- * @param Parameters 
+ *
+ * @param Parameters
  */
 void Task_MagicSend(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
@@ -84,16 +84,15 @@ void Task_MagicSend(void *Parameters) {
     while (1) {
         u8 i = 0;
         MIAO(i, 1, 2);
-        taskENTER_CRITICAL();                               // 进入临界段代码（在不进入的情况下有被抢占的情况）
+        taskENTER_CRITICAL(); // 进入临界段代码（在不进入的情况下有被抢占的情况）
         // 发送反馈数据
-        printf("----- \r\n");
         // printf("p:%f \r\n", CM1PID.p);
         // printf("error: %f \r\n", CM1PID.error);
         // printf("target: %f \r\n", CM1PID.target);
-        printf("feedback: %f \r\n", CM1PID.feedback);
+        // printf("feedback: %f \r\n", CM1PID.feedback);
         printf("output: %d \r\n", magic.value);
         // printf("%d %d %f %d\r\n", magic.value, CM1PID.error, CM1PID.output, i);
-        taskEXIT_CRITICAL();                                // 退出临界段代码
+        taskEXIT_CRITICAL(); // 退出临界段代码
         vTaskDelayUntil(&LastWakeTime, 3000);
     }
     vTaskDelete(NULL);
