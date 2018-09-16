@@ -75,7 +75,9 @@ void CAN1_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
 
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
+    // printf("123\r\n");
     switch (CanRxData.StdId) {
+
     case WHEEL_1_ID:
         Motor_Feedback.motor201Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
         Motor_Feedback.motor201Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);

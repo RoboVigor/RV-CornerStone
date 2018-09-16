@@ -86,14 +86,18 @@ void Task_MagicSend(void *Parameters) {
         MIAO(i, 1, 2);
         taskENTER_CRITICAL(); // 进入临界段代码（在不进入的情况下有被抢占的情况）
         // 发送反馈数据
-        // printf("p:%f \r\n", CM1PID.p);
-        // printf("error: %f \r\n", CM1PID.error);
-        // printf("target: %f \r\n", CM1PID.target);
-        // printf("feedback: %f \r\n", CM1PID.feedback);
-        printf("output: %d \r\n", magic.value);
-        // printf("%d %d %f %d\r\n", magic.value, CM1PID.error, CM1PID.output, i);
+        // ChassisAnglePID1
+        // CM1PID
+        printf("MGC %d \r\n", magic.value);
+        // printf("OUT %f \r\n\r\n", ChassisAnglePID1.feedback);
+        printf("OUT %f \r\n", ChassisAnglePID1.feedback - ChassisAnglePID1.target);
+        // printf("IN  %f %f %d \r\n", CM1PID.feedback, CM1PID.target, CM1PID.output);
+        // printf("ENC %d %d %d %f\r\n", CM1_Encoder.rawValue, CM1_Encoder.ecdBias, CM1_Encoder.roundCnt, CM1_Encoder.ecdAngle);
+        // printf("ANG %d \r\n", Motor_Feedback.motor201Angle);
+        printf("---------------------\r\n");
+
         taskEXIT_CRITICAL(); // 退出临界段代码
-        vTaskDelayUntil(&LastWakeTime, 3000);
+        vTaskDelayUntil(&LastWakeTime, 2000);
     }
     vTaskDelete(NULL);
 }

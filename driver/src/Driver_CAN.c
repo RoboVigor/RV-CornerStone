@@ -37,7 +37,7 @@ void Can_Set_CM_Current(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t
             // printf("IER: %x\r\n", CAN1->IER);
             // printf("MSR: %x\r\n\r\n", CAN1->MSR);
             // delay_ms(500);
-            return;
+            // return;
             CAN1->MCR |= 0x02;
             CAN1->MCR &= 0xFD;
         }
@@ -99,11 +99,11 @@ void CAN_Update_Encoder_Data(volatile CANEncoder_Type *v, uint16_t agree) {
     v->lastRawValue  = v->rawValue;
     v->rawValue      = agree;
     v->diff          = v->rawValue - v->lastRawValue;
-    if (v->diff < -4200) //两次编码器的反馈值差别太大,表示圈数发生了改变
+    if (v->diff < -4000) //两次编码器的反馈值差别太大,表示圈数发生了改变
     {
         v->roundCnt++;
         v->ecdRawRate = v->diff + 8192;
-    } else if (v->diff > 4200) {
+    } else if (v->diff > 4000) {
         v->roundCnt--;
         v->ecdRawRate = v->diff - 8192;
     } else {
