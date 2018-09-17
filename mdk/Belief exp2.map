@@ -1611,6 +1611,7 @@ Removing Unused input sections from the image.
     Removing driver_pancontroller.o(i.Chassis_Get_XYW_Speed), (384 bytes).
     Removing driver_pancontroller.o(i.Chassis_Init_Yaw_Angle), (20 bytes).
 <<<<<<< HEAD
+<<<<<<< HEAD
     Removing driver_pancontroller.o(i.Chassis_Limit_Wheel_Speed), (236 bytes).
     Removing driver_pancontroller.o(i.Chassis_Set_Wheel_Speed), (96 bytes).
     Removing driver_pancontroller.o(i.Chassis_Update_Mecanum_Data), (444 bytes).
@@ -1618,6 +1619,11 @@ Removing Unused input sections from the image.
     Removing driver_pid.o(.rev16_text), (4 bytes).
     Removing driver_pid.o(.revsh_text), (4 bytes).
     Removing driver_pid.o(i.PID_Calculate), (258 bytes).
+=======
+    Removing driver_pancontroller.o(.data), (4 bytes).
+    Removing driver_pid.o(.rev16_text), (4 bytes).
+    Removing driver_pid.o(.revsh_text), (4 bytes).
+>>>>>>> update
 =======
     Removing driver_pancontroller.o(.data), (4 bytes).
     Removing driver_pid.o(.rev16_text), (4 bytes).
@@ -1652,7 +1658,11 @@ Removing Unused input sections from the image.
     Removing task_sys_init.o(.revsh_text), (4 bytes).
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 475 unused section(s) (total 31380 bytes) removed from the image.
+=======
+470 unused section(s) (total 30268 bytes) removed from the image.
+>>>>>>> update
 =======
 470 unused section(s) (total 30268 bytes) removed from the image.
 >>>>>>> update
@@ -1971,6 +1981,7 @@ Image Symbol Table
     i.CAN_Transmit                           0x080012b2   Section        0  stm32f4xx_can.o(i.CAN_Transmit)
     i.Can_Set_CM_Current                     0x080013d8   Section        0  driver_can.o(i.Can_Set_CM_Current)
 <<<<<<< HEAD
+<<<<<<< HEAD
     i.DBus_Update                            0x08001468   Section        0  driver_dbus.o(i.DBus_Update)
     i.DMA_ClearFlag                          0x08001550   Section        0  stm32f4xx_dma.o(i.DMA_ClearFlag)
     i.DMA_Cmd                                0x08001584   Section        0  stm32f4xx_dma.o(i.DMA_Cmd)
@@ -2202,6 +2213,8 @@ Image Symbol Table
     P                                        0x080064d0   Data          40  pow.o(.constdata)
     .constdata                               0x080064f8   Section        8  qnan.o(.constdata)
 =======
+=======
+>>>>>>> update
     i.Chassis_Limit_Wheel_Speed              0x08001468   Section        0  driver_pancontroller.o(i.Chassis_Limit_Wheel_Speed)
     i.Chassis_Set_Wheel_Speed                0x08001558   Section        0  driver_pancontroller.o(i.Chassis_Set_Wheel_Speed)
     i.Chassis_Update_Mecanum_Data            0x080015b8   Section        0  driver_pancontroller.o(i.Chassis_Update_Mecanum_Data)
@@ -2444,6 +2457,9 @@ Image Symbol Table
     L                                        0x08006b50   Data          48  pow.o(.constdata)
     P                                        0x08006b80   Data          40  pow.o(.constdata)
     .constdata                               0x08006ba8   Section        8  qnan.o(.constdata)
+<<<<<<< HEAD
+>>>>>>> update
+=======
 >>>>>>> update
     .data                                    0x20000000   Section       16  stm32f4xx_rcc.o(.data)
     APBAHBPrescTable                         0x20000000   Data          16  stm32f4xx_rcc.o(.data)
@@ -2519,6 +2535,9 @@ Image Symbol Table
     STACK                                    0x200142e8   Section     1024  startup_stm32f427xx.o(STACK)
     Stack_Mem                                0x200142e8   Data        1024  startup_stm32f427xx.o(STACK)
     __initial_sp                             0x200146e8   Data           0  startup_stm32f427xx.o(STACK)
+<<<<<<< HEAD
+>>>>>>> update
+=======
 >>>>>>> update
 
     Global Symbols
@@ -2762,6 +2781,7 @@ Image Symbol Table
     CAN_Transmit                             0x080012b3   Thumb Code   294  stm32f4xx_can.o(i.CAN_Transmit)
     Can_Set_CM_Current                       0x080013d9   Thumb Code   140  driver_can.o(i.Can_Set_CM_Current)
 <<<<<<< HEAD
+<<<<<<< HEAD
     DBus_Update                              0x08001469   Thumb Code   230  driver_dbus.o(i.DBus_Update)
     DMA_ClearFlag                            0x08001551   Thumb Code    38  stm32f4xx_dma.o(i.DMA_ClearFlag)
     DMA_Cmd                                  0x08001585   Thumb Code    22  stm32f4xx_dma.o(i.DMA_Cmd)
@@ -2930,6 +2950,8 @@ Image Symbol Table
     Region$$Table$$Base                      0x08006500   Number         0  anon$$obj.o(Region$$Table)
     Region$$Table$$Limit                     0x08006520   Number         0  anon$$obj.o(Region$$Table)
 =======
+=======
+>>>>>>> update
     Chassis_Limit_Wheel_Speed                0x08001469   Thumb Code   234  driver_pancontroller.o(i.Chassis_Limit_Wheel_Speed)
     Chassis_Set_Wheel_Speed                  0x08001559   Thumb Code    88  driver_pancontroller.o(i.Chassis_Set_Wheel_Speed)
     Chassis_Update_Mecanum_Data              0x080015b9   Thumb Code   326  driver_pancontroller.o(i.Chassis_Update_Mecanum_Data)
@@ -3107,6 +3129,9 @@ Image Symbol Table
     __mathlib_zero                           0x08006ba8   Data           8  qnan.o(.constdata)
     Region$$Table$$Base                      0x08006bb0   Number         0  anon$$obj.o(Region$$Table)
     Region$$Table$$Limit                     0x08006bd0   Number         0  anon$$obj.o(Region$$Table)
+<<<<<<< HEAD
+>>>>>>> update
+=======
 >>>>>>> update
     pxCurrentTCB                             0x20000010   Data           4  tasks.o(.data)
     ulHighFrequencyTimerTicks                0x20000090   Data           4  main.o(.data)
@@ -3172,6 +3197,9 @@ Image Symbol Table
     mpu_buf                                  0x20013270   Data          20  mpu6500_driver.o(.bss)
     __libspace_start                         0x20013284   Data          96  libspace.o(.bss)
     __temporary_stack_top$libspace           0x200132e4   Data           0  libspace.o(.bss)
+<<<<<<< HEAD
+>>>>>>> update
+=======
 >>>>>>> update
 
 
@@ -3183,9 +3211,15 @@ Memory Map of the image
   Image Entry point : 0x080001ad
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00006600, Max: 0x00200000, ABSOLUTE)
 
     Execution Region ER_IROM1 (Base: 0x08000000, Size: 0x00006520, Max: 0x00200000, ABSOLUTE)
+=======
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00006cb0, Max: 0x00200000, ABSOLUTE)
+
+    Execution Region ER_IROM1 (Base: 0x08000000, Size: 0x00006bd0, Max: 0x00200000, ABSOLUTE)
+>>>>>>> update
 =======
   Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00006cb0, Max: 0x00200000, ABSOLUTE)
 
@@ -3287,6 +3321,7 @@ Memory Map of the image
     0x080010ae   0x00000114   Code   RO          505    i.CAN_Init          stm32f4xx_can.o
     0x080011c2   0x000000f0   Code   RO          508    i.CAN_Receive       stm32f4xx_can.o
     0x080012b2   0x00000126   Code   RO          513    i.CAN_Transmit      stm32f4xx_can.o
+<<<<<<< HEAD
 <<<<<<< HEAD
     0x080013d8   0x00000090   Code   RO         3818    i.Can_Set_CM_Current  driver_can.o
     0x08001468   0x000000e6   Code   RO         3854    i.DBus_Update       driver_dbus.o
@@ -3482,6 +3517,8 @@ Memory Map of the image
 
     Execution Region RW_IRAM1 (Base: 0x20000000, Size: 0x00014688, Max: 0x00030000, ABSOLUTE)
 =======
+=======
+>>>>>>> update
     0x080013d8   0x00000090   Code   RO         3812    i.Can_Set_CM_Current  driver_can.o
     0x08001468   0x000000f0   Code   RO         3879    i.Chassis_Limit_Wheel_Speed  driver_pancontroller.o
     0x08001558   0x00000060   Code   RO         3880    i.Chassis_Set_Wheel_Speed  driver_pancontroller.o
@@ -3684,6 +3721,9 @@ Memory Map of the image
 
 
     Execution Region RW_IRAM1 (Base: 0x20000000, Size: 0x000146e8, Max: 0x00030000, ABSOLUTE)
+<<<<<<< HEAD
+>>>>>>> update
+=======
 >>>>>>> update
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
@@ -3723,6 +3763,9 @@ Memory Map of the image
     0x200132e4   0x00000004   PAD
     0x200132e8   0x00001000   Zero   RW          440    HEAP                startup_stm32f427xx.o
     0x200142e8   0x00000400   Zero   RW          439    STACK               startup_stm32f427xx.o
+<<<<<<< HEAD
+>>>>>>> update
+=======
 >>>>>>> update
 
 
@@ -3819,6 +3862,9 @@ Image component sizes
 
     ----------------------------------------------------------------------
      18546       1808        460        224      83364     494515   Object Totals
+<<<<<<< HEAD
+>>>>>>> update
+=======
 >>>>>>> update
          0          0         32          0          0          0   (incl. Generated)
         18          0          0          3          0          0   (incl. Padding)
@@ -3917,6 +3963,7 @@ Image component sizes
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
 <<<<<<< HEAD
+<<<<<<< HEAD
      25284       2338        604        224      83368     471558   Grand Totals
      25284       2338        604        224      83368     471558   ELF Image Totals
      25284       2338        604        224          0          0   ROM Totals
@@ -3927,6 +3974,8 @@ Image component sizes
     Total RW  Size (RW Data + ZI Data)             83592 (  81.63kB)
     Total ROM Size (Code + RO Data + RW Data)      26112 (  25.50kB)
 =======
+=======
+>>>>>>> update
      26996       2450        604        224      83464     480787   Grand Totals
      26996       2450        604        224      83464     480787   ELF Image Totals
      26996       2450        604        224          0          0   ROM Totals
@@ -3936,6 +3985,9 @@ Image component sizes
     Total RO  Size (Code + RO Data)                27600 (  26.95kB)
     Total RW  Size (RW Data + ZI Data)             83688 (  81.73kB)
     Total ROM Size (Code + RO Data + RW Data)      27824 (  27.17kB)
+<<<<<<< HEAD
+>>>>>>> update
+=======
 >>>>>>> update
 
 ==============================================================================
