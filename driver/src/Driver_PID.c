@@ -58,3 +58,10 @@ int PID_Calculate(PID_Type *pid, float target, float feedback) {
 
     return pid->output;
 }
+
+// void PID_Debug(PID_Type *CM1, PID_Type *CM2, PID_Type *CM3, PID_Type *CM4) {
+//     PIDDebugValue1 = CM1->output;
+//     PIDDebugValue2 = CM2->output;
+//     PIDDebugValue3 = CM3->output;
+//     PIDDebugValue4 = CM4->output;
+// }
