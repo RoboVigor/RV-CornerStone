@@ -27,6 +27,7 @@ Project File Date:  09/24/2018
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
+<<<<<<< HEAD
 compiling BSP_DMA.c...
 ..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
   #include "key.h"
@@ -63,6 +64,8 @@ compiling Task_IRQ.c...
 ..\task\src\Task_IRQ.c(116): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
 ..\task\src\Task_IRQ.c: 7 warnings, 0 errors
+=======
+>>>>>>> update
 compiling Task_Low.c...
 ..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
   #include "key.h"
@@ -70,10 +73,9 @@ compiling Task_Low.c...
   #define CHASSIS_MOTOR_REDUCTION_RATE 19.2  //搴?鐩?鐢?鏈?鍑?閫?姣?
 ..\task\src\Task_Low.c(16): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Low.c(48): warning:  #111-D: statement is unreachable
-          yawSpeedFeed = mpu6500_data.gz / 16.4;
-..\task\src\Task_Low.c(71): warning:  #111-D: statement is unreachable
+..\task\src\Task_Low.c(80): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
+<<<<<<< HEAD
 ..\task\src\Task_Low.c: 5 warnings, 0 errors
 compiling Task_Sys_Init.c...
 ..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
@@ -85,13 +87,20 @@ linking...
 Program Size: Code=25284 RO-data=604 RW-data=224 ZI-data=83368  
 FromELF: creating hex file...
 ".\Objects\Belief exp2.axf" - 0 Error(s), 21 Warning(s).
+=======
+..\task\src\Task_Low.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=26996 RO-data=604 RW-data=224 ZI-data=83464  
+FromELF: creating hex file...
+".\Objects\Belief exp2.axf" - 0 Error(s), 2 Warning(s).
+>>>>>>> update
 
 <h2>Collection of Component include folders:</h2>
   C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE
   C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:04
+Build Time Elapsed:  00:00:06
 </pre>
 </body>
 </html>
