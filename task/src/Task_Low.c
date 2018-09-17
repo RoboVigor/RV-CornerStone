@@ -26,10 +26,16 @@ void Task_Chassis(void *Parameters) {
     int        WheelSpeedRes[4], Buffer[4];
     float      kFeedback = 3.14 / 60;
 
-    PID_Init(&CM1PID, 3, 0, 0, 1000);
-    PID_Init(&CM2PID, 0, 0, 0, 1000);
-    PID_Init(&CM3PID, 0, 0, 0, 1000);
-    PID_Init(&CM4PID, 0, 0, 0, 1000);
+    // For debug pid
+    float pTest1 = 3;
+    float pTest2 = 3;
+    float pTest3 = 3;
+    float pTest4 = 3;
+
+    PID_Init(&CM1PID, pTest1, 0, 0, 500);
+    PID_Init(&CM2PID, pTest2, 0, 0, 500);
+    PID_Init(&CM3PID, pTest3, 0, 0, 500);
+    PID_Init(&CM4PID, pTest4, 0, 0, 500);
 
     while (1) {
 
@@ -38,17 +44,17 @@ void Task_Chassis(void *Parameters) {
         // PID_Calculate(&CM3PID, magic.value, Motor_Feedback.motor203Speed * kFeedback);
         // PID_Calculate(&CM4PID, magic.value, Motor_Feedback.motor204Speed * kFeedback);
 
-        if (magic.value > 0 && magic.value < 2000) { // 防止 CAN 线挂断
-            Can_Set_CM_Current(CAN1, magic.value, 0, 0, 0);
-        }
-        vTaskDelayUntil(&LastWakeTime, 100);
+        // if (magic.value > 0 && magic.value < 2000) { // 防止 CAN 线挂断
+        //     Can_Set_CM_Current(CAN1, magic.value, 0, 0, 0);
+        // }
+        // vTaskDelayUntil(&LastWakeTime, 100);
 
-        continue;
+        // continue;
 
         yawSpeedFeed = mpu6500_data.gz / 16.4;
         yawAngleFeed = EulerAngle.Yaw;
-        PID_Init(&YawAnglePID, 15, 0, 0, 660);
-        PID_Init(&YawSpeedPID, 2, 0, 0, 660);
+        PID_Init(&YawAnglePID, 0, 0, 0, 660); // 15
+        PID_Init(&YawSpeedPID, 0, 0, 0, 660); // 2
 
         PID_Calculate(&YawAnglePID, DBusData.ch1, yawAngleFeed);
         PID_Calculate(&YawSpeedPID, YawAnglePID.output, yawSpeedFeed);
