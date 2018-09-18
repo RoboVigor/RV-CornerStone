@@ -21,8 +21,13 @@ Target DLL:      Segger\JL2CM3.dll V2.99.23.0
 Dialog DLL:      TCM.DLL V1.14.14.0
  
 <h2>Project:</h2>
+<<<<<<< HEAD
 C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\Belief exp2.uvprojx
 Project File Date:  09/24/2018
+=======
+D:\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\Belief exp2.uvprojx
+Project File Date:  09/17/2018
+>>>>>>> pid update
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
@@ -77,7 +82,10 @@ compiling Task_Low.c...
 ..\task\src\Task_Low.c(16): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
 ..\task\src\Task_Low.c(80): warning:  #111-D: statement is unreachable
+          yawSpeedFeed = mpu6500_data.gz / 16.4;
+..\task\src\Task_Low.c(103): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 ..\task\src\Task_Low.c: 5 warnings, 0 errors
@@ -100,11 +108,24 @@ FromELF: creating hex file...
 >>>>>>> update
 =======
 ..\task\src\Task_Low.c: 2 warnings, 0 errors
+=======
+..\task\src\Task_Low.c(33): warning:  #177-D: variable "pTestYaw" was declared but never referenced
+      float pTestYaw          = 3;
+..\task\src\Task_Low.c(34): warning:  #177-D: variable "iTestYaw" was declared but never referenced
+      float iTestYaw          = 0.1;
+..\task\src\Task_Low.c(35): warning:  #177-D: variable "currentLimitYaw" was declared but never referenced
+      float currentLimitYaw   = 660;
+..\task\src\Task_Low.c: 6 warnings, 0 errors
+>>>>>>> pid update
 linking...
-Program Size: Code=26996 RO-data=604 RW-data=224 ZI-data=83464  
+Program Size: Code=25812 RO-data=604 RW-data=224 ZI-data=83392  
 FromELF: creating hex file...
+<<<<<<< HEAD
 ".\Objects\Belief exp2.axf" - 0 Error(s), 2 Warning(s).
 >>>>>>> update
+=======
+".\Objects\Belief exp2.axf" - 0 Error(s), 6 Warning(s).
+>>>>>>> pid update
 
 <h2>Collection of Component include folders:</h2>
   C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE

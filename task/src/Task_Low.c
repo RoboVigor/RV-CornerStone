@@ -27,34 +27,60 @@ void Task_Chassis(void *Parameters) {
     float      kFeedback = 3.14 / 60;
 
     // For debug pid
-    float pTest1 = 3;
-    float pTest2 = 3;
-    float pTest3 = 3;
-    float pTest4 = 3;
+    float pTestWheel        = 3;
+    float iTestWheel        = 0.1;
+    float currentLimitWheel = 600;
+    float pTestYaw          = 3;
+    float iTestYaw          = 0.1;
+    float currentLimitYaw   = 660;
 
-    PID_Init(&CM1PID, pTest1, 0, 0, 500);
-    PID_Init(&CM2PID, pTest2, 0, 0, 500);
-    PID_Init(&CM3PID, pTest3, 0, 0, 500);
-    PID_Init(&CM4PID, pTest4, 0, 0, 500);
+    PID_Init(&CM1PID, pTestWheel, iTestWheel, 0, currentLimitWheel);
+    PID_Init(&CM2PID, pTestWheel, iTestWheel, 0, currentLimitWheel);
+    PID_Init(&CM3PID, pTestWheel, iTestWheel, 0, currentLimitWheel);
+    PID_Init(&CM4PID, pTestWheel, iTestWheel, 0, currentLimitWheel);
 
     while (1) {
+        //  For debug pid
+        // yawAngleFeed = EulerAngle.Yaw; // yaw 角度反馈
+        // yawSpeedFeed = mpu6500_data.gz / 16.4; // yaw 速度反馈
 
-        // PID_Calculate(&CM1PID, magic.value, Motor_Feedback.motor201Speed * kFeedback);
-        // PID_Calculate(&CM2PID, magic.value, Motor_Feedback.motor202Speed * kFeedback);
-        // PID_Calculate(&CM3PID, magic.value, Motor_Feedback.motor203Speed * kFeedback);
-        // PID_Calculate(&CM4PID, magic.value, Motor_Feedback.motor204Speed * kFeedback);
+        // PID_Init(&YawAnglePID, 15, 0, 0, 660);   // Angle
+        // PID_Init(&YawSpeedPID, pTestYaw, iTestYaw, 0, currentLimitYaw); // Speed
 
-        // if (magic.value > 0 && magic.value < 2000) { // 防止 CAN 线挂断
-        //     Can_Set_CM_Current(CAN1, magic.value, 0, 0, 0);
-        // }
-        // vTaskDelayUntil(&LastWakeTime, 100);
+        // PID_Calculate(&YawAnglePID, DBusData.ch1, yawAngleFeed); // Angle
+        // PID_Calculate(&YawSpeedPID, DBusData.ch1, yawSpeedFeed); // Speed
+        // PID_Calculate(&YawSpeedPID, YawAnglePID.output, yawSpeedFeed);
 
-        // continue;
+        // Chassis_Set_Wheel_Speed(DBusData.ch4, DBusData.ch3, YawAnglePID.output); // Angle
+        // Chassis_Set_Wheel_Speed(DBusData.ch4, DBusData.ch3, YawSpeedPID.output); //设定XYZ三个轴的速度  // Speed
+        // Chassis_Update_Mecanum_Data(Buffer);                                     //麦轮的解算
+        // Chassis_Limit_Wheel_Speed(Buffer, WheelSpeedRes, MAXWHEELSPEED);         //限幅
+
+        // PID_Calculate(&CM1PID, WheelSpeedRes[0], Motor_Feedback.motor201Speed * kFeedback);
+        // PID_Calculate(&CM2PID, WheelSpeedRes[1], Motor_Feedback.motor202Speed * kFeedback);
+        // PID_Calculate(&CM3PID, WheelSpeedRes[2], Motor_Feedback.motor203Speed * kFeedback);
+        // PID_Calculate(&CM4PID, WheelSpeedRes[3], Motor_Feedback.motor204Speed * kFeedback);
+
+        PID_Calculate(&CM1PID, DBusData.ch4, Motor_Feedback.motor201Speed * kFeedback);
+        PID_Calculate(&CM2PID, DBusData.ch4, Motor_Feedback.motor202Speed * kFeedback);
+        PID_Calculate(&CM3PID, DBusData.ch4, Motor_Feedback.motor203Speed * kFeedback);
+        PID_Calculate(&CM4PID, DBusData.ch4, Motor_Feedback.motor204Speed * kFeedback);
+
+        MIAO(CM1PID.output, -500, 500);
+
+        if (magic.value > -1000 && magic.value < 1000) { // 防止 CAN 线挂掉
+            Can_Set_CM_Current(CAN1, CM1PID.output, 0, 0, 0);
+            // Can_Set_CM_Current(CAN1, CM1PID.output, -CM2PID.output, -CM3PID.output, CM4PID.output);
+        }
+
+        vTaskDelayUntil(&LastWakeTime, 100);
+
+        continue;
 
         yawSpeedFeed = mpu6500_data.gz / 16.4;
         yawAngleFeed = EulerAngle.Yaw;
-        PID_Init(&YawAnglePID, 0, 0, 0, 660); // 15
-        PID_Init(&YawSpeedPID, 0, 0, 0, 660); // 2
+        PID_Init(&YawAnglePID, 15, 0, 0, 660); // 15
+        PID_Init(&YawSpeedPID, 2, 0, 0, 660);  // 2
 
         PID_Calculate(&YawAnglePID, remoteData.rx, yawAngleFeed);
         PID_Calculate(&YawSpeedPID, YawAnglePID.output, yawSpeedFeed);
