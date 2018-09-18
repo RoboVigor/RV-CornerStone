@@ -6,9 +6,6 @@
  * @return void
  */
 
-int debug1  = 0;
-int debug2  = 0;
-int debug3  = 0;
 int _target = 0;
 
 void Task_Blink(void *Parameters) {
@@ -30,10 +27,12 @@ void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     // int        WheelSpeedRes[4], Buffer[4];
     float kFeedback        = 3.14 / 60;
-    int   minCurrentToMove = 550;
+    int   minCurrentToMove = 600;
 
-    PID_Init(&ChassisAnglePID1, 0.5, 0, 0, 180);
-    PID_Init(&CM1PID, 1, 0, 0, 600);
+    // int timesToMove = 0;
+
+    PID_Init(&ChassisAnglePID1, 1.5, 0.01, 0, 180); // 0.5  -1.755   0.7   1.36
+    PID_Init(&CM1PID, 20, 0, 0, 400);               // 0.04
     // PID_Init(&CM2PID, 0, 0, 0, 1000);
     // PID_Init(&CM3PID, 0, 0, 0, 1000);
     // PID_Init(&CM4PID, 0, 0, 0, 1000);
@@ -52,21 +51,35 @@ void Task_Chassis(void *Parameters) {
         // vTaskDelayUntil(&LastWakeTime, 100);
 
         // continue;
+
         CAN_Update_Encoder_Data(&CM1_Encoder, Motor_Feedback.motor201Angle);
 
-        debug1 = CM1_Encoder.ecdAngle;
-        debug2 = CM1_Encoder.rawValue;
-        debug3 = CM1_Encoder.roundCnt;
+        // debug1 = CM1_Encoder.ecdAngle;
+        // debug2 = CM1_Encoder.rawValue;
+        // debug3 = CM1_Encoder.roundCnt;
+        CM1PID.p = magic.value;
 
-        PID_Calculate(&ChassisAnglePID1, magic.value, CM1_Encoder.ecdAngle / 19);
+        // else if (Motor_Feedback.motor201Speed > 2) {
+        //     if (CM1PID.output >= -minCurrentToMove && CM1PID.output < 0) CM1PID.output = -minCurrentToMove;
+        //     if (CM1PID.output <= minCurrentToMove && CM1PID.output > 0) CM1PID.output = minCurrentToMove;
+        // }
+
+        PID_Calculate(&ChassisAnglePID1, 0, CM1_Encoder.ecdAngle / 19);
         PID_Calculate(&CM1PID, ChassisAnglePID1.output, Motor_Feedback.motor201Speed * kFeedback);
 
-        if (CM1PID.output >= -minCurrentToMove && CM1PID.output < 0) CM1PID.output = -minCurrentToMove;
-        if (CM1PID.output <= minCurrentToMove && CM1PID.output > 0) CM1PID.output = minCurrentToMove;
-        // Can_Set_CM_Current(CAN1, CM1PID.output, 0, 0, 0);
-        Can_Set_CM_Current(CAN1, CM1PID.output, 0, 0, 0);
-
-        vTaskDelayUntil(&LastWakeTime, 15);
+        //逐渐增大电流
+        // if (CM1PID.output >= -minCurrentToMove && CM1PID.output < 0) {
+        //     CM1PID.output += timesToMove * 100;
+        //     timesToMove++;
+        // } else if (CM1PID.output <= minCurrentToMove && CM1PID.output > 0) {
+        //     CM1PID.output += timesToMove * 100;
+        //     timesToMove++;
+        // }
+        // if (CM1PID.output >= -minCurrentToMove && CM1PID.output < 0) CM1PID.output = -minCurrentToMove;
+        // if (CM1PID.output <= minCurrentToMove && CM1PID.output > 0) CM1PID.output = minCurrentToMove;
+        // // Can_Set_CM_Current(CAN1, CM1PID.output, 0, 0, 0);
+        _Set_CM_Current(CM1PID.output); // 225
+        vTaskDelayUntil(&LastWakeTime, 20);
 
         // yawSpeedFeed = mpu6500_data.gz / 16.4;
         // yawAngleFeed = EulerAngle.Yaw;
@@ -90,4 +103,22 @@ void Task_Chassis(void *Parameters) {
     }
 
     vTaskDelete(NULL);
+}
+
+void _Set_CM_Current(int16_t i_201) {
+    int minCurrent    = 250;
+    int currentToMove = 600;
+    int threshold     = 50;
+    if (ABS(i_201) > threshold) {
+        if (Motor_Feedback.motor201Speed == 0) {
+            Can_Set_CM_Current(CAN1, currentToMove, 0, 0, 0);
+        } else {
+            if (i_201 < 0 && i_201 > -minCurrent) i_201 = -minCurrent;
+            if (i_201 > 0 && i_201 < minCurrent) i_201 = minCurrent;
+
+            Can_Set_CM_Current(CAN1, i_201, 0, 0, 0);
+        }
+    } else {
+        Can_Set_CM_Current(CAN1, 0, 0, 0, 0);
+    }
 }
