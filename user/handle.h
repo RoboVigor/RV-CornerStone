@@ -43,6 +43,7 @@ __HANDLE_EXT TaskHandle_t TaskHandle_Debug;
 __HANDLE_EXT TaskHandle_t TaskHandle_Blink;
 __HANDLE_EXT TaskHandle_t TaskHandle_Chassis;
 __HANDLE_EXT TaskHandle_t TaskHandle_Safe_Mode;
+__HANDLE_EXT TaskHandle_t TaskHandle_Update;
 
 __HANDLE_EXT QueueHandle_t Queue_Test;
 
