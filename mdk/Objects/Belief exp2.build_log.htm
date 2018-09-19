@@ -34,6 +34,7 @@ Project File Date:  09/17/2018
 Build target 'Target 1'
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 compiling BSP_DMA.c...
 ..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
   #include "key.h"
@@ -59,16 +60,45 @@ compiling Task_IRQ.c...
   #include "key.h"
 ..\user\config.h(8): warning:  #1-D: last line of file ends without a newline
   #define CHASSIS_MOTOR_REDUCTION_RATE 19.2  //åº?ç›?ç”?æœ?å‡?é€?æ¯?
+=======
+compiling BSP_CAN.c...
+compiling BSP_DMA.c...
+compiling BSP_GPIO.c...
+compiling BSP_UART.c...
+compiling BSP_TIM.c...
+compiling BSP_NVIC.c...
+compiling main.c...
+compiling Driver_PanController.c...
+..\driver\src\Driver_PanController.c(16): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+      ChassisParam.TargetWR = -(float) WSpeed / 660 * 0.5; // 4*1.5*2
+..\driver\src\Driver_PanController.c(28): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+      buffer[0] = 13.16 * ((ChassisParam.TargetVX) - (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2; //éº?å…?è§?ç®?é?æŽ?å™?æ?çš?æ•?å€?æ?ç¤?e
+..\driver\src\Driver_PanController.c(29): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+      buffer[1] = 13.16 * ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2; //è½?å­?çš?è§?é€?åº?/19=è½?å­?è§?é€?åº? (rad/s)
+..\driver\src\Driver_PanController.c: 3 warnings, 0 errors
+compiling stm32f4xx_it.c...
+..\user\stm32f4xx_it.c(15): warning:  #550-D: variable "UARTtemp" was set but never used
+      uint8_t UARTtemp;
+..\user\stm32f4xx_it.c: 1 warning, 0 errors
+compiling Driver_PID.c...
+compiling Task_IRQ.c...
+>>>>>>> pid update
 ..\task\src\Task_IRQ.c(21): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
 ..\task\src\Task_IRQ.c(55): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
 ..\task\src\Task_IRQ.c(73): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
+<<<<<<< HEAD
+=======
+..\task\src\Task_IRQ.c(85): warning:  #177-D: variable "i" was declared but never referenced
+          u8 i = 0;
+>>>>>>> pid update
 ..\task\src\Task_IRQ.c(98): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
 ..\task\src\Task_IRQ.c(116): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
+<<<<<<< HEAD
 ..\task\src\Task_IRQ.c: 7 warnings, 0 errors
 =======
 >>>>>>> update
@@ -84,8 +114,13 @@ compiling Task_Low.c...
 =======
 ..\task\src\Task_Low.c(22): warning:  #111-D: statement is unreachable
 >>>>>>> éº¦å…‹çº³å§†è½® update
+=======
+..\task\src\Task_IRQ.c: 6 warnings, 0 errors
+compiling Task_Low.c...
+..\task\src\Task_Low.c(26): warning:  #111-D: statement is unreachable
+>>>>>>> pid update
       vTaskDelete(NULL);
-..\task\src\Task_Low.c(112): warning:  #111-D: statement is unreachable
+..\task\src\Task_Low.c(121): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -104,7 +139,9 @@ FromELF: creating hex file...
 ".\Objects\Belief exp2.axf" - 0 Error(s), 21 Warning(s).
 =======
 ..\task\src\Task_Low.c: 2 warnings, 0 errors
+compiling Task_Sys_Init.c...
 linking...
+<<<<<<< HEAD
 Program Size: Code=26996 RO-data=604 RW-data=224 ZI-data=83464  
 FromELF: creating hex file...
 ".\Objects\Belief exp2.axf" - 0 Error(s), 2 Warning(s).
@@ -136,13 +173,18 @@ FromELF: creating hex file...
 =======
 ".\Objects\Belief exp2.axf" - 0 Error(s), 2 Warning(s).
 >>>>>>> éº¦å…‹çº³å§†è½® update
+=======
+Program Size: Code=27044 RO-data=604 RW-data=256 ZI-data=83392  
+FromELF: creating hex file...
+".\Objects\Belief exp2.axf" - 0 Error(s), 12 Warning(s).
+>>>>>>> pid update
 
 <h2>Collection of Component include folders:</h2>
   C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE
   C:\Users\Tccoin\Desktop\µç¿Ø\°¢²¨ÂÞSTM32F429 ×ÊÁÏÅÌ(AÅÌ)\6£¬Èí¼þ×ÊÁÏ\1£¬Èí¼þ\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:05
+Build Time Elapsed:  00:00:31
 </pre>
 </body>
 </html>
