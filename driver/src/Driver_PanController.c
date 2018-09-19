@@ -11,9 +11,9 @@ void Chassis_Init_Yaw_Angle(void) {
 }
 
 void Chassis_Set_Wheel_Speed(int XSpeed, int YSpeed, int WSpeed) {
-    ChassisParam.TargetVX = (float) XSpeed / 660 * 5;
-    ChassisParam.TargetVY = (float) YSpeed / 660 * 5;
-    ChassisParam.TargetWR = (float) WSpeed / 660 * 15; // 4*1.5*2
+    ChassisParam.TargetVX = (float) XSpeed / 660 * 1;
+    ChassisParam.TargetVY = (float) YSpeed / 660 * 1;
+    ChassisParam.TargetWR = -(float) WSpeed / 660 * 0.5; // 4*1.5*2
 }
 
 /**

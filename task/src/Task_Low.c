@@ -1,10 +1,14 @@
 #include "main.h"
 
 // for debug pid
-int feedback1 = 0;
-int feedback2 = 0;
-int feedback3 = 0;
-int feedback4 = 0;
+int      feedback1 = 0;
+int      feedback2 = 0;
+int      feedback3 = 0;
+int      feedback4 = 0;
+int      I_out     = 0;
+int      P_out     = 0;
+int      target    = 0;
+uint16_t wuwuwu    = 0;
 
 /**
  * @brief  LED闪烁任务 确认存活
@@ -33,12 +37,13 @@ void Task_Chassis(void *Parameters) {
     float      kFeedback = 3.14 / 60;
 
     // For debug pid
-    float pTestWheel        = 3;
-    float iTestWheel        = 0;
+    float pTestWheel        = 5;
+    float iTestWheel        = 0.2;
     float currentLimitWheel = 1000;
     float pTestYaw          = 3;
     float iTestYaw          = 0;
     float currentLimitYaw   = 660;
+    //    float magicc            = 400;
 
     PID_Init(&CM1PID, pTestWheel, iTestWheel, 0, currentLimitWheel);
     PID_Init(&CM2PID, pTestWheel, iTestWheel, 0, currentLimitWheel);
@@ -66,10 +71,10 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&CM3PID, WheelSpeedRes[2], Motor_Feedback.motor203Speed * kFeedback);
         PID_Calculate(&CM4PID, WheelSpeedRes[1], Motor_Feedback.motor204Speed * kFeedback);
 
-        // PID_Calculate(&CM1PID, DBusData.ch4, Motor_Feedback.motor201Speed * kFeedback);
-        // PID_Calculate(&CM2PID, DBusData.ch4, Motor_Feedback.motor202Speed * kFeedback);
-        // PID_Calculate(&CM3PID, DBusData.ch4, Motor_Feedback.motor203Speed * kFeedback);
-        // PID_Calculate(&CM4PID, DBusData.ch4, Motor_Feedback.motor204Speed * kFeedback);
+        // PID_Calculate(&CM1PID, magicc, Motor_Feedback.motor201Speed * kFeedback);
+        // PID_Calculate(&CM2PID, magicc, Motor_Feedback.motor202Speed * kFeedback);
+        // PID_Calculate(&CM3PID, magicc, Motor_Feedback.motor203Speed * kFeedback);
+        // PID_Calculate(&CM4PID, magicc, Motor_Feedback.motor204Speed * kFeedback);
 
         // if (magic.value > -1000 && magic.value < 1000) { // 防止 CAN 线挂掉
         // Can_Set_CM_Current(CAN1, CM1PID.output, 0, 0, 0);
@@ -78,9 +83,13 @@ void Task_Chassis(void *Parameters) {
 
         // feedback for jscope
         feedback1 = Motor_Feedback.motor201Speed;
-        feedback2 = -Motor_Feedback.motor202Speed;
+        feedback2 = Motor_Feedback.motor202Speed;
         feedback3 = -Motor_Feedback.motor203Speed;
         feedback4 = Motor_Feedback.motor204Speed;
+        wuwuwu    = LastWakeTime;
+        target    = (int) WheelSpeedRes[0];
+        I_out     = (int) CM1PID.output_I;
+        P_out     = (int) CM1PID.output_P;
 
         vTaskDelayUntil(&LastWakeTime, 100);
 

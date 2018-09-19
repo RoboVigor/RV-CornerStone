@@ -10,12 +10,14 @@
  * @param maxOutput 最大输出值
  */
 void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput) {
-    pid->p         = p;
-    pid->i         = i;
-    pid->d         = d;
-    pid->maxOutput = maxOutput;
+    pid->p = p;
+    pid->i = i;
+    pid->d = d;
+    // pid->maxOutput = maxOutput;
+    pid->maxOutput = 4000;
 
-    pid->maxOutput_I = maxOutput;
+    // pid->maxOutput_I = maxOutput;
+    pid->maxOutput_I = 2000;
     pid->target      = 0;
     pid->feedback    = 0;
     pid->error       = 0;
