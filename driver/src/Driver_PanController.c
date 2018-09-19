@@ -16,6 +16,12 @@ void Chassis_Set_Wheel_Speed(int XSpeed, int YSpeed, int WSpeed) {
     ChassisParam.TargetWR = (float) WSpeed / 660 * 15;
 }
 
+/**
+ * @brief 麦克纳姆轮解析
+ *
+ * @param buffer
+ *  - 电机位置：左上角 0 ，逆时针，依次增加
+ * */
 void Chassis_Update_Mecanum_Data(int buffer[4]) {
     buffer[0] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
                 ((ChassisParam.TargetVX) - (ChassisParam.TargetVY) + ChassisParam.TargetWR * -CHASSIS_SIZE_K);
