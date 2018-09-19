@@ -16,12 +16,21 @@ void Chassis_Set_Wheel_Speed(int XSpeed, int YSpeed, int WSpeed) {
     ChassisParam.TargetWR = (float) WSpeed / 660 * 15; // 4*1.5*2
 }
 
+/**
+ * @brief 麦克纳姆轮解析
+ *
+ * @param buffer
+ *  - 电机位置：左上角 0 ，逆时针，依次增加
+ * */
 void Chassis_Update_Mecanum_Data(int buffer[4]) {
-    float K   = 0.946;
+    float K = 0.946;
+
     buffer[0] = 13.16 * ((ChassisParam.TargetVX) - (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2; //麦克解算遥控器来的数值来礵e
     buffer[1] = 13.16 * ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2; //转子的角速度/19=轮子角速度 (rad/s)
     buffer[2] = -13.16 * (ChassisParam.TargetVX - (ChassisParam.TargetVY) + ChassisParam.TargetWR * K) * 19.2;
     buffer[3] = -13.16 * ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * K) * 19.2;
+
+    // getVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * K) * 19.2;
 }
 
 void Chassis_Get_XYW_Speed(int dir, int Mode) {

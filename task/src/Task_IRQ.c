@@ -83,7 +83,7 @@ void Task_MagicSend(void *Parameters) {
 
     while (1) {
         u8 i = 0;
-        MIAO(i, 1, 2);
+//        MIAO(i, 1, 2);
         taskENTER_CRITICAL(); // 进入临界段代码（在不进入的情况下有被抢占的情况）
         // 发送反馈数据
         // printf("p:%f \r\n", CM1PID.p);
