@@ -10,6 +10,14 @@ void Chassis_Init_Yaw_Angle(void) {
     targetYawAngle = 0;
 }
 
+/**
+ * @brief 配置小车整体 XYZ 三个轴的速度
+ * @detail
+ *
+ * @param XSpeed
+ * @param YSpeed
+ * @param WSpeed
+ */
 void Chassis_Set_Wheel_Speed(int XSpeed, int YSpeed, int WSpeed) {
     ChassisParam.TargetVX = (float) XSpeed / 660 * 1;
     ChassisParam.TargetVY = (float) YSpeed / 660 * 1;
@@ -17,10 +25,11 @@ void Chassis_Set_Wheel_Speed(int XSpeed, int YSpeed, int WSpeed) {
 }
 
 /**
- * @brief 麦克纳姆轮解析
+ * @brief 麦克纳姆轮解算
+ * @detail 电机位置：左上角 0 ，逆时针，依次增加
+ * @detail 转子的角速度 / 19 = 轮子角速度 (rad/s)
  *
  * @param buffer
- *  - 电机位置：左上角 0 ，逆时针，依次增加
  * */
 void Chassis_Update_Mecanum_Data(int buffer[4]) {
     buffer[0] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
