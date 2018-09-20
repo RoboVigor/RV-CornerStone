@@ -14,10 +14,8 @@ void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput) {
     pid->i         = i;
     pid->d         = d;
     pid->maxOutput = maxOutput;
-    // pid->maxOutput = 4000;
 
     pid->maxOutput_I = maxOutput;
-    // pid->maxOutput_I = 2000;
     pid->target     = 0;
     pid->feedback   = 0;
     pid->error      = 0;
@@ -60,10 +58,3 @@ int PID_Calculate(PID_Type *pid, float target, float feedback) {
 
     return pid->output;
 }
-
-// void PID_Debug(PID_Type *CM1, PID_Type *CM2, PID_Type *CM3, PID_Type *CM4) {
-//     PIDDebugValue1 = CM1->output;
-//     PIDDebugValue2 = CM2->output;
-//     PIDDebugValue3 = CM3->output;
-//     PIDDebugValue4 = CM4->output;
-// }
