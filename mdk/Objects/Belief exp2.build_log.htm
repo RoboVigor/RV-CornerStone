@@ -27,58 +27,29 @@ Project File Date:  09/17/2018
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-compiling BSP_CAN.c...
-compiling BSP_DMA.c...
-compiling BSP_GPIO.c...
-compiling BSP_UART.c...
-compiling BSP_TIM.c...
-compiling BSP_NVIC.c...
-compiling main.c...
-compiling Driver_PanController.c...
-..\driver\src\Driver_PanController.c(16): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-      ChassisParam.TargetWR = -(float) WSpeed / 660 * 0.5; // 4*1.5*2
-..\driver\src\Driver_PanController.c(28): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-      buffer[0] = 13.16 * ((ChassisParam.TargetVX) - (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2; //È∫?ÂÖ?Ëß?ÁÆ?ÈÅ?Êé?Âô?Êù?Áö?Êï?ÂÄ?Êù?Á§?e
-..\driver\src\Driver_PanController.c(29): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-      buffer[1] = 13.16 * ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2; //ËΩ?Â≠?Áö?Ëß?ÈÄ?Â∫?/19=ËΩ?Â≠?Ëß?ÈÄ?Â∫? (rad/s)
-..\driver\src\Driver_PanController.c: 3 warnings, 0 errors
-compiling stm32f4xx_it.c...
-..\user\stm32f4xx_it.c(15): warning:  #550-D: variable "UARTtemp" was set but never used
-      uint8_t UARTtemp;
-..\user\stm32f4xx_it.c: 1 warning, 0 errors
-compiling Driver_PID.c...
-compiling Task_IRQ.c...
-..\task\src\Task_IRQ.c(21): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_IRQ.c(55): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_IRQ.c(73): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_IRQ.c(85): warning:  #177-D: variable "i" was declared but never referenced
-          u8 i = 0;
-..\task\src\Task_IRQ.c(98): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_IRQ.c(116): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_IRQ.c: 6 warnings, 0 errors
 compiling Task_Low.c...
 ..\task\src\Task_Low.c(26): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Low.c(121): warning:  #111-D: statement is unreachable
+..\task\src\Task_Low.c(120): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Low.c: 2 warnings, 0 errors
-compiling Task_Sys_Init.c...
+..\task\src\Task_Low.c(43): warning:  #177-D: variable "pTestYaw" was declared but never referenced
+      float pTestYaw          = 2;
+..\task\src\Task_Low.c(44): warning:  #177-D: variable "iTestYaw" was declared but never referenced
+      float iTestYaw          = 0;
+..\task\src\Task_Low.c(45): warning:  #177-D: variable "currentLimitYaw" was declared but never referenced
+      float currentLimitYaw   = 660;
+..\task\src\Task_Low.c: 5 warnings, 0 errors
 linking...
-Program Size: Code=27044 RO-data=604 RW-data=256 ZI-data=83392  
+Program Size: Code=26868 RO-data=604 RW-data=224 ZI-data=83464  
 FromELF: creating hex file...
-".\Objects\Belief exp2.axf" - 0 Error(s), 12 Warning(s).
+".\Objects\Belief exp2.axf" - 0 Error(s), 5 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   D:\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\RTE
   C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.9.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:31
+Build Time Elapsed:  00:00:04
 </pre>
 </body>
 </html>

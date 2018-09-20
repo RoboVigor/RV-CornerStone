@@ -37,31 +37,30 @@ void Task_Chassis(void *Parameters) {
     float      kFeedback = 3.14 / 60;
 
     // For debug pid
-    float pTestWheel        = 5;
-    float iTestWheel        = 0.2;
-    float currentLimitWheel = 1000;
-    float pTestYaw          = 3;
-    float iTestYaw          = 0;
-    float currentLimitYaw   = 660;
+    float pTestWheel      = 5;
+    float iTestWheel      = 0.2;
+    float maxOutPut       = 4000;
+    float pTestYaw        = 2;
+    float iTestYaw        = 0;
+    float currentLimitYaw = 660;
     //    float magicc            = 400;
 
     PID_Init(&CM1PID, pTestWheel, iTestWheel, 0, currentLimitWheel);
     PID_Init(&CM2PID, pTestWheel, iTestWheel, 0, currentLimitWheel);
     PID_Init(&CM3PID, pTestWheel, iTestWheel, 0, currentLimitWheel);
     PID_Init(&CM4PID, pTestWheel, iTestWheel, 0, currentLimitWheel);
-    // PID_Init(&YawAnglePID, 15, 0, 0, 660);   // Angle
-    PID_Init(&YawSpeedPID, pTestYaw, iTestYaw, 0, currentLimitYaw); // Speed
+    PID_Init(&YawAnglePID, 15, 0, 0, 660); // Angle
+    // PID_Init(&YawSpeedPID, pTestYaw, iTestYaw, 0, currentLimitYaw); // Speed
 
     while (1) {
         /*For debug pid*/
-        // origin version
-        // yawAngleFeed = EulerAngle.Yaw; // yaw 角度反馈
-        yawSpeedFeed = mpu6500_data.gz / 16.4; // yaw 速度反馈
-        // PID_Calculate(&YawAnglePID, DBusData.ch1, yawAngleFeed); // Angle
-        PID_Calculate(&YawSpeedPID, DBusData.ch1, yawSpeedFeed); // Speed
-        // PID_Calculate(&YawSpeedPID, YawAnglePID.output, yawSpeedFeed);
+        yawAngleFeed = EulerAngle.Yaw;                           // yaw 角度反馈
+        yawSpeedFeed = mpu6500_data.gz / 16.4;                   // yaw 速度反馈
+        PID_Calculate(&YawAnglePID, DBusData.ch1, yawAngleFeed); // Angle
+        // PID_Calculate(&YawSpeedPID, DBusData.ch1, yawSpeedFeed); // Speed
+        PID_Calculate(&YawSpeedPID, YawAnglePID.output, yawSpeedFeed);
 
-        // Chassis_Set_Wheel_Speed(DBusData.ch4, DBusData.ch3, YawAnglePID.output); // Angle
+        // Chassis_Set_Wheel_Speed(DBusData.ch4, DBusData.ch3, YawSpeedPID.output); // Speed
         Chassis_Set_Wheel_Speed(DBusData.ch4, -DBusData.ch3, YawSpeedPID.output); //设定XYZ三个轴的速度  // Speed
         Chassis_Update_Mecanum_Data(Buffer);                                      //麦轮的解算
         Chassis_Limit_Wheel_Speed(Buffer, WheelSpeedRes, MAXWHEELSPEED);          //限幅
@@ -82,14 +81,14 @@ void Task_Chassis(void *Parameters) {
         // }
 
         // feedback for jscope
-        feedback1 = Motor_Feedback.motor201Speed;
-        feedback2 = Motor_Feedback.motor202Speed;
-        feedback3 = -Motor_Feedback.motor203Speed;
-        feedback4 = Motor_Feedback.motor204Speed;
-        wuwuwu    = LastWakeTime;
-        target    = (int) WheelSpeedRes[0];
-        I_out     = (int) CM1PID.output_I;
-        P_out     = (int) CM1PID.output_P;
+        // feedback1 = Motor_Feedback.motor201Speed;
+        // feedback2 = Motor_Feedback.motor202Speed;
+        // feedback3 = -Motor_Feedback.motor203Speed;
+        // feedback4 = Motor_Feedback.motor204Speed;
+        // wuwuwu    = LastWakeTime;
+        // target    = (int) WheelSpeedRes[0];
+        // I_out     = (int) CM1PID.output_I;
+        // P_out     = (int) CM1PID.output_P;
 
         vTaskDelayUntil(&LastWakeTime, 100);
 
