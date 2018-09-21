@@ -32,6 +32,7 @@ void Chassis_Set_Wheel_Speed(int XSpeed, int YSpeed, int WSpeed) {
  * @param buffer
  * */
 void Chassis_Update_Mecanum_Data(int buffer[4]) {
+<<<<<<< HEAD
     buffer[0] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
                 ((ChassisParam.TargetVX) - (ChassisParam.TargetVY) + ChassisParam.TargetWR * -CHASSIS_SIZE_K);
     buffer[1] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
@@ -40,6 +41,16 @@ void Chassis_Update_Mecanum_Data(int buffer[4]) {
                 (ChassisParam.TargetVX - (ChassisParam.TargetVY) + ChassisParam.TargetWR * CHASSIS_SIZE_K);
     buffer[3] = -CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
                 ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * CHASSIS_SIZE_K);
+=======
+    float K = 0.946;
+
+    buffer[0] = 13.16 * ((ChassisParam.TargetVX) - (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2; //麦克解算遥控器来的数值来礵e
+    buffer[1] = 13.16 * ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2;
+    buffer[2] = -13.16 * (ChassisParam.TargetVX - (ChassisParam.TargetVY) + ChassisParam.TargetWR * K) * 19.2;
+    buffer[3] = -13.16 * ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * K) * 19.2;
+
+    // getVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * K) * 19.2;
+>>>>>>> 0.2.20 使用了陀螺仪（陀螺仪代码待维护）
 }
 
 void Chassis_Get_XYW_Speed(int dir, int Mode) {

@@ -1,5 +1,8 @@
 #include "main.h"
 
+// For Jlink debug
+int a, b, c, d, e, f, g, h;
+
 /**
  * @brief  LED闪烁任务 确认存活
  * @param  void *Parameters
@@ -25,33 +28,93 @@ void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     int        Buffer[4];                          // 麦轮解算后四个麦轮各自的速度
     int        WheelSpeedRes[4];                   // 限幅后四个麦轮各自的速度
-    float      kFeedback = 3.14 / 60;              // 转子的转速(round/min)换算成角速度(rad/s)，
+    float      kFeedback = 3.14 / 60;              // 转子的转速(round/min)换算成角速度(rad/s)
 
-    PID_Init(&LFCMPID, 12, 0, 0, 4000); // 初始化麦轮角速度 PID
-    PID_Init(&LBCMPID, 12, 0, 0, 4000); // 12 0.2
-    PID_Init(&RBCMPID, 12, 0, 0, 4000);
-    PID_Init(&RFCMPID, 12, 0, 0, 4000);
+    // 陀螺仪相关参数
+    // float yawAngleFeedOffset              = 0;
+    // float yawAngleFeedOffsetSample        = 0;
+    // float yawAngleFeedOffsetSampleCounter = 0;
+    // float lastYawAngleFeed                = 0;
+    // float yawAngleFeedDiff                = 0;
+    // float yawAngleFeedThreshold           = 0.003;
 
-    PID_Init(&YawSpeedPID, 15, 0, 0, 1000); // 初始化 yaw 角速度 PID,15
+    // mpu6500_data.gx_offset  = (short) 0.406409323;
+    // mpu6500_data.gy_offset  = (short) -2.91589163;
+    // mpu6500_data.gz_offset  = (short) 15.75639464;
+    // EulerAngle.Yaw_offset   = 0;
+    // EulerAngle.Pitch_offset = 0;
+
+    // 初始化麦轮角速度 PID
+    PID_Init(&LFCMPID, 12, 0.2, 0, 4000, 1500); // 12 0.2
+    PID_Init(&LBCMPID, 12, 0.2, 0, 4000, 1500);
+    PID_Init(&RBCMPID, 12, 0.2, 0, 4000, 1500);
+    PID_Init(&RFCMPID, 12, 0.2, 0, 4000, 1500);
+
+    PID_Init(&YawAnglePID, 2, 0, 0, 1000, 1000);  // 初始化 yaw 角度 PID(2)
+    PID_Init(&YawSpeedPID, 15, 0, 0, 1000, 1000); // 初始化 yaw 角速度 PID(15)
 
     while (1) {
+        // 陀螺仪 - 可能需要单独维护
+        Gyroscope_Update_Angle_Data(); // 陀螺仪角度更新
 
-        yawSpeedFeed = mpu6500_data.gz / 16.4;                   // yaw 角速度反馈
-        PID_Calculate(&YawSpeedPID, DBusData.ch1, yawSpeedFeed); // 计算 yaw 角速度 PID
+        // if (EulerAngle.Yaw - yawAngleFeedOffset - lastYawAngleFeed > 300) {
+        //     yawAngleFeedOffset += 360;
+        // } else if (EulerAngle.Yaw - yawAngleFeedOffset - lastYawAngleFeed < -300) {
+        //     yawAngleFeedOffset -= 360;
+        // }
 
-        Chassis_Set_Wheel_Speed(DBusData.ch4, -DBusData.ch3, YawSpeedPID.output); //配置小车整体 XYZ 三个轴的速度
-        Chassis_Update_Mecanum_Data(Buffer);                                      //麦轮的解算
-        Chassis_Limit_Wheel_Speed(Buffer, WheelSpeedRes, MAXWHEELSPEED);          //限幅
+        // yawAngleFeed = EulerAngle.Yaw - yawAngleFeedOffset;
+
+        // yawAngleFeedDiff = yawAngleFeed - lastYawAngleFeed;
+
+        // if (ABS(DBUS_ReceiveData.ch1) < 10 && ABS(DBUS_ReceiveData.ch3) < 10 && ABS(DBUS_ReceiveData.ch4) < 10) {
+        //     if (ABS(yawAngleFeedDiff) < yawAngleFeedThreshold) {
+        //         yawAngleFeedOffset += yawAngleFeedDiff;
+        //         yawAngleFeed = lastYawAngleFeed;
+        //         if (YawAngleFeedOffsetSampleCounter < 100) {
+        //             YawAngleFeedOffsetSample += YawAngleFeedDiff;
+        //             YawAngleFeedOffsetSampleCounter += 1;
+        //         }
+        //     } else {
+        //         LastYawAngleFeed = yawAngleFeed;
+        //     }
+        // } else {
+        //     if (DBUS_ReceiveData.switch_right == 1) {
+        //         YawAngleFeedOffset += YawAngleFeedOffsetSample / YawAngleFeedOffsetSampleCounter;
+        //     }
+        //     yawAngleFeed     = EulerAngle.Yaw - YawAngleFeedOffset;
+        //     YawAngleFeedDiff = yawAngleFeed - LastYawAngleFeed;
+        //     LastYawAngleFeed = yawAngleFeed;
+        // }
+
+        // For magic debug
+        // LFCMPID.maxOutput_I = magic.value;
+        // LBCMPID.maxOutput_I = magic.value;
+        // RFCMPID.maxOutput_I = magic.value;
+        // RBCMPID.maxOutput_I = magic.value;
+
+        yawAngleFeed = EulerAngle.Yaw;                                            // yaw 角度反馈
+        yawSpeedFeed = mpu6500_data.gz / 16.4;                                    // yaw 角速度反馈
+        PID_Calculate(&YawAnglePID, DBusData.ch1, yawAngleFeed);                  // 计算 yaw 角度 PID
+        PID_Calculate(&YawSpeedPID, YawAnglePID.output, yawSpeedFeed);            // 计算 yaw 角速度 PID
+        Chassis_Set_Wheel_Speed(DBusData.ch4, -DBusData.ch3, YawSpeedPID.output); // 配置小车整体 XYZ 三个轴的速度
+        Chassis_Update_Mecanum_Data(Buffer);                                      // 麦轮的解算
+        Chassis_Limit_Wheel_Speed(Buffer, WheelSpeedRes, MAXWHEELSPEED);          // 限幅
 
         // 计算麦轮角速度 PID
         // 因为电机和麦克纳姆轮解算对应错误，WheelSpeedRes[3] 和 WheelSpeedRes[1] 对换位置
-        PID_Calculate(&LFCMPID, WheelSpeedRes[0], Motor_Feedback.motor201Speed * kFeedback);
-        PID_Calculate(&LBCMPID, WheelSpeedRes[3], Motor_Feedback.motor202Speed * kFeedback);
-        PID_Calculate(&RBCMPID, WheelSpeedRes[2], Motor_Feedback.motor203Speed * kFeedback);
-        PID_Calculate(&RFCMPID, WheelSpeedRes[1], Motor_Feedback.motor204Speed * kFeedback);
+        // PID_Calculate(&LFCMPID, WheelSpeedRes[0], Motor_Feedback.motor201Speed * kFeedback); // 位置 PID
+        // PID_Calculate(&LBCMPID, WheelSpeedRes[3], Motor_Feedback.motor202Speed * kFeedback);
+        // PID_Calculate(&RBCMPID, WheelSpeedRes[2], Motor_Feedback.motor203Speed * kFeedback);
+        // PID_Calculate(&RFCMPID, WheelSpeedRes[1], Motor_Feedback.motor204Speed * kFeedback);
+        Increment_PID_Calculate(&LFCMPID, WheelSpeedRes[0], Motor_Feedback.motor201Speed * kFeedback); // 增量 PID
+        Increment_PID_Calculate(&LBCMPID, WheelSpeedRes[3], Motor_Feedback.motor202Speed * kFeedback);
+        Increment_PID_Calculate(&RBCMPID, WheelSpeedRes[2], Motor_Feedback.motor203Speed * kFeedback);
+        Increment_PID_Calculate(&RFCMPID, WheelSpeedRes[1], Motor_Feedback.motor204Speed * kFeedback);
 
         Can_Set_CM_Current(CAN1, LFCMPID.output, LBCMPID.output, RBCMPID.output, RFCMPID.output); // 输出电流值到电调
 
+<<<<<<< HEAD
         vTaskDelayUntil(&LastWakeTime, 100);
 <<<<<<< HEAD
 
@@ -80,6 +143,20 @@ void Task_Chassis(void *Parameters) {
         // vTaskDelayUntil(&LastWakeTime, 50);
 =======
 >>>>>>> pid update(非最终版)
+=======
+        // For Jlink debug
+        // a = (int) LFCMPID.output;
+        // b = (int) LBCMPID.output;
+        // c = (int) RBCMPID.output;
+        // d = (int) RFCMPID.output;
+
+        // e = (int) CM1PID.output;
+        // f = (int) CM2PID.output;
+        // g = (int) CM3PID.output;
+        // h = (int) CM4PID.output;
+
+        vTaskDelayUntil(&LastWakeTime, 20);
+>>>>>>> 0.2.20 使用了陀螺仪（陀螺仪代码待维护）
     }
 
     vTaskDelete(NULL);

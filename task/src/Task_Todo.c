@@ -3,16 +3,16 @@
  * TODO: 在 #16 合并前移走这些代码
  */
 
-int ArmatureRotateSpeed[4], Buffer[4];
-int isDoublePID = 0; // 0为单速度pid
+// int ArmatureRotateSpeed[4], Buffer[4];
+// int isDoublePID = 0; // 0为单速度pid
 
-float lastYawAngleFeed                = 0;
-float yawAngleFeedOffset              = 0;
-float yawAngleFeedThreshold           = 0.003;
-float yawAngleFeedDiff                = 0;
-float yawAngleFeedOffsetSample        = 0;
-float yawAngleFeedOffsetSampleCounter = 0;
-int   panPIDMode                      = 1;
+// float lastYawAngleFeed                = 0;
+// float yawAngleFeedOffset              = 0;
+// float yawAngleFeedThreshold           = 0.003;
+// float yawAngleFeedDiff                = 0;
+// float yawAngleFeedOffsetSample        = 0;
+// float yawAngleFeedOffsetSampleCounter = 0;
+// int   panPIDMode                      = 1;
 
 void mainTask(void) {
 

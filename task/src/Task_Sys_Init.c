@@ -24,6 +24,11 @@ void Task_Sys_Init(void *Parameters) {
     BSP_TIM_Init();
     BSP_NVIC_Init();
 
+    // 初始化陀螺仪
+    MPU6500_IntConfiguration();
+    MPU6500_Initialize();
+    MPU6500_EnableInt();
+
     // 初始化消息体
     Queue_Test = xQueueCreate(10, sizeof(u32));
 
