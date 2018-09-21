@@ -18,15 +18,15 @@ void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput) {
     pid->maxOutput = maxOutput;
 
     pid->maxOutput_I = maxOutput;
-    pid->target     = 0;
-    pid->feedback   = 0;
-    pid->error      = 0;
-    pid->lastError  = 0;
-    pid->output_P   = 0;
-    pid->output_I   = 0;
-    pid->output_D   = 0;
-    pid->output     = 0;
-    pid->lastOutput = 0;
+    pid->target      = 0;
+    pid->feedback    = 0;
+    pid->error       = 0;
+    pid->lastError   = 0;
+    pid->output_P    = 0;
+    pid->output_I    = 0;
+    pid->output_D    = 0;
+    pid->output      = 0;
+    pid->lastOutput  = 0;
 }
 
 /**
@@ -46,7 +46,7 @@ int PID_Calculate(PID_Type *pid, float target, float feedback) {
     pid->output_P = pid->p * pid->error;
 
     pid->output_I += pid->i * pid->error;
-    // MIAO(pid->output_I, -pid->maxOutput_I, pid->maxOutput_I);
+    MIAO(pid->output_I, -(pid->maxOutput_I), pid->maxOutput_I);
 
     pid->output = (pid->output_P + pid->output_I + pid->output_D);
     MIAO(pid->output, -pid->maxOutput, pid->maxOutput);
