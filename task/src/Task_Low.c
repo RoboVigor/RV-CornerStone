@@ -27,14 +27,15 @@ void Task_Chassis(void *Parameters) {
     int        WheelSpeedRes[4];                   // 限幅后四个麦轮各自的速度
     float      kFeedback = 3.14 / 60;              // 转子的转速(round/min)换算成角速度(rad/s)，
 
-    PID_Init(&LFCMPID, 12, 0.2, 0, 4000); // 初始化麦轮角速度 PID
-    PID_Init(&LBCMPID, 12, 0.2, 0, 4000);
-    PID_Init(&RBCMPID, 12, 0.2, 0, 4000);
-    PID_Init(&RFCMPID, 12, 0.2, 0, 4000);
+    PID_Init(&LFCMPID, 12, 0, 0, 4000); // 初始化麦轮角速度 PID
+    PID_Init(&LBCMPID, 12, 0, 0, 4000); // 12 0.2
+    PID_Init(&RBCMPID, 12, 0, 0, 4000);
+    PID_Init(&RFCMPID, 12, 0, 0, 4000);
 
-    PID_Init(&YawSpeedPID, 15, 0, 0, 1000); // 初始化 yaw 角速度 PID
+    PID_Init(&YawSpeedPID, 15, 0, 0, 1000); // 初始化 yaw 角速度 PID,15
 
     while (1) {
+
         yawSpeedFeed = mpu6500_data.gz / 16.4;                   // yaw 角速度反馈
         PID_Calculate(&YawSpeedPID, DBusData.ch1, yawSpeedFeed); // 计算 yaw 角速度 PID
 
