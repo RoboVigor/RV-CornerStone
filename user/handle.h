@@ -9,6 +9,8 @@
 #include "Driver_PanController.h"
 #include "Driver_Armour.h"
 #include "Driver_Angular.h"
+#include "mpu6500_driver.h"
+#include "mpu6500_interrupt.h"
 
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT
@@ -29,6 +31,7 @@ __HANDLE_EXT DBusData_Type DBusData, LastDBusData;
 
 // PanController
 __HANDLE_EXT PID_Type LFCMPID, LBCMPID, RBCMPID, RFCMPID, YawAnglePID, YawSpeedPID1, YawSpeedPID2, YawSpeedPID;
+__HANDLE_EXT PID_Type CM1PID, CM2PID, CM3PID, CM4PID;
 __HANDLE_EXT ChassisParam_Type ChassisParam;
 __HANDLE_EXT float             targetYawAngle, yawAngleFeed, yawSpeedFeed;
 

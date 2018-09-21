@@ -9,14 +9,15 @@
  * @param d D系数
  * @param maxOutput 最大输出值
  */
-void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput) {
+void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput, float maxOutput_I) {
     pid->p         = p;
     pid->i         = i;
     pid->d         = d;
     pid->maxOutput = maxOutput;
 
-    pid->maxOutput_I = maxOutput;
+    pid->maxOutput_I = maxOutput_I;
     pid->target      = 0;
+    pid->lastTarget  = 0;
     pid->feedback    = 0;
     pid->error       = 0;
     pid->lastError   = 0;
@@ -36,49 +37,39 @@ void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput) {
  * @return int
  */
 int PID_Calculate(PID_Type *pid, float target, float feedback) {
-    pid->target   = target;
-    pid->feedback = feedback;
+    pid->lastTarget = pid->target;
+    pid->target     = target;
+    pid->feedback   = feedback;
+    pid->lastOutput = pid->output;
 
     pid->error = pid->target - pid->feedback;
 
     pid->output_P = pid->p * pid->error;
 
+    // pid->output_I *= pid->lastTarget * pid->target < 0 ? -1 : 1;
+
     pid->output_I += pid->i * pid->error;
-    MIAO(pid->output_I, -(pid->maxOutput_I), pid->maxOutput_I);
+
+    // MIAO(pid->output_I, -(pid->maxOutput_I), pid->maxOutput_I);
 
     pid->output = (pid->output_P + pid->output_I + pid->output_D);
-    MIAO(pid->output, -(pid->maxOutput), pid->maxOutput);
 
-    if (pid->output < -pid->maxOutput) {
-        pid->output = -pid->maxOutput;
-    } else if (pid->output > pid->maxOutput) {
-        pid->output = pid->maxOutput;
-    }
+    // MIAO(pid->output, -(pid->maxOutput), pid->maxOutput);
 
     pid->lastError = pid->error;
 
     return pid->output;
 }
 
-int PID_Calculate2(PID_Type *pid, float target, float feedback) {
+int Increment_PID_Calculate(PID_Type *pid, float target, float feedback) {
     pid->target   = target;
     pid->feedback = feedback;
 
+    pid->lastOutput = pid->output;
+
     pid->error = pid->target - pid->feedback;
 
-    pid->output_P = pid->p * pid->error;
-
-    pid->output_I += pid->i * pid->error;
-    MIAO(pid->output_I, -(pid->maxOutput_I), pid->maxOutput_I);
-
-    pid->output = (pid->output_P + pid->output_I + pid->output_D);
-    MIAO(pid->output, -(pid->maxOutput), pid->maxOutput);
-
-    // if (pid->output < -pid->maxOutput) {
-    //     pid->output = -pid->maxOutput;
-    // } else if (pid->output > pid->maxOutput) {
-    //     pid->output = pid->maxOutput;
-    // }
+    pid->output += (pid->p + pid->i) * pid->error - pid->p * pid->lastError;
 
     pid->lastError = pid->error;
 

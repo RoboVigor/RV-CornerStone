@@ -12,11 +12,11 @@ void Chassis_Init_Yaw_Angle(void) {
 
 /**
  * @brief 配置小车整体 XYZ 三个轴的速度
- * @detail  
- * 
- * @param XSpeed 
- * @param YSpeed 
- * @param WSpeed 
+ * @detail
+ *
+ * @param XSpeed
+ * @param YSpeed
+ * @param WSpeed
  */
 void Chassis_Set_Wheel_Speed(int XSpeed, int YSpeed, int WSpeed) {
     ChassisParam.TargetVX = (float) XSpeed / 660 * 1;
@@ -35,7 +35,7 @@ void Chassis_Update_Mecanum_Data(int buffer[4]) {
     float K = 0.946;
 
     buffer[0] = 13.16 * ((ChassisParam.TargetVX) - (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2; //麦克解算遥控器来的数值来礵e
-    buffer[1] = 13.16 * ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2; 
+    buffer[1] = 13.16 * ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2;
     buffer[2] = -13.16 * (ChassisParam.TargetVX - (ChassisParam.TargetVY) + ChassisParam.TargetWR * K) * 19.2;
     buffer[3] = -13.16 * ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * K) * 19.2;
 
