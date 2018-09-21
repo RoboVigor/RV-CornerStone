@@ -83,14 +83,14 @@ void Task_MagicSend(void *Parameters) {
 
     while (1) {
         u8 i = 0;
-//        MIAO(i, 1, 2);
+        //        MIAO(i, 1, 2);
         taskENTER_CRITICAL(); // 进入临界段代码（在不进入的情况下有被抢占的情况）
         // 发送反馈数据
         // printf("p:%f \r\n", LFCMPID.p);
         // printf("error: %f \r\n", LFCMPID.error);
         // printf("target: %f \r\n", LFCMPID.target);
         // printf("feedback: %f \r\n", LFCMPID.feedback);
-        printf("output: %d \r\n", magic.value);
+        printf("magic.Value: %d \r\n", magic.value);
         // printf("%d %d %f %d\r\n", magic.value, LFCMPID.error, LFCMPID.output, i);
         taskEXIT_CRITICAL(); // 退出临界段代码
         vTaskDelayUntil(&LastWakeTime, 3000);
