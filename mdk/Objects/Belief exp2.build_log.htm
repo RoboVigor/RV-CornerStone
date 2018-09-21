@@ -5,10 +5,10 @@
 <h2>Tool Versions:</h2>
 IDE-Version: ¦ÌVision V5.21.1.0
 Copyright (C) 2016 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: Kelvin Cao, SBC, LIC=HN0X7-E5NII-J66Q9-4AXBA-Y5SIX-0LTUV
+License Information: Kelvin Cao, SBC, LIC=DSNGK-ZSSDI-TIJ5L-05SC3-HSE4F-F0YID
  
 Tool Versions:
-Toolchain:       MDK-ARM Plus  Version: 5.21a
+Toolchain:       MDK-ARM Professional  Version: 5.21a
 Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
 C Compiler:      Armcc.exe V5.06 update 3 (build 300)
 Assembler:       Armasm.exe V5.06 update 3 (build 300)
@@ -21,20 +21,31 @@ Target DLL:      Segger\JL2CM3.dll V2.99.23.0
 Dialog DLL:      TCM.DLL V1.14.14.0
  
 <h2>Project:</h2>
-C:\Users\JEMJE\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\Belief exp2.uvprojx
+D:\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\Belief exp2.uvprojx
 Project File Date:  09/17/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-".\Objects\Belief exp2.axf" - 0 Error(s), 0 Warning(s).
+compiling Task_Low.c...
+..\user\macro.h(25): warning:  #1-D: last line of file ends without a newline
+  // #define WANG(val, min, max) 
+..\task\src\Task_Low.c(16): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Low.c(64): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Low.c: 3 warnings, 0 errors
+linking...
+Program Size: Code=27012 RO-data=604 RW-data=224 ZI-data=83392  
+FromELF: creating hex file...
+".\Objects\Belief exp2.axf" - 0 Error(s), 3 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
-  C:\Users\JEMJE\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\RTE
+  D:\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\RTE
   C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.9.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>

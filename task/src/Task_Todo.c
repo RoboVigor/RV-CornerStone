@@ -81,13 +81,13 @@ void mainTask(void) {
         Chassis_Limit_Wheel_Speed(Buffer, ArmatureRotateSpeed, MAXWHEELSPEED);
 
         //速度pid,都是rad/s 反馈转子转速
-        PID_Set_Pan_Speed(&CM1PID, ArmatureRotateSpeed[0], Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
-        PID_Set_Pan_Speed(&CM2PID, ArmatureRotateSpeed[1], Motor_Feedback.Motor_202_Speed * 2 * 3.14 / 60);
-        PID_Set_Pan_Speed(&CM3PID, ArmatureRotateSpeed[2], Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
-        PID_Set_Pan_Speed(&CM4PID, ArmatureRotateSpeed[3], Motor_Feedback.Motor_204_Speed * 2 * 3.14 / 60);
+        PID_Set_Pan_Speed(&LFCMPID, ArmatureRotateSpeed[0], Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
+        PID_Set_Pan_Speed(&LBCMPID, ArmatureRotateSpeed[1], Motor_Feedback.Motor_202_Speed * 2 * 3.14 / 60);
+        PID_Set_Pan_Speed(&RBCMPID, ArmatureRotateSpeed[2], Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
+        PID_Set_Pan_Speed(&RFCMPID, ArmatureRotateSpeed[3], Motor_Feedback.Motor_204_Speed * 2 * 3.14 / 60);
 
-        Can_Set_CM_Current(CAN1, CM1PID.output, CM2PID.output, CM3PID.output,
-                           CM4PID.output); //得到电流发送给电调
+        Can_Set_CM_Current(CAN1, LFCMPID.output, LBCMPID.output, RBCMPID.output,
+                           RFCMPID.output); //得到电流发送给电调
     }
     //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     else if (DBusData.switchLeft == 3) {
@@ -110,14 +110,14 @@ void mainTask(void) {
         Chassis_Limit_Wheel_Speed(Buffer, ArmatureRotateSpeed, MAXWHEELSPEED);
 
         //速度pid
-        PID_Set_Pan_Speed(&CM1PID, ArmatureRotateSpeed[0], Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
-        PID_Set_Pan_Speed(&CM2PID, ArmatureRotateSpeed[1], Motor_Feedback.Motor_202_Speed * 2 * 3.14 / 60);
-        PID_Set_Pan_Speed(&CM3PID, ArmatureRotateSpeed[2], Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
-        PID_Set_Pan_Speed(&CM4PID, ArmatureRotateSpeed[3],
+        PID_Set_Pan_Speed(&LFCMPID, ArmatureRotateSpeed[0], Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
+        PID_Set_Pan_Speed(&LBCMPID, ArmatureRotateSpeed[1], Motor_Feedback.Motor_202_Speed * 2 * 3.14 / 60);
+        PID_Set_Pan_Speed(&RBCMPID, ArmatureRotateSpeed[2], Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
+        PID_Set_Pan_Speed(&RFCMPID, ArmatureRotateSpeed[3],
                           Motor_Feedback.Motor_204_Speed * 2 * 3.14 / 60); //都是rad/s 反馈转子转速
 
-        Can_Set_CM_Current(CAN1, CM1PID.output, CM2PID.output, CM3PID.output,
-                           CM4PID.output); //得到电流发送给电调
+        Can_Set_CM_Current(CAN1, LFCMPID.output, LBCMPID.output, RBCMPID.output,
+                           RFCMPID.output); //得到电流发送给电调
     }
 }
 
@@ -154,10 +154,10 @@ void mainTask(void) {
 // PANAnglePIDInit(&YawAnglePID, 15, 0, 0);
 
 // // 底盘速度pid初始化
-// PANSpeedPIDInit(&CM1PID, 12, 0, 0);
-// PANSpeedPIDInit(&CM2PID, 12, 0, 0);
-// PANSpeedPIDInit(&CM3PID, 12, 0, 0);
-// PANSpeedPIDInit(&CM4PID, 12, 0, 0);
+// PANSpeedPIDInit(&LFCMPID, 12, 0, 0);
+// PANSpeedPIDInit(&LBCMPID, 12, 0, 0);
+// PANSpeedPIDInit(&RBCMPID, 12, 0, 0);
+// PANSpeedPIDInit(&RFCMPID, 12, 0, 0);
 
 // // 钩子角度速度pid初始化
 // HookAnglePIDInit(&Hook_AnglePID, 0, 0, 0);
