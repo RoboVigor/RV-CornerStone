@@ -70,7 +70,7 @@ void mainTask(void) {
 
         HookSpeedPID(&Hook_SpeedPID, 0, Motor_Feedback.motor205Speed);
 
-        CAN_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.output, 0, 0, 0);
+        Can2_Set_CM_Current(CAN2, Hook_SpeedPID.output, 0, 0, 0);
 
         //			-------------------------------------------------------------------------------------------------------------------------------
 
@@ -99,7 +99,7 @@ void mainTask(void) {
 
         HookSpeedPID(&Hook_SpeedPID, DBusData.ch2, Motor_Feedback.motor205Speed);
 
-        CAN_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.output, 0, 0, 0);
+        Can2_Set_CM_Current(CAN2, Hook_SpeedPID.output, 0, 0, 0);
 
         //=======移动=============================================================================
 

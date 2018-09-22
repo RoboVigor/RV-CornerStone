@@ -28,7 +28,7 @@ __HANDLE_EXT uint8_t DBusBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type DBusData, LastDBusData;
 
 // PanController
-__HANDLE_EXT PID_Type CM1PID, CM2PID, CM3PID, CM4PID, YawAnglePID, YawSpeedPID1, YawSpeedPID2, YawSpeedPID, ChassisAnglePID1;
+__HANDLE_EXT PID_Type CM1PID, CM2PID, CM3PID, CM4PID, YawAnglePID, YawSpeedPID1, YawSpeedPID2, YawSpeedPID, ChassisAnglePID1, CM5PID, CM6PID, CM7PID, CM8PID;
 __HANDLE_EXT ChassisParam_Type ChassisParam;
 __HANDLE_EXT float             targetYawAngle, yawAngleFeed, yawSpeedFeed;
 
@@ -44,6 +44,7 @@ __HANDLE_EXT TaskHandle_t TaskHandle_Blink;
 __HANDLE_EXT TaskHandle_t TaskHandle_Chassis;
 __HANDLE_EXT TaskHandle_t TaskHandle_Safe_Mode;
 __HANDLE_EXT TaskHandle_t TaskHandle_Update;
+__HANDLE_EXT TaskHandle_t TaskHandle_Wheel;
 
 __HANDLE_EXT QueueHandle_t Queue_Test;
 

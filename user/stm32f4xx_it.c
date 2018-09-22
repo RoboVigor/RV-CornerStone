@@ -78,7 +78,7 @@ void CAN1_RX0_IRQHandler(void) {
     // printf("123\r\n");
     switch (CanRxData.StdId) {
 
-    case WHEEL_1_ID:
+    case WHEEL_1_ID: //三星轮组
         Motor_Feedback.motor201Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
         Motor_Feedback.motor201Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
@@ -120,14 +120,12 @@ void CAN2_RX0_IRQHandler(void) {
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
     // printf("%d\r\n",CanRxData.StdId);
     switch (CanRxData.StdId) {
-    // RED_LIGHT_ON;
-    case 0x201: //钩子电机
+    case 0x201: //麦轮
         Motor_Feedback.motor205Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
         Motor_Feedback.motor205Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
     case 0x202:
-
         Motor_Feedback.motor206Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
         Motor_Feedback.motor206Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
@@ -138,6 +136,10 @@ void CAN2_RX0_IRQHandler(void) {
         Motor_Feedback.motor207Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
         break;
+
+    case 0x204:
+        Motor_Feedback.motor208Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        Motor_Feedback.motor208Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
     default:
         break;

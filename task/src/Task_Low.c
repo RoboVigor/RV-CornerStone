@@ -55,31 +55,12 @@ void Task_Chassis(void *Parameters) {
 
         CAN_Update_Encoder_Data(&CM1_Encoder, Motor_Feedback.motor201Angle);
 
-        // debug1 = CM1_Encoder.ecdAngle;
-        // debug2 = CM1_Encoder.rawValue;
-        // debug3 = CM1_Encoder.roundCnt;
-        // CM1PID.p = magic.value;
-
-        // else if (Motor_Feedback.motor201Speed > 2) {
-        //     if (CM1PID.output >= -minCurrentToMove && CM1PID.output < 0) CM1PID.output = -minCurrentToMove;
-        //     if (CM1PID.output <= minCurrentToMove && CM1PID.output > 0) CM1PID.output = minCurrentToMove;
-        // }
-
-        PID_Calculate(&ChassisAnglePID1, -720, CM1_Encoder.ecdAngle / 19);
+        PID_Calculate(&ChassisAnglePID1, 0, CM1_Encoder.ecdAngle / 19);
         PID_Calculate(&CM1PID, ChassisAnglePID1.output, Motor_Feedback.motor201Speed * kFeedback);
 
-        //逐渐增大电流
-        // if (CM1PID.output >= -minCurrentToMove && CM1PID.output < 0) {
-        //     CM1PID.output += timesToMove * 100;
-        //     timesToMove++;
-        // } else if (CM1PID.output <= minCurrentToMove && CM1PID.output > 0) {
-        //     CM1PID.output += timesToMove * 100;
-        //     timesToMove++;
-        // }
-        // if (CM1PID.output >= -minCurrentToMove && CM1PID.output < 0) CM1PID.output = -minCurrentToMove;
-        // if (CM1PID.output <= minCurrentToMove && CM1PID.output > 0) CM1PID.output = minCurrentToMove;
-        // Can_Set_CM_Current(CAN1, 650, 0, 0, 0);
-        _Set_CM_Current(CM1PID.output); // 225
+        // _Set_CM_Current(CM1PID.output); // 这一行是有冲突的代码
+        Can2_Set_CM_Current(CAN2, 500, 0, 0, 0);
+
         vTaskDelayUntil(&LastWakeTime, 10);
 
         // yawSpeedFeed = mpu6500_data.gz / 16.4;
@@ -95,14 +76,22 @@ void Task_Chassis(void *Parameters) {
 
         // Chassis_Limit_Wheel_Speed(Buffer, WheelSpeedRes, MAXWHEELSPEED); //限幅
 
-        // PID_Calculate(&CM1PID, WheelSpeedRes[0], Motor_Feedback.motor201Speed * kFeedback);
+        // PID_Calculate(&CM5PID, DBusData.ch4, Motor_Feedback.motor205Speed * kFeedback);
         // PID_Calculate(&CM2PID, WheelSpeedRes[1], Motor_Feedback.motor202Speed * kFeedback);
         // PID_Calculate(&CM3PID, WheelSpeedRes[2], Motor_Feedback.motor203Speed * kFeedback);
         // PID_Calculate(&CM4PID, WheelSpeedRes[3], Motor_Feedback.motor204Speed * kFeedback);
         // diff = Motor_Feedback.motor201Speed * kFeedback;
-        // Can_Set_CM_Current(CAN1, CM1PID.output, -CM2PID.output, -CM3PID.output, CM4PID.output);
     }
 
+    vTaskDelete(NULL);
+}
+void Task_Wheel(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+
+    while (1) {
+        Can2_Set_CM_Current(CAN2, 500, 0, 0, 0);
+        vTaskDelayUntil(&LastWakeTime, 50);
+    }
     vTaskDelete(NULL);
 }
 

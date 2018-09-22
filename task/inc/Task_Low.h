@@ -3,6 +3,8 @@
 
 void Task_Blink(void *Parameters);
 void Task_Chassis(void *Parameters);
+void Task_Wheel(void *Parameters);
+
 void _Set_CM_Current(int16_t i_201);
 
 #endif

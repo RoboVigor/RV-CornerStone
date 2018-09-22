@@ -46,7 +46,7 @@ void Can_Set_CM_Current(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t
     CAN_Transmit(CANx, &tx_message);
 }
 
-void CAN_Set_HookArmour_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204) {
+void Can2_Set_CM_Current(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204) {
 
     CanTxMsg tx_message;
     tx_message.StdId = 0x200;
