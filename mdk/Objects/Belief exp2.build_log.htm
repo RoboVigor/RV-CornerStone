@@ -29,15 +29,17 @@ Build target 'Target 1'
 compiling Task_Low.c...
 ..\task\src\Task_Low.c(18): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Low.c(106): warning:  #111-D: statement is unreachable
+..\task\src\Task_Low.c(86): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
 ..\task\src\Task_Low.c(30): warning:  #177-D: variable "minCurrentToMove" was declared but never referenced
       int   minCurrentToMove = 600;
-..\task\src\Task_Low.c: 3 warnings, 0 errors
+..\task\src\Task_Low.c(95): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Low.c: 4 warnings, 0 errors
 linking...
-Program Size: Code=30116 RO-data=780 RW-data=244 ZI-data=83516  
+Program Size: Code=26198 RO-data=650 RW-data=248 ZI-data=83744  
 FromELF: creating hex file...
-".\Objects\Belief exp2.axf" - 0 Error(s), 3 Warning(s).
+".\Objects\Belief exp2.axf" - 0 Error(s), 4 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   D:\cangku\RV-CornerStone\mdk\RTE

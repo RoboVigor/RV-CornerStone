@@ -33,6 +33,7 @@ void Task_Sys_Init(void *Parameters) {
 
     // 建立低优先级任务
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, &TaskHandle_Chassis);
+    // xTaskCreate(Task_Wheel, "Task_Wheel", 400, NULL, 3, &TaskHandle_Wheel);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, &TaskHandle_Blink);
 
     // 完成使命

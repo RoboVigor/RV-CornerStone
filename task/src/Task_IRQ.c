@@ -91,13 +91,14 @@ void Task_MagicSend(void *Parameters) {
         // 发送反馈数据
         // ChassisAnglePID1
         // CM1PID
-        printf("MGC %d \r\n", magic.value);
+        // printf("MGC %d \r\n", magic.value);
+        printf("ESR: %x\r\n", CAN2->ESR);
         // printf("FEED %f \r\n\r\n", ChassisAnglePID1.feedback);
-        printf("OUT  %f %f %d \r\n", ChassisAnglePID1.feedback, ChassisAnglePID1.target, ChassisAnglePID1.output);
+        // printf("OUT  %f %f %d \r\n", ChassisAnglePID1.feedback, ChassisAnglePID1.target, ChassisAnglePID1.output);
         // printf("OUT %f \r\n", ChassisAnglePID1.feedback - ChassisAnglePID1.target);
-        printf("IN  %f %f %d \r\n", CM1PID.feedback, CM1PID.target, CM1PID.output);
+        // printf("IN  %f %f %d \r\n", CM1PID.feedback, CM1PID.target, CM1PID.output);
         // printf("ENC %d %d %d %f\r\n", CM1_Encoder.rawValue, CM1_Encoder.ecdBias, CM1_Encoder.roundCnt, CM1_Encoder.ecdAngle);
-        printf("SPEED %d \r\n", Motor_Feedback.motor201Speed);
+        // printf("SPEED %d \r\n", Motor_Feedback.motor201Speed);
         printf("---------------------\r\n");
 
         taskEXIT_CRITICAL(); // 退出临界段代码
