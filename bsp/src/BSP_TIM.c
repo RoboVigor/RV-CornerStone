@@ -1,6 +1,4 @@
-
-#define __BSP_TIM_Global
-#include "main.h"
+#include "BSP_TIM.h"
 
 /**
  * @brief  TIM初始化

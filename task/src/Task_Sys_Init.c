@@ -1,4 +1,10 @@
 #include "main.h"
+#include "BSP_GPIO.h"
+#include "BSP_NVIC.h"
+#include "BSP_UART.h"
+#include "BSP_DMA.h"
+#include "BSP_CAN.h"
+#include "BSP_TIM.h"
 
 /**
  * @brief  初始化任务初始化任务和硬件

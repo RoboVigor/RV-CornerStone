@@ -13,12 +13,12 @@ void Chassis_Init_Yaw_Angle(void) {
 void Chassis_Set_Wheel_Speed(int XSpeed, int YSpeed, int WSpeed) {
     ChassisParam.TargetVX = (float) XSpeed / 660 * 5;
     ChassisParam.TargetVY = (float) YSpeed / 660 * 5;
-    ChassisParam.TargetWR = (float) WSpeed / 660 * 15; // 4*1.5*2
+    ChassisParam.TargetWR = (float) WSpeed / 660 * 15;
 }
 
 void Chassis_Update_Mecanum_Data(int buffer[4]) {
-    float K   = 0.946;
-    buffer[0] = 13.16 * ((ChassisParam.TargetVX) - (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2; //麦克解算遥控器来的数值来礵e
+    float K   = 0.946; //测量值,等于机器人中心点到XY边缘的距离之和
+    buffer[0] = 13.16 * ((ChassisParam.TargetVX) - (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2; //麦克解算遥控器来的数值
     buffer[1] = 13.16 * ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2; //转子的角速度/19=轮子角速度 (rad/s)
     buffer[2] = -13.16 * (ChassisParam.TargetVX - (ChassisParam.TargetVY) + ChassisParam.TargetWR * K) * 19.2;
     buffer[3] = -13.16 * ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * K) * 19.2;

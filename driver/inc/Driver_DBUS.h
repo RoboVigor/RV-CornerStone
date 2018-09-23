@@ -56,7 +56,7 @@ typedef struct {
     } keyBoard;
 } DBusData_Type;
 
-void DBus_Init(void);
-void DBus_Decode_Remote_Control_Data(void);
+void DBus_Init(DBusData_Type DBusData);
+void DBus_Update(DBusData_Type DBusData, uint8_t DBusBuffer[]);
 
 #endif
