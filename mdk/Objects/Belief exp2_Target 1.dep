@@ -115,13 +115,13 @@ I (..\library\std\inc\stm32f4xx_dma2d.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_fmc.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_sai.h)(0x5B8CD05A)
 I (..\user\main.h)(0x5BA7BC53)
-I (..\user\debug.h)(0x5BA7BBC3)
+I (..\user\debug.h)(0x5BA7D4A1)
 I (..\system\sys\sys.h)(0x5B8CD05A)
 I (..\system\delay\delay.h)(0x5B915E88)
 I (..\bsp\inc\led.h)(0x5B915E88)
 I (..\bsp\inc\beep.h)(0x5B915E88)
 I (..\bsp\inc\key.h)(0x5B8CD05A)
-I (..\user\config.h)(0x5BA7B80A)
+I (..\user\config.h)(0x5BA7D402)
 I (..\user\macro.h)(0x5BA7B80A)
 I (..\user\handle.h)(0x5BA7C718)
 I (..\user\OSinclude.h)(0x5B8CD05A)
@@ -139,9 +139,9 @@ I (..\library\freertos\include\queue.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Magic.h)(0x5B9D2437)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BA7B80A)
-I (..\driver\inc\Driver_DBUS.h)(0x5BA7CF74)
+I (..\driver\inc\Driver_DBUS.h)(0x5BA7D0DA)
 I (..\driver\inc\Driver_CAN.h)(0x5BA7B0D4)
-I (..\driver\inc\Driver_PanController.h)(0x5B9D2437)
+I (..\driver\inc\Driver_PanController.h)(0x5BA7D37A)
 I (..\driver\inc\Driver_Armour.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Angular.h)(0x5B915E88)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x574E3E26)
@@ -1026,7 +1026,7 @@ I (..\library\std\inc\stm32f4xx_fmc.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_sai.h)(0x5B8CD05A)
 F (..\user\main.c)(0x5B9D2437)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
 I (..\user\main.h)(0x5BA7BC53)
-I (..\user\debug.h)(0x5BA7BBC3)
+I (..\user\debug.h)(0x5BA7D4A1)
 I (..\system\sys\sys.h)(0x5B8CD05A)
 I (..\user\stm32f4xx.h)(0x5B8CD05A)
 I (..\core\core_cm4.h)(0x5B8CD05A)
@@ -1068,7 +1068,7 @@ I (..\system\delay\delay.h)(0x5B915E88)
 I (..\bsp\inc\led.h)(0x5B915E88)
 I (..\bsp\inc\beep.h)(0x5B915E88)
 I (..\bsp\inc\key.h)(0x5B8CD05A)
-I (..\user\config.h)(0x5BA7B80A)
+I (..\user\config.h)(0x5BA7D402)
 I (..\user\macro.h)(0x5BA7B80A)
 I (..\user\handle.h)(0x5BA7C718)
 I (..\user\OSinclude.h)(0x5B8CD05A)
@@ -1086,9 +1086,9 @@ I (..\library\freertos\include\queue.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Magic.h)(0x5B9D2437)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BA7B80A)
-I (..\driver\inc\Driver_DBUS.h)(0x5BA7CF74)
+I (..\driver\inc\Driver_DBUS.h)(0x5BA7D0DA)
 I (..\driver\inc\Driver_CAN.h)(0x5BA7B0D4)
-I (..\driver\inc\Driver_PanController.h)(0x5B9D2437)
+I (..\driver\inc\Driver_PanController.h)(0x5BA7D37A)
 I (..\driver\inc\Driver_Armour.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Angular.h)(0x5B915E88)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x574E3E26)
@@ -1098,7 +1098,7 @@ I (..\task\inc\Task_LOW.h)(0x5BA7B0D4)
 I (..\task\inc\Task_Sys_Init.h)(0x5B9D2437)
 F (..\user\stm32f4xx_it.c)(0x5BA7C784)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\stm32f4xx_it.o --omf_browse .\objects\stm32f4xx_it.crf --depend .\objects\stm32f4xx_it.d)
 I (..\user\main.h)(0x5BA7BC53)
-I (..\user\debug.h)(0x5BA7BBC3)
+I (..\user\debug.h)(0x5BA7D4A1)
 I (..\system\sys\sys.h)(0x5B8CD05A)
 I (..\user\stm32f4xx.h)(0x5B8CD05A)
 I (..\core\core_cm4.h)(0x5B8CD05A)
@@ -1140,7 +1140,7 @@ I (..\system\delay\delay.h)(0x5B915E88)
 I (..\bsp\inc\led.h)(0x5B915E88)
 I (..\bsp\inc\beep.h)(0x5B915E88)
 I (..\bsp\inc\key.h)(0x5B8CD05A)
-I (..\user\config.h)(0x5BA7B80A)
+I (..\user\config.h)(0x5BA7D402)
 I (..\user\macro.h)(0x5BA7B80A)
 I (..\user\handle.h)(0x5BA7C718)
 I (..\user\OSinclude.h)(0x5B8CD05A)
@@ -1158,9 +1158,9 @@ I (..\library\freertos\include\queue.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Magic.h)(0x5B9D2437)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BA7B80A)
-I (..\driver\inc\Driver_DBUS.h)(0x5BA7CF74)
+I (..\driver\inc\Driver_DBUS.h)(0x5BA7D0DA)
 I (..\driver\inc\Driver_CAN.h)(0x5BA7B0D4)
-I (..\driver\inc\Driver_PanController.h)(0x5B9D2437)
+I (..\driver\inc\Driver_PanController.h)(0x5BA7D37A)
 I (..\driver\inc\Driver_Armour.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Angular.h)(0x5B915E88)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x574E3E26)
@@ -1248,7 +1248,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x574E3E26)
 I (..\driver\inc\mpu6500_driver.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\MadgwickAHRS.h)(0x5B8CD05A)
-I (..\driver\inc\Driver_DBUS.h)(0x5BA7CF74)
+I (..\driver\inc\Driver_DBUS.h)(0x5BA7D0DA)
 I (..\driver\inc\Driver_CAN.h)(0x5BA7B0D4)
 F (..\driver\src\Driver_Armour.c)(0x5B915E88)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\driver_armour.o --omf_browse .\objects\driver_armour.crf --depend .\objects\driver_armour.d)
 I (..\driver\inc\Driver_Armour.h)(0x5B8CD05A)
@@ -1327,7 +1327,7 @@ I (..\library\std\inc\stm32f4xx_dma2d.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_fmc.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_sai.h)(0x5B8CD05A)
 F (..\driver\src\Driver_DBUS.c)(0x5BA7C28F)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\driver_dbus.o --omf_browse .\objects\driver_dbus.crf --depend .\objects\driver_dbus.d)
-I (..\driver\inc\Driver_DBUS.h)(0x5BA7CF74)
+I (..\driver\inc\Driver_DBUS.h)(0x5BA7D0DA)
 I (..\user\stm32f4xx.h)(0x5B8CD05A)
 I (..\core\core_cm4.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x574E3E26)
@@ -1364,8 +1364,8 @@ I (..\library\std\inc\stm32f4xx_dcmi.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_dma2d.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_fmc.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_sai.h)(0x5B8CD05A)
-F (..\driver\src\Driver_PanController.c)(0x5BA7CE22)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\driver_pancontroller.o --omf_browse .\objects\driver_pancontroller.crf --depend .\objects\driver_pancontroller.d)
-I (..\driver\inc\Driver_PanController.h)(0x5B9D2437)
+F (..\driver\src\Driver_PanController.c)(0x5BA7D468)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\driver_pancontroller.o --omf_browse .\objects\driver_pancontroller.crf --depend .\objects\driver_pancontroller.d)
+I (..\driver\inc\Driver_PanController.h)(0x5BA7D37A)
 I (..\user\stm32f4xx.h)(0x5B8CD05A)
 I (..\core\core_cm4.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x574E3E26)
@@ -1403,6 +1403,7 @@ I (..\library\std\inc\stm32f4xx_dma2d.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_fmc.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_sai.h)(0x5B8CD05A)
 I (..\user\macro.h)(0x5BA7B80A)
+I (..\user\config.h)(0x5BA7D402)
 I (..\user\handle.h)(0x5BA7C718)
 I (..\user\OSinclude.h)(0x5B8CD05A)
 I (..\library\freertos\include\FreeRTOS.h)(0x5B8CD05A)
@@ -1419,7 +1420,7 @@ I (..\library\freertos\include\queue.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Magic.h)(0x5B9D2437)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BA7B80A)
-I (..\driver\inc\Driver_DBUS.h)(0x5BA7CF74)
+I (..\driver\inc\Driver_DBUS.h)(0x5BA7D0DA)
 I (..\driver\inc\Driver_CAN.h)(0x5BA7B0D4)
 I (..\driver\inc\Driver_Armour.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Angular.h)(0x5B915E88)
@@ -1482,9 +1483,9 @@ I (..\library\std\inc\stm32f4xx_dcmi.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_dma2d.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_fmc.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_sai.h)(0x5B8CD05A)
-I (..\driver\inc\Driver_DBUS.h)(0x5BA7CF74)
+I (..\driver\inc\Driver_DBUS.h)(0x5BA7D0DA)
 I (..\driver\inc\Driver_CAN.h)(0x5BA7B0D4)
-I (..\driver\inc\Driver_PanController.h)(0x5B9D2437)
+I (..\driver\inc\Driver_PanController.h)(0x5BA7D37A)
 I (..\driver\inc\Driver_Armour.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Angular.h)(0x5B915E88)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x574E3E26)
@@ -1679,9 +1680,9 @@ I (..\library\freertos\include\task.h)(0x5B8CD05A)
 I (..\library\freertos\include\list.h)(0x5B8CD05A)
 I (..\library\freertos\include\queue.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_PID.h)(0x5BA7B80A)
-I (..\driver\inc\Driver_DBUS.h)(0x5BA7CF74)
+I (..\driver\inc\Driver_DBUS.h)(0x5BA7D0DA)
 I (..\driver\inc\Driver_CAN.h)(0x5BA7B0D4)
-I (..\driver\inc\Driver_PanController.h)(0x5B9D2437)
+I (..\driver\inc\Driver_PanController.h)(0x5BA7D37A)
 I (..\driver\inc\Driver_Armour.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Angular.h)(0x5B915E88)
 I (..\driver\inc\mpu6500_driver.h)(0x5B8CD05A)
@@ -1690,7 +1691,7 @@ I (..\task\inc\Task_LOW.h)(0x5BA7B0D4)
 I (..\task\inc\Task_Sys_Init.h)(0x5B9D2437)
 F (..\task\src\Task_IRQ.c)(0x5BA7C76B)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\task_irq.o --omf_browse .\objects\task_irq.crf --depend .\objects\task_irq.d)
 I (..\user\main.h)(0x5BA7BC53)
-I (..\user\debug.h)(0x5BA7BBC3)
+I (..\user\debug.h)(0x5BA7D4A1)
 I (..\system\sys\sys.h)(0x5B8CD05A)
 I (..\user\stm32f4xx.h)(0x5B8CD05A)
 I (..\core\core_cm4.h)(0x5B8CD05A)
@@ -1732,7 +1733,7 @@ I (..\system\delay\delay.h)(0x5B915E88)
 I (..\bsp\inc\led.h)(0x5B915E88)
 I (..\bsp\inc\beep.h)(0x5B915E88)
 I (..\bsp\inc\key.h)(0x5B8CD05A)
-I (..\user\config.h)(0x5BA7B80A)
+I (..\user\config.h)(0x5BA7D402)
 I (..\user\macro.h)(0x5BA7B80A)
 I (..\user\handle.h)(0x5BA7C718)
 I (..\user\OSinclude.h)(0x5B8CD05A)
@@ -1750,9 +1751,9 @@ I (..\library\freertos\include\queue.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Magic.h)(0x5B9D2437)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BA7B80A)
-I (..\driver\inc\Driver_DBUS.h)(0x5BA7CF74)
+I (..\driver\inc\Driver_DBUS.h)(0x5BA7D0DA)
 I (..\driver\inc\Driver_CAN.h)(0x5BA7B0D4)
-I (..\driver\inc\Driver_PanController.h)(0x5B9D2437)
+I (..\driver\inc\Driver_PanController.h)(0x5BA7D37A)
 I (..\driver\inc\Driver_Armour.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Angular.h)(0x5B915E88)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x574E3E26)
@@ -1760,9 +1761,9 @@ I (..\driver\inc\mpu6500_driver.h)(0x5B8CD05A)
 I (..\task\inc\Task_IRQ.h)(0x5BA7B0D4)
 I (..\task\inc\Task_LOW.h)(0x5BA7B0D4)
 I (..\task\inc\Task_Sys_Init.h)(0x5B9D2437)
-F (..\task\src\Task_Low.c)(0x5BA7CE22)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\task_low.o --omf_browse .\objects\task_low.crf --depend .\objects\task_low.d)
+F (..\task\src\Task_Low.c)(0x5BA7D3E8)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\task_low.o --omf_browse .\objects\task_low.crf --depend .\objects\task_low.d)
 I (..\user\main.h)(0x5BA7BC53)
-I (..\user\debug.h)(0x5BA7BBC3)
+I (..\user\debug.h)(0x5BA7D4A1)
 I (..\system\sys\sys.h)(0x5B8CD05A)
 I (..\user\stm32f4xx.h)(0x5B8CD05A)
 I (..\core\core_cm4.h)(0x5B8CD05A)
@@ -1804,7 +1805,7 @@ I (..\system\delay\delay.h)(0x5B915E88)
 I (..\bsp\inc\led.h)(0x5B915E88)
 I (..\bsp\inc\beep.h)(0x5B915E88)
 I (..\bsp\inc\key.h)(0x5B8CD05A)
-I (..\user\config.h)(0x5BA7B80A)
+I (..\user\config.h)(0x5BA7D402)
 I (..\user\macro.h)(0x5BA7B80A)
 I (..\user\handle.h)(0x5BA7C718)
 I (..\user\OSinclude.h)(0x5B8CD05A)
@@ -1822,9 +1823,9 @@ I (..\library\freertos\include\queue.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Magic.h)(0x5B9D2437)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BA7B80A)
-I (..\driver\inc\Driver_DBUS.h)(0x5BA7CF74)
+I (..\driver\inc\Driver_DBUS.h)(0x5BA7D0DA)
 I (..\driver\inc\Driver_CAN.h)(0x5BA7B0D4)
-I (..\driver\inc\Driver_PanController.h)(0x5B9D2437)
+I (..\driver\inc\Driver_PanController.h)(0x5BA7D37A)
 I (..\driver\inc\Driver_Armour.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Angular.h)(0x5B915E88)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x574E3E26)
@@ -1834,7 +1835,7 @@ I (..\task\inc\Task_LOW.h)(0x5BA7B0D4)
 I (..\task\inc\Task_Sys_Init.h)(0x5B9D2437)
 F (..\task\src\Task_Sys_Init.c)(0x5BA7BC31)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\task_sys_init.o --omf_browse .\objects\task_sys_init.crf --depend .\objects\task_sys_init.d)
 I (..\user\main.h)(0x5BA7BC53)
-I (..\user\debug.h)(0x5BA7BBC3)
+I (..\user\debug.h)(0x5BA7D4A1)
 I (..\system\sys\sys.h)(0x5B8CD05A)
 I (..\user\stm32f4xx.h)(0x5B8CD05A)
 I (..\core\core_cm4.h)(0x5B8CD05A)
@@ -1876,7 +1877,7 @@ I (..\system\delay\delay.h)(0x5B915E88)
 I (..\bsp\inc\led.h)(0x5B915E88)
 I (..\bsp\inc\beep.h)(0x5B915E88)
 I (..\bsp\inc\key.h)(0x5B8CD05A)
-I (..\user\config.h)(0x5BA7B80A)
+I (..\user\config.h)(0x5BA7D402)
 I (..\user\macro.h)(0x5BA7B80A)
 I (..\user\handle.h)(0x5BA7C718)
 I (..\user\OSinclude.h)(0x5B8CD05A)
@@ -1894,9 +1895,9 @@ I (..\library\freertos\include\queue.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Magic.h)(0x5B9D2437)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BA7B80A)
-I (..\driver\inc\Driver_DBUS.h)(0x5BA7CF74)
+I (..\driver\inc\Driver_DBUS.h)(0x5BA7D0DA)
 I (..\driver\inc\Driver_CAN.h)(0x5BA7B0D4)
-I (..\driver\inc\Driver_PanController.h)(0x5B9D2437)
+I (..\driver\inc\Driver_PanController.h)(0x5BA7D37A)
 I (..\driver\inc\Driver_Armour.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_Angular.h)(0x5B915E88)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x574E3E26)
