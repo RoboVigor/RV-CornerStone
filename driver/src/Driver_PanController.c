@@ -1,7 +1,7 @@
 #include "Driver_PanController.h"
 
 #include "macro.h"
-
+#include "config.h"
 #include "handle.h"
 
 int LastMode = 0;
@@ -17,11 +17,14 @@ void Chassis_Set_Wheel_Speed(int XSpeed, int YSpeed, int WSpeed) {
 }
 
 void Chassis_Update_Mecanum_Data(int buffer[4]) {
-    float K   = 0.946; //测量值,等于机器人中心点到XY边缘的距离之和
-    buffer[0] = 13.16 * ((ChassisParam.TargetVX) - (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2; //麦克解算遥控器来的数值
-    buffer[1] = 13.16 * ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * (-K)) * 19.2; //转子的角速度/19=轮子角速度 (rad/s)
-    buffer[2] = -13.16 * (ChassisParam.TargetVX - (ChassisParam.TargetVY) + ChassisParam.TargetWR * K) * 19.2;
-    buffer[3] = -13.16 * ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * K) * 19.2;
+    buffer[0] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
+                ((ChassisParam.TargetVX) - (ChassisParam.TargetVY) + ChassisParam.TargetWR * -CHASSIS_SIZE_K);
+    buffer[1] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
+                ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * -CHASSIS_SIZE_K);
+    buffer[2] = -CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
+                (ChassisParam.TargetVX - (ChassisParam.TargetVY) + ChassisParam.TargetWR * CHASSIS_SIZE_K);
+    buffer[3] = -CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
+                ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * CHASSIS_SIZE_K);
 }
 
 void Chassis_Get_XYW_Speed(int dir, int Mode) {
@@ -68,8 +71,8 @@ void Chassis_Limit_Wheel_Speed(int WheelSpeedOrigin[4], int WheelSpeedRes[4], in
         }
     }
 
-    if (MaxWheelSpeed < MaxSpeed) {
-        Param            = (float) MaxWheelSpeed / MaxSpeed;
+    if (CHASSIS_MAX_WHEEL_SPEED < MaxSpeed) {
+        Param            = (float) CHASSIS_MAX_WHEEL_SPEED / MaxSpeed;
         WheelSpeedRes[0] = WheelSpeedOrigin[0] * Param;
         WheelSpeedRes[1] = WheelSpeedOrigin[1] * Param;
         WheelSpeedRes[2] = WheelSpeedOrigin[2] * Param;

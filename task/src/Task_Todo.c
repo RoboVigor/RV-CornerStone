@@ -78,7 +78,7 @@ void mainTask(void) {
 
         Chassis_Update_Mecanum_Data(Buffer);
 
-        Chassis_Limit_Wheel_Speed(Buffer, ArmatureRotateSpeed, MAXWHEELSPEED);
+        Chassis_Limit_Wheel_Speed(Buffer, ArmatureRotateSpeed, CHASSIS_MAX_WHEEL_SPEED);
 
         //速度pid,都是rad/s 反馈转子转速
         PID_Set_Pan_Speed(&CM1PID, ArmatureRotateSpeed[0], Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
@@ -107,7 +107,7 @@ void mainTask(void) {
 
         Chassis_Update_Mecanum_Data(Buffer);
 
-        Chassis_Limit_Wheel_Speed(Buffer, ArmatureRotateSpeed, MAXWHEELSPEED);
+        Chassis_Limit_Wheel_Speed(Buffer, ArmatureRotateSpeed, CHASSIS_MAX_WHEEL_SPEED);
 
         //速度pid
         PID_Set_Pan_Speed(&CM1PID, ArmatureRotateSpeed[0], Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
