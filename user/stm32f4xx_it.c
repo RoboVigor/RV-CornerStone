@@ -21,7 +21,7 @@ void USART1_IRQHandler(void) {
 
     //数据量正确
     if (DMA2_Stream2->NDTR == DBUS_BACK_LENGTH) {
-        DBus_Decode_Remote_Control_Data(); //解码
+        DBus_Update(DBusData, DBusBuffer); //解码
     }
 
     //重启DMA

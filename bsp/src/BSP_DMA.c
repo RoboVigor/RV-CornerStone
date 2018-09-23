@@ -1,3 +1,4 @@
+#include "BSP_DMA.h"
 #include "main.h"
 
 /**

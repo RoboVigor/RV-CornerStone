@@ -10,6 +10,10 @@
 #include "Driver_Armour.h"
 #include "Driver_Angular.h"
 
+#include "Task_IRQ.h"
+#include "Task_LOW.h"
+#include "Task_Sys_Init.h"
+
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT
 #else
@@ -25,7 +29,7 @@ __HANDLE_EXT volatile CANEncoder_Type Hook_Encoder, Armour1_Encoder, Armour2_Enc
 
 // Dbus
 __HANDLE_EXT uint8_t DBusBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
-__HANDLE_EXT DBusData_Type DBusData, LastDBusData;
+__HANDLE_EXT DBusData_Type DBusData;
 
 // PanController
 __HANDLE_EXT PID_Type CM1PID, CM2PID, CM3PID, CM4PID, YawAnglePID, YawSpeedPID1, YawSpeedPID2, YawSpeedPID;

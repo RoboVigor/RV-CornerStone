@@ -1,13 +1,11 @@
 #include "Driver_DBUS.h"
 
-#include "handle.h"
-
 /**
  * @brief  DBUS参数初始化
- * @param  void
- * @return void
+ *
+ * @param DBusData
  */
-void DBus_Init(void) {
+void DBus_Init(DBusData_Type DBusData) {
     DBusData.ch1                  = 0;
     DBusData.ch2                  = 0;
     DBusData.ch3                  = 0;
@@ -17,13 +15,11 @@ void DBus_Init(void) {
 }
 
 /**
- * @brief  DBUS解码
- * @param  void
- * @return void
+ * @brief DBUS解码
+ *
+ * @param DBusData
  */
-void DBus_Decode_Remote_Control_Data(void) {
-    LastDBusData = DBusData;
-
+void DBus_Update(DBusData_Type DBusData, uint8_t DBusBuffer[]) {
     DBusData.ch1 = (DBusBuffer[0] | DBusBuffer[1] << 8) & 0x07FF;
     DBusData.ch1 -= 1024;
     DBusData.ch2 = (DBusBuffer[1] >> 3 | DBusBuffer[2] << 5) & 0x07FF;

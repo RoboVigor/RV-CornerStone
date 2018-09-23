@@ -1,4 +1,6 @@
-#include "main.h"
+#include "Driver_PID.h"
+#include "macro.h"
+#include "handle.h"
 
 /**
  * @brief PID初始化
@@ -47,12 +49,7 @@ int PID_Calculate(PID_Type *pid, float target, float feedback) {
     MIAO(pid->output_I, -pid->maxOutput_I, pid->maxOutput_I);
 
     pid->output = (pid->output_P + pid->output_I + pid->output_D);
-    // MIAO(pid->output, -pid->maxOutput, pid->maxOutput);
-    if (pid->output < -pid->maxOutput) {
-        pid->output = -pid->maxOutput;
-    } else if (pid->output > pid->maxOutput) {
-        pid->output = pid->maxOutput;
-    }
+    MIAO(pid->output, -pid->maxOutput, pid->maxOutput);
 
     pid->lastError = pid->error;
 
