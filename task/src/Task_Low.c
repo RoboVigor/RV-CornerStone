@@ -7,6 +7,11 @@
  */
 // int diff    = 0;
 int _target = 0;
+int debug4  = 0;
+int debug5  = 0;
+int debug6  = 0;
+int debug7  = 0;
+int debug8  = 0;
 
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
@@ -28,11 +33,11 @@ void Task_Chassis(void *Parameters) {
     // int        WheelSpeedRes[4], Buffer[4];
     float kFeedback        = 3.14 / 60;
     int   minCurrentToMove = 600;
-
     // int timesToMove = 0;
 
     PID_Init(&ChassisAnglePID1, 1.5, 0, 0, 100); // 1.5// 0.5  -1.755   0.7   1.36
-    PID_Init(&CM1PID, 60, 0, 0, 800);            // 400//0.04//28
+    PID_Init(&CM1PID, 10, 0, 0, 1200);           // 400//0.04//28
+    CM1PID.maxOutput_I = 5000;
     // PID_Init(&CM2PID, 0, 0, 0, 1000);
     // PID_Init(&CM3PID, 0, 0, 0, 1000);
     // PID_Init(&CM4PID, 0, 0, 0, 1000);
@@ -52,16 +57,21 @@ void Task_Chassis(void *Parameters) {
         // vTaskDelayUntil(&LastWakeTime, 100);
 
         // continue;
-
+        CM1PID.i = (float) magic.value / 1000.0;
         CAN_Update_Encoder_Data(&CM1_Encoder, Motor_Feedback.motor201Angle);
 
-        PID_Calculate(&ChassisAnglePID1, 0, CM1_Encoder.ecdAngle / 19);
-        PID_Calculate(&CM1PID, ChassisAnglePID1.output, Motor_Feedback.motor201Speed * kFeedback);
+        // PID_Calculate(&ChassisAnglePID1, 720, CM1_Encoder.ecdAngle / 19);
+        // PID_Calculate(&CM1PID, ChassisAnglePID1.output, Motor_Feedback.motor201Speed * kFeedback);
 
-        // _Set_CM_Current(CM1PID.output); // 这一行是有冲突的代码
-        Can2_Set_CM_Current(CAN2, 500, 0, 0, 0);
+        debug4 = ChassisAnglePID1.output;
+        debug5 = CM1PID.output;
+        debug6 = Motor_Feedback.motor201Speed * kFeedback;
+        debug7 = CM1PID.error;
+        debug8 = CM1_Encoder.ecdAngle / 19;
+        _Set_CM_Current(200);
+        // Can2_Set_CM_Current(CAN2, 500, 0, 0, 0);
 
-        vTaskDelayUntil(&LastWakeTime, 10);
+        vTaskDelayUntil(&LastWakeTime, 5);
 
         // yawSpeedFeed = mpu6500_data.gz / 16.4;
         // yawAngleFeed = EulerAngle.Yaw;
@@ -96,9 +106,9 @@ void Task_Wheel(void *Parameters) {
 }
 
 void _Set_CM_Current(int16_t i_201) {
-    int minCurrent    = 700;  // 250
+    int minCurrent    = 900;  // 250
     int currentToMove = 2000; // 1500
-    int threshold     = 600;
+    int threshold     = 850;
     if (ABS(i_201) > threshold) {
         if (Motor_Feedback.motor201Speed == 0) {
             Can_Set_CM_Current(CAN1, currentToMove, 0, 0, 0);
@@ -109,6 +119,6 @@ void _Set_CM_Current(int16_t i_201) {
             Can_Set_CM_Current(CAN1, i_201, 0, 0, 0);
         }
     } else {
-        Can_Set_CM_Current(CAN1, 0, 0, 0, 0);
+        Can_Set_CM_Current(CAN1, i_201, 0, 0, 0);
     }
 }
