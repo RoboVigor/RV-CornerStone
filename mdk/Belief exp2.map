@@ -22,7 +22,7 @@ Section Cross References
     bsp_dma.o(i.BSP_DMA_Init) refers to stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd) for RCC_AHB1PeriphClockCmd
     bsp_dma.o(i.BSP_DMA_Init) refers to stm32f4xx_dma.o(i.DMA_Init) for DMA_Init
     bsp_dma.o(i.BSP_DMA_Init) refers to stm32f4xx_dma.o(i.DMA_Cmd) for DMA_Cmd
-    bsp_dma.o(i.BSP_DMA_Init) refers to main.o(.bss) for DBusBuffer
+    bsp_dma.o(i.BSP_DMA_Init) refers to main.o(.bss) for remoteBuffer
     bsp_gpio.o(i.BSP_GPIO_Init) refers to stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd) for RCC_AHB1PeriphClockCmd
     bsp_gpio.o(i.BSP_GPIO_Init) refers to stm32f4xx_gpio.o(i.GPIO_Init) for GPIO_Init
     bsp_gpio.o(i.BSP_GPIO_Init) refers to stm32f4xx_gpio.o(i.GPIO_PinAFConfig) for GPIO_PinAFConfig
@@ -563,7 +563,7 @@ Section Cross References
     stm32f4xx_it.o(i.USART1_IRQHandler) refers to stm32f4xx_dma.o(i.DMA_ClearFlag) for DMA_ClearFlag
     stm32f4xx_it.o(i.USART1_IRQHandler) refers to stm32f4xx_dma.o(i.DMA_GetCmdStatus) for DMA_GetCmdStatus
     stm32f4xx_it.o(i.USART1_IRQHandler) refers to stm32f4xx_dma.o(i.DMA_SetCurrDataCounter) for DMA_SetCurrDataCounter
-    stm32f4xx_it.o(i.USART1_IRQHandler) refers to main.o(.bss) for DBusBuffer
+    stm32f4xx_it.o(i.USART1_IRQHandler) refers to main.o(.bss) for remoteBuffer
     stm32f4xx_it.o(i.USART6_IRQHandler) refers to stm32f4xx_usart.o(i.USART_GetITStatus) for USART_GetITStatus
     stm32f4xx_it.o(i.USART6_IRQHandler) refers to stm32f4xx_usart.o(i.USART_ReceiveData) for USART_ReceiveData
     stm32f4xx_it.o(i.USART6_IRQHandler) refers to stm32f4xx_gpio.o(i.GPIO_ToggleBits) for GPIO_ToggleBits
@@ -749,7 +749,7 @@ Section Cross References
     task_irq.o(i.Task_Safe_Mode) refers to driver_can.o(i.Can_Set_CM_Current) for Can_Set_CM_Current
     task_irq.o(i.Task_Safe_Mode) refers to tasks.o(i.vTaskSuspendAll) for vTaskSuspendAll
     task_irq.o(i.Task_Safe_Mode) refers to tasks.o(i.vTaskDelay) for vTaskDelay
-    task_irq.o(i.Task_Safe_Mode) refers to main.o(.bss) for DBusData
+    task_irq.o(i.Task_Safe_Mode) refers to main.o(.bss) for remote
     task_low.o(i.Task_Blink) refers to tasks.o(i.xTaskGetTickCount) for xTaskGetTickCount
     task_low.o(i.Task_Blink) refers to stm32f4xx_gpio.o(i.GPIO_ToggleBits) for GPIO_ToggleBits
     task_low.o(i.Task_Blink) refers to tasks.o(i.vTaskDelayUntil) for vTaskDelayUntil
@@ -2674,8 +2674,8 @@ Image Symbol Table
     Hook_Encoder                             0x20012e54   Data          68  main.o(.bss)
     Armour1_Encoder                          0x20012e98   Data          68  main.o(.bss)
     Armour2_Encoder                          0x20012edc   Data          68  main.o(.bss)
-    DBusBuffer                               0x20012f20   Data          19  main.o(.bss)
-    DBusData                                 0x20012f34   Data          24  main.o(.bss)
+    remoteBuffer                             0x20012f20   Data          19  main.o(.bss)
+    remote                                   0x20012f34   Data          24  main.o(.bss)
     CM1PID                                   0x20012f4c   Data          56  main.o(.bss)
     CM2PID                                   0x20012f84   Data          56  main.o(.bss)
     CM3PID                                   0x20012fbc   Data          56  main.o(.bss)
