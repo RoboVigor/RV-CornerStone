@@ -29,11 +29,10 @@ __HANDLE_EXT volatile CANEncoder_Type Hook_Encoder, Armour1_Encoder, Armour2_Enc
 __HANDLE_EXT uint8_t DBusBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type DBusData, LastDBusData;
 
-// PanController
+// Chassis Control
 __HANDLE_EXT PID_Type LFCMPID, LBCMPID, RBCMPID, RFCMPID, YawAnglePID, YawSpeedPID1, YawSpeedPID2, YawSpeedPID;
-__HANDLE_EXT PID_Type CM1PID, CM2PID, CM3PID, CM4PID;
 __HANDLE_EXT ChassisParam_Type ChassisParam;
-__HANDLE_EXT float             targetYawAngle, yawAngleFeed, yawSpeedFeed;
+__HANDLE_EXT float             yawAngleTarget, yawAngleFeed, yawSpeedFeed, targetYawAngle;
 
 // Magic
 __HANDLE_EXT u8 USART_RX_BUF[MAGIC_MAX_LENGTH];

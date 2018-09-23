@@ -20,7 +20,10 @@ void Task_Sys_Init(void *Parameters) {
 
     // 初始化陀螺仪
     MPU6500_IntConfiguration();
+    printf("mpu6500 init start");
     MPU6500_Initialize();
+    printf("mpu6500 init over");
+
     MPU6500_EnableInt();
 
     // 初始化消息体
