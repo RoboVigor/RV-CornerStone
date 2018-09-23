@@ -26,10 +26,14 @@
 
 //遥控解码数据存储结构体
 typedef struct {
-    int16_t ch1; // each ch value from -660 -- +660
-    int16_t ch2;
-    int16_t ch3;
-    int16_t ch4;
+    union {
+        struct {
+            int16_t rx, ry, lx, ly;
+        };
+        struct {
+            int16_t ch1, ch2, ch3, ch4;
+        };
+    };
 
     uint8_t switchLeft; // 3 value
     uint8_t switchRight;
