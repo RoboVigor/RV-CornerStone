@@ -909,6 +909,7 @@ Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
 erwork --depend=.\objects\startup_stm32f427xx.d -o.\objects\startup_stm32f427xx
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 .o -IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE -I"C:\Users\Tccoin\Deskto
 =======
 .o -I"C:\Users\JEMJE\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerSto
@@ -916,6 +917,9 @@ erwork --depend=.\objects\startup_stm32f427xx.d -o.\objects\startup_stm32f427xx
 =======
 .o -I"D:\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\RTE" 
 >>>>>>> 0.2.18 æš‚æ—¶èƒ½ç”¨çš„ç‰ˆæœ¬
+=======
+.o -I"C:\Users\JEMJE\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerSto
+>>>>>>> ANGLE PID UPDATE
 
 
 
@@ -924,16 +928,20 @@ ARM Macro Assembler    Page 15
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 p\µç¿Ø\°¢²¨ÂÞSTM32F429 ×ÊÁÏÅÌ(AÅÌ)\6£¬Èí¼þ×ÊÁÏ\1£¬Èí¼þ\MDK5\Keil\STM32F4xx_DFP\
 1.0.8\Device\Include" -IC:\Keil_v5\ARM\CMSIS\Include --predefine="__UVISION_VER
 SION SETA 521" --predefine="STM32F427_437xx SETA 1" --list=.\startup_stm32f427x
 x.lst ..\core\startup_stm32f427xx.s
 =======
+=======
+>>>>>>> ANGLE PID UPDATE
 ne\mdk\RTE" -IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.9.0\Drivers\CMSIS\Device
 \ST\STM32F4xx\Include -IC:\Keil_v5\ARM\CMSIS\Include -IC:\Keil_v5\ARM\PACK\Keil
 \STM32F4xx_DFP\2.9.0\Device\Include --predefine="__UVISION_VERSION SETA 521" --
 predefine="STM32F427xx SETA 1" --list=.\startup_stm32f427xx.lst ..\core\startup
 _stm32f427xx.s
+<<<<<<< HEAD
 >>>>>>> pid update(éžæœ€ç»ˆç‰ˆ)
 =======
 -IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.9.0\Drivers\CMSIS\Device\ST\STM32F4x
@@ -942,6 +950,8 @@ FP\2.9.0\Device\Include --predefine="__UVISION_VERSION SETA 521" --predefine="S
 TM32F427xx SETA 1" --list=.\startup_stm32f427xx.lst ..\core\startup_stm32f427xx
 .s
 >>>>>>> 0.2.18 æš‚æ—¶èƒ½ç”¨çš„ç‰ˆæœ¬
+=======
+>>>>>>> ANGLE PID UPDATE
 
 
 
