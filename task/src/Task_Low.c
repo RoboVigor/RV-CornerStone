@@ -50,9 +50,9 @@ void Task_Chassis(void *Parameters) {
         PID_Init(&YawAnglePID, 15, 0, 0, 660);
         PID_Init(&YawSpeedPID, 2, 0, 0, 660);
 
-        PID_Calculate(&YawAnglePID, DBusData.ch1, yawAngleFeed);
+        PID_Calculate(&YawAnglePID, remote.ch1, yawAngleFeed);
         PID_Calculate(&YawSpeedPID, YawAnglePID.output, yawSpeedFeed);
-        Chassis_Set_Wheel_Speed(DBusData.ch4, DBusData.ch3, YawSpeedPID.output); //设定XYZ三个轴的速度
+        Chassis_Set_Wheel_Speed(remote.ch4, remote.ch3, YawSpeedPID.output); //设定XYZ三个轴的速度
 
         Chassis_Update_Mecanum_Data(Buffer); //麦轮的解算
 

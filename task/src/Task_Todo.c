@@ -16,12 +16,12 @@ int   panPIDMode                      = 1;
 
 void mainTask(void) {
 
-    if (DBusData.switchRight == 2) {
+    if (remote.switchRight == 2) {
         Can_Set_CM_Current(CAN1, 0, 0, 0, 0);
         return;
     }
     Gyroscope_Update_Angle_Data();
-    if (ABS(DBusData.ch1) < 5) {
+    if (ABS(remote.ch1) < 5) {
         panPIDMode = 2;
     } else {
         panPIDMode = 1;
@@ -37,7 +37,7 @@ void mainTask(void) {
 
     yawAngleFeedDiff = yawAngleFeed - lastYawAngleFeed;
 
-    if (ABS(DBusData.ch1) < 10 && ABS(DBusData.ch3) < 10 && ABS(DBusData.ch4) < 10)
+    if (ABS(remote.ch1) < 10 && ABS(remote.ch3) < 10 && ABS(remote.ch4) < 10)
     // if(1)
     {
         if (ABS(yawAngleFeedDiff) < yawAngleFeedThreshold) {
@@ -52,7 +52,7 @@ void mainTask(void) {
             lastYawAngleFeed = yawAngleFeed;
         }
     } else {
-        if (DBusData.switchRight == 1) {
+        if (remote.switchRight == 1) {
             yawAngleFeedOffset += yawAngleFeedOffsetSample / yawAngleFeedOffsetSampleCounter;
         }
         yawAngleFeed     = EulerAngle.Yaw - yawAngleFeedOffset;
@@ -60,7 +60,7 @@ void mainTask(void) {
         lastYawAngleFeed = yawAngleFeed;
     }
 
-    if (DBusData.switchLeft == 1) //摄像头朝向丝杆 功能:移动
+    if (remote.switchLeft == 1) //摄像头朝向丝杆 功能:移动
     {
 
         TIM_SetCompare1(TIM4, 23);
@@ -90,14 +90,14 @@ void mainTask(void) {
                            CM4PID.output); //得到电流发送给电调
     }
     //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    else if (DBusData.switchLeft == 3) {
+    else if (remote.switchLeft == 3) {
         TIM_SetCompare1(TIM4, 5);
 
         CAN_Update_Encoder_Data(&Hook_Encoder, Motor_Feedback.motor205Angle);
 
         HookFeedAngle = Hook_Encoder.ecdAngle;
 
-        HookSpeedPID(&Hook_SpeedPID, DBusData.ch2, Motor_Feedback.motor205Speed);
+        HookSpeedPID(&Hook_SpeedPID, remote.ch2, Motor_Feedback.motor205Speed);
 
         CAN_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.output, 0, 0, 0);
 

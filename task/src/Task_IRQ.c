@@ -106,7 +106,7 @@ void Task_MagicSend(void *Parameters) {
 void Task_Safe_Mode(void *Parameters) {
 
     while (1) {
-        if (DBusData.switchRight == 2) {
+        if (remote.switchRight == 2) {
             Can_Set_CM_Current(CAN1, 0, 0, 0, 0);
             vTaskSuspendAll();
         }

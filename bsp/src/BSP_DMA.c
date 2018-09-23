@@ -15,7 +15,7 @@ void BSP_DMA_Init(void) {
     // UART1(DBus)
     DMA_InitStructure.DMA_Channel            = DMA_Channel_4;
     DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(&USART1->DR);
-    DMA_InitStructure.DMA_Memory0BaseAddr    = (uint32_t)(DBusBuffer);
+    DMA_InitStructure.DMA_Memory0BaseAddr    = (uint32_t)(remoteBuffer);
     DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
     DMA_InitStructure.DMA_BufferSize         = DBUS_LENGTH + DBUS_BACK_LENGTH;
     DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
