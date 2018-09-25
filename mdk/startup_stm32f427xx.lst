@@ -910,6 +910,7 @@ erwork --depend=.\objects\startup_stm32f427xx.d -o.\objects\startup_stm32f427xx
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 .o -IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE -I"C:\Users\Tccoin\Deskto
 =======
 .o -I"C:\Users\JEMJE\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerSto
@@ -920,12 +921,16 @@ erwork --depend=.\objects\startup_stm32f427xx.d -o.\objects\startup_stm32f427xx
 =======
 .o -I"C:\Users\JEMJE\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerSto
 >>>>>>> ANGLE PID UPDATE
+=======
+.o -I"D:\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\RTE" 
+>>>>>>> angle pid update
 
 
 
 ARM Macro Assembler    Page 15 
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -944,14 +949,19 @@ _stm32f427xx.s
 <<<<<<< HEAD
 >>>>>>> pid update(非最终版)
 =======
+=======
+>>>>>>> angle pid update
 -IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.9.0\Drivers\CMSIS\Device\ST\STM32F4x
 x\Include -IC:\Keil_v5\ARM\CMSIS\Include -IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_D
 FP\2.9.0\Device\Include --predefine="__UVISION_VERSION SETA 521" --predefine="S
 TM32F427xx SETA 1" --list=.\startup_stm32f427xx.lst ..\core\startup_stm32f427xx
 .s
+<<<<<<< HEAD
 >>>>>>> 0.2.18 暂时能用的版本
 =======
 >>>>>>> ANGLE PID UPDATE
+=======
+>>>>>>> angle pid update
 
 
 

@@ -8,6 +8,7 @@ Copyright (C) 2016 ARM Ltd and ARM Germany GmbH. All rights reserved.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 License Information: Link Wu Wu, FuXing PS, LIC=Z3CSB-21H71-48BFA-1PZ03-ALN2N-S4CAZ
 =======
 License Information: Kelvin Cao, SBC, LIC=HN0X7-E5NII-J66Q9-4AXBA-Y5SIX-0LTUV
@@ -18,9 +19,12 @@ License Information: Kelvin Cao, SBC, LIC=DSNGK-ZSSDI-TIJ5L-05SC3-HSE4F-F0YID
 =======
 License Information: Kelvin Cao, SBC, LIC=HN0X7-E5NII-J66Q9-4AXBA-Y5SIX-0LTUV
 >>>>>>> ANGLE PID UPDATE
+=======
+License Information: Kelvin Cao, SBC, LIC=DSNGK-ZSSDI-TIJ5L-05SC3-HSE4F-F0YID
+>>>>>>> angle pid update
  
 Tool Versions:
-Toolchain:       MDK-ARM Plus  Version: 5.21a
+Toolchain:       MDK-ARM Professional  Version: 5.21a
 Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
 C Compiler:      Armcc.exe V5.06 update 3 (build 300)
 Assembler:       Armasm.exe V5.06 update 3 (build 300)
@@ -33,6 +37,7 @@ Target DLL:      Segger\JL2CM3.dll V2.99.23.0
 Dialog DLL:      TCM.DLL V1.14.14.0
  
 <h2>Project:</h2>
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -50,6 +55,9 @@ D:\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\Belief exp2.
 =======
 C:\Users\JEMJE\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\Belief exp2.uvprojx
 >>>>>>> ANGLE PID UPDATE
+=======
+D:\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\Belief exp2.uvprojx
+>>>>>>> angle pid update
 Project File Date:  09/17/2018
 >>>>>>> pid update
 
@@ -239,24 +247,50 @@ FromELF: creating hex file...
 compiling Task_Low.c...
 ..\user\macro.h(25): warning:  #1-D: last line of file ends without a newline
   // #define WANG(val, min, max) 
-..\task\src\Task_Low.c(19): warning:  #111-D: statement is unreachable
+..\task\src\Task_Low.c(30): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Low.c(147): warning:  #111-D: statement is unreachable
+..\task\src\Task_Low.c(125): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Low.c: 3 warnings, 0 errors
+..\task\src\Task_Low.c(129): warning:  #177-D: variable "lastMode" was declared but never referenced
+      EventBits_t lastMode    = 0;
+..\task\src\Task_Low.c(155): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Low.c(156): warning:  #1-D: last line of file ends without a newline
+  }
+..\task\src\Task_Low.c: 6 warnings, 0 errors
+compiling Task_IRQ.c...
+..\user\macro.h(25): warning:  #1-D: last line of file ends without a newline
+  // #define WANG(val, min, max) 
+..\task\src\Task_IRQ.c(21): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_IRQ.c(55): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_IRQ.c(73): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_IRQ.c(85): warning:  #177-D: variable "i" was declared but never referenced
+          u8 i = 0;
+..\task\src\Task_IRQ.c(98): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_IRQ.c(116): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_IRQ.c: 7 warnings, 0 errors
 linking...
-Program Size: Code=32580 RO-data=836 RW-data=528 ZI-data=83496  
+Program Size: Code=34212 RO-data=836 RW-data=576 ZI-data=83496  
 FromELF: creating hex file...
+<<<<<<< HEAD
 ".\Objects\Belief exp2.axf" - 0 Error(s), 3 Warning(s).
 >>>>>>> 0.2.18 暂时能用的版本
+=======
+".\Objects\Belief exp2.axf" - 0 Error(s), 13 Warning(s).
+>>>>>>> angle pid update
 
 <h2>Collection of Component include folders:</h2>
-  C:\Users\JEMJE\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\RTE
+  D:\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\RTE
   C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.9.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 >>>>>>> pid update(非最终版)
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:06
 </pre>
 </body>
 </html>

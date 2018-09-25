@@ -26,14 +26,18 @@ void Task_Sys_Init(void *Parameters) {
 
     // 初始化陀螺仪
     MPU6500_IntConfiguration();
-    printf("mpu6500 init start");
     MPU6500_Initialize();
-    printf("mpu6500 init over");
-
     MPU6500_EnableInt();
+
+    // 陀螺仪任务
+    xTaskCreate(Task_Mpu6500, "Task_Mpu6500", 500, NULL, 6, &TaskHandle_Mpu6500);
 
     // 初始化消息体
     Queue_Test = xQueueCreate(10, sizeof(u32));
+
+    // 建立事件标志组任务
+    EventGroupHandler_YawAngleMode = xEventGroupCreate();
+    xTaskCreate(Task_Event_Group, "Task_Event_Group", 500, NULL, 6, &TaskHandle_Event_Group);
 
     // 建立debug任务
     // xTaskCreate(Task_Debug, "Task_Debug", 500, NULL, 5, &TaskHandle_Debug);
