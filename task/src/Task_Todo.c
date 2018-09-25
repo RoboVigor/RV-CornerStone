@@ -81,13 +81,13 @@ void mainTask(void) {
         Chassis_Limit_Wheel_Speed(Buffer, ArmatureRotateSpeed, MAXWHEELSPEED);
 
         //速度pid,都是rad/s 反馈转子转速
-        PID_Set_Pan_Speed(&LFCMPID, ArmatureRotateSpeed[0], Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
-        PID_Set_Pan_Speed(&LBCMPID, ArmatureRotateSpeed[1], Motor_Feedback.Motor_202_Speed * 2 * 3.14 / 60);
-        PID_Set_Pan_Speed(&RBCMPID, ArmatureRotateSpeed[2], Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
-        PID_Set_Pan_Speed(&RFCMPID, ArmatureRotateSpeed[3], Motor_Feedback.Motor_204_Speed * 2 * 3.14 / 60);
+        PID_Set_Pan_Speed(&PID_LFCM, ArmatureRotateSpeed[0], Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
+        PID_Set_Pan_Speed(&PID_LBCM, ArmatureRotateSpeed[1], Motor_Feedback.Motor_202_Speed * 2 * 3.14 / 60);
+        PID_Set_Pan_Speed(&PID_RBCM, ArmatureRotateSpeed[2], Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
+        PID_Set_Pan_Speed(&PID_RFCM, ArmatureRotateSpeed[3], Motor_Feedback.Motor_204_Speed * 2 * 3.14 / 60);
 
-        Can_Set_CM_Current(CAN1, LFCMPID.output, LBCMPID.output, RBCMPID.output,
-                           RFCMPID.output); //得到电流发送给电调
+        Can_Set_CM_Current(CAN1, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output,
+                           PID_RFCM.output); //得到电流发送给电调
     }
     //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     else if (DBusData.switchLeft == 3) {
@@ -110,14 +110,14 @@ void mainTask(void) {
         Chassis_Limit_Wheel_Speed(Buffer, ArmatureRotateSpeed, MAXWHEELSPEED);
 
         //速度pid
-        PID_Set_Pan_Speed(&LFCMPID, ArmatureRotateSpeed[0], Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
-        PID_Set_Pan_Speed(&LBCMPID, ArmatureRotateSpeed[1], Motor_Feedback.Motor_202_Speed * 2 * 3.14 / 60);
-        PID_Set_Pan_Speed(&RBCMPID, ArmatureRotateSpeed[2], Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
-        PID_Set_Pan_Speed(&RFCMPID, ArmatureRotateSpeed[3],
+        PID_Set_Pan_Speed(&PID_LFCM, ArmatureRotateSpeed[0], Motor_Feedback.Motor_201_Speed * 2 * 3.14 / 60);
+        PID_Set_Pan_Speed(&PID_LBCM, ArmatureRotateSpeed[1], Motor_Feedback.Motor_202_Speed * 2 * 3.14 / 60);
+        PID_Set_Pan_Speed(&PID_RBCM, ArmatureRotateSpeed[2], Motor_Feedback.Motor_203_Speed * 2 * 3.14 / 60);
+        PID_Set_Pan_Speed(&PID_RFCM, ArmatureRotateSpeed[3],
                           Motor_Feedback.Motor_204_Speed * 2 * 3.14 / 60); //都是rad/s 反馈转子转速
 
-        Can_Set_CM_Current(CAN1, LFCMPID.output, LBCMPID.output, RBCMPID.output,
-                           RFCMPID.output); //得到电流发送给电调
+        Can_Set_CM_Current(CAN1, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output,
+                           PID_RFCM.output); //得到电流发送给电调
     }
 }
 
@@ -154,10 +154,10 @@ void mainTask(void) {
 // PANAnglePIDInit(&YawAnglePID, 15, 0, 0);
 
 // // 底盘速度pid初始化
-// PANSpeedPIDInit(&LFCMPID, 12, 0, 0);
-// PANSpeedPIDInit(&LBCMPID, 12, 0, 0);
-// PANSpeedPIDInit(&RBCMPID, 12, 0, 0);
-// PANSpeedPIDInit(&RFCMPID, 12, 0, 0);
+// PANSpeedPIDInit(&PID_LFCM, 12, 0, 0);
+// PANSpeedPIDInit(&PID_LBCM, 12, 0, 0);
+// PANSpeedPIDInit(&PID_RBCM, 12, 0, 0);
+// PANSpeedPIDInit(&PID_RFCM, 12, 0, 0);
 
 // // 钩子角度速度pid初始化
 // HookAnglePIDInit(&Hook_AnglePID, 0, 0, 0);
@@ -172,3 +172,37 @@ void mainTask(void) {
 // // 装甲板单速度pid
 // ArmourSpeedPIDInit(&Armour1_SinglePID_SpeedPID, 1.1, 0, 0);
 // ArmourSpeedPIDInit(&Armour2_SinglePID_SpeedPID, 1, 0, 0);
+
+// 陀螺仪零漂问题
+// float yawAngleOffset              = 0;
+// float yawAngleFeedLast            = 0;
+// float yawAngleDiff                = 0;
+// float yawAngleThreshold           = 0.03;
+// float yawAngleOffsetSampleCounter = 0;
+// float yawAngleOffsetSample        = 0;
+// yawAngleDiff = yawAngleFeed - yawAngleFeedLast;
+// if (ABS(yawAngleDiff) <= yawAngleThreshold) {
+//     yawAngleFeedLast = yawAngleFeed;
+//     if (yawAngleOffsetSampleCounter < 100) {
+//         yawAngleOffsetSample += yawAngleDiff;
+//         yawAngleOffsetSampleCounter++;
+//         continue;
+//     } else if (yawAngleOffsetSampleCounter == 100) {
+//         yawAngleOffset += yawAngleOffsetSample / yawAngleOffsetSampleCounter;
+//         yawAngleOffsetSampleCounter++;
+//         DBusData.ch1 = 0;
+//         DBusData.ch3 = 0;
+//         DBusData.ch4 = 0;
+//     }
+//     yawAngleOffset += yawAngleDiff;
+//     yawAngleFeed = yawAngleFeedLast;
+// } else {
+//     yawAngleOffset += yawAngleDiff;
+//     yawAngleFeedLast = yawAngleFeed;
+// }
+// if (ABS(yawAngleDiff) <= yawAngleThreshold) {
+//     Increment_PID_Calculate(&YawAnglePID, yawAngleFeedLast, yawAngleFeed);   // 计算 yaw 角度 PID
+//     Increment_PID_Calculate(&YawSpeedPID, YawAnglePID.output, yawSpeedFeed); // 计算 yaw 角速度 PID
+// } else {
+//     Increment_PID_Calculate(&YawSpeedPID, DBusData.ch1, yawSpeedFeed); // 计算 yaw 角速度 PID
+// }

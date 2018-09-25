@@ -18,6 +18,9 @@
 #define __HANDLE_EXT extern
 #endif
 
+// MPU650
+__HANDLE_EXT TaskHandle_t TaskHandle_Mpu6500;
+
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
@@ -30,9 +33,10 @@ __HANDLE_EXT uint8_t DBusBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type DBusData, LastDBusData;
 
 // Chassis Control
-__HANDLE_EXT PID_Type LFCMPID, LBCMPID, RBCMPID, RFCMPID, YawAnglePID, YawSpeedPID1, YawSpeedPID2, YawSpeedPID;
+__HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, YawAnglePID, YawSpeedPID1, YawSpeedPID2, YawSpeedPID;
 __HANDLE_EXT ChassisParam_Type ChassisParam;
 __HANDLE_EXT float             yawAngleTarget, yawAngleFeed, yawSpeedFeed, targetYawAngle;
+// __HANDLE_EXT float
 
 // Magic
 __HANDLE_EXT u8 USART_RX_BUF[MAGIC_MAX_LENGTH];
@@ -45,6 +49,15 @@ __HANDLE_EXT TaskHandle_t TaskHandle_Debug;
 __HANDLE_EXT TaskHandle_t TaskHandle_Blink;
 __HANDLE_EXT TaskHandle_t TaskHandle_Chassis;
 __HANDLE_EXT TaskHandle_t TaskHandle_Safe_Mode;
+
+// RTOS - EVENT GROUP
+__HANDLE_EXT TaskHandle_t TaskHandle_Event_Group;
+
+#define EVENTBIT1 1
+#define EVENTBIT2 2
+#define EVENTBIT3 3
+#define EVENTBITALL EVENTBIT1 | EVENTBIT2 | EVENTBIT3
+__HANDLE_EXT EventGroupHandle_t EventGroupHandler_YawAngleMode;
 
 __HANDLE_EXT QueueHandle_t Queue_Test;
 

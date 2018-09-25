@@ -11,7 +11,7 @@ volatile float exInt, eyInt, ezInt;  // 误差积分
 volatile float q0 = 1.0f;
 volatile float q1 = 0.0f;
 volatile float q2 = 0.0f;
-volatile float q3 = 0.0f;
+volatile float q3 = 0.0f;    
 
 volatile float mygetqval[9];	//用于存放传感器转换结果的数组
 static volatile float gx, gy, gz, ax, ay, az, mx, my, mz;   //作用域仅在此文件中
