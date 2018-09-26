@@ -5,7 +5,7 @@
 <h2>Tool Versions:</h2>
 IDE-Version: μVision V5.21.1.0
 Copyright (C) 2016 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: Link Wu Wu, FuXing PS, LIC=Z3CSB-21H71-48BFA-1PZ03-ALN2N-S4CAZ
+License Information: Kelvin Cao, SBC, LIC=DSNGK-ZSSDI-TIJ5L-05SC3-HSE4F-F0YID
  
 Tool Versions:
 Toolchain:       MDK-ARM Professional  Version: 5.21a
@@ -21,20 +21,53 @@ Target DLL:      Segger\JL2CM3.dll V2.99.23.0
 Dialog DLL:      TCM.DLL V1.14.14.0
  
 <h2>Project:</h2>
-C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\Belief exp2.uvprojx
+D:\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\Belief exp2.uvprojx
 Project File Date:  09/26/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-".\Objects\Belief exp2.axf" - 0 Error(s), 0 Warning(s).
+compiling Task_Function.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\task\src\Task_Function.c(18): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Function.c(84): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Function.c(124): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Function.c: 4 warnings, 0 errors
+compiling Task_HighFreq.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\task\src\Task_HighFreq.c(17): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_HighFreq.c(18): warning:  #1-D: last line of file ends without a newline
+  }
+..\task\src\Task_HighFreq.c: 3 warnings, 0 errors
+compiling Task_Debug.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\task\src\Task_Debug.c(33): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Debug.c(49): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Debug.c(59): warning:  #177-D: variable "i" was declared but never referenced
+          u8 i = 0;
+..\task\src\Task_Debug.c(72): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Debug.c: 5 warnings, 0 errors
+linking...
+Program Size: Code=32724 RO-data=836 RW-data=484 ZI-data=83348  
+FromELF: creating hex file...
+".\Objects\Belief exp2.axf" - 0 Error(s), 12 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
-  C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE
-  C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include
+  D:\OneDrive - o0ent3\Files\Robomaster\Repository\RV-CornerStone\mdk\RTE
+  C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.9.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:05
 </pre>
 </body>
 </html>
