@@ -10,8 +10,6 @@ typedef struct {
     int   WheelSpeed[4];
 } ChassisParam_Type;
 
-void Chassis_Get_XYW_Speed(int dir, int Mode);
-
 void Chassis_Limit_Wheel_Speed(int WheelSpeedOrigin[4], int WheelSpeedRes[4], int MaxWheelSpeed);
 
 void Chassis_Set_Wheel_Speed(int XSpeed, int YSpeed, int WSpeed);

@@ -1,39 +1,17 @@
+/**
+ * @brief 调试任务
+ */
+
 #include "main.h"
 
 /**
- * @brief  DBus处理任务
- * @param  void *Parameters
- * @return void
- * 暂时作消息体测试
- */
-
-void Task_DBus(void *Parameters) {
-    u32 data;
-
-    while (1) {
-        if (xQueueReceive(Queue_Test, &data, portMAX_DELAY)) {
-            printf("Received message: %d\r\n", data);
-        } else {
-            printf("Failed");
-        }
-    }
-
-    vTaskDelete(NULL);
-}
-
-/**
  * @brief  调试信息输出任务
- * @param  void *Parameters
- * @return void
- * @todo   无线串口考虑改为定点传输
- * @todo   不在调试模式的时候挂起该任务
- * @todo   当然前提是我们有调试模式了
  */
 
 extern volatile uint32_t ulHighFrequencyTimerTicks;
 int                      taskDebug_Sign = 0;
 
-void Task_Debug(void *Parameters) {
+void Task_RTOSState(void *Parameters) {
     while (1) {
         u8 pcWriteBuffer[1000];
         printf("=========================\r\n");
@@ -57,8 +35,6 @@ void Task_Debug(void *Parameters) {
 
 /**
  * @brief 地面站 串口调试数据 接收函数
- *
- * @param Parameters
  */
 void Task_MagicReceive(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
@@ -75,8 +51,6 @@ void Task_MagicReceive(void *Parameters) {
 
 /**
  * @brief 地面站 反馈数据 发送函数
- *
- * @param Parameters
  */
 void Task_MagicSend(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
@@ -95,23 +69,5 @@ void Task_MagicSend(void *Parameters) {
         taskEXIT_CRITICAL(); // 退出临界段代码
         vTaskDelayUntil(&LastWakeTime, 3000);
     }
-    vTaskDelete(NULL);
-}
-
-/**
- * @brief  安全模式
- * @param  void *Parameters
- * @return void
- */
-void Task_Safe_Mode(void *Parameters) {
-
-    while (1) {
-        if (remoteData.switchRight == 2) {
-            Can_Set_CM_Current(CAN1, 0, 0, 0, 0);
-            vTaskSuspendAll();
-        }
-        vTaskDelay(100);
-    }
-
     vTaskDelete(NULL);
 }

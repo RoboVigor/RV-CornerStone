@@ -191,9 +191,9 @@ void mainTask(void) {
 //     } else if (yawAngleOffsetSampleCounter == 100) {
 //         yawAngleOffset += yawAngleOffsetSample / yawAngleOffsetSampleCounter;
 //         yawAngleOffsetSampleCounter++;
-//         DBusData.ch1 = 0;
-//         DBusData.ch3 = 0;
-//         DBusData.ch4 = 0;
+//         remoteData.ch1 = 0;
+//         remoteData.ch3 = 0;
+//         remoteData.ch4 = 0;
 //     }
 //     yawAngleOffset += yawAngleDiff;
 //     yawAngleFeed = yawAngleFeedLast;
@@ -205,5 +205,5 @@ void mainTask(void) {
 //     Increment_PID_Calculate(&YawAnglePID, yawAngleFeedLast, yawAngleFeed);   // 计算 yaw 角度 PID
 //     Increment_PID_Calculate(&YawSpeedPID, YawAnglePID.output, yawSpeedFeed); // 计算 yaw 角速度 PID
 // } else {
-//     Increment_PID_Calculate(&YawSpeedPID, DBusData.ch1, yawSpeedFeed); // 计算 yaw 角速度 PID
+//     Increment_PID_Calculate(&YawSpeedPID, remoteData.ch1, yawSpeedFeed); // 计算 yaw 角速度 PID
 // }

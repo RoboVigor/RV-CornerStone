@@ -12,18 +12,11 @@
 #include "mpu6500_driver.h"
 #include "mpu6500_interrupt.h"
 
-#include "Task_IRQ.h"
-#include "Task_LOW.h"
-#include "Task_Sys_Init.h"
-
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT
 #else
 #define __HANDLE_EXT extern
 #endif
-
-// MPU650
-__HANDLE_EXT TaskHandle_t TaskHandle_Mpu6500;
 
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
@@ -36,8 +29,8 @@ __HANDLE_EXT volatile CANEncoder_Type Hook_Encoder, Armour1_Encoder, Armour2_Enc
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type remoteData;
 
-// Chassis Control
-__HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, YawAnglePID, YawSpeedPID1, YawSpeedPID2, YawSpeedPID;
+// 底盘
+__HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 __HANDLE_EXT ChassisParam_Type ChassisParam;
 __HANDLE_EXT float             yawAngleTarget, yawAngleFeed, yawSpeedFeed, targetYawAngle;
 // __HANDLE_EXT float
@@ -47,13 +40,6 @@ __HANDLE_EXT u8 USART_RX_BUF[MAGIC_MAX_LENGTH];
 __HANDLE_EXT u16 USART_RX_STA;
 __HANDLE_EXT MagicHandle_Type magic;
 
-// RTOS
-__HANDLE_EXT TaskHandle_t TaskHandle_DBus;
-__HANDLE_EXT TaskHandle_t TaskHandle_Debug;
-__HANDLE_EXT TaskHandle_t TaskHandle_Blink;
-__HANDLE_EXT TaskHandle_t TaskHandle_Chassis;
-__HANDLE_EXT TaskHandle_t TaskHandle_Safe_Mode;
-
 // RTOS - EVENT GROUP
 __HANDLE_EXT TaskHandle_t TaskHandle_Event_Group;
 
@@ -62,7 +48,5 @@ __HANDLE_EXT TaskHandle_t TaskHandle_Event_Group;
 #define EVENTBIT3 3
 #define EVENTBITALL EVENTBIT1 | EVENTBIT2 | EVENTBIT3
 __HANDLE_EXT EventGroupHandle_t EventGroupHandler_YawAngleMode;
-
-__HANDLE_EXT QueueHandle_t Queue_Test;
 
 #endif
