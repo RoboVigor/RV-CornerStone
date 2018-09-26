@@ -16,12 +16,12 @@ int   panPIDMode                      = 1;
 
 void mainTask(void) {
 
-    if (remote.switchRight == 2) {
+    if (remoteData.switchRight == 2) {
         Can_Set_CM_Current(CAN1, 0, 0, 0, 0);
         return;
     }
     Gyroscope_Update_Angle_Data();
-    if (ABS(remote.ch1) < 5) {
+    if (ABS(remoteData.rx) < 5) {
         panPIDMode = 2;
     } else {
         panPIDMode = 1;
@@ -37,22 +37,23 @@ void mainTask(void) {
 
     yawAngleFeedDiff = yawAngleFeed - lastYawAngleFeed;
 
-    if (ABS(remote.ch1) < 10 && ABS(remote.ch3) < 10 && ABS(remote.ch4) < 10)
+    if (ABS(remoteData.rx) < 10 && ABS(remoteData.lx) < 10 && ABS(remoteData.ly) < 10)
     // if(1)
     {
-        if (ABS(yawAngleFeedDiff) < yawAngleFeedThreshold) {
-            yawAngleFeedOffset += yawAngleFeedDiff;
-            yawAngleFeed = lastYawAngleFeed;
-            panPIDMode   = 0;
-            if (yawAngleFeedOffsetSampleCounter < 100) {
-                yawAngleFeedOffsetSample += yawAngleFeedDiff;
-                yawAngleFeedOffsetSampleCounter += 1;
+            if (ABS(yawAngleFeedDiff) < yawAngleFeedThreshold) {
+                yawAngleFeedOffset += yawAngleFeedDiff;
+                yawAngleFeed = lastYawAngleFeed;
+                panPIDMode   = 0;
+                if (yawAngleFeedOffsetSampleCounter < 100) {
+                    yawAngleFeedOffsetSample += yawAngleFeedDiff;
+                    yawAngleFeedOffsetSampleCounter += 1;
+                }
+            } else {
+                lastYawAngleFeed = yawAngleFeed;
             }
-        } else {
-            lastYawAngleFeed = yawAngleFeed;
         }
-    } else {
-        if (remote.switchRight == 1) {
+    else {
+        if (remoteData.switchRight == 1) {
             yawAngleFeedOffset += yawAngleFeedOffsetSample / yawAngleFeedOffsetSampleCounter;
         }
         yawAngleFeed     = EulerAngle.Yaw - yawAngleFeedOffset;
@@ -60,7 +61,7 @@ void mainTask(void) {
         lastYawAngleFeed = yawAngleFeed;
     }
 
-    if (remote.switchLeft == 1) //摄像头朝向丝杆 功能:移动
+    if (remoteData.switchLeft == 1) //摄像头朝向丝杆 功能:移动
     {
 
         TIM_SetCompare1(TIM4, 23);
@@ -90,14 +91,14 @@ void mainTask(void) {
                            CM4PID.output); //得到电流发送给电调
     }
     //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    else if (remote.switchLeft == 3) {
+    else if (remoteData.switchLeft == 3) {
         TIM_SetCompare1(TIM4, 5);
 
         CAN_Update_Encoder_Data(&Hook_Encoder, Motor_Feedback.motor205Angle);
 
         HookFeedAngle = Hook_Encoder.ecdAngle;
 
-        HookSpeedPID(&Hook_SpeedPID, remote.ch2, Motor_Feedback.motor205Speed);
+        HookSpeedPID(&Hook_SpeedPID, remoteData.ry, Motor_Feedback.motor205Speed);
 
         CAN_Set_HookArmour_Speed(CAN2, Hook_SpeedPID.output, 0, 0, 0);
 

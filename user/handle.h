@@ -29,7 +29,7 @@ __HANDLE_EXT volatile CANEncoder_Type Hook_Encoder, Armour1_Encoder, Armour2_Enc
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
-__HANDLE_EXT DBusData_Type remote;
+__HANDLE_EXT DBusData_Type remoteData;
 
 // PanController
 __HANDLE_EXT PID_Type CM1PID, CM2PID, CM3PID, CM4PID, YawAnglePID, YawSpeedPID1, YawSpeedPID2, YawSpeedPID;
