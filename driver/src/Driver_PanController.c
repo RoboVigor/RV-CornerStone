@@ -30,7 +30,7 @@ void Chassis_Update_Mecanum_Data(int buffer[4]) {
 void Chassis_Get_XYW_Speed(int dir, int Mode) {
     yawSpeedFeed = mpu6500_data.gz / 16.4;
 
-    // if(ABS(remote.ch1)<5)
+    // if(ABS(remoteData.rx)<5)
     if (Mode == 2) {
         if (LastMode != 2) {
             YawAnglePID.output_I  = 0;
@@ -41,7 +41,7 @@ void Chassis_Get_XYW_Speed(int dir, int Mode) {
         PID_Calculate(&YawAnglePID, targetYawAngle, yawAngleFeed);
         PID_Calculate(&YawSpeedPID1, YawAnglePID.output, yawSpeedFeed);
 
-        Chassis_Set_Wheel_Speed(-remote.ch4 * dir, remote.ch3 * dir, YawSpeedPID1.output);
+        Chassis_Set_Wheel_Speed(-remoteData.ly * dir, remoteData.lx * dir, YawSpeedPID1.output);
         LastMode = 2;
     } else if (Mode == 1) {
         if (LastMode != 1) {
@@ -50,9 +50,9 @@ void Chassis_Get_XYW_Speed(int dir, int Mode) {
             YawSpeedPID2.output_I = 0;
         }
 
-        PID_Calculate(&YawSpeedPID2, -remote.ch1 / 6, yawSpeedFeed);
+        PID_Calculate(&YawSpeedPID2, -remoteData.rx / 6, yawSpeedFeed);
 
-        Chassis_Set_Wheel_Speed(-remote.ch4 * dir, remote.ch3 * dir, YawSpeedPID2.output);
+        Chassis_Set_Wheel_Speed(-remoteData.ly * dir, remoteData.lx * dir, YawSpeedPID2.output);
 
         LastMode = 1;
     } else if (Mode == 0) {
