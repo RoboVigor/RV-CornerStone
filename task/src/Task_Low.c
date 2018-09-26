@@ -148,9 +148,11 @@ void Task_Event_Group(void *Parameters) {
 }
 
 void Task_Mpu6500(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+
     while (1) {
         Gyroscope_Update_Angle_Data(); // 陀螺仪姿态解算
-        vTaskDelay(1);
+        vTaskDelayUntil(&LastWakeTime, 100);
     }
     vTaskDelete(NULL);
 }
