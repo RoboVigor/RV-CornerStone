@@ -36,8 +36,8 @@ void Task_Chassis(void *Parameters) {
     // int timesToMove = 0;
 
     PID_Init(&ChassisAnglePID1, 1.5, 0, 0, 100); // 1.5// 0.5  -1.755   0.7   1.36
-    PID_Init(&CM1PID, 10, 0, 0, 1200);           // 400//0.04//28
-    CM1PID.maxOutput_I = 5000;
+    PID_Init(&CM1PID, 35, 0.01, 0, 3000);        // 35
+    // CM1PID.maxOutput_I = 5000;
     // PID_Init(&CM2PID, 0, 0, 0, 1000);
     // PID_Init(&CM3PID, 0, 0, 0, 1000);
     // PID_Init(&CM4PID, 0, 0, 0, 1000);
@@ -57,18 +57,19 @@ void Task_Chassis(void *Parameters) {
         // vTaskDelayUntil(&LastWakeTime, 100);
 
         // continue;
-        CM1PID.i = (float) magic.value / 1000.0;
+        // CM1PID.i = (float) magic.value / 1000.0;
+        // CM1PID.p = magic.value;
         CAN_Update_Encoder_Data(&CM1_Encoder, Motor_Feedback.motor201Angle);
 
-        // PID_Calculate(&ChassisAnglePID1, 720, CM1_Encoder.ecdAngle / 19);
-        // PID_Calculate(&CM1PID, ChassisAnglePID1.output, Motor_Feedback.motor201Speed * kFeedback);
+        PID_Calculate(&ChassisAnglePID1, 600, CM1_Encoder.ecdAngle / 19);
+        PID_Calculate(&CM1PID, ChassisAnglePID1.output, Motor_Feedback.motor201Speed * kFeedback);
 
-        debug4 = ChassisAnglePID1.output;
-        debug5 = CM1PID.output;
+        debug4 = CM1_Encoder.ecdAngle / 19;
+        debug5 = ChassisAnglePID1.output;
         debug6 = Motor_Feedback.motor201Speed * kFeedback;
-        debug7 = CM1PID.error;
-        debug8 = CM1_Encoder.ecdAngle / 19;
-        _Set_CM_Current(200);
+        debug7 = CM1PID.output;
+        debug8 = 720;
+        _Set_CM_Current(CM1PID.output);
         // Can2_Set_CM_Current(CAN2, 500, 0, 0, 0);
 
         vTaskDelayUntil(&LastWakeTime, 5);
