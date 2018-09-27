@@ -59,7 +59,7 @@ int PID_Calculate(PID_Type *pid, float target, float feedback) {
     return pid->output;
 }
 
-int Increment_PID_Calculate(PID_Type *pid, float target, float feedback) {
+int PID_Increment_Calculate(PID_Type *pid, float target, float feedback) {
     pid->target   = target;
     pid->feedback = feedback;
 
@@ -72,4 +72,13 @@ int Increment_PID_Calculate(PID_Type *pid, float target, float feedback) {
     pid->lastError = pid->error;
 
     return pid->output;
+}
+
+/**
+ * @brief 输出PID参量
+ *
+ * @param pid
+ */
+void PID_Print(PID_Type *pid) {
+    printf("PID(%f, %f, %d)\r\n", pid->target, pid->feedback, pid->output);
 }

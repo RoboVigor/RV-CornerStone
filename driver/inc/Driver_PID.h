@@ -30,6 +30,7 @@ typedef struct {
 
 void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput, float maxOutput_I);
 int  PID_Calculate(PID_Type *pid, float target, float feedback);
-int  Increment_PID_Calculate(PID_Type *pid, float target, float feedback);
+int  PID_Increment_Calculate(PID_Type *pid, float target, float feedback);
+void PID_Print(PID_Type *pid);
 
 #endif
