@@ -15,7 +15,7 @@
         <TargetCommonOption>
           <Device>STM32F427II</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.1.0.8</PackID>
+          <PackID>Keil.STM32F4xx_DFP.2.9.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x200000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -640,19 +640,24 @@
           <GroupName>task</GroupName>
           <Files>
             <File>
-              <FileName>Task_IRQ.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\task\src\Task_IRQ.c</FilePath>
-            </File>
-            <File>
-              <FileName>Task_Low.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\task\src\Task_Low.c</FilePath>
-            </File>
-            <File>
               <FileName>Task_Sys_Init.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\task\src\Task_Sys_Init.c</FilePath>
+            </File>
+            <File>
+              <FileName>Task_Debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\task\src\Task_Debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>Task_Function.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\task\src\Task_Function.c</FilePath>
+            </File>
+            <File>
+              <FileName>Task_HighFreq.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\task\src\Task_HighFreq.c</FilePath>
             </File>
           </Files>
         </Group>
