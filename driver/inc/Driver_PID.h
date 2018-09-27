@@ -19,16 +19,12 @@ typedef struct {
     float error;
     float lastError;
 
-    // output0
+    // output
     float output_P;
     float output_I;
     float output_D;
     int   output;
     int   lastOutput;
-
-    // int Iindex;   //删除
-    // int PIDindex; //删除
-    // int Portion;  //删除
 
 } PID_Type;
 

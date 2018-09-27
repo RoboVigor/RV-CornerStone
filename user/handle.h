@@ -40,13 +40,4 @@ __HANDLE_EXT u8 USART_RX_BUF[MAGIC_MAX_LENGTH];
 __HANDLE_EXT u16 USART_RX_STA;
 __HANDLE_EXT MagicHandle_Type magic;
 
-// RTOS - EVENT GROUP
-__HANDLE_EXT TaskHandle_t TaskHandle_Event_Group;
-
-#define EVENTBIT1 1
-#define EVENTBIT2 2
-#define EVENTBIT3 3
-#define EVENTBITALL EVENTBIT1 | EVENTBIT2 | EVENTBIT3
-__HANDLE_EXT EventGroupHandle_t EventGroupHandler_YawAngleMode;
-
 #endif
