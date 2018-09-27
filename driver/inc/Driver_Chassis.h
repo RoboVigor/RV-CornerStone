@@ -12,8 +12,8 @@ typedef struct {
 
 void Chassis_Set_Speed(float XSpeed, float YSpeed, float WSpeed);
 
-void Chassis_Update_Wheel_Speed(int result[4]);
+void Chassis_Get_Rotor_Speed(int rotorSpeed[4]);
 
-void Chassis_Limit_Wheel_Speed(int WheelSpeedOrigin[4], int WheelSpeedRes[4]);
+void Chassis_Limit_Rotor_Speed(int wheelSpeed[4], int rotorSpeed[4]);
 
 #endif
