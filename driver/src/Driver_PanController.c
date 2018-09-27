@@ -6,17 +6,17 @@
 ChassisParam_Type ChassisParam;
 
 /**
- * @brief 配置小车整体 XYZ 三个轴的速度
+ * @brief 配置小车整体 XYW 三个轴的速度
  * @detail
  *
  * @param XSpeed
  * @param YSpeed
  * @param WSpeed
  */
-void Chassis_Set_Speed(int XSpeed, int YSpeed, int WSpeed) {
-    ChassisParam.TargetVX = (float) XSpeed / 660 * 1;
-    ChassisParam.TargetVY = (float) YSpeed / 660 * 1;
-    ChassisParam.TargetWR = -(float) WSpeed / 660 * 0.5; // 4*1.5*2
+void Chassis_Set_Speed(float XSpeed, float YSpeed, float WSpeed) {
+    ChassisParam.TargetVX = XSpeed;
+    ChassisParam.TargetVY = YSpeed;
+    ChassisParam.TargetWR = WSpeed;
 }
 
 /**
@@ -38,28 +38,28 @@ void Chassis_Update_Wheel_Speed(int result[4]) {
     wheelSpeed[3] = -CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
                     ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * CHASSIS_SIZE_K);
     // 限速
-    Chassis_Limit_Wheel_Speed(wheelSpeed, result, CHASSIS_MAX_WHEEL_SPEED);
+    Chassis_Limit_Wheel_Speed(wheelSpeed, result);
 }
 /**
  * @brief 按比例限速
- * @note 需要评估
  *
  * @param WheelSpeedOrigin
  * @param WheelSpeedRes
- * @param MaxWheelSpeed
  */
-void Chassis_Limit_Wheel_Speed(int WheelSpeedOrigin[4], int WheelSpeedRes[4], int MaxWheelSpeed) {
+void Chassis_Limit_Wheel_Speed(int WheelSpeedOrigin[4], int WheelSpeedRes[4]) {
     float MaxSpeed = 0;
     float Param    = 0;
     int   index    = 0;
 
+    // 打擂台获得麦轮速度最大值
     for (; index < 4; index++) {
         if (ABS(WheelSpeedOrigin[index]) > MaxSpeed) {
             MaxSpeed = ABS(WheelSpeedOrigin[index]);
         }
     }
 
-    if (CHASSIS_MAX_WHEEL_SPEED < MaxSpeed) {
+    // 进行限幅
+    if (MaxSpeed > CHASSIS_MAX_WHEEL_SPEED) {
         Param            = (float) CHASSIS_MAX_WHEEL_SPEED / MaxSpeed;
         WheelSpeedRes[0] = WheelSpeedOrigin[0] * Param;
         WheelSpeedRes[1] = WheelSpeedOrigin[1] * Param;
