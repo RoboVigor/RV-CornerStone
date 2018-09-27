@@ -24,11 +24,12 @@ void Task_Blink(void *Parameters) {
 
 void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    int        Buffer[4];                          // 麦轮解算后四个麦轮各自的速度
-    int        WheelSpeedRes[4];                   // 限幅后四个麦轮各自的速度
-    float      kFeedback = 3.14 / 60;              // 转子的转速(RPM,RoundPerMinute)换算成角速度(rad/s)
-    int        mode      = 2;                      // 底盘运动模式,1直线,2转弯
-    int        lastMode  = 2;                      // 上一次的运动模式
+    int        wheelSpeed[4];                      // 麦轮速度
+    float      kFeedback      = 3.14 / 60;         // 转子的转速(RPM,RoundPerMinute)换算成角速度(rad/s)
+    int        mode           = 2;                 // 底盘运动模式,1直线,2转弯
+    int        lastMode       = 2;                 // 上一次的运动模式
+    float      yawAngleTarget = 0;                 // 目标值
+    float      yawAngleFeed, yawSpeedFeed;         // 反馈值
 
     // 初始化麦轮角速度PID
     PID_Init(&PID_LFCM, 15, 0.3, 0, 4000, 2000);
@@ -45,6 +46,10 @@ void Task_Chassis(void *Parameters) {
         // 更新运动模式
         mode = ABS(remoteData.ch1) < 5 ? 1 : 2;
 
+        // 设置反馈值
+        yawAngleFeed = EulerAngle.Yaw;         // 航向角角度反馈
+        yawSpeedFeed = mpu6500_data.gz / 16.4; // 航向角角速度反馈
+
         // 切换运动模式
         if (mode != lastMode) {
             PID_YawAngle.output_I = 0;            // 清空角度PID积分
@@ -52,10 +57,6 @@ void Task_Chassis(void *Parameters) {
             yawAngleTarget        = yawAngleFeed; // 更新角度PID目标值
             lastMode              = mode;         // 更新lastMode
         }
-
-        // 设置反馈值
-        yawAngleFeed = EulerAngle.Yaw;         // 航向角角度反馈
-        yawSpeedFeed = mpu6500_data.gz / 16.4; // 航向角角速度反馈
 
         // 根据运动模式计算PID
         if (mode == 1) {
@@ -65,18 +66,17 @@ void Task_Chassis(void *Parameters) {
             PID_Calculate(&PID_YawSpeed, -remoteData.ch1, yawSpeedFeed); // 计算航向角角速度PID
         }
 
-        // 设置底盘移动速度分量
-        Chassis_Set_Wheel_Speed(remoteData.ch4, -remoteData.ch3, -PID_YawSpeed.output);
+        // 设置底盘总体移动速度
+        Chassis_Set_Speed(remoteData.ch4, -remoteData.ch3, -PID_YawSpeed.output);
 
-        // 麦轮解算&限幅
-        Chassis_Update_Mecanum_Data(Buffer);
-        Chassis_Limit_Wheel_Speed(Buffer, WheelSpeedRes, CHASSIS_MAX_WHEEL_SPEED);
+        // 麦轮解算&限幅,获得轮子转速
+        Chassis_Update_Wheel_Speed(wheelSpeed);
 
         // 计算输出电流PID
-        PID_Calculate(&PID_LFCM, WheelSpeedRes[0], Motor_Feedback.motor201Speed * kFeedback);
-        PID_Calculate(&PID_LBCM, WheelSpeedRes[3], Motor_Feedback.motor202Speed * kFeedback);
-        PID_Calculate(&PID_RBCM, WheelSpeedRes[2], Motor_Feedback.motor203Speed * kFeedback);
-        PID_Calculate(&PID_RFCM, WheelSpeedRes[1], Motor_Feedback.motor204Speed * kFeedback);
+        PID_Calculate(&PID_LFCM, wheelSpeed[0], Motor_Feedback.motor201Speed * kFeedback);
+        PID_Calculate(&PID_RFCM, wheelSpeed[1], Motor_Feedback.motor204Speed * kFeedback);
+        PID_Calculate(&PID_RBCM, wheelSpeed[2], Motor_Feedback.motor203Speed * kFeedback);
+        PID_Calculate(&PID_LBCM, wheelSpeed[3], Motor_Feedback.motor202Speed * kFeedback);
 
         // 输出电流值到电调
         Can_Set_CM_Current(CAN1, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);

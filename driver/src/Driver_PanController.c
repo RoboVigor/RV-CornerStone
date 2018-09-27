@@ -1,14 +1,9 @@
 #include "Driver_PanController.h"
-
 #include "macro.h"
 #include "config.h"
 #include "handle.h"
 
-int LastMode = 0;
-
-void Chassis_Init_Yaw_Angle(void) {
-    targetYawAngle = 0;
-}
+ChassisParam_Type ChassisParam;
 
 /**
  * @brief 配置小车整体 XYZ 三个轴的速度
@@ -18,7 +13,7 @@ void Chassis_Init_Yaw_Angle(void) {
  * @param YSpeed
  * @param WSpeed
  */
-void Chassis_Set_Wheel_Speed(int XSpeed, int YSpeed, int WSpeed) {
+void Chassis_Set_Speed(int XSpeed, int YSpeed, int WSpeed) {
     ChassisParam.TargetVX = (float) XSpeed / 660 * 1;
     ChassisParam.TargetVY = (float) YSpeed / 660 * 1;
     ChassisParam.TargetWR = -(float) WSpeed / 660 * 0.5; // 4*1.5*2
@@ -27,21 +22,32 @@ void Chassis_Set_Wheel_Speed(int XSpeed, int YSpeed, int WSpeed) {
 /**
  * @brief 麦克纳姆轮解算
  * @detail 电机位置：左上角 0 ，逆时针，依次增加
- * @detail 转子的角速度 / 19 = 轮子角速度 (rad/s)
+ * @detail 转子的角速度 / 电机减速比 = 轮子角速度 (rad/s)
  *
- * @param buffer
+ * @param result[4] 返回值,轮子速度
  * */
-void Chassis_Update_Mecanum_Data(int buffer[4]) {
-    buffer[0] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
-                ((ChassisParam.TargetVX) - (ChassisParam.TargetVY) + ChassisParam.TargetWR * -CHASSIS_SIZE_K);
-    buffer[1] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
-                ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * -CHASSIS_SIZE_K);
-    buffer[2] = -CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
-                (ChassisParam.TargetVX - (ChassisParam.TargetVY) + ChassisParam.TargetWR * CHASSIS_SIZE_K);
-    buffer[3] = -CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
-                ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * CHASSIS_SIZE_K);
+void Chassis_Update_Wheel_Speed(int result[4]) {
+    int wheelSpeed[4];
+    // 麦克纳姆轮解算
+    wheelSpeed[0] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
+                    ((ChassisParam.TargetVX) - (ChassisParam.TargetVY) + ChassisParam.TargetWR * -CHASSIS_SIZE_K);
+    wheelSpeed[1] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
+                    ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * -CHASSIS_SIZE_K);
+    wheelSpeed[2] = -CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
+                    (ChassisParam.TargetVX - (ChassisParam.TargetVY) + ChassisParam.TargetWR * CHASSIS_SIZE_K);
+    wheelSpeed[3] = -CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
+                    ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * CHASSIS_SIZE_K);
+    // 限速
+    Chassis_Limit_Wheel_Speed(wheelSpeed, result, CHASSIS_MAX_WHEEL_SPEED);
 }
-
+/**
+ * @brief 按比例限速
+ * @note 需要评估
+ *
+ * @param WheelSpeedOrigin
+ * @param WheelSpeedRes
+ * @param MaxWheelSpeed
+ */
 void Chassis_Limit_Wheel_Speed(int WheelSpeedOrigin[4], int WheelSpeedRes[4], int MaxWheelSpeed) {
     float MaxSpeed = 0;
     float Param    = 0;

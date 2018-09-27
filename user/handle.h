@@ -29,15 +29,12 @@ __HANDLE_EXT volatile CANEncoder_Type Hook_Encoder, Armour1_Encoder, Armour2_Enc
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type remoteData;
 
-// 底盘
-__HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
-__HANDLE_EXT ChassisParam_Type ChassisParam;
-__HANDLE_EXT float             yawAngleTarget, yawAngleFeed, yawSpeedFeed, targetYawAngle;
-// __HANDLE_EXT float
-
 // Magic
 __HANDLE_EXT u8 USART_RX_BUF[MAGIC_MAX_LENGTH];
 __HANDLE_EXT u16 USART_RX_STA;
 __HANDLE_EXT MagicHandle_Type magic;
+
+// Task_Chassis
+__HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
 #endif
