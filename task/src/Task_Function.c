@@ -68,6 +68,9 @@ void Task_Chassis(void *Parameters) {
             Chassis_Set_Wheel_Speed(remoteData.ch4, -remoteData.ch3, PID_YawSpeed.output); // 配置小车整体 XYZ 三个轴的速度
         }
 
+        // PID_Calculate(&PID_YawSpeed, remoteData.ch1, yawSpeedFeed);                    // 计算 yaw 角速度 PID
+        // Chassis_Set_Wheel_Speed(remoteData.ch4, -remoteData.ch3, PID_YawSpeed.output); // 配置小车整体 XYZ 三个轴的速度
+
         Chassis_Update_Mecanum_Data(Buffer);                                       // 麦轮解算
         Chassis_Limit_Wheel_Speed(Buffer, WheelSpeedRes, CHASSIS_MAX_WHEEL_SPEED); // 限幅
 
@@ -78,7 +81,7 @@ void Task_Chassis(void *Parameters) {
 
         Can_Set_CM_Current(CAN1, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output); // 输出电流值到电调
 
-        vTaskDelayUntil(&LastWakeTime, 100);
+        vTaskDelayUntil(&LastWakeTime, 50);
     }
 
     vTaskDelete(NULL);
