@@ -39,7 +39,7 @@ void Task_RTOSState(void *Parameters) {
 void Task_MagicReceive(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    Magic_Init_Handle(&magic, 2); // 初始化调试数据的默认值
+    Magic_Init_Handle(&magic, 15); // 初始化调试数据的默认值
     while (1) {
         taskENTER_CRITICAL();          // 进入临界段代码（在不进入的情况下有被抢占的情况）
         Magic_Get_Debug_Value(&magic); // 接收调试数据

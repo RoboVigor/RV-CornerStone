@@ -27,27 +27,112 @@ Project File Date:  09/27/2018
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
+compiling BSP_DMA.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\bsp\src\BSP_DMA.c: 1 warning, 0 errors
+compiling main.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\user\main.c: 1 warning, 0 errors
+compiling stm32f4xx_it.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\user\stm32f4xx_it.c(15): warning:  #550-D: variable "UARTtemp" was set but never used
+      uint8_t UARTtemp;
+..\user\stm32f4xx_it.c: 2 warnings, 0 errors
+compiling Driver_DBUS.c...
+compiling Driver_Angular.c...
+..\driver\src\Driver_Angular.c(73): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	a_speed[1] = (float)((mpu6500_data.gx / 
+YRO_LSB) * 
+I / 180);
+..\driver\src\Driver_Angular.c(74): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	a_speed[2] = (float)((mpu6500_data.gy / 
+YRO_LSB) * 
+I / 180);
+..\driver\src\Driver_Angular.c(75): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	a_speed[3] = (float)((mpu6500_data.gz / 
+YRO_LSB) * 
+I / 180);
+..\driver\src\Driver_Angular.c(146): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		e_angle[1] -= 180.0;
+..\driver\src\Driver_Angular.c(148): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		e_angle[1] += 180.0;
+..\driver\src\Driver_Angular.c(236): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	SS_para1 = 0.5 * (-a_num[ix] * q_num[ix] - a_num[iy] * q_num[iy] - a_num[iz] * q_num[iz]);
+..\driver\src\Driver_Angular.c(237): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	SS_para2 = 0.5 * (a_num[ix] * q_num[mag] + a_num[iz] * q_num[iy] - a_num[iy] * q_num[iz]);
+..\driver\src\Driver_Angular.c(238): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	SS_para3 = 0.5 * (a_num[iy] * q_num[mag] - a_num[iz] * q_num[ix] - a_num[ix] * q_num[iz]);
+..\driver\src\Driver_Angular.c(239): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	SS_para4 = 0.5 * (a_num[iz] * q_num[mag] + a_num[iy] * q_num[ix] - a_num[ix] * q_num[iy]);
+..\driver\src\Driver_Angular.c(304): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	if (T11 < 0.01 && T11 > -0.01)
+..\driver\src\Driver_Angular.c(311): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	else if (T11 >= 0.01)
+..\driver\src\Driver_Angular.c(319): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	if (T33 < 0.01 && T33 > -0.01)
+..\driver\src\Driver_Angular.c(326): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	else if (T11 >= 0.01)
+..\driver\src\Driver_Angular.c: 13 warnings, 0 errors
+compiling Driver_PanController.c...
+..\driver\src\Driver_PanController.c(24): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+      ChassisParam.TargetWR = -(float) WSpeed / 660 * 0.5; // 4*1.5*2
+..\driver\src\Driver_PanController.c(40): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                  (ChassisParam.TargetVX - (ChassisParam.TargetVY) + ChassisParam.TargetWR * 
+HASSIS_SIZE_K);
+..\driver\src\Driver_PanController.c(42): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                  ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * 
+HASSIS_SIZE_K);
+..\driver\src\Driver_PanController.c: 3 warnings, 0 errors
+compiling Driver_PID.c...
+compiling Task_Sys_Init.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\task\src\Task_Sys_Init.c: 1 warning, 0 errors
+compiling Driver_Magic.c...
+compiling Task_Debug.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\task\src\Task_Debug.c(33): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Debug.c(49): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Debug.c(59): warning:  #177-D: variable "i" was declared but never referenced
+          u8 i = 0;
+..\task\src\Task_Debug.c(72): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Debug.c: 5 warnings, 0 errors
 compiling Task_Function.c...
 ..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
   #include "key.h"
 ..\task\src\Task_Function.c(18): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Function.c(87): warning:  #111-D: statement is unreachable
+..\task\src\Task_Function.c(94): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Function.c(127): warning:  #111-D: statement is unreachable
+..\task\src\Task_Function.c(134): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
 ..\task\src\Task_Function.c: 4 warnings, 0 errors
+compiling Task_HighFreq.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\task\src\Task_HighFreq.c(17): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_HighFreq.c(18): warning:  #1-D: last line of file ends without a newline
+  }
+..\task\src\Task_HighFreq.c: 3 warnings, 0 errors
 linking...
-Program Size: Code=32724 RO-data=836 RW-data=484 ZI-data=83348  
+Program Size: Code=32524 RO-data=836 RW-data=480 ZI-data=83352  
 FromELF: creating hex file...
-".\Objects\Belief exp2.axf" - 0 Error(s), 4 Warning(s).
+".\Objects\Belief exp2.axf" - 0 Error(s), 33 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   D:\Repository\RV-CornerStone\mdk\RTE
   C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.9.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:03
+Build Time Elapsed:  00:00:10
 </pre>
 </body>
 </html>

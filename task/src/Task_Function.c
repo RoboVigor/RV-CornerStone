@@ -29,47 +29,54 @@ void Task_Chassis(void *Parameters) {
     float      kFeedback = 3.14 / 60;              // 转子的转速(round/min)换算成角速度(rad/s)
 
     // 初始化麦轮角速度 PID
-    PID_Init(&PID_LFCM, 12, 0.2, 0, 4000, 1500); // 12 0.2
-    PID_Init(&PID_LBCM, 12, 0.2, 0, 4000, 1500);
-    PID_Init(&PID_RBCM, 12, 0.2, 0, 4000, 1500);
-    PID_Init(&PID_RFCM, 12, 0.2, 0, 4000, 1500);
+    PID_Init(&PID_LFCM, 30, 0, 0, 4000, 1500); // 12 0.2
+    PID_Init(&PID_LBCM, 30, 0, 0, 4000, 1500);
+    PID_Init(&PID_RBCM, 30, 0, 0, 4000, 1500);
+    PID_Init(&PID_RFCM, 30, 0, 0, 4000, 1500);
 
-    PID_Init(&PID_YawAngle, 8, 0, 0, 1000, 1000); // 初始化 yaw 角度 PID(2)
+    PID_Init(&PID_YawAngle, 0, 0, 0, 1000, 1000); // 初始化 yaw 角度 PID(2)
     PID_Init(&PID_YawSpeed, 8, 0, 0, 4000, 1000); // 初始化 yaw 角速度 PID(15)
 
     while (1) {
+
+        // For magic debug
+        PID_LFCM.p = magic.value;
+        PID_LBCM.p = magic.value;
+        PID_RBCM.p = magic.value;
+        PID_RFCM.p = magic.value;
 
         // 设置反馈值
         yawAngleFeed = EulerAngle.Yaw;         // yaw 角度反馈
         yawSpeedFeed = mpu6500_data.gz / 16.4; // yaw 角速度反馈
 
         // 运动模式判断 1直线 2转弯
-        if (ABS(remoteData.ch1) < 5) {
-            //直线模式
-            // xEventGroupSetBits(EventGroupHandler_YawAngleMode, EVENTBIT1);
-            if (yawAngleMode == 2) {
-                PID_YawAngle.output_I = 0;
-                PID_YawSpeed.output_I = 0;
-                yawAngleTarget        = yawAngleFeed;
-            }
-            yawAngleMode = 1;
-            PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngleFeed);                    // 计算 yaw 角度 PID
-            PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeedFeed);               // 计算 yaw 角速度 PID
-            Chassis_Set_Wheel_Speed(remoteData.ch4, -remoteData.ch3, PID_YawSpeed.output); // 配置小车整体 XYZ 三个轴的速度
-        } else {
-            //转弯模式
-            // xEventGroupSetBits(EventGroupHandler_YawAngleMode, EVENTBIT2);
-            if (yawAngleMode == 1) {
-                PID_YawAngle.output_I = 0;
-                PID_YawSpeed.output_I = 0;
-            }
-            yawAngleMode = 2;
-            PID_Calculate(&PID_YawSpeed, remoteData.ch1, yawSpeedFeed);                    // 计算 yaw 角速度 PID
-            Chassis_Set_Wheel_Speed(remoteData.ch4, -remoteData.ch3, PID_YawSpeed.output); // 配置小车整体 XYZ 三个轴的速度
-        }
+        // if (ABS(remoteData.ch1) < 5) {
+        //     //直线模式
+        //     // xEventGroupSetBits(EventGroupHandler_YawAngleMode, EVENTBIT1);
+        //     if (yawAngleMode == 2) {
+        //         PID_YawAngle.output_I = 0;
+        //         PID_YawSpeed.output_I = 0;
+        //         yawAngleTarget        = yawAngleFeed;
+        //     }
+        //     yawAngleMode = 1;
+        //     PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngleFeed);                    // 计算 yaw 角度 PID
+        //     PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeedFeed);               // 计算 yaw 角速度 PID
+        //     Chassis_Set_Wheel_Speed(remoteData.ch4, -remoteData.ch3, PID_YawSpeed.output); // 配置小车整体 XYZ 三个轴的速度
+        // } else {
+        //     //转弯模式
+        //     // xEventGroupSetBits(EventGroupHandler_YawAngleMode, EVENTBIT2);
+        //     if (yawAngleMode == 1) {
+        //         PID_YawAngle.output_I = 0;
+        //         PID_YawSpeed.output_I = 0;
+        //     }
+        //     yawAngleMode = 2;
+        //     PID_Calculate(&PID_YawSpeed, remoteData.ch1, yawSpeedFeed);                    // 计算 yaw 角速度 PID
+        //     Chassis_Set_Wheel_Speed(remoteData.ch4, -remoteData.ch3, PID_YawSpeed.output); // 配置小车整体 XYZ 三个轴的速度
+        // }
 
-        // PID_Calculate(&PID_YawSpeed, remoteData.ch1, yawSpeedFeed);                    // 计算 yaw 角速度 PID
-        // Chassis_Set_Wheel_Speed(remoteData.ch4, -remoteData.ch3, PID_YawSpeed.output); // 配置小车整体 XYZ 三个轴的速度
+        // For speed pid debug
+        PID_Calculate(&PID_YawSpeed, remoteData.ch1, yawSpeedFeed);                    // 计算 yaw 角速度 PID
+        Chassis_Set_Wheel_Speed(remoteData.ch4, -remoteData.ch3, PID_YawSpeed.output); // 配置小车整体 XYZ 三个轴的速度
 
         Chassis_Update_Mecanum_Data(Buffer);                                       // 麦轮解算
         Chassis_Limit_Wheel_Speed(Buffer, WheelSpeedRes, CHASSIS_MAX_WHEEL_SPEED); // 限幅
@@ -81,7 +88,7 @@ void Task_Chassis(void *Parameters) {
 
         Can_Set_CM_Current(CAN1, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output); // 输出电流值到电调
 
-        vTaskDelayUntil(&LastWakeTime, 50);
+        vTaskDelayUntil(&LastWakeTime, 5);
     }
 
     vTaskDelete(NULL);
