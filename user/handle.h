@@ -21,14 +21,15 @@ __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // CAN
 __HANDLE_EXT MotorFeedback_Type       Motor_Feedback;
-__HANDLE_EXT volatile CANEncoder_Type Hook_Encoder, Armour1_Encoder, Armour2_Encoder, CM1_Encoder;
+__HANDLE_EXT volatile CANEncoder_Type CM1_Encoder, CM2_Encoder, CM3_Encoder, CM4_Encoder;
 
 // Dbus
 __HANDLE_EXT uint8_t DBusBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type DBusData, LastDBusData;
 
 // PanController
-__HANDLE_EXT PID_Type CM1PID, CM2PID, CM3PID, CM4PID, YawAnglePID, YawSpeedPID1, YawSpeedPID2, YawSpeedPID, ChassisAnglePID1, CM5PID, CM6PID, CM7PID, CM8PID;
+__HANDLE_EXT PID_Type CM1PID, CM2PID, CM3PID, CM4PID, YawAnglePID, YawSpeedPID1, YawSpeedPID2, YawSpeedPID, ChassisAnglePID1, CM5PID, CM6PID, CM7PID, CM8PID,
+    ChassisAnglePID2, ChassisAnglePID3, ChassisAnglePID4;
 __HANDLE_EXT ChassisParam_Type ChassisParam;
 __HANDLE_EXT float             targetYawAngle, yawAngleFeed, yawSpeedFeed;
 

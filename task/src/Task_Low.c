@@ -35,14 +35,21 @@ void Task_Chassis(void *Parameters) {
     int   minCurrentToMove = 600;
     // int timesToMove = 0;
 
-    PID_Init(&ChassisAnglePID1, 1.5, 0, 0, 100); // 1.5// 0.5  -1.755   0.7   1.36
-    PID_Init(&CM1PID, 35, 0.01, 0, 3000);        // 35
+    PID_Init(&ChassisAnglePID1, 1.5, 0, 0, 100); // 1.5
+    PID_Init(&ChassisAnglePID2, 1.5, 0, 0, 100); // 1.5
+
+    PID_Init(&CM1PID, 55, 0.01, 0, 5000); // 35   0.01 //空载情况最佳状态p=35  下地状态p=55时大致可以驱动
+    PID_Init(&CM2PID, 55, 0.01, 0, 5000); // 35   0.01
+
     // CM1PID.maxOutput_I = 5000;
     // PID_Init(&CM2PID, 0, 0, 0, 1000);
     // PID_Init(&CM3PID, 0, 0, 0, 1000);
     // PID_Init(&CM4PID, 0, 0, 0, 1000);
     CM1_Encoder.ecdBias = Motor_Feedback.motor201Angle;
+    CM2_Encoder.ecdBias = Motor_Feedback.motor202Angle;
+
     CAN_Get_Encoder_Bias(&CM1_Encoder);
+    CAN_Get_Encoder_Bias(&CM2_Encoder);
 
     while (1) {
 
@@ -60,16 +67,22 @@ void Task_Chassis(void *Parameters) {
         // CM1PID.i = (float) magic.value / 1000.0;
         // CM1PID.p = magic.value;
         CAN_Update_Encoder_Data(&CM1_Encoder, Motor_Feedback.motor201Angle);
+        CAN_Update_Encoder_Data(&CM2_Encoder, Motor_Feedback.motor202Angle);
+        // CAN_Update_Encoder_Data(&CM1_Encoder, Motor_Feedback.motor203Angle);
+        // CAN_Update_Encoder_Data(&CM1_Encoder, Motor_Feedback.motor204Angle);
 
         PID_Calculate(&ChassisAnglePID1, 600, CM1_Encoder.ecdAngle / 19);
+        PID_Calculate(&ChassisAnglePID2, -600, CM2_Encoder.ecdAngle / 19);
+
         PID_Calculate(&CM1PID, ChassisAnglePID1.output, Motor_Feedback.motor201Speed * kFeedback);
+        PID_Calculate(&CM2PID, ChassisAnglePID2.output, Motor_Feedback.motor202Speed * kFeedback);
 
         debug4 = CM1_Encoder.ecdAngle / 19;
         debug5 = ChassisAnglePID1.output;
         debug6 = Motor_Feedback.motor201Speed * kFeedback;
         debug7 = CM1PID.output;
         debug8 = 720;
-        _Set_CM_Current(CM1PID.output);
+        _Set_CM_Current(CM1PID.output, CM2PID.output);
         // Can2_Set_CM_Current(CAN2, 500, 0, 0, 0);
 
         vTaskDelayUntil(&LastWakeTime, 5);
@@ -106,20 +119,32 @@ void Task_Wheel(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void _Set_CM_Current(int16_t i_201) {
+void _Set_CM_Current(int16_t i_201, int16_t i_202) {
     int minCurrent    = 900;  // 250
     int currentToMove = 2000; // 1500
     int threshold     = 850;
     if (ABS(i_201) > threshold) {
         if (Motor_Feedback.motor201Speed == 0) {
-            Can_Set_CM_Current(CAN1, currentToMove, 0, 0, 0);
+            Can_Set_CM_Current(CAN1, currentToMove, i_202, 0, 0);
         } else {
             if (i_201 < 0 && i_201 > -minCurrent) i_201 = -minCurrent;
             if (i_201 > 0 && i_201 < minCurrent) i_201 = minCurrent;
 
-            Can_Set_CM_Current(CAN1, i_201, 0, 0, 0);
+            Can_Set_CM_Current(CAN1, i_201, i_202, 0, 0);
         }
     } else {
-        Can_Set_CM_Current(CAN1, i_201, 0, 0, 0);
+        Can_Set_CM_Current(CAN1, i_201, i_202, 0, 0);
+    }
+    if (ABS(i_202) > threshold) {
+        if (Motor_Feedback.motor202Speed == 0) {
+            Can_Set_CM_Current(CAN1, i_201, currentToMove, 0, 0);
+        } else {
+            if (i_202 < 0 && i_202 > -minCurrent) i_202 = -minCurrent;
+            if (i_202 > 0 && i_202 < minCurrent) i_202 = minCurrent;
+
+            Can_Set_CM_Current(CAN1, i_201, i_202, 0, 0);
+        }
+    } else {
+        Can_Set_CM_Current(CAN1, i_201, i_202, 0, 0);
     }
 }

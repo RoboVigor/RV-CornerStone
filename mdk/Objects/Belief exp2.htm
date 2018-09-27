@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\Belief exp2.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\Belief exp2.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050106: Last Updated: Wed Sep 26 21:25:56 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050106: Last Updated: Thu Sep 27 19:13:32 2018
 <BR><P>
 <H3>Maximum Stack Usage =        336 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -649,8 +649,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_errno_addr
 </UL>
-<BR>[Called By]<UL><LI><a href="#[110]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sqrt
-<LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_pow
+<BR>[Called By]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_pow
+<LI><a href="#[110]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sqrt
 </UL>
 
 <P><STRONG><a name="[93]"></a>_printf_int_common</STRONG> (Thumb, 178 bytes, Stack size 32 bytes, _printf_intcommon.o(.text))
@@ -1442,8 +1442,8 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> task_sys_init.o(i.Task_Sys_Init)
 </UL>
-<P><STRONG><a name="[6e]"></a>Task_Chassis</STRONG> (Thumb, 262 bytes, Stack size 16 bytes, task_low.o(i.Task_Chassis))
-<BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = Task_Chassis &rArr; _Set_CM_Current &rArr; Can_Set_CM_Current &rArr; CAN_Transmit
+<P><STRONG><a name="[6e]"></a>Task_Chassis</STRONG> (Thumb, 410 bytes, Stack size 16 bytes, task_low.o(i.Task_Chassis))
+<BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = Task_Chassis &rArr; _Set_CM_Current &rArr; Can_Set_CM_Current &rArr; CAN_Transmit
 </UL>
 <BR>[Calls]<UL><LI><a href="#[f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CAN_Update_Encoder_Data
 <LI><a href="#[f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CAN_Get_Encoder_Bias
@@ -1490,11 +1490,11 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> task_sys_init.o(i.Task_Sys_Init)
 </UL>
 <P><STRONG><a name="[6c]"></a>Task_Safe_Mode</STRONG> (Thumb, 40 bytes, Stack size 8 bytes, task_irq.o(i.Task_Safe_Mode))
-<BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = Task_Safe_Mode &rArr; Can_Set_CM_Current &rArr; CAN_Transmit
+<BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = Task_Safe_Mode &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
-<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Can_Set_CM_Current
 <LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
+<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Can_Set_CM_Current
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> task_sys_init.o(i.Task_Sys_Init)
 </UL>
@@ -1588,8 +1588,8 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f427xx.o(RESET)
 </UL>
-<P><STRONG><a name="[fa]"></a>_Set_CM_Current</STRONG> (Thumb, 114 bytes, Stack size 24 bytes, task_low.o(i._Set_CM_Current))
-<BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = _Set_CM_Current &rArr; Can_Set_CM_Current &rArr; CAN_Transmit
+<P><STRONG><a name="[fa]"></a>_Set_CM_Current</STRONG> (Thumb, 220 bytes, Stack size 32 bytes, task_low.o(i._Set_CM_Current))
+<BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = _Set_CM_Current &rArr; Can_Set_CM_Current &rArr; CAN_Transmit
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Can_Set_CM_Current
 </UL>
@@ -1606,8 +1606,7 @@ Global Symbols
 <P><STRONG><a name="[e9]"></a>__hardfp_pow</STRONG> (Thumb, 3044 bytes, Stack size 184 bytes, pow.o(i.__hardfp_pow))
 <BR><BR>[Stack]<UL><LI>Max Depth = 256<LI>Call Chain = __hardfp_pow &rArr; sqrt &rArr; _dsqrt &rArr; __fpl_dnaninf
 </UL>
-<BR>[Calls]<UL><LI><a href="#[110]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sqrt
-<LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_cdrcmple
+<BR>[Calls]<UL><LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_cdrcmple
 <LI><a href="#[ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
 <LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
 <LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
@@ -1625,6 +1624,7 @@ Global Symbols
 <LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_dbl_divzero
 <LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_scalbn
 <LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__set_errno
+<LI><a href="#[110]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sqrt
 </UL>
 <BR>[Called By]<UL><LI><a href="#[e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Magic_Get_Debug_Value
 </UL>
