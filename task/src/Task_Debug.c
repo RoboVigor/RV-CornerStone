@@ -41,9 +41,9 @@ void Task_MagicReceive(void *Parameters) {
 
     Magic_Init_Handle(&magic, 0); // 初始化调试数据的默认值
     while (1) {
-        taskENTER_CRITICAL();          // 进入临界段代码（在不进入的情况下有被抢占的情况）
+        taskENTER_CRITICAL();          // 进入临界段
         Magic_Get_Debug_Value(&magic); // 接收调试数据
-        taskEXIT_CRITICAL();           // 退出临界段代码
+        taskEXIT_CRITICAL();           // 退出临界段
         vTaskDelayUntil(&LastWakeTime, 50);
     }
     vTaskDelete(NULL);
@@ -56,19 +56,9 @@ void Task_MagicSend(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
     while (1) {
-        u8 i = 0;
-        //        MIAO(i, 1, 2);
-        taskENTER_CRITICAL(); // 进入临界段代码（在不进入的情况下有被抢占的情况）
-        // 发送反馈数据
-        // printf("p:%f \r\n", PID_LFCM.p);
-        // printf("error: %f \r\n", PID_LFCM.error);
-        // printf("target: %f \r\n", PID_LFCM.target);
-        // printf("feedback: %f \r\n", PID_LFCM.feedback);
-        // printf("magic.Value: %d \r\n", magic.value);
+        taskENTER_CRITICAL(); // 进入临界段
         printf("AnglePID: %d %f %f\r\n", PID_YawAngle.output, EulerAngle.Yaw, PID_YawAngle.target);
-        printf("SpeedPID: %d %f %f\r\n", PID_YawSpeed.output, PID_YawSpeed.feedback, PID_YawSpeed.target);
-        // printf("%d %d %f %d\r\n", magic.value, PID_LFCM.error, PID_LFCM.output, i);
-        taskEXIT_CRITICAL(); // 退出临界段代码
+        taskEXIT_CRITICAL(); // 退出临界段
         vTaskDelayUntil(&LastWakeTime, 50);
     }
     vTaskDelete(NULL);
