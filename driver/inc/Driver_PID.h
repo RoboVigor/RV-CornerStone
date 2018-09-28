@@ -1,6 +1,5 @@
 #ifndef __Driver_PID_H
 #define __Driver_PID_H
-
 typedef struct {
     // required
     float p;
@@ -14,6 +13,7 @@ typedef struct {
     // input
     float target;
     float feedback;
+    float lastTarget;
 
     // calculation
     float error;
@@ -26,14 +26,11 @@ typedef struct {
     int   output;
     int   lastOutput;
 
-    // int Iindex;   //删除
-    // int PIDindex; //删除
-    // int Portion;  //删除
-
 } PID_Type;
 
-void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput);
-
-int PID_Calculate(PID_Type *pid, float target, float feedback);
+void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput, float maxOutput_I);
+int  PID_Calculate(PID_Type *pid, float target, float feedback);
+int  PID_Increment_Calculate(PID_Type *pid, float target, float feedback);
+void PID_Print(PID_Type *pid);
 
 #endif

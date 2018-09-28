@@ -8,8 +8,6 @@
 
 /**
  * @brief  初始化任务初始化任务和硬件
- * @param  void *Parameters
- * @return void
  */
 
 void Task_Sys_Init(void *Parameters) {
@@ -24,21 +22,24 @@ void Task_Sys_Init(void *Parameters) {
     BSP_TIM_Init();
     BSP_NVIC_Init();
 
-    // 初始化消息体
-    Queue_Test = xQueueCreate(10, sizeof(u32));
+    // 初始化陀螺仪
+    MPU6500_IntConfiguration();
+    MPU6500_Initialize();
+    MPU6500_EnableInt();
 
-    // 建立debug任务
-    // xTaskCreate(Task_Debug, "Task_Debug", 500, NULL, 5, &TaskHandle_Debug);
+    // 调试任务
+    // xTaskCreate(Task_RTOSState, "Task_RTOSState", 500, NULL, 6, NULL);
     xTaskCreate(Task_MagicReceive, "Task_MagicReceive", 500, NULL, 6, NULL);
     xTaskCreate(Task_MagicSend, "Task_MagicSend", 500, NULL, 6, NULL);
 
-    // 建立IRQ任务
-    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, &TaskHandle_Safe_Mode);
-    xTaskCreate(Task_DBus, "Task_DBus", 400, NULL, 5, &TaskHandle_DBus);
+    // 高频任务
+    xTaskCreate(Task_Gyroscope, "Task_Gyroscope", 400, NULL, 5, NULL);
 
-    // 建立低优先级任务
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, &TaskHandle_Chassis);
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, &TaskHandle_Blink);
+    // 功能任务
+    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
+    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Event_Group, "Task_Event_Group", 400, NULL, 3, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

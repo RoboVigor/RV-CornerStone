@@ -2,7 +2,11 @@
  * @brief 机器人参数
  */
 
-#define CHASSIS_MAX_WHEEL_SPEED 1150
+// 全局
+#define BOARD_VERSION 1 //开发板型号,0:旧版,1:A版
+
+// 底盘
+#define CHASSIS_MOTOR_REDUCTION_RATE 19.2  //底盘电机减速比
+#define CHASSIS_MAX_ROTOR_SPEED 253        //最大轮子转速,单位rad/s
 #define CHASSIS_SIZE_K 0.946               //测量值,机器人中心点到XY边缘的距离之和
 #define CHASSIS_INVERSE_WHEEL_RADIUS 13.16 //测量值,麦克纳姆轮半径的倒数
-#define CHASSIS_MOTOR_REDUCTION_RATE 19.2  //底盘电机减速比

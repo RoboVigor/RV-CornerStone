@@ -22,76 +22,80 @@ Dialog DLL:      TCM.DLL V1.14.14.0
  
 <h2>Project:</h2>
 C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\Belief exp2.uvprojx
-Project File Date:  09/24/2018
+Project File Date:  09/28/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-compiling BSP_DMA.c...
-..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
-  #include "key.h"
-..\user\config.h(8): warning:  #1-D: last line of file ends without a newline
-  #define CHASSIS_MOTOR_REDUCTION_RATE 19.2  //åº?ç›?ç”?æœ?å‡?é€?æ¯?
-..\bsp\src\BSP_DMA.c: 2 warnings, 0 errors
+compiling Driver_PID.c...
 compiling stm32f4xx_it.c...
 ..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
   #include "key.h"
-..\user\config.h(8): warning:  #1-D: last line of file ends without a newline
-  #define CHASSIS_MOTOR_REDUCTION_RATE 19.2  //åº?ç›?ç”?æœ?å‡?é€?æ¯?
 ..\user\stm32f4xx_it.c(15): warning:  #550-D: variable "UARTtemp" was set but never used
       uint8_t UARTtemp;
-..\user\stm32f4xx_it.c: 3 warnings, 0 errors
+..\user\stm32f4xx_it.c: 2 warnings, 0 errors
 compiling main.c...
 ..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
   #include "key.h"
-..\user\config.h(8): warning:  #1-D: last line of file ends without a newline
-  #define CHASSIS_MOTOR_REDUCTION_RATE 19.2  //åº?ç›?ç”?æœ?å‡?é€?æ¯?
-..\user\main.c: 2 warnings, 0 errors
-compiling Task_IRQ.c...
-..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
-  #include "key.h"
-..\user\config.h(8): warning:  #1-D: last line of file ends without a newline
-  #define CHASSIS_MOTOR_REDUCTION_RATE 19.2  //åº?ç›?ç”?æœ?å‡?é€?æ¯?
-..\task\src\Task_IRQ.c(21): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_IRQ.c(55): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_IRQ.c(73): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_IRQ.c(98): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_IRQ.c(116): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_IRQ.c: 7 warnings, 0 errors
-compiling Task_Low.c...
-..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
-  #include "key.h"
-..\user\config.h(8): warning:  #1-D: last line of file ends without a newline
-  #define CHASSIS_MOTOR_REDUCTION_RATE 19.2  //åº?ç›?ç”?æœ?å‡?é€?æ¯?
-..\task\src\Task_Low.c(16): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_Low.c(48): warning:  #111-D: statement is unreachable
-          yawSpeedFeed = mpu6500_data.gz / 16.4;
-..\task\src\Task_Low.c(71): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_Low.c: 5 warnings, 0 errors
+..\user\main.c: 1 warning, 0 errors
+compiling Driver_Magic.c...
+compiling Driver_Chassis.c...
+..\driver\src\Driver_Chassis.c(37): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                      (ChassisParam.TargetVX - (ChassisParam.TargetVY) + ChassisParam.TargetWR * 
+HASSIS_SIZE_K);
+..\driver\src\Driver_Chassis.c(39): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                      ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * 
+HASSIS_SIZE_K);
+..\driver\src\Driver_Chassis.c: 2 warnings, 0 errors
 compiling Task_Sys_Init.c...
 ..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
   #include "key.h"
-..\user\config.h(8): warning:  #1-D: last line of file ends without a newline
-  #define CHASSIS_MOTOR_REDUCTION_RATE 19.2  //åº?ç›?ç”?æœ?å‡?é€?æ¯?
-..\task\src\Task_Sys_Init.c: 2 warnings, 0 errors
+..\task\src\Task_Sys_Init.c: 1 warning, 0 errors
+compiling Task_Debug.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\task\src\Task_Debug.c(33): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Debug.c(49): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Debug.c(65): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Debug.c: 4 warnings, 0 errors
+compiling Task_HighFreq.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\task\src\Task_HighFreq.c(17): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_HighFreq.c(18): warning:  #1-D: last line of file ends without a newline
+  }
+..\task\src\Task_HighFreq.c: 3 warnings, 0 errors
+compiling Task_Function.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\task\src\Task_Function.c(18): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Function.c(70): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
+..\task\src\Task_Function.c(70): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
+..\task\src\Task_Function.c(70): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
+..\task\src\Task_Function.c(88): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Function.c(104): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Function.c: 7 warnings, 0 errors
 linking...
-Program Size: Code=25284 RO-data=604 RW-data=224 ZI-data=83368  
+Program Size: Code=36316 RO-data=1012 RW-data=456 ZI-data=83352  
 FromELF: creating hex file...
-".\Objects\Belief exp2.axf" - 0 Error(s), 21 Warning(s).
+".\Objects\Belief exp2.axf" - 0 Error(s), 20 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE
   C:\Users\Tccoin\Desktop\µç¿Ø\°¢²¨ÂÞSTM32F429 ×ÊÁÏÅÌ(AÅÌ)\6£¬Èí¼þ×ÊÁÏ\1£¬Èí¼þ\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:04
+Build Time Elapsed:  00:00:05
 </pre>
 </body>
 </html>
