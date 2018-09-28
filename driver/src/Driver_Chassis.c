@@ -9,8 +9,8 @@ ChassisParam_Type Chassisparam;
  * @brief 配置小车整体 XYW 三个轴的速度
  * @detail
  *
- * @param XSpeed
- * @param YSpeed
+ * @param XSpeed **前后**
+ * @param YSpeed **左右**
  * @param WSpeed
  */
 void Chassis_Set_Speed(float XSpeed, float YSpeed, float WSpeed) {

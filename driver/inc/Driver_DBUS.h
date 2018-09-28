@@ -28,7 +28,7 @@
 typedef struct {
     union {
         struct {
-            int16_t rx, ry, ly, lx;
+            int16_t rx, ry, lx, ly;
         };
         struct {
             int16_t ch1, ch2, ch3, ch4;
