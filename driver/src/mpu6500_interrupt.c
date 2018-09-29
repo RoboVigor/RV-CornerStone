@@ -4,8 +4,6 @@
 #include "MPU6500_IST8310.h"
 #include "mpu6500_driver.h"
 
-uint8_t isMPU6500_is_DRY = 0; // mpu6050 interrupt中断标志
-
 #if BOARD_VERSION == 0
 void MPU6500_IntConfiguration(void) {
     GPIO_InitTypeDef gpio;
@@ -38,7 +36,6 @@ void EXTI1_IRQHandler(void) //中断频率1KHz
     if (EXTI_GetITStatus(EXTI_Line1) != RESET) {
         EXTI_ClearFlag(EXTI_Line1);
         EXTI_ClearITPendingBit(EXTI_Line1);
-        isMPU6500_is_DRY = 1; // mpu6050中断标志
         MPU6500_getMotion6();
     }
 }
@@ -81,7 +78,6 @@ void EXTI9_5_IRQHandler(void) //中断频率1KHz
     if (EXTI_GetITStatus(EXTI_Line8) != RESET) {
         EXTI_ClearFlag(EXTI_Line8);
         EXTI_ClearITPendingBit(EXTI_Line8);
-        isMPU6500_is_DRY = 1; // mpu6050中断标志
         MPU6500_getMotion6();
     }
 }
