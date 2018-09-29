@@ -16,8 +16,6 @@ float ax_acc = 0;
 float ay_acc = 0;
 float az_acc = 0;
 
-float yaw_offset = 0; // todo
-
 void Gyroscope_Update_Angle_Data(void) {
     a_speed[1] = (float) ((mpu6500_data.gx / GYRO_LSB) * PI / 180);
     a_speed[2] = (float) ((mpu6500_data.gy / GYRO_LSB) * PI / 180);
@@ -43,8 +41,4 @@ void Gyroscope_Update_Angle_Data(void) {
     EulerAngle.Pitch = -e_angle[1];
     EulerAngle.Pitch += EulerAngle.Pitch_offset;
     EulerAngle.Roll = e_angle[0];
-}
-
-void Gyroscope_(int isSampling, float yawAngle) {
-    // todo
 }
