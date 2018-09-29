@@ -52,20 +52,15 @@ void Task_Chassis(void *Parameters) {
     CAN_Get_Encoder_Bias(&CM2_Encoder);
 
     while (1) {
-
-        // PID_Calculate(&CM1PID, magic.value, Motor_Feedback.motor201Speed * kFeedback);
-        // PID_Calculate(&CM2PID, magic.value, Motor_Feedback.motor202Speed * kFeedback);
-        // PID_Calculate(&CM3PID, magic.value, Motor_Feedback.motor203Speed * kFeedback);
-        // PID_Calculate(&CM4PID, magic.value, Motor_Feedback.motor204Speed * kFeedback);
-
-        // if (magic.value > 0 && magic.value < 2000) { // 防止 CAN 线挂断
-        //     Can_Set_CM_Current(CAN1, magic.value, 0, 0, 0);
+        // if（DBusData.switchRight == 2){
+        //     Can_Set_CM_Current(CAN1, 0, 0, 0, 0);
+        //     Can2_Set_CM_Current(CAN2, 0, 0, 0, 0);
         // }
-        // vTaskDelayUntil(&LastWakeTime, 100);
 
-        // continue;
         // CM1PID.i = (float) magic.value / 1000.0;
         // CM1PID.p = magic.value;
+
+        // if (DBusData.switchLeft == 2) {
         CAN_Update_Encoder_Data(&CM1_Encoder, Motor_Feedback.motor201Angle);
         CAN_Update_Encoder_Data(&CM2_Encoder, Motor_Feedback.motor202Angle);
         // CAN_Update_Encoder_Data(&CM1_Encoder, Motor_Feedback.motor203Angle);
@@ -83,7 +78,7 @@ void Task_Chassis(void *Parameters) {
         debug7 = CM1PID.output;
         debug8 = 720;
         _Set_CM_Current(CM1PID.output, CM2PID.output);
-        // Can2_Set_CM_Current(CAN2, 500, 0, 0, 0);
+        // }
 
         vTaskDelayUntil(&LastWakeTime, 5);
 
@@ -121,7 +116,7 @@ void Task_Wheel(void *Parameters) {
 
 void _Set_CM_Current(int16_t i_201, int16_t i_202) {
     int minCurrent    = 900;  // 250
-    int currentToMove = 2000; // 1500
+    int currentToMove = 1800; // 2000
     int threshold     = 850;
     if (ABS(i_201) > threshold) {
         if (Motor_Feedback.motor201Speed == 0) {

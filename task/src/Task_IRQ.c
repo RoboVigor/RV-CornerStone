@@ -92,6 +92,7 @@ void Task_MagicSend(void *Parameters) {
         // ChassisAnglePID1
         // CM1PID
         printf("MGC %d \r\n", magic.value);
+        printf("Pitch: %f \r\n", EulerAngle.Pitch);
         // printf("ESR: %x\r\n", CAN2->ESR);
         // printf("FEED %f \r\n\r\n", ChassisAnglePID1.feedback);
         printf("OUT  %f %f %d \r\n", ChassisAnglePID1.feedback, ChassisAnglePID1.target, ChassisAnglePID1.output);
