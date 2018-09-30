@@ -1,3 +1,8 @@
+/**
+ * @brief 用于解算欧拉角和陀螺仪零飘滤波
+ * @note g和a是gyroscope和acceleration的缩写
+ */
+
 #define __DRIVER_ANGULAR_GLOBALS
 #include "Driver_Angular.h"
 #include "MadgwickAHRS.h"
@@ -10,6 +15,8 @@ float a_speed[4] = {0, 0, 0, 0};
 float ax_acc = 0;
 float ay_acc = 0;
 float az_acc = 0;
+
+float yaw_offset = 0; // todo
 
 void Gyroscope_Update_Angle_Data(void) {
     a_speed[1] = (float) ((mpu6500_data.gx / GYRO_LSB) * PI / 180);
@@ -36,4 +43,8 @@ void Gyroscope_Update_Angle_Data(void) {
     EulerAngle.Pitch = -e_angle[1];
     EulerAngle.Pitch += EulerAngle.Pitch_offset;
     EulerAngle.Roll = e_angle[0];
+}
+
+void Gyroscope_(int isSampling, float yawAngle) {
+    // todo
 }
