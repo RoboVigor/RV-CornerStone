@@ -66,7 +66,7 @@ void Task_Debug(void *Parameters) {
 void Task_MagicReceive(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    Magic_Init_Handle(&magic, 600); // 初始化调试数据的默认值
+    Magic_Init_Handle(&magic, 300); // 初始化调试数据的默认值
     while (1) {
         taskENTER_CRITICAL();          // 进入临界段代码（在不进入的情况下有被抢占的情况）
         Magic_Get_Debug_Value(&magic); // 接收调试数据
@@ -81,7 +81,10 @@ void Task_MagicReceive(void *Parameters) {
  *
  * @param Parameters
  */
-void Task_MagicSend(void *Parameters) {
+extern int targetBackGroupOffset;
+extern int targetFrontGroupOffset;
+extern int groupMode;
+void       Task_MagicSend(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
     while (1) {
@@ -89,24 +92,29 @@ void Task_MagicSend(void *Parameters) {
         MIAO(i, 1, 2);
         taskENTER_CRITICAL(); // 进入临界段代码（在不进入的情况下有被抢占的情况）
         // 发送反馈数据
-        // ChassisAnglePID1
-        // CM1PID
-        printf("MGC %d \r\n", magic.value);
-        // printf("ESR: %x\r\n", CAN2->ESR);
-        // printf("FEED %f \r\n\r\n", ChassisAnglePID1.feedback);
-        printf("OUT1  %f %f %d \r\n", ChassisAnglePID1.feedback, ChassisAnglePID1.target, ChassisAnglePID1.output);
-        printf("OUT2  %f %f %d \r\n", ChassisAnglePID2.feedback, ChassisAnglePID2.target, ChassisAnglePID2.output);
+        printf("Magic %d\r\n", magic.value);
+        printf("Group %d\r\n", groupMode);
+        printf("MOTOR1 %f\r\n", CM1_Encoder.ecdAngle / 19.2);
+        printf("MOTOR2 %f\r\n", CM2_Encoder.ecdAngle / 19.2);
+        printf("MOTOR3 %f\r\n", CM3_Encoder.ecdAngle / 19.2);
+        printf("MOTOR4 %f\r\n", CM4_Encoder.ecdAngle / 19.2);
+        printf("error1: %f\r\n", ChassisAnglePID1.error);
+        printf("error4: %f\r\n", ChassisAnglePID4.error);
+        printf("frontTarget: %f\r\n", ChassisAnglePID4.target);
+        printf("backTarget: %f\r\n", ChassisAnglePID1.target);
+        printf("frontOffset: %d\r\n", targetFrontGroupOffset);
+        printf("backOffset: %d\r\n", targetBackGroupOffset);
+
+        // printf("OUT2  %f %f %d \r\n", ChassisAnglePID2.feedback, ChassisAnglePID2.target, ChassisAnglePID2.output);
         // printf("OUT %f \r\n", ChassisAnglePID1.feedback - ChassisAnglePID1.target);
-        printf("IN1  %f %f %d \r\n", CM1PID.feedback, CM1PID.target, CM1PID.output);
-        printf("IN2  %f %f %d \r\n", CM2PID.feedback, CM2PID.target, CM2PID.output);
-        // printf("ENC %d %d %d %f\r\n", CM1_Encoder.rawValue, CM1_Encoder.ecdBias, CM1_Encoder.roundCnt, CM1_Encoder.ecdAngle);
-        // printf("SPEED %f \r\n", Motor_Feedback.motor201Speed * 3.14 / 60);
+        // printf("IN1  %f %f %d \r\n", CM1PID.feedback, CM1PID.target, CM1PID.output);
+        // printf("IN2  %f %f %d \r\n", CM2PID.feedback, CM2PID.target, CM2PID.output);
         // printf("I %f \r\n", CM1PID.output_I);
 
         printf("---------------------\r\n");
 
         taskEXIT_CRITICAL(); // 退出临界段代码
-        vTaskDelayUntil(&LastWakeTime, 500);
+        vTaskDelayUntil(&LastWakeTime, 1000);
     }
     vTaskDelete(NULL);
 }

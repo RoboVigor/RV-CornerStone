@@ -80,8 +80,6 @@ void Can2_Set_CM_Current(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_
  * @return void
  */
 void CAN_Get_Encoder_Bias(volatile CANEncoder_Type *v) {
-    //		int i;
-    // v->ecdBias = 4333;  //保存初始编码器值作为偏差
     v->rawValue     = v->ecdBias;
     v->lastRawValue = v->ecdBias;
     v->roundCnt     = 0;

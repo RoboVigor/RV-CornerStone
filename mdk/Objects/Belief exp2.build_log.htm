@@ -26,7 +26,32 @@ Project File Date:  09/30/2018
 
 <h2>Output:</h2>
 Build target 'Target 1'
-".\Objects\Belief exp2.axf" - 0 Error(s), 0 Warning(s).
+compiling Task_Low.c...
+..\task\src\Task_Low.c(23): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Low.c(88): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+              targetFrontGroupOffset = targetFrontGroupPreset[groupMode] - CM3_Encoder.ecdAngle / 19.2;
+..\task\src\Task_Low.c(89): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+              targetBackGroupOffset  = targetBackGroupPreset[groupMode] - CM2_Encoder.ecdAngle / 19.2;
+..\task\src\Task_Low.c(125): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          PID_Calculate(&ChassisAnglePID1, -targetBackGroup, CM1_Encoder.ecdAngle / 19.2);
+..\task\src\Task_Low.c(126): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          PID_Calculate(&ChassisAnglePID2, targetBackGroup, CM2_Encoder.ecdAngle / 19.2);
+..\task\src\Task_Low.c(127): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          PID_Calculate(&ChassisAnglePID3, targetFrontGroup, CM3_Encoder.ecdAngle / 19.2);
+..\task\src\Task_Low.c(128): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          PID_Calculate(&ChassisAnglePID4, -targetFrontGroup, CM4_Encoder.ecdAngle / 19.2);
+..\task\src\Task_Low.c(39): warning:  #177-D: variable "target" was declared but never referenced
+      int target           = 0;
+..\task\src\Task_Low.c(150): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Low.c(177): warning:  #1-D: last line of file ends without a newline
+  // }
+..\task\src\Task_Low.c: 10 warnings, 0 errors
+linking...
+Program Size: Code=31532 RO-data=820 RW-data=284 ZI-data=83908  
+FromELF: creating hex file...
+".\Objects\Belief exp2.axf" - 0 Error(s), 10 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   D:\cangku\RV-CornerStone\mdk\RTE
