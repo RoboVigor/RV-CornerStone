@@ -28,7 +28,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Update, "Task_Update", 500, NULL, 5, &TaskHandle_Update);
 
     // 建立IRQ任务
-    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, &TaskHandle_Safe_Mode);
+    // xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, &TaskHandle_Safe_Mode);
     xTaskCreate(Task_DBus, "Task_DBus", 400, NULL, 5, &TaskHandle_DBus);
 
     // 建立低优先级任务

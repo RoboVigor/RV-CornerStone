@@ -66,7 +66,7 @@ void Task_Debug(void *Parameters) {
 void Task_MagicReceive(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    Magic_Init_Handle(&magic, 15); // 初始化调试数据的默认值
+    Magic_Init_Handle(&magic, 600); // 初始化调试数据的默认值
     while (1) {
         taskENTER_CRITICAL();          // 进入临界段代码（在不进入的情况下有被抢占的情况）
         Magic_Get_Debug_Value(&magic); // 接收调试数据
@@ -92,15 +92,16 @@ void Task_MagicSend(void *Parameters) {
         // ChassisAnglePID1
         // CM1PID
         printf("MGC %d \r\n", magic.value);
-        printf("Pitch: %f \r\n", EulerAngle.Pitch);
         // printf("ESR: %x\r\n", CAN2->ESR);
         // printf("FEED %f \r\n\r\n", ChassisAnglePID1.feedback);
-        printf("OUT  %f %f %d \r\n", ChassisAnglePID1.feedback, ChassisAnglePID1.target, ChassisAnglePID1.output);
+        printf("OUT1  %f %f %d \r\n", ChassisAnglePID1.feedback, ChassisAnglePID1.target, ChassisAnglePID1.output);
+        printf("OUT2  %f %f %d \r\n", ChassisAnglePID2.feedback, ChassisAnglePID2.target, ChassisAnglePID2.output);
         // printf("OUT %f \r\n", ChassisAnglePID1.feedback - ChassisAnglePID1.target);
-        printf("IN  %f %f %d \r\n", CM1PID.feedback, CM1PID.target, CM1PID.output);
+        printf("IN1  %f %f %d \r\n", CM1PID.feedback, CM1PID.target, CM1PID.output);
+        printf("IN2  %f %f %d \r\n", CM2PID.feedback, CM2PID.target, CM2PID.output);
         // printf("ENC %d %d %d %f\r\n", CM1_Encoder.rawValue, CM1_Encoder.ecdBias, CM1_Encoder.roundCnt, CM1_Encoder.ecdAngle);
         // printf("SPEED %f \r\n", Motor_Feedback.motor201Speed * 3.14 / 60);
-        printf("I %f \r\n", CM1PID.output_I);
+        // printf("I %f \r\n", CM1PID.output_I);
 
         printf("---------------------\r\n");
 
