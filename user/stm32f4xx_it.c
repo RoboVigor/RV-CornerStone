@@ -73,27 +73,26 @@ void USART6_IRQHandler(void) {
 
 void CAN1_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
-
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
     switch (CanRxData.StdId) {
-    case WHEEL_1_ID:
-        Motor_Feedback.motor201Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_Feedback.motor201Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    case 0x201:
+        Motor_LF.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        Motor_LF.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
-    case WHEEL_2_ID:
-        Motor_Feedback.motor202Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_Feedback.motor202Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    case 0x202:
+        Motor_LB.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        Motor_LB.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
-    case WHEEL_3_ID:
-        Motor_Feedback.motor203Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_Feedback.motor203Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    case 0x203:
+        Motor_RB.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        Motor_RB.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
-    case WHEEL_4_ID:
-        Motor_Feedback.motor204Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_Feedback.motor204Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    case 0x204:
+        Motor_RF.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        Motor_RF.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
     default:
@@ -102,7 +101,6 @@ void CAN1_RX0_IRQHandler(void) {
 }
 
 void CAN1_SCE_IRQHandler(void) {
-    printf("123");
     RED_LIGHT_ON;
     CAN_ClearITPendingBit(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR);
 }
@@ -116,25 +114,25 @@ void CAN1_SCE_IRQHandler(void) {
 void CAN2_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
-    // printf("%d\r\n",CanRxData.StdId);
     switch (CanRxData.StdId) {
-    // RED_LIGHT_ON;
-    case 0x201: //钩子电机
-        Motor_Feedback.motor205Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_Feedback.motor205Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    case 0x201:
+        // Motor_LF.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        // Motor_LF.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
     case 0x202:
-
-        Motor_Feedback.motor206Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_Feedback.motor206Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-
+        // Motor_LB.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        // Motor_LB.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
     case 0x203:
-        Motor_Feedback.motor207Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_Feedback.motor207Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+        // Motor_RB.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        // Motor_RB.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+        break;
 
+    case 0x204:
+        // Motor_RF.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        // Motor_RF.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
     default:
