@@ -6,6 +6,7 @@
 #include "Driver_PID.h"
 #include "Driver_DBUS.h"
 #include "Driver_CAN.h"
+#include "Driver_Motor.h"
 #include "Driver_Chassis.h"
 #include "Driver_Armour.h"
 #include "Driver_Angular.h"
@@ -21,15 +22,14 @@
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
-// CAN
-__HANDLE_EXT MotorFeedback_Type       Motor_Feedback;
-__HANDLE_EXT volatile CANEncoder_Type Hook_Encoder, Armour1_Encoder, Armour2_Encoder;
+// 电机
+__HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type remoteData;
 
-// Magic
+// 无线串口调试
 __HANDLE_EXT u8 USART_RX_BUF[MAGIC_MAX_LENGTH];
 __HANDLE_EXT u16 USART_RX_STA;
 __HANDLE_EXT MagicHandle_Type magic;

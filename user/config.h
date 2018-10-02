@@ -4,6 +4,8 @@
 
 // 全局
 #define BOARD_VERSION 1 //开发板型号,0:旧版,1:A版
+#define CAN1_ENABLED 1
+#define CAN2_ENABLED 0
 
 // 底盘
 #define CHASSIS_MOTOR_REDUCTION_RATE 19.2  //底盘电机减速比
