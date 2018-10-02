@@ -46,7 +46,7 @@ void Can_Set_CM_Current(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t
     CAN_Transmit(CANx, &tx_message);
 }
 
-void Can2_Set_CM_Current(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204) {
+void CAN_Set_HookArmour_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204) {
 
     CanTxMsg tx_message;
     tx_message.StdId = 0x200;
@@ -80,6 +80,8 @@ void Can2_Set_CM_Current(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_
  * @return void
  */
 void CAN_Get_Encoder_Bias(volatile CANEncoder_Type *v) {
+    //		int i;
+    // v->ecdBias = 4333;  //保存初始编码器值作为偏差
     v->rawValue     = v->ecdBias;
     v->lastRawValue = v->ecdBias;
     v->roundCnt     = 0;
@@ -97,11 +99,11 @@ void CAN_Update_Encoder_Data(volatile CANEncoder_Type *v, uint16_t agree) {
     v->lastRawValue  = v->rawValue;
     v->rawValue      = agree;
     v->diff          = v->rawValue - v->lastRawValue;
-    if (v->diff < -4000) //两次编码器的反馈值差别太大,表示圈数发生了改变
+    if (v->diff < -4200) //两次编码器的反馈值差别太大,表示圈数发生了改变
     {
         v->roundCnt++;
         v->ecdRawRate = v->diff + 8192;
-    } else if (v->diff > 4000) {
+    } else if (v->diff > 4200) {
         v->roundCnt--;
         v->ecdRawRate = v->diff - 8192;
     } else {

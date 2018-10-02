@@ -11,7 +11,7 @@
 #define RATE_BUF_SIZE 6
 
 typedef struct {
-    uint16_t motor201Angle; //三星轮组
+    uint16_t motor201Angle;
     int16_t  motor201Speed;
 
     uint16_t motor202Angle;
@@ -23,17 +23,14 @@ typedef struct {
     uint16_t motor204Angle;
     int16_t  motor204Speed;
 
-    uint16_t motor205Angle; //麦轮
+    uint16_t motor205Angle; //钩子
     int16_t  motor205Speed;
 
-    uint16_t motor206Angle;
+    uint16_t motor206Angle; // armour的第一个电机
     int16_t  motor206Speed;
 
-    uint16_t motor207Angle;
+    uint16_t motor207Angle; // armor的第二个电机
     int16_t  motor207Speed;
-
-    uint16_t motor208Angle;
-    int16_t  motor208Speed;
 
 } MotorFeedback_Type;
 
@@ -55,6 +52,6 @@ typedef struct {
 void Can_Set_CM_Current(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204);
 void CAN_Get_Encoder_Bias(volatile CANEncoder_Type *v);
 void CAN_Update_Encoder_Data(volatile CANEncoder_Type *v, uint16_t agree);
-void Can2_Set_CM_Current(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204); // 201(205)是hook的 202(206) 203(207)是armour的
+void CAN_Set_HookArmour_Speed(CAN_TypeDef *CANx, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204); // 201(205)是hook的 202(206) 203(207)是armour的
 
 #endif

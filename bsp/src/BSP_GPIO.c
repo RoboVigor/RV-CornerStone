@@ -1,4 +1,4 @@
-#include "main.h"
+#include "BSP_GPIO.h"
 
 /**
  * @brief  GPIO初始化
@@ -12,18 +12,6 @@ void BSP_GPIO_Init(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
-    //电源
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOH, &GPIO_InitStructure);
-    GPIO_SetBits(GPIOH, GPIO_Pin_2);
-    GPIO_SetBits(GPIOH, GPIO_Pin_3);
-    GPIO_SetBits(GPIOH, GPIO_Pin_4);
-    GPIO_SetBits(GPIOH, GPIO_Pin_5);
 
     // UART1(DBus)
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;

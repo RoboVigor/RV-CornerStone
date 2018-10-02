@@ -3,61 +3,99 @@
 <pre>
 <h1>礦ision Build Log</h1>
 <h2>Tool Versions:</h2>
-IDE-Version: μVision V5.14.0.0
-Copyright (C) 2015 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: alientek ALIENTEK, alientek, LIC=IK130-BIXCW-SA2DJ-U4S8I-LP21U-W3Z4L
+IDE-Version: μVision V5.21.1.0
+Copyright (C) 2016 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: Link Wu Wu, FuXing PS, LIC=Z3CSB-21H71-48BFA-1PZ03-ALN2N-S4CAZ
  
 Tool Versions:
-Toolchain:       MDK-ARM Standard  Version: 5.14.0.0
-Toolchain Path:  E:\MDK5\ARM\ARMCC\Bin
-C Compiler:      Armcc.exe V5.05 update 1 (build 106)
-Assembler:       Armasm.exe V5.05 update 1 (build 106)
-Linker/Locator:  ArmLink.exe V5.05 update 1 (build 106)
-Library Manager: ArmAr.exe V5.05 update 1 (build 106)
-Hex Converter:   FromElf.exe V5.05 update 1 (build 106)
-CPU DLL:         SARMCM3.DLL V5.14.0.0
-Dialog DLL:      DCM.DLL V1.13.1.0
-Target DLL:      Segger\JL2CM3.dll V2.99.13.0
-Dialog DLL:      TCM.DLL V1.14.4.0
+Toolchain:       MDK-ARM Professional  Version: 5.21a
+Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 3 (build 300)
+Assembler:       Armasm.exe V5.06 update 3 (build 300)
+Linker/Locator:  ArmLink.exe V5.06 update 3 (build 300)
+Library Manager: ArmAr.exe V5.06 update 3 (build 300)
+Hex Converter:   FromElf.exe V5.06 update 3 (build 300)
+CPU DLL:         SARMCM3.DLL V5.21a
+Dialog DLL:      DCM.DLL V1.13.8.0
+Target DLL:      Segger\JL2CM3.dll V2.99.23.0
+Dialog DLL:      TCM.DLL V1.14.14.0
  
 <h2>Project:</h2>
-D:\cangku\RV-CornerStone\mdk\Belief exp2.uvprojx
-Project File Date:  09/30/2018
+C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\Belief exp2.uvprojx
+Project File Date:  09/28/2018
 
 <h2>Output:</h2>
+*** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-compiling Task_Low.c...
-..\task\src\Task_Low.c(23): warning:  #111-D: statement is unreachable
+compiling Driver_PID.c...
+compiling stm32f4xx_it.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\user\stm32f4xx_it.c(15): warning:  #550-D: variable "UARTtemp" was set but never used
+      uint8_t UARTtemp;
+..\user\stm32f4xx_it.c: 2 warnings, 0 errors
+compiling main.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\user\main.c: 1 warning, 0 errors
+compiling Driver_Magic.c...
+compiling Driver_Chassis.c...
+..\driver\src\Driver_Chassis.c(37): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                      (ChassisParam.TargetVX - (ChassisParam.TargetVY) + ChassisParam.TargetWR * 
+HASSIS_SIZE_K);
+..\driver\src\Driver_Chassis.c(39): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                      ((ChassisParam.TargetVX) + (ChassisParam.TargetVY) + ChassisParam.TargetWR * 
+HASSIS_SIZE_K);
+..\driver\src\Driver_Chassis.c: 2 warnings, 0 errors
+compiling Task_Sys_Init.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\task\src\Task_Sys_Init.c: 1 warning, 0 errors
+compiling Task_Debug.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\task\src\Task_Debug.c(33): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Low.c(88): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-              targetFrontGroupOffset = targetFrontGroupPreset[groupMode] - CM3_Encoder.ecdAngle / 19.2;
-..\task\src\Task_Low.c(89): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-              targetBackGroupOffset  = targetBackGroupPreset[groupMode] - CM2_Encoder.ecdAngle / 19.2;
-..\task\src\Task_Low.c(125): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          PID_Calculate(&ChassisAnglePID1, -targetBackGroup, CM1_Encoder.ecdAngle / 19.2);
-..\task\src\Task_Low.c(126): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          PID_Calculate(&ChassisAnglePID2, targetBackGroup, CM2_Encoder.ecdAngle / 19.2);
-..\task\src\Task_Low.c(127): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          PID_Calculate(&ChassisAnglePID3, targetFrontGroup, CM3_Encoder.ecdAngle / 19.2);
-..\task\src\Task_Low.c(128): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          PID_Calculate(&ChassisAnglePID4, -targetFrontGroup, CM4_Encoder.ecdAngle / 19.2);
-..\task\src\Task_Low.c(39): warning:  #177-D: variable "target" was declared but never referenced
-      int target           = 0;
-..\task\src\Task_Low.c(150): warning:  #111-D: statement is unreachable
+..\task\src\Task_Debug.c(49): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Low.c(177): warning:  #1-D: last line of file ends without a newline
-  // }
-..\task\src\Task_Low.c: 10 warnings, 0 errors
+..\task\src\Task_Debug.c(65): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Debug.c: 4 warnings, 0 errors
+compiling Task_HighFreq.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\task\src\Task_HighFreq.c(17): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_HighFreq.c(18): warning:  #1-D: last line of file ends without a newline
+  }
+..\task\src\Task_HighFreq.c: 3 warnings, 0 errors
+compiling Task_Function.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\task\src\Task_Function.c(18): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Function.c(70): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
+..\task\src\Task_Function.c(70): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
+..\task\src\Task_Function.c(70): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
+..\task\src\Task_Function.c(88): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Function.c(104): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Function.c: 7 warnings, 0 errors
 linking...
-Program Size: Code=31532 RO-data=820 RW-data=284 ZI-data=83908  
+Program Size: Code=36316 RO-data=1012 RW-data=456 ZI-data=83352  
 FromELF: creating hex file...
-".\Objects\Belief exp2.axf" - 0 Error(s), 10 Warning(s).
+".\Objects\Belief exp2.axf" - 0 Error(s), 20 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
-  D:\cangku\RV-CornerStone\mdk\RTE
-  E:\MDK5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0
+  C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE
+  C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include
 
 <h2>Collection of Component Files used:</h2>
+Build Time Elapsed:  00:00:05
 </pre>
 </body>
 </html>

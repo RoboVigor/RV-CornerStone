@@ -20,4 +20,4 @@
  *   REGULATE丑得不行; LIMIT又有极限的歧义; RSTR(restrict)又好像不太容易看懂
  *   喵就完事了
  */
-#define MIAO(val, min, max)  val = ( ( val ) > ( min ) ? ( val ) : ((val) = (min)) ) < ( max ) ? ( val ) : ( max )
+#define MIAO(val, min, max) (val) = ((val) > (min) ? (val) : ((val) = (min))) < (max) ? (val) : (max)

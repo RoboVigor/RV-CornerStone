@@ -21,7 +21,7 @@ void USART1_IRQHandler(void) {
 
     //数据量正确
     if (DMA2_Stream2->NDTR == DBUS_BACK_LENGTH) {
-        DBus_Decode_Remote_Control_Data(); //解码
+        DBus_Update(&remoteData, remoteBuffer); //解码
     }
 
     //重启DMA
@@ -75,10 +75,8 @@ void CAN1_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
 
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
-    // printf("123\r\n");
     switch (CanRxData.StdId) {
-
-    case WHEEL_1_ID: //三星轮组
+    case WHEEL_1_ID:
         Motor_Feedback.motor201Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
         Motor_Feedback.motor201Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
@@ -120,12 +118,14 @@ void CAN2_RX0_IRQHandler(void) {
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
     // printf("%d\r\n",CanRxData.StdId);
     switch (CanRxData.StdId) {
-    case 0x201: //麦轮
+    // RED_LIGHT_ON;
+    case 0x201: //钩子电机
         Motor_Feedback.motor205Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
         Motor_Feedback.motor205Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
     case 0x202:
+
         Motor_Feedback.motor206Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
         Motor_Feedback.motor206Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
@@ -136,10 +136,6 @@ void CAN2_RX0_IRQHandler(void) {
         Motor_Feedback.motor207Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
         break;
-
-    case 0x204:
-        Motor_Feedback.motor208Angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_Feedback.motor208Speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
     default:
         break;

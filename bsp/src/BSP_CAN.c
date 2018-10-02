@@ -1,4 +1,4 @@
-#include "main.h"
+#include "BSP_CAN.h"
 
 /**
  * @brief  CAN初始化
