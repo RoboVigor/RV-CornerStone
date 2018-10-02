@@ -3,8 +3,6 @@
 
 #include "stm32f4xx.h"
 
-#define RATE_BUF_SIZE 6
-
 typedef struct {
     int16_t position;     // 转子位置(电调机械角度值), 0-8191
     int16_t lastPosition; // 上一次的转子位置
