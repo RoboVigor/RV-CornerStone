@@ -73,13 +73,13 @@ void Task_Chassis(void *Parameters) {
         Chassis_Get_Rotor_Speed(rotorSpeed);
 
         // 计算输出电流PID
-        PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_Feedback.motor201Speed * rpm2rps);
-        PID_Calculate(&PID_RFCM, rotorSpeed[1], Motor_Feedback.motor204Speed * rpm2rps);
-        PID_Calculate(&PID_RBCM, rotorSpeed[2], Motor_Feedback.motor203Speed * rpm2rps);
-        PID_Calculate(&PID_LBCM, rotorSpeed[3], Motor_Feedback.motor202Speed * rpm2rps);
+        PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * rpm2rps);
+        PID_Calculate(&PID_LBCM, rotorSpeed[1], Motor_LB.speed * rpm2rps);
+        PID_Calculate(&PID_RBCM, rotorSpeed[2], Motor_RB.speed * rpm2rps);
+        PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
 
         // 输出电流值到电调
-        Can_Set_CM_Current(CAN1, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, 10);
@@ -95,7 +95,12 @@ void Task_Safe_Mode(void *Parameters) {
 
     while (1) {
         if (remoteData.switchRight == 2) {
-            Can_Set_CM_Current(CAN1, 0, 0, 0, 0);
+#if CAN1_ENABLED
+            Can_Send(CAN1, 0x200, 0, 0, 0, 0);
+#endif // CAN1_ENABLED
+#if CAN2_ENABLED
+            Can_Send(CAN2, 0x200, 0, 0, 0, 0);
+#endif // CAN1_ENABLED
             vTaskSuspendAll();
         }
         vTaskDelay(100);
