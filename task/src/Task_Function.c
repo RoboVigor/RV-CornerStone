@@ -79,7 +79,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
 
         // 输出电流值到电调
-        Can_Transmit(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, 10);
@@ -96,10 +96,10 @@ void Task_Safe_Mode(void *Parameters) {
     while (1) {
         if (remoteData.switchRight == 2) {
 #if CAN1_ENABLED
-            Can_Transmit(CAN1, 0x200, 0, 0, 0, 0);
+            Can_Send(CAN1, 0x200, 0, 0, 0, 0);
 #endif // CAN1_ENABLED
 #if CAN2_ENABLED
-            Can_Transmit(CAN2, 0x200, 0, 0, 0, 0);
+            Can_Send(CAN2, 0x200, 0, 0, 0, 0);
 #endif // CAN1_ENABLED
             vTaskSuspendAll();
         }

@@ -3,6 +3,6 @@
 
 #include "stm32f4xx.h"
 
-void Can_Transmit(CAN_TypeDef *CANx, int16_t stdId, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204);
+void Can_Send(CAN_TypeDef *CANx, int16_t stdId, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204);
 
 #endif

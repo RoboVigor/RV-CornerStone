@@ -17,7 +17,7 @@
  * @param i_203 0x203地址电机给定电流值,范围-32768~32768
  * @param i_204 0x204地址电机给定电流值,范围-32768~32768
  */
-void Can_Transmit(CAN_TypeDef *CANx, int16_t id, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204) {
+void Can_Send(CAN_TypeDef *CANx, int16_t id, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204) {
     CanTxMsg message;
     message.StdId = id;
     message.IDE   = CAN_Id_Standard;
