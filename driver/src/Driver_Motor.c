@@ -21,6 +21,7 @@ void Motor_Init(volatile Motor_Type *motor, int16_t positionBias) {
     motor->speed        = 0;
     motor->round        = 0;
     motor->angle        = 0;
+    motor->angleBias    = 0;
     motor->lastAngle    = 0;
 }
 
