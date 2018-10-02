@@ -12,6 +12,7 @@ void BSP_GPIO_Init(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
 
     // UART1(DBus)
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
@@ -51,7 +52,7 @@ void BSP_GPIO_Init(void) {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOF, &GPIO_InitStructure);
 
-    // IIC
+    // 陀螺仪(IIC)
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_7 | GPIO_Pin_9;
@@ -73,7 +74,21 @@ void BSP_GPIO_Init(void) {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOF, &GPIO_InitStructure);
 
-    // TIM2
+#if BSP_USER_POWER
+    // User Power
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOH, &GPIO_InitStructure);
+    GPIO_SetBits(GPIOH, GPIO_Pin_2);
+    GPIO_SetBits(GPIOH, GPIO_Pin_3);
+    GPIO_SetBits(GPIOH, GPIO_Pin_4);
+    GPIO_SetBits(GPIOH, GPIO_Pin_5);
+#endif
+
+    // TIM2(高频计数器)
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource1, GPIO_AF_TIM2); // GPIOA1复用为定时器2
 
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_1;        // GPIOB4

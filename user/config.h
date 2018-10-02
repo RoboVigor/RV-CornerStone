@@ -7,6 +7,9 @@
 #define CAN1_ENABLED 1
 #define CAN2_ENABLED 0
 
+// BSP开关
+#define BSP_USER_POWER 1
+
 // 底盘
 #define CHASSIS_MOTOR_REDUCTION_RATE 19.2  //底盘电机减速比
 #define CHASSIS_MAX_ROTOR_SPEED 253        //最大轮子转速,单位rad/s
