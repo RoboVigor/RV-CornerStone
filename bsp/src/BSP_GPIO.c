@@ -1,4 +1,5 @@
 #include "BSP_GPIO.h"
+#include "config.h"
 
 /**
  * @brief  GPIO初始化
@@ -74,7 +75,7 @@ void BSP_GPIO_Init(void) {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOF, &GPIO_InitStructure);
 
-#if BSP_USER_POWER
+#if USER_POWER_ENABLED
     // User Power
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
