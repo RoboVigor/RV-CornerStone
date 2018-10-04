@@ -59,10 +59,10 @@ void Task_Sumsung(void *Parameters) {
     // Encoder_SumsungLF.ecdBias = Motor_SumSungLF.angle;
 
     // 初始化编码器解算
-    Motor_Init(&Encoder_SumsungLB, Motor_SumSungLB.angle);
-    Motor_Init(&Encoder_SumsungRB, Motor_SumSungRB.angle);
-    Motor_Init(&Encoder_SumsungRF, Motor_SumSungRF.angle);
-    Motor_Init(&Encoder_SumsungLF, Motor_SumSungLF.angle);
+    Motor_Init(&Encoder_SumsungLB, Motor_SumSungLB.position);
+    Motor_Init(&Encoder_SumsungRB, Motor_SumSungRB.position);
+    Motor_Init(&Encoder_SumsungRF, Motor_SumSungRF.position);
+    Motor_Init(&Encoder_SumsungLF, Motor_SumSungLF.position);
 
     while (1) {
         // // 安全模式
@@ -72,10 +72,10 @@ void Task_Sumsung(void *Parameters) {
         // }
 
         // 解算编码器角度
-        Motor_Update(&Encoder_SumsungLB, Motor_SumSungLB.angle);
-        Motor_Update(&Encoder_SumsungRB, Motor_SumSungRB.angle);
-        Motor_Update(&Encoder_SumsungRF, Motor_SumSungRF.angle);
-        Motor_Update(&Encoder_SumsungLF, Motor_SumSungLF.angle);
+        Motor_Update(&Encoder_SumsungLB, Motor_SumSungLB.position);
+        Motor_Update(&Encoder_SumsungRB, Motor_SumSungRB.position);
+        Motor_Update(&Encoder_SumsungRF, Motor_SumSungRF.position);
+        Motor_Update(&Encoder_SumsungLF, Motor_SumSungLF.position);
 
         // 位置调整
         if (remoteData.switchLeft == 3) {
@@ -184,7 +184,7 @@ void Task_Chassis(void *Parameters) {
         }
 
         // 设置底盘总体移动速度
-        Chassis_Set_Speed((float) -remoteData.ly / 660.0, (float) remoteData.lx / 660.0, (float) PID_YawSpeed.output / 1320.0);
+        Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
 
         // 麦轮解算&限幅,获得轮子转速
         Chassis_Get_Rotor_Speed(rotorSpeed);

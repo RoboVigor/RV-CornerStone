@@ -14,8 +14,8 @@
  * @param positionBias
  */
 void Motor_Init(volatile Motor_Type *motor, int16_t positionBias) {
-    motor->position     = positionBias;
-    motor->lastPosition = positionBias;
+    motor->position     = 0;
+    motor->lastPosition = 0;
     motor->positionBias = positionBias;
     motor->positionDiff = 0;
     motor->speed        = 0;
