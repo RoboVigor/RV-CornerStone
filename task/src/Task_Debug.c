@@ -57,10 +57,10 @@ void Task_MagicSend(void *Parameters) {
 
     while (1) {
         taskENTER_CRITICAL(); // 进入临界段
-        PID_Print(&PID_YawAngle);
-        // printf("AnglePID: %d %f %f\r\n", PID_YawAngle.output, EulerAngle.Yaw, PID_YawAngle.target);
+        // PID_Print(&PID_YawAngle);
+        printf("Yaw %f\r\n", EulerAngle.Yaw);
         taskEXIT_CRITICAL(); // 退出临界段
-        vTaskDelayUntil(&LastWakeTime, 50);
+        vTaskDelayUntil(&LastWakeTime, 500);
     }
     vTaskDelete(NULL);
 }

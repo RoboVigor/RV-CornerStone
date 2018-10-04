@@ -1,4 +1,5 @@
 #include "main.h"
+#include "handle.h"
 #include "BSP_GPIO.h"
 #include "BSP_NVIC.h"
 #include "BSP_UART.h"
@@ -13,6 +14,9 @@
 void Task_Sys_Init(void *Parameters) {
     // 进入临界区
     taskENTER_CRITICAL();
+
+    //初始化全局变量
+    Handle_Init();
 
     // BSP们
     BSP_GPIO_Init();
@@ -39,7 +43,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Sumsung, "Task_Sumsung", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Sumsung, "Task_Sumsung", 400, NULL, 3, NULL);
 
     // xTaskCreate(Task_Event_Group, "Task_Event_Group", 400, NULL, 3, NULL);
 

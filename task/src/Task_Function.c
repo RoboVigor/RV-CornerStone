@@ -51,19 +51,6 @@ void Task_Sumsung(void *Parameters) {
     PID_Init(&CM3PID, 55, 0, 0, 8000, 4000); // 35   0.01
     PID_Init(&CM4PID, 55, 0, 0, 8000, 4000); // 35   0.01
 
-    // 等待编码器接收以设定初始编码器偏差
-    vTaskDelayUntil(&LastWakeTime, 1000);
-    // Encoder_SumsungLB.ecdBias = Motor_SumSungLB.angle;
-    // Encoder_SumsungRB.ecdBias = Motor_SumSungRB.angle;
-    // Encoder_SumsungRF.ecdBias = Motor_SumSungRF.angle;
-    // Encoder_SumsungLF.ecdBias = Motor_SumSungLF.angle;
-
-    // 初始化编码器解算
-    Motor_Init(&Encoder_SumsungLB, Motor_SumSungLB.position);
-    Motor_Init(&Encoder_SumsungRB, Motor_SumSungRB.position);
-    Motor_Init(&Encoder_SumsungRF, Motor_SumSungRF.position);
-    Motor_Init(&Encoder_SumsungLF, Motor_SumSungLF.position);
-
     while (1) {
         // // 安全模式
         // if (remoteData.switchRight == 2) {
@@ -71,16 +58,10 @@ void Task_Sumsung(void *Parameters) {
         //     break;
         // }
 
-        // 解算编码器角度
-        Motor_Update(&Encoder_SumsungLB, Motor_SumSungLB.position);
-        Motor_Update(&Encoder_SumsungRB, Motor_SumSungRB.position);
-        Motor_Update(&Encoder_SumsungRF, Motor_SumSungRF.position);
-        Motor_Update(&Encoder_SumsungLF, Motor_SumSungLF.position);
-
         // 位置调整
         if (remoteData.switchLeft == 3) {
-            targetFrontGroupOffset = targetFrontGroupPreset[groupMode] - Encoder_SumsungRF.angle / 19.2;
-            targetBackGroupOffset  = targetBackGroupPreset[groupMode] - Encoder_SumsungRB.angle / 19.2;
+            targetFrontGroupOffset = targetFrontGroupPreset[groupMode] - Motor_SumsungRF.angle;
+            targetBackGroupOffset  = targetBackGroupPreset[groupMode] - Motor_SumsungRB.angle;
             Can_Send(CAN1, 0x200, 0, 0, 0, 0); //轮组电机断电
             lastSwitchLeft = 3;                //更新模式信息
             vTaskDelayUntil(&LastWakeTime, 5); //任务延时
@@ -117,15 +98,15 @@ void Task_Sumsung(void *Parameters) {
         }
 
         // 轮组PID解算
-        PID_Calculate(&ChassisAnglePID1, -targetBackGroup, Encoder_SumsungLB.angle / 19.2);
-        PID_Calculate(&ChassisAnglePID2, targetBackGroup, Encoder_SumsungRB.angle / 19.2);
-        PID_Calculate(&ChassisAnglePID3, targetFrontGroup, Encoder_SumsungRF.angle / 19.2);
-        PID_Calculate(&ChassisAnglePID4, -targetFrontGroup, Encoder_SumsungLF.angle / 19.2);
+        PID_Calculate(&ChassisAnglePID1, -targetBackGroup, Motor_SumsungLB.angle);
+        PID_Calculate(&ChassisAnglePID2, targetBackGroup, Motor_SumsungRB.angle);
+        PID_Calculate(&ChassisAnglePID3, targetFrontGroup, Motor_SumsungRF.angle);
+        PID_Calculate(&ChassisAnglePID4, -targetFrontGroup, Motor_SumsungLF.angle);
 
-        PID_Calculate(&CM1PID, ChassisAnglePID1.output, Motor_SumSungLB.speed * kFeedback);
-        PID_Calculate(&CM2PID, ChassisAnglePID2.output, Motor_SumSungRB.speed * kFeedback);
-        PID_Calculate(&CM3PID, ChassisAnglePID3.output, Motor_SumSungRF.speed * kFeedback);
-        PID_Calculate(&CM4PID, ChassisAnglePID4.output, Motor_SumSungLF.speed * kFeedback);
+        PID_Calculate(&CM1PID, ChassisAnglePID1.output, Motor_SumsungLB.speed * kFeedback);
+        PID_Calculate(&CM2PID, ChassisAnglePID2.output, Motor_SumsungRB.speed * kFeedback);
+        PID_Calculate(&CM3PID, ChassisAnglePID3.output, Motor_SumsungRF.speed * kFeedback);
+        PID_Calculate(&CM4PID, ChassisAnglePID4.output, Motor_SumsungLF.speed * kFeedback);
 
         // 输出电流
         Can_Send(CAN1, 0x200, CM1PID.output, CM2PID.output, CM3PID.output, CM4PID.output);
@@ -191,9 +172,9 @@ void Task_Chassis(void *Parameters) {
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * rpm2rps);
-        PID_Calculate(&PID_LBCM, rotorSpeed[3], Motor_LB.speed * rpm2rps);
+        PID_Calculate(&PID_LBCM, rotorSpeed[1], Motor_LB.speed * rpm2rps);
         PID_Calculate(&PID_RBCM, rotorSpeed[2], Motor_RB.speed * rpm2rps);
-        PID_Calculate(&PID_RFCM, rotorSpeed[1], Motor_RF.speed * rpm2rps);
+        PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
 
         // 输出电流值到电调
         Can_Send(CAN2, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);

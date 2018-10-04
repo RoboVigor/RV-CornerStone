@@ -1,4 +1,5 @@
 #include "BSP_GPIO.h"
+#include "config.h"
 
 /**
  * @brief  GPIO初始化

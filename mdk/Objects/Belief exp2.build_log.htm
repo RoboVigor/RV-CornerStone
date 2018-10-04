@@ -22,7 +22,7 @@ Dialog DLL:      TCM.DLL V1.14.4.0
  
 <h2>Project:</h2>
 D:\cangku\RV-CornerStone\mdk\Belief exp2.uvprojx
-Project File Date:  10/03/2018
+Project File Date:  10/04/2018
 
 <h2>Output:</h2>
 Build target 'Target 1'
@@ -30,6 +30,7 @@ compiling BSP_DMA.c...
 ..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
   #include "key.h"
 ..\bsp\src\BSP_DMA.c: 1 warning, 0 errors
+compiling BSP_GPIO.c...
 compiling main.c...
 ..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
   #include "key.h"
@@ -40,13 +41,16 @@ compiling stm32f4xx_it.c...
 ..\user\stm32f4xx_it.c(15): warning:  #550-D: variable "UARTtemp" was set but never used
       uint8_t UARTtemp;
 ..\user\stm32f4xx_it.c: 2 warnings, 0 errors
-compiling Driver_PID.c...
-compiling Driver_Magic.c...
+compiling handle.c...
+compiling mpu6500_interrupt.c...
+..\driver\src\mpu6500_interrupt.c(89): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\driver\src\mpu6500_interrupt.c: 1 warning, 0 errors
 compiling Driver_Chassis.c...
+..\driver\src\Driver_Chassis.c(35): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                      ((Chassisparam.TargetVY) + (Chassisparam.TargetVX) + Chassisparam.TargetWR * CHASSIS_SIZE_K);
 ..\driver\src\Driver_Chassis.c(37): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-                      (Chassisparam.TargetVX - (Chassisparam.TargetVY) + Chassisparam.TargetWR * CHASSIS_SIZE_K);
-..\driver\src\Driver_Chassis.c(39): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-                      ((Chassisparam.TargetVX) + (Chassisparam.TargetVY) + Chassisparam.TargetWR * CHASSIS_SIZE_K);
+                      (Chassisparam.TargetVY - (Chassisparam.TargetVX) + Chassisparam.TargetWR * CHASSIS_SIZE_K);
 ..\driver\src\Driver_Chassis.c: 2 warnings, 0 errors
 compiling Task_Sys_Init.c...
 ..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
@@ -67,33 +71,21 @@ compiling Task_Function.c...
   #include "key.h"
 ..\task\src\Task_Function.c(18): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Function.c(82): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-              targetFrontGroupOffset = targetFrontGroupPreset[groupMode] - Encoder_SumsungRF.angle / 19.2;
-..\task\src\Task_Function.c(83): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-              targetBackGroupOffset  = targetBackGroupPreset[groupMode] - Encoder_SumsungRB.angle / 19.2;
-..\task\src\Task_Function.c(120): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          PID_Calculate(&ChassisAnglePID1, -targetBackGroup, Encoder_SumsungLB.angle / 19.2);
-..\task\src\Task_Function.c(121): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          PID_Calculate(&ChassisAnglePID2, targetBackGroup, Encoder_SumsungRB.angle / 19.2);
-..\task\src\Task_Function.c(122): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          PID_Calculate(&ChassisAnglePID3, targetFrontGroup, Encoder_SumsungRF.angle / 19.2);
-..\task\src\Task_Function.c(123): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          PID_Calculate(&ChassisAnglePID4, -targetFrontGroup, Encoder_SumsungLF.angle / 19.2);
-..\task\src\Task_Function.c(136): warning:  #111-D: statement is unreachable
+..\task\src\Task_Function.c(117): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
 ..\task\src\Task_Function.c(33): warning:  #177-D: variable "target" was declared but never referenced
       int target           = 0;
-..\task\src\Task_Function.c(187): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+..\task\src\Task_Function.c(168): warning:  #1035-D: single-precision operand implicitly converted to double-precision
           Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
-..\task\src\Task_Function.c(187): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+..\task\src\Task_Function.c(168): warning:  #1035-D: single-precision operand implicitly converted to double-precision
           Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
-..\task\src\Task_Function.c(187): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+..\task\src\Task_Function.c(168): warning:  #1035-D: single-precision operand implicitly converted to double-precision
           Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
-..\task\src\Task_Function.c(205): warning:  #111-D: statement is unreachable
+..\task\src\Task_Function.c(186): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Function.c(226): warning:  #111-D: statement is unreachable
+..\task\src\Task_Function.c(207): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Function.c: 15 warnings, 0 errors
+..\task\src\Task_Function.c: 9 warnings, 0 errors
 compiling Task_HighFreq.c...
 ..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
   #include "key.h"
@@ -103,9 +95,9 @@ compiling Task_HighFreq.c...
   }
 ..\task\src\Task_HighFreq.c: 3 warnings, 0 errors
 linking...
-Program Size: Code=38144 RO-data=1056 RW-data=468 ZI-data=83884  
+Program Size: Code=36284 RO-data=1012 RW-data=456 ZI-data=83856  
 FromELF: creating hex file...
-".\Objects\Belief exp2.axf" - 0 Error(s), 29 Warning(s).
+".\Objects\Belief exp2.axf" - 0 Error(s), 24 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   D:\cangku\RV-CornerStone\mdk\RTE
