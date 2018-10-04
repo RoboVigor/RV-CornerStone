@@ -1,3 +1,10 @@
+/**
+ * @file Driver_Filter.h
+ * @brief 滤波算法
+ * @version 0.6
+ * - 新增基础滤波器
+ * - 新增限幅滤波
+ */
 #ifndef __Filter_H
 #define __Filter_H
 
