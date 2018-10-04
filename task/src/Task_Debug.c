@@ -4,10 +4,6 @@
 
 #include "main.h"
 
-/**
- * @brief  调试信息输出任务
- */
-
 extern volatile uint32_t ulHighFrequencyTimerTicks;
 int                      taskDebug_Sign = 0;
 
@@ -33,9 +29,6 @@ void Task_RTOSState(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-/**
- * @brief 地面站 串口调试数据 接收函数
- */
 void Task_MagicReceive(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
@@ -49,9 +42,6 @@ void Task_MagicReceive(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-/**
- * @brief 地面站 反馈数据 发送函数
- */
 void Task_MagicSend(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 

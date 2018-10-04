@@ -4,9 +4,6 @@
 
 #include "main.h"
 
-/**
- * @brief 陀螺仪姿态解算
- */
 void Task_Gyroscope(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
 

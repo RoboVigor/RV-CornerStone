@@ -4,10 +4,6 @@
 
 #include "main.h"
 
-/**
- * @brief  LED闪烁任务 确认存活
- */
-
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
@@ -17,10 +13,6 @@ void Task_Blink(void *Parameters) {
 
     vTaskDelete(NULL);
 }
-
-/**
- * @brief  底盘运动
- */
 
 void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -88,9 +80,6 @@ void Task_Chassis(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-/**
- * @brief  安全模式
- */
 void Task_Safe_Mode(void *Parameters) {
 
     while (1) {

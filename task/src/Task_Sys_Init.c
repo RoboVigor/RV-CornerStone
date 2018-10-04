@@ -7,10 +7,6 @@
 #include "BSP_CAN.h"
 #include "BSP_TIM.h"
 
-/**
- * @brief  初始化任务初始化任务和硬件
- */
-
 void Task_Sys_Init(void *Parameters) {
     // 进入临界区
     taskENTER_CRITICAL();
