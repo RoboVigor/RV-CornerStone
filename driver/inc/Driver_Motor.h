@@ -22,6 +22,6 @@ typedef struct {
 } Motor_Type;
 
 void Motor_Init(volatile Motor_Type *motor, int16_t positionBias);
-void Motor_Update(volatile Motor_Type *motor);
+void Motor_Update(volatile Motor_Type *motor, int16_t agree);
 
 #endif

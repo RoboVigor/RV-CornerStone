@@ -5,7 +5,7 @@
 // 全局
 #define BOARD_VERSION 1 //开发板型号,0:旧版,1:A版
 #define CAN1_ENABLED 1
-#define CAN2_ENABLED 0
+#define CAN2_ENABLED 1
 
 // BSP开关
 #define BSP_USER_POWER 1

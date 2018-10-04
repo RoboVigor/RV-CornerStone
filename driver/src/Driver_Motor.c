@@ -14,8 +14,8 @@
  * @param positionBias
  */
 void Motor_Init(volatile Motor_Type *motor, int16_t positionBias) {
-    motor->position     = 0;
-    motor->lastPosition = 0;
+    motor->position     = positionBias;
+    motor->lastPosition = positionBias;
     motor->positionBias = positionBias;
     motor->positionDiff = 0;
     motor->speed        = 0;
@@ -30,9 +30,11 @@ void Motor_Init(volatile Motor_Type *motor, int16_t positionBias) {
  *
  * @param Motor_Type
  */
-void Motor_Update(volatile Motor_Type *motor) {
+void Motor_Update(volatile Motor_Type *motor, int16_t agree) {
     // 更新转子信息
+
     motor->lastPosition = motor->position;
+    motor->position     = agree;
     motor->positionDiff = motor->position - motor->lastPosition;
 
     //两次编码器的反馈值差别太大,表示圈数发生了改变

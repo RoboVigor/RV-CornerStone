@@ -23,7 +23,8 @@
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 电机
-__HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
+__HANDLE_EXT Motor_Type          Motor_LF, Motor_RF, Motor_RB, Motor_LB, Motor_SumSungLF, Motor_SumSungLB, Motor_SumSungRF, Motor_SumSungRB;
+__HANDLE_EXT volatile Motor_Type Encoder_SumsungLB, Encoder_SumsungRB, Encoder_SumsungRF, Encoder_SumsungLF;
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
@@ -36,5 +37,8 @@ __HANDLE_EXT MagicHandle_Type magic;
 
 // Task_Chassis
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
+
+// Task_Sumsung
+__HANDLE_EXT PID_Type ChassisAnglePID1, ChassisAnglePID2, ChassisAnglePID3, ChassisAnglePID4, CM1PID, CM2PID, CM3PID, CM4PID;
 
 #endif
