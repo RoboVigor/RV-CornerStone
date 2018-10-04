@@ -8,6 +8,7 @@ void Task_Sys_Init(void *Parameters);
 void Task_Blink(void *Parameters);
 void Task_Chassis(void *Parameters);
 // void Task_Event_Group(void *pvParameter);
+void Task_Fire(void *Parameters); // 发射机构任务
 void Task_Safe_Mode(void *Parameters);
 
 // 调试任务

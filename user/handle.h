@@ -8,6 +8,7 @@
 #include "Driver_CAN.h"
 #include "Driver_Motor.h"
 #include "Driver_Chassis.h"
+#include "Driver_Fire.h"
 #include "Driver_Armour.h"
 #include "Driver_Angular.h"
 #include "mpu6500_driver.h"
@@ -36,6 +37,12 @@ __HANDLE_EXT MagicHandle_Type magic;
 
 // Task_Chassis
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
+
+// Task_Fire
+__HANDLE_EXT FireState_Type FireState;                                 // 发射机构标志位
+__HANDLE_EXT Motor_Type Motor_LeftFrict, Motor_RightFrict, Motor_Stir; // 左/右 摩擦轮、拨弹轮 电机
+__HANDLE_EXT PID_Type PID_LeftFrictSpeed, PID_RightFrictSpeed;         // 左/右 摩擦轮 PID
+__HANDLE_EXT PID_Type PID_StirSpeed, PID_StirAnlge;                    // 拨弹轮 速度/角度 PID
 
 void Handle_Init(void);
 
