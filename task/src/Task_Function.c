@@ -93,12 +93,17 @@ void Task_Fire(void *Parameters) {
     float      rpm2rps      = 3.14 / 60;           // 转子的转速(round/min)换算成角速度(rad/s)
     uint8_t    startCounter = 0;                   // 启动模式计数器
 
+#define LASER_ON GPIO_SetBits(GPIOG, GPIO_Pin_13)    // 激光开启
+#define LASER_OFF GPIO_ResetBits(GPIOG, GPIO_Pin_13) // 激光关闭
+
+    // 标志位
+    uint8_t State_Frict = 0;
+    uint8_t State_Stir  = 0;
+
+    // 常量
     float frictSpeed   = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
     float stirSpeedOne = 36 * 36;
     float stirSpeedTwo = 50 * 36;
-
-    // 标志位 初始化
-    Fire_StateInit(&FireState);
 
     // 电机初始化
     Motor_Init(&Motor_LeftFrict, , 0);
