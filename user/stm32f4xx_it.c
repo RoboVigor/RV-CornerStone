@@ -76,23 +76,23 @@ void CAN1_RX0_IRQHandler(void) {
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
     switch (CanRxData.StdId) {
     case 0x201:
-        Motor_LF.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_LF.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+        Motor_LF.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        Motor_LF.speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
     case 0x202:
-        Motor_LB.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_LB.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+        Motor_LB.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        Motor_LB.speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
     case 0x203:
-        Motor_RB.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_RB.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+        Motor_RB.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        Motor_RB.speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
     case 0x204:
-        Motor_RF.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_RF.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+        Motor_RF.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        Motor_RF.speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
     default:
@@ -116,22 +116,22 @@ void CAN2_RX0_IRQHandler(void) {
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
     switch (CanRxData.StdId) {
     case 0x201:
-        // Motor_LF.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        // Motor_LF.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
         // Motor_LF.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
     case 0x202:
-        // Motor_LB.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        // Motor_LB.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
         // Motor_LB.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
     case 0x203:
-        // Motor_RB.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        // Motor_RB.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
         // Motor_RB.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
     case 0x204:
-        // Motor_RF.angle = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+        // Motor_RF.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
         // Motor_RF.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
         break;
 
