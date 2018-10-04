@@ -3,11 +3,11 @@
  * @note g和a是gyroscope和acceleration的缩写
  */
 
-#define __DRIVER_ANGULAR_GLOBALS
-#include "Driver_Angular.h"
+#define __DRIVER_GYROSCOPE_GLOBALS
+#include "Driver_Gyroscope.h"
+#include "Driver_Filter.h"
+#include "config.h"
 #include "MadgwickAHRS.h"
-#include "Driver_DBUS.h"
-#include "Driver_CAN.h"
 
 float e_angle[3] = {0, 0, 0}; // yaw,pitch,roll
 float a_speed[4] = {0, 0, 0, 0};
@@ -16,7 +16,7 @@ float ax_acc = 0;
 float ay_acc = 0;
 float az_acc = 0;
 
-float yaw_offset = 0; // todo
+Filter_Type filterYaw = {.thresholdLB = GYROSCOPE_YAW_FILTER_THRESHOLD, .isInit = 0};
 
 void Gyroscope_Update_Angle_Data(void) {
     a_speed[1] = (float) ((mpu6500_data.gx / GYRO_LSB) * PI / 180);
@@ -39,12 +39,19 @@ void Gyroscope_Update_Angle_Data(void) {
         e_angle[1] += 180.0;
     }
 
-    EulerAngle.Yaw   = e_angle[2];
+    // 更新滤波器
+    Filter_Update(&filterYaw, e_angle[2]);
+
+    // 计算连续 Yaw 角
+    if (filterYaw.diff > 300) {
+        filterYaw.offset -= 360;
+    } else if (filterYaw.diff < -300) {
+        filterYaw.offset += 360;
+    }
+
+    // 输出欧拉角
+    EulerAngle.Yaw   = Filter_Limit_Breadth(&filterYaw); // 应用限幅滤波
     EulerAngle.Pitch = -e_angle[1];
     EulerAngle.Pitch += EulerAngle.Pitch_offset;
     EulerAngle.Roll = e_angle[0];
 }
-
-// void Gyroscope_(int isSampling, float yawAngle) {
-//     // todo
-// }

@@ -8,7 +8,7 @@
 #include "Driver_CAN.h"
 #include "Driver_Motor.h"
 #include "Driver_Chassis.h"
-#include "Driver_Angular.h"
+#include "Driver_Gyroscope.h"
 #include "mpu6500_driver.h"
 #include "mpu6500_interrupt.h"
 

@@ -1,6 +1,6 @@
 
-#ifndef __DRIVER_ANGULAR_H
-#define __DRIVER_ANGULAR_H
+#ifndef __DRIVER_GYROSCOPE_H
+#define __DRIVER_GYROSCOPE_H
 
 #include "stm32f4xx.h"
 #include "math.h"
@@ -35,14 +35,14 @@ typedef struct {
     double filtered_value;
 } Filter_t;
 
-#ifdef __DRIVER_ANGULAR_GLOBALS
-#define __DRIVER_ANGULAR_EXT
+#ifdef __DRIVER_GYROSCOPE_GLOBALS
+#define __DRIVER_GYROSCOPE_EXT
 #else
-#define __DRIVER_ANGULAR_EXT extern
+#define __DRIVER_GYROSCOPE_EXT extern
 #endif
 
-__DRIVER_ANGULAR_EXT volatile EulerAngle_Type EulerAngle;
-extern volatile float                         angle[3];
+__DRIVER_GYROSCOPE_EXT volatile EulerAngle_Type EulerAngle;
+extern volatile float                           angle[3];
 
 void Gyroscope_Update_Angle_Data(void);
 
