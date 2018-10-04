@@ -1,3 +1,15 @@
+/**
+ * @file Driver_Motor.h
+ * @brief 电机驱动
+ * @note 新增电机应在handle中声明并初始化,在stmxx_it中设置对应电调ID
+ * @version 0.6
+ * - 更新 Motor_Init() 参数
+ * - 更新 Motor_Update() 参数
+ * @version 0.5
+ * - Motor_Type 用于保存所有电机相关的信息
+ * - 原有的平均值滤波函数将在Driver_Filter中实现
+ */
+
 #ifndef __DRIVER_MOTOR_H
 #define __DRIVER_MOTOR_H
 
@@ -18,7 +30,23 @@ typedef struct {
     float   reductionRate;
 } Motor_Type;
 
+/**
+ * @brief 初始化电机结构体
+ *
+ * @param Motor_Type 电机结构体
+ * @param reductionRate 电机减速比(输入转速:输出转速)
+ * @param angleEnabled 是否启用连续角度计算
+ */
 void Motor_Init(volatile Motor_Type *motor, float reductionRate, int8_t angleEnabled);
+
+/**
+ * @brief 更新电机数据
+ * @note 转子位置及速度通过CAN接收,在stm32f4xx_it.c中定义
+ *
+ * @param Motor_Type 电机结构体
+ * @param position 转子位置
+ * @param speed 转子转速
+ */
 void Motor_Update(volatile Motor_Type *motor, int16_t position, int16_t speed);
 
 #endif
