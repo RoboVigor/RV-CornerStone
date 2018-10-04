@@ -22,24 +22,38 @@ Dialog DLL:      TCM.DLL V1.14.14.0
  
 <h2>Project:</h2>
 C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\Belief exp2.uvprojx
-Project File Date:  10/02/2018
+Project File Date:  10/04/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-compiling Driver_Motor.c...
-..\driver\src\Driver_Motor.c(16): error:  #147-D: declaration is incompatible with "void Motor_Init(volatile Motor_Type *)" (declared at line 25 of "..\driver\inc\Driver_Motor.h")
-  void Motor_Init(volatile Motor_Type *motor, int16_t positionBias) {
-..\driver\src\Driver_Motor.c: 0 warnings, 1 error
-".\Objects\Belief exp2.axf" - 1 Error(s), 0 Warning(s).
+compiling Task_Function.c...
+..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
+  #include "key.h"
+..\task\src\Task_Function.c(18): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Function.c(70): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
+..\task\src\Task_Function.c(70): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
+..\task\src\Task_Function.c(70): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
+..\task\src\Task_Function.c(88): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Function.c(109): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\task\src\Task_Function.c: 7 warnings, 0 errors
+linking...
+Program Size: Code=36276 RO-data=1012 RW-data=456 ZI-data=83216  
+FromELF: creating hex file...
+".\Objects\Belief exp2.axf" - 0 Error(s), 7 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE
   C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include
 
 <h2>Collection of Component Files used:</h2>
-Target not created.
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>

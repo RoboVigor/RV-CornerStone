@@ -43,7 +43,8 @@ void Task_MagicReceive(void *Parameters) {
     while (1) {
         taskENTER_CRITICAL();          // 进入临界段
         Magic_Get_Debug_Value(&magic); // 接收调试数据
-        taskEXIT_CRITICAL();           // 退出临界段
+        printf("%d %d\r\n", remoteData.lx, remoteData.ly);
+        taskEXIT_CRITICAL(); // 退出临界段
         vTaskDelayUntil(&LastWakeTime, 50);
     }
     vTaskDelete(NULL);
