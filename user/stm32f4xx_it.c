@@ -5,12 +5,7 @@
 #include "main.h"
 #include "stm32f4xx_it.h"
 
-/**
- * @brief  DBus空闲中断(USART1)
- * @param  void
- * @return void
- */
-
+// DBus空闲中断(USART1)
 void USART1_IRQHandler(void) {
     uint8_t UARTtemp;
 
@@ -32,13 +27,7 @@ void USART1_IRQHandler(void) {
     DMA_Cmd(DMA2_Stream2, ENABLE);
 }
 
-/**
- * @brief  无线串口中断(USART6)
- * @param  void
- * @return void
- * 接收到s时往消息体里塞数据
- */
-
+//无线串口中断(USART6)
 void USART6_IRQHandler(void) {
     u8 res;
 
@@ -65,12 +54,7 @@ void USART6_IRQHandler(void) {
     }
 }
 
-/**
- * @brief  CAN1数据接收中断服务函数
- * @param  void
- * @return void
- */
-
+// CAN1数据接收中断服务函数
 void CAN1_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
     int      position;
@@ -109,12 +93,7 @@ void CAN1_SCE_IRQHandler(void) {
     CAN_ClearITPendingBit(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR);
 }
 
-/**
- * @brief  CAN2数据接收中断服务函数
- * @param  void
- * @return void
- */
-
+// CAN2数据接收中断服务函数
 void CAN2_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
     int      position;
@@ -148,12 +127,7 @@ void CAN2_RX0_IRQHandler(void) {
     // }
 }
 
-/**
- * @brief  TIM2 高频计数器
- * @param  void
- * @return void
- */
-
+// TIM2 高频计数器
 extern volatile uint32_t ulHighFrequencyTimerTicks;
 
 void TIM2_IRQHandler(void) {
