@@ -58,9 +58,9 @@ void Task_MagicSend(void *Parameters) {
     while (1) {
         taskENTER_CRITICAL(); // 进入临界段
         // PID_Print(&PID_YawAngle);
-        printf("Yaw %f\r\n", EulerAngle.Yaw);
-        printf("remote %d %d\r\n", remoteData.lx, remoteData.ly);
-        printf("----------\r\n");
+        // printf("Yaw %f\r\n", EulerAngle.Yaw);
+        // printf("mpu6500 %d %d %d\r\n", mpu6500_data.gx, mpu6500_data.gy, mpu6500_data.gz);
+        // printf("----------\r\n");
         taskEXIT_CRITICAL(); // 退出临界段
         vTaskDelayUntil(&LastWakeTime, 500);
     }

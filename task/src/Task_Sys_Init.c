@@ -37,7 +37,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_MagicSend, "Task_MagicSend", 500, NULL, 6, NULL);
 
     // 高频任务
-    xTaskCreate(Task_Gyroscope, "Task_Gyroscope", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Gyroscope, "Task_Gyroscope", 400, NULL, 8, NULL);
 
     // 功能任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);

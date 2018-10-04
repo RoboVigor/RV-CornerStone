@@ -8,29 +8,29 @@
 extern float yaw_c;
 
 //测试用
-int q_0 = 0;
-int q_1 = 0;
-int q_2 = 0;
-int q_3 = 0;
-int yaw_32 = 0;
-int pitch_32 = 0;
-int roll_32 = 0;
-int start_yaw = 0;
-int final_yaw = 0;
-uint8_t yaw_state = 1;
+int      q_0        = 0;
+int      q_1        = 0;
+int      q_2        = 0;
+int      q_3        = 0;
+int      yaw_32     = 0;
+int      pitch_32   = 0;
+int      roll_32    = 0;
+int      start_yaw  = 0;
+int      final_yaw  = 0;
+uint8_t  yaw_state  = 1;
 uint16_t startcount = 0;
-int pitchint = 0;
+int      pitchint   = 0;
 
 //自制算法声明的变量
 float SS_para1, SS_para2, SS_para3, SS_para4, SS_para5, SS_para6, SS_para7, SS_para8;
 float SS_para9, SS_para10, SS_para11, SS_para12;
-//float q[4]={1,0,0,0};
-//float q[4]={0.5,0,0.8660254,0};   //mag,ix,iy,iz
-float e_angle[3] = {0, 0, 0}; //yaw,pitch,roll
-float a_speed[4] = {0, 0, 0, 0};
+// float q[4]={1,0,0,0};
+// float q[4]={0.5,0,0.8660254,0};   //mag,ix,iy,iz
+float e_angle[3]      = {0, 0, 0}; // yaw,pitch,roll
+float a_speed[4]      = {0, 0, 0, 0};
 float last_a_speed[4] = {0, 0, 0, 0};
-float Ki = 0.009;
-float Kp = 8;
+float Ki              = 0.009;
+float Kp              = 8;
 // float Kd=2;
 
 float ax_acc = 0;
@@ -61,283 +61,265 @@ float q1_;
 float q2_;
 float q3_;
 
-void Gyroscope_Update_Angle_Data(void)
-{
-	//uint8_t count;
+void Gyroscope_Update_Angle_Data(void) {
+    // uint8_t count;
 
-	//IMU_Data_Get();
+    // IMU_Data_Get();
 
-	//	for(count=1;count<4;count++)
-	//		last_a_speed[count]=a_speed[count];
+    //	for(count=1;count<4;count++)
+    //		last_a_speed[count]=a_speed[count];
 
-	a_speed[1] = (float)((mpu6500_data.gx / GYRO_LSB) * PI / 180);
-	a_speed[2] = (float)((mpu6500_data.gy / GYRO_LSB) * PI / 180);
-	a_speed[3] = (float)((mpu6500_data.gz / GYRO_LSB) * PI / 180);
-	ax_acc = (float)(mpu6500_data.ax / ACC_LSB);
-	ay_acc = (float)(mpu6500_data.ay / ACC_LSB);
-	az_acc = (float)(mpu6500_data.az / ACC_LSB);
+    a_speed[1] = (float) ((mpu6500_data.gx / GYRO_LSB) * PI / 180);
+    a_speed[2] = (float) ((mpu6500_data.gy / GYRO_LSB) * PI / 180);
+    a_speed[3] = (float) ((mpu6500_data.gz / GYRO_LSB) * PI / 180);
+    ax_acc     = (float) (mpu6500_data.ax / ACC_LSB);
+    ay_acc     = (float) (mpu6500_data.ay / ACC_LSB);
+    az_acc     = (float) (mpu6500_data.az / ACC_LSB);
 
-	//	q_fresh(q,last_a_speed,a_speed,0.002);
+    //	q_fresh(q,last_a_speed,a_speed,0.002);
 
-	MadgwickAHRSupdateIMU(a_speed[1], a_speed[2], a_speed[3], ax_acc, ay_acc, az_acc);
-	//GD算法或Madgwick算法,梯度算法,网上开源
+    MadgwickAHRSupdateIMU(a_speed[1], a_speed[2], a_speed[3], ax_acc, ay_acc, az_acc);
+    // GD算法或Madgwick算法,梯度算法,网上开源
 
-	//	  MadgwickAHRSupdate(a_speed[1],a_speed[2],a_speed[3],ax_acc,ay_acc,az_acc,mpu6500_data.mx,mpu6500_data.my,mpu6500_data.mz);
-	//	q_0=q[0]*1000;
-	//	q_1=q[1]*1000;
-	//	q_2=q[2]*1000;
-	//	q_3=q[3]*1000;
+    //	  MadgwickAHRSupdate(a_speed[1],a_speed[2],a_speed[3],ax_acc,ay_acc,az_acc,mpu6500_data.mx,mpu6500_data.my,mpu6500_data.mz);
+    //	q_0=q[0]*1000;
+    //	q_1=q[1]*1000;
+    //	q_2=q[2]*1000;
+    //	q_3=q[3]*1000;
 
-	//JLINK测试用
-	q_0 = (int)(q0 * 1000);
-	q_1 = (int)(q1 * 1000);
-	q_2 = (int)(q2 * 1000);
-	q_3 = (int)(q3 * 1000);
+    // JLINK测试用
+    q_0 = (int) (q0 * 1000);
+    q_1 = (int) (q1 * 1000);
+    q_2 = (int) (q2 * 1000);
+    q_3 = (int) (q3 * 1000);
 
-	//		q0_=q0*costheta1-q2*sintheta1;
-	//		q1_=q1*costheta1+q3*sintheta1;
-	//		q2_=q2*costheta1;
-	//		q3_=q3*costheta1-q1*sintheta1;
+    //		q0_=q0*costheta1-q2*sintheta1;
+    //		q1_=q1*costheta1+q3*sintheta1;
+    //		q2_=q2*costheta1;
+    //		q3_=q3*costheta1-q1*sintheta1;
 
-	//		q0_=q0*costheta1*costheta2+q1*sintheta1*costheta2-q2*costheta1*sintheta2+q3*sintheta1*sintheta2;
-	//		q1_=q0*sintheta1*costheta2+q1*costheta1*costheta2+q2*sintheta1*sintheta2-q3*costheta1*sintheta2;
-	//		q2_=q0*costheta1*sintheta2+q1*sintheta1*sintheta2+q2*costheta1*costheta2+q3*sintheta1*costheta2;
-	//		q3_=q0*sintheta1*sintheta2+q1*costheta1*sintheta2-q2*sintheta1*costheta2+q3*costheta1*costheta2;
-	//		int sum=sqrt(q0_*q0_+q1_*q1_+q2_*q2_+q3_*q3_);
-	//		q0_=q0_/sum;
-	//		q1_=q1_/sum;
-	//		q2_=q2_/sum;
-	//		q3_=q3_/sum;
-	//	q0_=q0*0.819152+q2*0.57358;
-	//	q1_=q1*0.819152+q3*0.57358;
-	//	q2_=-q0*0.57358+q2*0.819152;
-	//	q3_=q3*0.819152-q2*0.57358;
-	//	q0_=q0*0.5-q2*0.8660254;
-	//	q1_=q1*0.5-q3*0.8660254;
-	//	q2_=q0*0.8660254+q2*0.5;
-	//	q3_=q3*0.5+q2*0.8660254;
-	//    q[0]=q0;
-	//		q[1]=q1;
-	//		q[2]=q2;
-	//		q[3]=q3;
-	//	q2euler(q,e_angle);
+    //		q0_=q0*costheta1*costheta2+q1*sintheta1*costheta2-q2*costheta1*sintheta2+q3*sintheta1*sintheta2;
+    //		q1_=q0*sintheta1*costheta2+q1*costheta1*costheta2+q2*sintheta1*sintheta2-q3*costheta1*sintheta2;
+    //		q2_=q0*costheta1*sintheta2+q1*sintheta1*sintheta2+q2*costheta1*costheta2+q3*sintheta1*costheta2;
+    //		q3_=q0*sintheta1*sintheta2+q1*costheta1*sintheta2-q2*sintheta1*costheta2+q3*costheta1*costheta2;
+    //		int sum=sqrt(q0_*q0_+q1_*q1_+q2_*q2_+q3_*q3_);
+    //		q0_=q0_/sum;
+    //		q1_=q1_/sum;
+    //		q2_=q2_/sum;
+    //		q3_=q3_/sum;
+    //	q0_=q0*0.819152+q2*0.57358;
+    //	q1_=q1*0.819152+q3*0.57358;
+    //	q2_=-q0*0.57358+q2*0.819152;
+    //	q3_=q3*0.819152-q2*0.57358;
+    //	q0_=q0*0.5-q2*0.8660254;
+    //	q1_=q1*0.5-q3*0.8660254;
+    //	q2_=q0*0.8660254+q2*0.5;
+    //	q3_=q3*0.5+q2*0.8660254;
+    //    q[0]=q0;
+    //		q[1]=q1;
+    //		q[2]=q2;
+    //		q[3]=q3;
+    //	q2euler(q,e_angle);
 
-	//    const float epsilon=0.0009765625f;
-	//    const float threshold=0.5f-epsilon;
-	//    float judge=q0_*q2_-q1_*q3_;
-	//    if(judge<-threshold||judge>threshold)
-	//    {
-	//        e_angle[yaw]=-2*atan2(q1_,q0_)*180/PI;
-	//        e_angle[pitch]=90;
-	//        e_angle[roll]=0;
-	//    }
-	//    else
-	//    {
-	//        e_angle[roll] = atan2(2 * (q0_ * q1_ + q2_ * q3_),(1-2*(pow(q1_,2.0)+pow(q2_,2.0))))*180/PI;
-	//        e_angle[pitch] = asin(2 * (q0_ * q2_ - q1_ * q3_));
-	//        e_angle[yaw] = atan2(2 * (q0_ * q3_) + q1_ * q2_,(1-2*(pow(q2_,2.0)+pow(q3_,2.0))))*180/PI;
-	//    }
+    //    const float epsilon=0.0009765625f;
+    //    const float threshold=0.5f-epsilon;
+    //    float judge=q0_*q2_-q1_*q3_;
+    //    if(judge<-threshold||judge>threshold)
+    //    {
+    //        e_angle[yaw]=-2*atan2(q1_,q0_)*180/PI;
+    //        e_angle[pitch]=90;
+    //        e_angle[roll]=0;
+    //    }
+    //    else
+    //    {
+    //        e_angle[roll] = atan2(2 * (q0_ * q1_ + q2_ * q3_),(1-2*(pow(q1_,2.0)+pow(q2_,2.0))))*180/PI;
+    //        e_angle[pitch] = asin(2 * (q0_ * q2_ - q1_ * q3_));
+    //        e_angle[yaw] = atan2(2 * (q0_ * q3_) + q1_ * q2_,(1-2*(pow(q2_,2.0)+pow(q3_,2.0))))*180/PI;
+    //    }
 
-	e_angle[1] = atan2(2.0f * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3) * 180 / PI;
-	e_angle[0] = asin(2.0f * (q0 * q2 - q1 * q3)) * 180 / PI;
-	e_angle[2] = atan2(2.0f * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 180 / PI;
+    e_angle[1] = atan2(2.0f * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3) * 180 / PI;
+    e_angle[0] = asin(2.0f * (q0 * q2 - q1 * q3)) * 180 / PI;
+    e_angle[2] = atan2(2.0f * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 180 / PI;
 
-	if (e_angle[1] >= 0)
-		e_angle[1] -= 180.0;
-	else
-		e_angle[1] += 180.0;
+    if (e_angle[1] >= 0)
+        e_angle[1] -= 180.0;
+    else
+        e_angle[1] += 180.0;
 
-	EulerAngle.Yaw = e_angle[2];
-	EulerAngle.Pitch = -e_angle[1];
-	EulerAngle.Pitch += EulerAngle.Pitch_offset;
-	EulerAngle.Roll = e_angle[0];
+    EulerAngle.Yaw   = e_angle[2];
+    EulerAngle.Pitch = -e_angle[1];
+    EulerAngle.Pitch += EulerAngle.Pitch_offset;
+    EulerAngle.Roll = e_angle[0];
 
-	//	if(startcount>=7000)
-	//	{
-	//		startcount=7000;
-	//		if(Motor_Feedback.motor201Speed==0 && Motor_Feedback.motor202Speed==0 &&
-	//		Motor_Feedback.motor203Speed==0 && Motor_Feedback.motor204Speed==0 && yaw_c==0 && YAW_Encoder.ecdAngle==0)
-	//		{
-	//			if(yaw_state)
-	//			{
-	//				start_yaw=(int)EulerAngle.Yaw;
-	//				yaw_state=0;
-	//			}
-	//			EulerAngle.Yaw = start_yaw;
-	//		}
-	//		else
-	//		{
-	//			if(yaw_state==0)
-	//			{
-	//				final_yaw=(int)EulerAngle.Yaw;
-	//				EulerAngle.Yaw_offset+=(start_yaw-final_yaw);
-	//				yaw_state=1;
-	//			}
-	//		}
-	//	}
-	//	EulerAngle.Yaw +=EulerAngle.Yaw_offset;
-	//	if(EulerAngle.Yaw>180)
-	//		EulerAngle.Yaw -=360;
-	//	else if(EulerAngle.Yaw<-180)
-	//		EulerAngle.Yaw +=360;
+    //	if(startcount>=7000)
+    //	{
+    //		startcount=7000;
+    //		if(Motor_Feedback.motor201Speed==0 && Motor_Feedback.motor202Speed==0 &&
+    //		Motor_Feedback.motor203Speed==0 && Motor_Feedback.motor204Speed==0 && yaw_c==0 && YAW_Encoder.ecdAngle==0)
+    //		{
+    //			if(yaw_state)
+    //			{
+    //				start_yaw=(int)EulerAngle.Yaw;
+    //				yaw_state=0;
+    //			}
+    //			EulerAngle.Yaw = start_yaw;
+    //		}
+    //		else
+    //		{
+    //			if(yaw_state==0)
+    //			{
+    //				final_yaw=(int)EulerAngle.Yaw;
+    //				EulerAngle.Yaw_offset+=(start_yaw-final_yaw);
+    //				yaw_state=1;
+    //			}
+    //		}
+    //	}
+    //	EulerAngle.Yaw +=EulerAngle.Yaw_offset;
+    //	if(EulerAngle.Yaw>180)
+    //		EulerAngle.Yaw -=360;
+    //	else if(EulerAngle.Yaw<-180)
+    //		EulerAngle.Yaw +=360;
 
-	//JLINK测试用
-	yaw_32 = (int32_t)(EulerAngle.Yaw);	 //*1000);
-	pitch_32 = (int32_t)(EulerAngle.Pitch); //*1000);
-	roll_32 = (int32_t)(EulerAngle.Roll);   //*1000);
-											 //pitchint=(int)Pitch_Encoder.ecd_angle;
+    // JLINK测试用
+    yaw_32   = (int32_t)(EulerAngle.Yaw * 1000); //*1000);
+    pitch_32 = (int32_t)(EulerAngle.Pitch);      //*1000);
+    roll_32  = (int32_t)(EulerAngle.Roll);       //*1000);
+                                                 // pitchint=(int)Pitch_Encoder.ecd_angle;
 
-	//	startcount++;
+    //	startcount++;
 }
 
 //四元数更新,队内自制,可能可以,互补滤波,一阶微分方程或二阶可选择,但没有使用
-void q_fresh(float *q_num, float *a_num, float *a_num2, float time)
-{
-	//这是二阶四元数更新算法,没有加旋转矢量,因为是瞬时角速度,如果是角增量要采用旋转矢量
-	//采用了暴力方法为了节省时间
-	ax_acc = (float)(mpu6500_data.ax / ACC_LSB);
-	ay_acc = (float)(mpu6500_data.ay / ACC_LSB);
-	az_acc = (float)(mpu6500_data.az / ACC_LSB);
+void q_fresh(float *q_num, float *a_num, float *a_num2, float time) {
+    //这是二阶四元数更新算法,没有加旋转矢量,因为是瞬时角速度,如果是角增量要采用旋转矢量
+    //采用了暴力方法为了节省时间
+    ax_acc = (float) (mpu6500_data.ax / ACC_LSB);
+    ay_acc = (float) (mpu6500_data.ay / ACC_LSB);
+    az_acc = (float) (mpu6500_data.az / ACC_LSB);
 
-	a_sum = sqrt(pow(ax_acc, 2.0) + pow(ay_acc, 2.0) + pow(az_acc, 2.0));
+    a_sum = sqrt(pow(ax_acc, 2.0) + pow(ay_acc, 2.0) + pow(az_acc, 2.0));
 
-	ax_nor = ax_acc / a_sum;
+    ax_nor = ax_acc / a_sum;
 
-	ay_nor = ay_acc / a_sum;
+    ay_nor = ay_acc / a_sum;
 
-	az_nor = az_acc / a_sum;
+    az_nor = az_acc / a_sum;
 
-	vx = 2 * (q_num[1] * q_num[3] - q_num[0] * q_num[2]);
-	vy = 2 * (q_num[0] * q_num[1] + q_num[2] * q_num[3]);
-	//	 vz=1-2*(q_num[1]*q_num[1]+q_num[2]*q_num[2]);
-	vz = q_num[0] * q_num[0] - q_num[1] * q_num[1] - q_num[2] * q_num[2] + q_num[3] * q_num[3];
+    vx = 2 * (q_num[1] * q_num[3] - q_num[0] * q_num[2]);
+    vy = 2 * (q_num[0] * q_num[1] + q_num[2] * q_num[3]);
+    //	 vz=1-2*(q_num[1]*q_num[1]+q_num[2]*q_num[2]);
+    vz = q_num[0] * q_num[0] - q_num[1] * q_num[1] - q_num[2] * q_num[2] + q_num[3] * q_num[3];
 
-	L_V_error_z = V_error_z;
-	L_V_error_y = V_error_y;
-	L_V_error_x = V_error_x;
-	V_error_z = ax_nor * vy - ay_nor * vx;
-	V_error_y = az_nor * vx - ax_nor * vz;
-	V_error_x = ay_nor * vz - az_nor * vy;
+    L_V_error_z = V_error_z;
+    L_V_error_y = V_error_y;
+    L_V_error_x = V_error_x;
+    V_error_z   = ax_nor * vy - ay_nor * vx;
+    V_error_y   = az_nor * vx - ax_nor * vz;
+    V_error_x   = ay_nor * vz - az_nor * vy;
 
-	if (V_error_x != 0.0f && V_error_y != 0.0f && V_error_z != 0.0f)
-	{
-		V_error_x_I += (V_error_x * Ki);
-		V_error_y_I += (V_error_y * Ki);
-		V_error_z_I += (V_error_z * Ki);
+    if (V_error_x != 0.0f && V_error_y != 0.0f && V_error_z != 0.0f) {
+        V_error_x_I += (V_error_x * Ki);
+        V_error_y_I += (V_error_y * Ki);
+        V_error_z_I += (V_error_z * Ki);
 
-		//		V_error_x_D=Kd*(V_error_x-L_V_error_z)/time;
-		//		V_error_y_D=Kd*(V_error_y-L_V_error_y)/time;
-		//		V_error_z_D=Kd*(V_error_z-L_V_error_x)/time;
-		a_num[ix] += (V_error_x * Kp + V_error_x_I);
-		a_num[iy] += (V_error_y * Kp + V_error_y_I);
-		a_num[iz] += (V_error_z * Kp + V_error_z_I);
-	}
+        //		V_error_x_D=Kd*(V_error_x-L_V_error_z)/time;
+        //		V_error_y_D=Kd*(V_error_y-L_V_error_y)/time;
+        //		V_error_z_D=Kd*(V_error_z-L_V_error_x)/time;
+        a_num[ix] += (V_error_x * Kp + V_error_x_I);
+        a_num[iy] += (V_error_y * Kp + V_error_y_I);
+        a_num[iz] += (V_error_z * Kp + V_error_z_I);
+    }
 
-	SS_para1 = 0.5 * (-a_num[ix] * q_num[ix] - a_num[iy] * q_num[iy] - a_num[iz] * q_num[iz]);
-	SS_para2 = 0.5 * (a_num[ix] * q_num[mag] + a_num[iz] * q_num[iy] - a_num[iy] * q_num[iz]);
-	SS_para3 = 0.5 * (a_num[iy] * q_num[mag] - a_num[iz] * q_num[ix] - a_num[ix] * q_num[iz]);
-	SS_para4 = 0.5 * (a_num[iz] * q_num[mag] + a_num[iy] * q_num[ix] - a_num[ix] * q_num[iy]);
+    SS_para1 = 0.5 * (-a_num[ix] * q_num[ix] - a_num[iy] * q_num[iy] - a_num[iz] * q_num[iz]);
+    SS_para2 = 0.5 * (a_num[ix] * q_num[mag] + a_num[iz] * q_num[iy] - a_num[iy] * q_num[iz]);
+    SS_para3 = 0.5 * (a_num[iy] * q_num[mag] - a_num[iz] * q_num[ix] - a_num[ix] * q_num[iz]);
+    SS_para4 = 0.5 * (a_num[iz] * q_num[mag] + a_num[iy] * q_num[ix] - a_num[ix] * q_num[iy]);
 
-	q_num[mag] = q_num[mag] + time * SS_para1;
-	q_num[ix] = q_num[ix] + time * SS_para2;
-	q_num[iy] = q_num[iy] + time * SS_para3;
-	q_num[iz] = q_num[iz] + time * SS_para4;
+    q_num[mag] = q_num[mag] + time * SS_para1;
+    q_num[ix]  = q_num[ix] + time * SS_para2;
+    q_num[iy]  = q_num[iy] + time * SS_para3;
+    q_num[iz]  = q_num[iz] + time * SS_para4;
 
-	//	SS_para5 = q_num[mag] + time * SS_para1;
-	//	SS_para6 = q_num[ix] + time * SS_para2;
-	//	SS_para7 = q_num[iy] + time * SS_para3;
-	//	SS_para8 = q_num[iz] + time * SS_para4;
-	//	SS_para9 = 0.5*(-a_num2[ix] * SS_para6 - a_num2[iy] * SS_para7 - a_num2[iz] * SS_para8);
-	//	SS_para10 = 0.5*(a_num2[ix] * SS_para5 + a_num2[iz] * SS_para7 - a_num2[iy] * SS_para8);
-	//	SS_para11 = 0.5*(a_num2[iy] * SS_para5 - a_num2[iz] * SS_para6 - a_num2[ix] * SS_para8);
-	//	SS_para12 = 0.5*(a_num2[iz] * SS_para5 + a_num2[iy] * SS_para6 - a_num2[ix] * SS_para7);
-	//	q_num[mag] += time / 2 * (SS_para1 + SS_para9);
-	//	q_num[ix] += time / 2 * (SS_para2 + SS_para10);
-	//	q_num[iy] += time / 2 * (SS_para3 + SS_para11);
-	//	q_num[iz] += time / 2 * (SS_para4 + SS_para12);
+    //	SS_para5 = q_num[mag] + time * SS_para1;
+    //	SS_para6 = q_num[ix] + time * SS_para2;
+    //	SS_para7 = q_num[iy] + time * SS_para3;
+    //	SS_para8 = q_num[iz] + time * SS_para4;
+    //	SS_para9 = 0.5*(-a_num2[ix] * SS_para6 - a_num2[iy] * SS_para7 - a_num2[iz] * SS_para8);
+    //	SS_para10 = 0.5*(a_num2[ix] * SS_para5 + a_num2[iz] * SS_para7 - a_num2[iy] * SS_para8);
+    //	SS_para11 = 0.5*(a_num2[iy] * SS_para5 - a_num2[iz] * SS_para6 - a_num2[ix] * SS_para8);
+    //	SS_para12 = 0.5*(a_num2[iz] * SS_para5 + a_num2[iy] * SS_para6 - a_num2[ix] * SS_para7);
+    //	q_num[mag] += time / 2 * (SS_para1 + SS_para9);
+    //	q_num[ix] += time / 2 * (SS_para2 + SS_para10);
+    //	q_num[iy] += time / 2 * (SS_para3 + SS_para11);
+    //	q_num[iz] += time / 2 * (SS_para4 + SS_para12);
 
-	q_magnitude = sqrt(pow(q_num[mag], 2.0) + pow(q_num[ix], 2.0) + pow(q_num[iy], 2.0) + pow(q_num[iz], 2.0));
-	q_num[mag] = q_num[mag] / q_magnitude;
-	q_num[ix] = q_num[ix] / q_magnitude;
-	q_num[iy] = q_num[iy] / q_magnitude;
-	q_num[iz] = q_num[iz] / q_magnitude;
+    q_magnitude = sqrt(pow(q_num[mag], 2.0) + pow(q_num[ix], 2.0) + pow(q_num[iy], 2.0) + pow(q_num[iz], 2.0));
+    q_num[mag]  = q_num[mag] / q_magnitude;
+    q_num[ix]   = q_num[ix] / q_magnitude;
+    q_num[iy]   = q_num[iy] / q_magnitude;
+    q_num[iz]   = q_num[iz] / q_magnitude;
 }
 
 //四元数转欧拉2失败
-void q2euler2(float *q_num, float *e_num)
-{
-	const float epsilon = 0.0009765625f;
-	const float threshold = 0.5f - epsilon;
-	float judge = q_num[0] * q_num[2] - q_num[1] * q_num[3];
-	if (judge < -threshold || judge > threshold)
-	{
-		e_num[yaw] = -2 * atan2(q_num[1], q_num[0]) * 180 / PI;
-		e_num[pitch] = 90;
-		e_num[roll] = 0;
-	}
-	else
-	{
-		e_num[roll] = atan2(2 * (q_num[0] * q_num[1] + q_num[2] * q_num[3]), (1 - 2 * (pow(q_num[1], 2.0) + pow(q_num[2], 2.0)))) * 180 / PI;
-		e_num[pitch] = asin(2 * (q_num[0] * q_num[2] - q_num[1] * q_num[3]));
-		e_num[yaw] = atan2(2 * (q_num[0] * q_num[3] + q_num[1] * q_num[2]), (1 - 2 * (pow(q_num[2], 2.0) + pow(q_num[3], 2.0)))) * 180 / PI;
-	}
+void q2euler2(float *q_num, float *e_num) {
+    const float epsilon   = 0.0009765625f;
+    const float threshold = 0.5f - epsilon;
+    float       judge     = q_num[0] * q_num[2] - q_num[1] * q_num[3];
+    if (judge < -threshold || judge > threshold) {
+        e_num[yaw]   = -2 * atan2(q_num[1], q_num[0]) * 180 / PI;
+        e_num[pitch] = 90;
+        e_num[roll]  = 0;
+    } else {
+        e_num[roll]  = atan2(2 * (q_num[0] * q_num[1] + q_num[2] * q_num[3]), (1 - 2 * (pow(q_num[1], 2.0) + pow(q_num[2], 2.0)))) * 180 / PI;
+        e_num[pitch] = asin(2 * (q_num[0] * q_num[2] - q_num[1] * q_num[3]));
+        e_num[yaw]   = atan2(2 * (q_num[0] * q_num[3] + q_num[1] * q_num[2]), (1 - 2 * (pow(q_num[2], 2.0) + pow(q_num[3], 2.0)))) * 180 / PI;
+    }
 }
 
 //四元数转欧拉失败
-void q2euler(float *q_num, float *e_num)
-{
-	//q_num是四元数,e_num是欧拉角,都是数组
-	//检查四元数是否是四个
-	//	if ((sizeof(q_num) / sizeof(q_num[0])) < 5)
-	//	{
-	//		return NULL;
-	//	}
-	//准备转换
-	T11 = pow(q_num[0], 2.0) + pow(q_num[1], 2.0) - pow(q_num[2], 2.0) - pow(q_num[3], 2.0);
-	T12 = 2 * (q_num[1] * q_num[2] + q_num[0] * q_num[3]);
-	T23 = 2 * (q_num[2] * q_num[3] + q_num[0] * q_num[1]);
-	T33 = pow(q_num[0], 2.0) + pow(q_num[3], 2.0) - pow(q_num[2], 2.0) - pow(q_num[1], 2.0);
-	T13 = 2 * (q_num[1] * q_num[3] - q_num[0] * q_num[2]);
-	//得出pitch角,俯仰角,y轴角
-	e_num[pitch] = -asin(T13) * 180 / PI;
-	//得出yawn角,航向角,z轴角
-	if (T11 < 0.01 && T11 > -0.01)
-	{
-		if (T12 < 0)
-			e_num[yaw] = 270;
-		else
-			e_num[yaw] = 90;
-	}
-	else if (T11 >= 0.01)
-	{
-		e_num[yaw] = atan(T12 / T11) * 180 / (PI);
-	}
-	else
-	{
-		e_num[yaw] = atan(T12 / T11) * 180 / (PI) + 180;
-	}
-	if (T33 < 0.01 && T33 > -0.01)
-	{
-		if (T23 < 0)
-			e_num[roll] = -90;
-		else
-			e_num[roll] = 90;
-	}
-	else if (T11 >= 0.01)
-	{
-		e_num[roll] = atan(T12 / T11) * 180 / (PI);
-	}
-	else
-	{
-		if (T23 > 0)
-			e_num[roll] = atan(T12 / T11) * 180 / (PI) + 180;
-		else
-			e_num[roll] = atan(T12 / T11) * 180 / (PI)-180;
-	}
+void q2euler(float *q_num, float *e_num) {
+    // q_num是四元数,e_num是欧拉角,都是数组
+    //检查四元数是否是四个
+    //	if ((sizeof(q_num) / sizeof(q_num[0])) < 5)
+    //	{
+    //		return NULL;
+    //	}
+    //准备转换
+    T11 = pow(q_num[0], 2.0) + pow(q_num[1], 2.0) - pow(q_num[2], 2.0) - pow(q_num[3], 2.0);
+    T12 = 2 * (q_num[1] * q_num[2] + q_num[0] * q_num[3]);
+    T23 = 2 * (q_num[2] * q_num[3] + q_num[0] * q_num[1]);
+    T33 = pow(q_num[0], 2.0) + pow(q_num[3], 2.0) - pow(q_num[2], 2.0) - pow(q_num[1], 2.0);
+    T13 = 2 * (q_num[1] * q_num[3] - q_num[0] * q_num[2]);
+    //得出pitch角,俯仰角,y轴角
+    e_num[pitch] = -asin(T13) * 180 / PI;
+    //得出yawn角,航向角,z轴角
+    if (T11 < 0.01 && T11 > -0.01) {
+        if (T12 < 0)
+            e_num[yaw] = 270;
+        else
+            e_num[yaw] = 90;
+    } else if (T11 >= 0.01) {
+        e_num[yaw] = atan(T12 / T11) * 180 / (PI);
+    } else {
+        e_num[yaw] = atan(T12 / T11) * 180 / (PI) + 180;
+    }
+    if (T33 < 0.01 && T33 > -0.01) {
+        if (T23 < 0)
+            e_num[roll] = -90;
+        else
+            e_num[roll] = 90;
+    } else if (T11 >= 0.01) {
+        e_num[roll] = atan(T12 / T11) * 180 / (PI);
+    } else {
+        if (T23 > 0)
+            e_num[roll] = atan(T12 / T11) * 180 / (PI) + 180;
+        else
+            e_num[roll] = atan(T12 / T11) * 180 / (PI) -180;
+    }
 }
 
 //论坛matlab滤波方法
-//double Chebyshev10HzLPF(Filter_t *F)
+// double Chebyshev10HzLPF(Filter_t *F)
 //{
 //	int i;
 //	for(i=7; i>0; i--)
@@ -355,26 +337,26 @@ void q2euler(float *q_num, float *e_num)
 //	return F->filtered_value;
 //}
 
-//2016年官方开源,互补滤波
+// 2016年官方开源,互补滤波
 /////////////////////////////////////////////////////////////////////////
 
-//volatile float exInt, eyInt, ezInt;  // 误差积分
-//volatile float q0 = 1.0f;
-//volatile float q1 = 0.0f;
-//volatile float q2 = 0.0f;
-//volatile float q3 = 0.0f;
+// volatile float exInt, eyInt, ezInt;  // 误差积分
+// volatile float q0 = 1.0f;
+// volatile float q1 = 0.0f;
+// volatile float q2 = 0.0f;
+// volatile float q3 = 0.0f;
 
-//volatile float mygetqval[9];	//用于存放传感器转换结果的数组
-//static volatile float gx, gy, gz, ax, ay, az, mx, my, mz;   //作用域仅在此文件中
+// volatile float mygetqval[9];	//用于存放传感器转换结果的数组
+// static volatile float gx, gy, gz, ax, ay, az, mx, my, mz;   //作用域仅在此文件中
 
-//static volatile float q[4]; //　四元数
-//volatile uint32_t lastUpdate, now; // 采样周期计数 单位 us
-//volatile float angle[3] = {0};
-//volatile float yaw_temp,pitch_temp,roll_temp;
-//volatile float last_yaw_temp,last_pitch_temp,last_roll_temp;
-//volatile float yaw_angle,pitch_angle,roll_angle; //使用到的角度值
+// static volatile float q[4]; //　四元数
+// volatile uint32_t lastUpdate, now; // 采样周期计数 单位 us
+// volatile float angle[3] = {0};
+// volatile float yaw_temp,pitch_temp,roll_temp;
+// volatile float last_yaw_temp,last_pitch_temp,last_roll_temp;
+// volatile float yaw_angle,pitch_angle,roll_angle; //使用到的角度值
 
-//uint32_t Get_Time_Micros(void)
+// uint32_t Get_Time_Micros(void)
 //{
 //	return TIM2->CNT;
 //}
@@ -386,7 +368,7 @@ void q2euler(float *q_num, float *e_num)
 //输入参数: 要计算的值
 //输出参数: 结果
 //*******************************************************************************/
-//float invSqrt(float x) {
+// float invSqrt(float x) {
 //	float halfx = 0.5f * x;
 //	float y = x;
 //	long i = *(long*)&y;
@@ -405,7 +387,7 @@ void q2euler(float *q_num, float *e_num)
 ////初始化IMU数据
 //#define BOARD_DOWN 1   //板子正面朝下摆放
 
-//void Init_Quaternion()//根据测量数据,初始化q0,q1,q2.q3,从而加快收敛速度
+// void Init_Quaternion()//根据测量数据,初始化q0,q1,q2.q3,从而加快收敛速度
 //{
 //	int16_t hx,hy,hz;
 //	hx=mpu6500_data.mx;
@@ -572,7 +554,7 @@ void q2euler(float *q_num, float *e_num)
 //磁力计值:原始数据
 //输出参数:没有
 //*******************************************************************************/
-//void IMU_getValues(volatile float * values) {
+// void IMU_getValues(volatile float * values) {
 //		int16_t accgyroval[6];
 //		int i;
 //	//读取加速度和陀螺仪的当前ADC
@@ -607,7 +589,7 @@ void q2euler(float *q_num, float *e_num)
 //*******************************************************************************/
 //#define Kp 2.0f   // proportional gain governs rate of convergence to accelerometer/magnetometer
 //#define Ki 0.01f   // integral gain governs rate of convergence of gyroscope biases
-//void IMU_AHRSupdate(void) {
+// void IMU_AHRSupdate(void) {
 //    float norm;
 //    float hx, hy, hz, bx, bz;
 //    float vx, vy, vz, wx, wy, wz;
@@ -705,7 +687,7 @@ void q2euler(float *q_num, float *e_num)
 //输出参数:没有
 //*******************************************************************************/
 
-//void IMU_getQ(volatile float * q) {
+// void IMU_getQ(volatile float * q) {
 
 //    IMU_getValues(mygetqval);	 //获取原始数据,加速度计和磁力计是原始值,陀螺仪转换成了deg/s
 //    IMU_AHRSupdate();
@@ -721,7 +703,7 @@ void q2euler(float *q_num, float *e_num)
 //输入参数: 将要存放姿态角的数组首地址
 //输出参数:没有
 //*******************************************************************************/
-//void IMU_getYawPitchRoll(volatile float * angles)
+// void IMU_getYawPitchRoll(volatile float * angles)
 //{
 //    // volatile float gx=0.0, gy=0.0, gz=0.0; //估计重力方向
 //    IMU_getQ(q); //更新全局四元数
@@ -731,8 +713,8 @@ void q2euler(float *q_num, float *e_num)
 //    angles[2] = atan2(2 * q[2] * q[3] + 2 * q[0] * q[1], -2 * q[1] * q[1] - 2 * q[2] * q[2] + 1)* 180/PI; // roll       -pi-----pi
 //}
 
-//static int yaw_count = 0;
-//void GetPitchYawGxGyGz(void)
+// static int yaw_count = 0;
+// void GetPitchYawGxGyGz(void)
 //{
 ////	MPU6050_Real_Data.Gyro_X = mygetqval[3];
 ////	MPU6050_Real_Data.Gyro_Y = -mygetqval[4];
