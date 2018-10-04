@@ -67,7 +67,7 @@ void Task_Chassis(void *Parameters) {
         }
 
         // 设置底盘总体移动速度
-        Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
+        Chassis_Set_Speed((float) -remoteData.lx / 660.0, (float) remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
 
         // 麦轮解算&限幅,获得轮子转速
         Chassis_Get_Rotor_Speed(rotorSpeed);
@@ -79,7 +79,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
 
         // 输出电流值到电调
-        // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, 10);

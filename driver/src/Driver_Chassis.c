@@ -31,12 +31,12 @@ void Chassis_Get_Rotor_Speed(int rotorSpeed[4]) {
     // 麦克纳姆轮解算
     wheelSpeed[0] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
                     ((Chassisparam.TargetVY) - (Chassisparam.TargetVX) + Chassisparam.TargetWR * -CHASSIS_SIZE_K);
-    wheelSpeed[1] = -CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
-                    ((Chassisparam.TargetVY) + (Chassisparam.TargetVX) + Chassisparam.TargetWR * CHASSIS_SIZE_K);
+    wheelSpeed[1] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
+                    ((Chassisparam.TargetVY) + (Chassisparam.TargetVX) + Chassisparam.TargetWR * -CHASSIS_SIZE_K);
     wheelSpeed[2] = -CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
                     (Chassisparam.TargetVY - (Chassisparam.TargetVX) + Chassisparam.TargetWR * CHASSIS_SIZE_K);
-    wheelSpeed[3] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
-                    ((Chassisparam.TargetVY) + (Chassisparam.TargetVX) + Chassisparam.TargetWR * -CHASSIS_SIZE_K);
+    wheelSpeed[3] = -CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
+                    ((Chassisparam.TargetVY) + (Chassisparam.TargetVX) + Chassisparam.TargetWR * CHASSIS_SIZE_K);
     // 限速
     Chassis_Limit_Rotor_Speed(wheelSpeed, rotorSpeed);
 }

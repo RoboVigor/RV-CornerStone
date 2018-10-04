@@ -574,6 +574,11 @@
               <FileType>1</FileType>
               <FilePath>..\user\system_stm32f4xx.c</FilePath>
             </File>
+            <File>
+              <FileName>handle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\handle.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
