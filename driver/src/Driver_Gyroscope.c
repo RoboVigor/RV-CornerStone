@@ -1,12 +1,9 @@
-/**
- * @brief 用于解算欧拉角和陀螺仪零飘滤波
- * @note g和a是gyroscope和acceleration的缩写
- */
-
 #define __DRIVER_GYROSCOPE_GLOBALS
 #include "Driver_Gyroscope.h"
 #include "Driver_Filter.h"
+#include "mpu6500_driver.h"
 #include "config.h"
+#include "handle.h"
 #include "MadgwickAHRS.h"
 
 float e_angle[3] = {0, 0, 0}; // yaw,pitch,roll
