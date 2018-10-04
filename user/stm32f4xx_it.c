@@ -74,29 +74,29 @@ void USART6_IRQHandler(void) {
 void CAN1_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
     int      position;
-    int      angle;
+    int      speed;
 
     // 读取数据
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
     position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-    angle    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
     // 安排数据
     switch (CanRxData.StdId) {
     case 0x201:
-        Motor_Update(&Motor_LF, position, angle);
+        Motor_Update(&Motor_LF, position, speed);
         break;
 
     case 0x202:
-        Motor_Update(&Motor_LB, position, angle);
+        Motor_Update(&Motor_LB, position, speed);
         break;
 
     case 0x203:
-        Motor_Update(&Motor_RB, position, angle);
+        Motor_Update(&Motor_RB, position, speed);
         break;
 
     case 0x204:
-        Motor_Update(&Motor_RF, position, angle);
+        Motor_Update(&Motor_RF, position, speed);
         break;
 
     default:
@@ -118,29 +118,29 @@ void CAN1_SCE_IRQHandler(void) {
 void CAN2_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
     int      position;
-    int      angle;
+    int      speed;
 
     // 读取数据
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
     position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-    angle    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
     // 安排数据
     // switch (CanRxData.StdId) {
     // case 0x201:
-    //     Motor_Update(&Motor_LF, position, angle);
+    //     Motor_Update(&Motor_LF, position, speed);
     //     break;
 
     // case 0x202:
-    //     Motor_Update(&Motor_LB, position, angle);
+    //     Motor_Update(&Motor_LB, position, speed);
     //     break;
 
     // case 0x203:
-    //     Motor_Update(&Motor_RB, position, angle);
+    //     Motor_Update(&Motor_RB, position, speed);
     //     break;
 
     // case 0x204:
-    //     Motor_Update(&Motor_RF, position, angle);
+    //     Motor_Update(&Motor_RF, position, speed);
     //     break;
 
     // default:
