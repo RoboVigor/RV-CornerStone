@@ -45,6 +45,6 @@ void Gyroscope_Update_Angle_Data(void) {
     EulerAngle.Roll = e_angle[0];
 }
 
-void Gyroscope_(int isSampling, float yawAngle) {
-    // todo
-}
+// void Gyroscope_(int isSampling, float yawAngle) {
+//     // todo
+// }

@@ -8,7 +8,6 @@
 #include "Driver_CAN.h"
 #include "Driver_Motor.h"
 #include "Driver_Chassis.h"
-#include "Driver_Armour.h"
 #include "Driver_Angular.h"
 #include "mpu6500_driver.h"
 #include "mpu6500_interrupt.h"
@@ -34,9 +33,13 @@ __HANDLE_EXT u8 USART_RX_BUF[MAGIC_MAX_LENGTH];
 __HANDLE_EXT u16 USART_RX_STA;
 __HANDLE_EXT MagicHandle_Type magic;
 
-// Task_Chassis
+// 底盘PID
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
+/**
+ * @brief 初始化结构体
+ * @note 该函数将在所有硬件及任务初始化之前执行
+ */
 void Handle_Init(void);
 
 #endif
