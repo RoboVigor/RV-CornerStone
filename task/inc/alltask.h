@@ -18,7 +18,4 @@ void Task_MagicSend(void *Parameters);
 // 高频任务
 void Task_Gyroscope(void *Parameters);
 
-// 任务句柄
-// __HANDLE_EXT TaskHandle_t TaskHandle_Blink;
-
 #endif
