@@ -39,7 +39,7 @@ KeepEmptyLinesAtTheStartOfBlocks: true
 #在构造函数初始化时按逗号断行,并以冒号对齐
 BreakConstructorInitializersBeforeComma: true
 #函数参数换行
-AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: true
 #代码长度
 ColumnLimit: 160
 #函数调用时的参数要么是全部占同一行,要么一个参数占一行

@@ -43,8 +43,7 @@ void Task_MagicReceive(void *Parameters) {
     while (1) {
         taskENTER_CRITICAL();          // 进入临界段
         Magic_Get_Debug_Value(&magic); // 接收调试数据
-        printf("%d %d\r\n", remoteData.lx, remoteData.ly);
-        taskEXIT_CRITICAL(); // 退出临界段
+        taskEXIT_CRITICAL();           // 退出临界段
         vTaskDelayUntil(&LastWakeTime, 50);
     }
     vTaskDelete(NULL);
@@ -58,10 +57,9 @@ void Task_MagicSend(void *Parameters) {
 
     while (1) {
         taskENTER_CRITICAL(); // 进入临界段
-        PID_Print(&PID_YawAngle);
-        // printf("AnglePID: %d %f %f\r\n", PID_YawAngle.output, EulerAngle.Yaw, PID_YawAngle.target);
+        printf("%10f %10f %10f %10f\r\n", Motor_LF.angle, Motor_LB.angle, Motor_RB.angle, Motor_RF.angle);
         taskEXIT_CRITICAL(); // 退出临界段
-        vTaskDelayUntil(&LastWakeTime, 50);
+        vTaskDelayUntil(&LastWakeTime, 500);
     }
     vTaskDelete(NULL);
 }

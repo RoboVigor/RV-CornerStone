@@ -73,26 +73,30 @@ void USART6_IRQHandler(void) {
 
 void CAN1_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
+    int      position;
+    int      angle;
+
+    // 读取数据
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
+    position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+    angle    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+
+    // 安排数据
     switch (CanRxData.StdId) {
     case 0x201:
-        Motor_LF.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_LF.speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+        Motor_Update(&Motor_LF, position, angle);
         break;
 
     case 0x202:
-        Motor_LB.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_LB.speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+        Motor_Update(&Motor_LB, position, angle);
         break;
 
     case 0x203:
-        Motor_RB.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_RB.speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+        Motor_Update(&Motor_RB, position, angle);
         break;
 
     case 0x204:
-        Motor_RF.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        Motor_RF.speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+        Motor_Update(&Motor_RF, position, angle);
         break;
 
     default:
@@ -113,31 +117,35 @@ void CAN1_SCE_IRQHandler(void) {
 
 void CAN2_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
+    int      position;
+    int      angle;
+
+    // 读取数据
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
-    switch (CanRxData.StdId) {
-    case 0x201:
-        // Motor_LF.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        // Motor_LF.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-        break;
+    position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+    angle    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
-    case 0x202:
-        // Motor_LB.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        // Motor_LB.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-        break;
+    // 安排数据
+    // switch (CanRxData.StdId) {
+    // case 0x201:
+    //     Motor_Update(&Motor_LF, position, angle);
+    //     break;
 
-    case 0x203:
-        // Motor_RB.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        // Motor_RB.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-        break;
+    // case 0x202:
+    //     Motor_Update(&Motor_LB, position, angle);
+    //     break;
 
-    case 0x204:
-        // Motor_RF.position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-        // Motor_RF.speed = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-        break;
+    // case 0x203:
+    //     Motor_Update(&Motor_RB, position, angle);
+    //     break;
 
-    default:
-        break;
-    }
+    // case 0x204:
+    //     Motor_Update(&Motor_RF, position, angle);
+    //     break;
+
+    // default:
+    //     break;
+    // }
 }
 
 /**

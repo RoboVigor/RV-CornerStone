@@ -123,7 +123,7 @@ I (..\bsp\inc\beep.h)(0x5B915E88)
 I (..\bsp\inc\key.h)(0x5B8CD05A)
 I (..\user\config.h)(0x5BB38170)
 I (..\user\macro.h)(0x5BB35057)
-I (..\user\handle.h)(0x5BB38170)
+I (..\user\handle.h)(0x5BB5D814)
 I (..\user\OSinclude.h)(0x5BAD20B0)
 I (..\library\freertos\include\FreeRTOS.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x574E3E26)
@@ -141,7 +141,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BB35057)
 I (..\driver\inc\Driver_DBUS.h)(0x5BB35057)
 I (..\driver\inc\Driver_CAN.h)(0x5BB38170)
-I (..\driver\inc\Driver_Motor.h)(0x5BB38170)
+I (..\driver\inc\Driver_Motor.h)(0x5BB5DC88)
 I (..\driver\inc\Driver_Chassis.h)(0x5BB35057)
 I (..\driver\inc\Driver_Armour.h)(0x5BB5BF5F)
 I (..\driver\inc\Driver_Angular.h)(0x5BB5BF5F)
@@ -1070,7 +1070,7 @@ I (..\bsp\inc\beep.h)(0x5B915E88)
 I (..\bsp\inc\key.h)(0x5B8CD05A)
 I (..\user\config.h)(0x5BB38170)
 I (..\user\macro.h)(0x5BB35057)
-I (..\user\handle.h)(0x5BB38170)
+I (..\user\handle.h)(0x5BB5D814)
 I (..\user\OSinclude.h)(0x5BAD20B0)
 I (..\library\freertos\include\FreeRTOS.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x574E3E26)
@@ -1088,7 +1088,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BB35057)
 I (..\driver\inc\Driver_DBUS.h)(0x5BB35057)
 I (..\driver\inc\Driver_CAN.h)(0x5BB38170)
-I (..\driver\inc\Driver_Motor.h)(0x5BB38170)
+I (..\driver\inc\Driver_Motor.h)(0x5BB5DC88)
 I (..\driver\inc\Driver_Chassis.h)(0x5BB35057)
 I (..\driver\inc\Driver_Armour.h)(0x5BB5BF5F)
 I (..\driver\inc\Driver_Angular.h)(0x5BB5BF5F)
@@ -1096,7 +1096,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x574E3E26)
 I (..\driver\inc\mpu6500_driver.h)(0x5B8CD05A)
 I (..\driver\inc\mpu6500_interrupt.h)(0x5BB5BF5F)
 I (..\task\inc\alltask.h)(0x5BB35057)
-F (..\user\stm32f4xx_it.c)(0x5BB5BF5F)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\stm32f4xx_it.o --omf_browse .\objects\stm32f4xx_it.crf --depend .\objects\stm32f4xx_it.d)
+F (..\user\stm32f4xx_it.c)(0x5BB5D40D)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\stm32f4xx_it.o --omf_browse .\objects\stm32f4xx_it.crf --depend .\objects\stm32f4xx_it.d)
 I (..\user\main.h)(0x5BB35057)
 I (..\user\debug.h)(0x5BB35057)
 I (..\system\sys\sys.h)(0x5B8CD05A)
@@ -1142,7 +1142,7 @@ I (..\bsp\inc\beep.h)(0x5B915E88)
 I (..\bsp\inc\key.h)(0x5B8CD05A)
 I (..\user\config.h)(0x5BB38170)
 I (..\user\macro.h)(0x5BB35057)
-I (..\user\handle.h)(0x5BB38170)
+I (..\user\handle.h)(0x5BB5D814)
 I (..\user\OSinclude.h)(0x5BAD20B0)
 I (..\library\freertos\include\FreeRTOS.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x574E3E26)
@@ -1160,7 +1160,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BB35057)
 I (..\driver\inc\Driver_DBUS.h)(0x5BB35057)
 I (..\driver\inc\Driver_CAN.h)(0x5BB38170)
-I (..\driver\inc\Driver_Motor.h)(0x5BB38170)
+I (..\driver\inc\Driver_Motor.h)(0x5BB5DC88)
 I (..\driver\inc\Driver_Chassis.h)(0x5BB35057)
 I (..\driver\inc\Driver_Armour.h)(0x5BB5BF5F)
 I (..\driver\inc\Driver_Angular.h)(0x5BB5BF5F)
@@ -1206,6 +1206,69 @@ I (..\library\std\inc\stm32f4xx_dcmi.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_dma2d.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_fmc.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_sai.h)(0x5B8CD05A)
+F (..\user\handle.c)(0x5BB5DCEB)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\handle.o --omf_browse .\objects\handle.crf --depend .\objects\handle.d)
+I (..\user\handle.h)(0x5BB5D814)
+I (..\user\OSinclude.h)(0x5BAD20B0)
+I (..\library\freertos\include\FreeRTOS.h)(0x5B8CD05A)
+I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x574E3E26)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x574E3E26)
+I (..\library\freertos\include\FreeRTOSConfig.h)(0x5B8CD05A)
+I (..\library\freertos\include\projdefs.h)(0x5B8CD05A)
+I (..\library\freertos\include\portable.h)(0x5B8CD05A)
+I (..\library\freertos\include\deprecated_definitions.h)(0x5B8CD05A)
+I (..\library\freertos\portable\RVDS\ARM_CM4F\portmacro.h)(0x5B8CD05A)
+I (..\library\freertos\include\mpu_wrappers.h)(0x5B8CD05A)
+I (..\library\freertos\include\task.h)(0x5B8CD05A)
+I (..\library\freertos\include\list.h)(0x5B8CD05A)
+I (..\library\freertos\include\queue.h)(0x5B8CD05A)
+I (..\driver\inc\Driver_Magic.h)(0x5B9D2437)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
+I (..\user\stm32f4xx_conf.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_adc.h)(0x5B8CD05A)
+I (..\user\stm32f4xx.h)(0x5B8CD05A)
+I (..\core\core_cm4.h)(0x5B8CD05A)
+I (..\core\core_cmInstr.h)(0x5B8CD05A)
+I (..\core\core_cmFunc.h)(0x5B8CD05A)
+I (..\core\core_cm4_simd.h)(0x5B8CD05A)
+I (..\user\system_stm32f4xx.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_crc.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_dbgmcu.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_dma.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_exti.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_flash.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_gpio.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_i2c.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_iwdg.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_pwr.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_rcc.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_rtc.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_sdio.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_spi.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_syscfg.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_tim.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_usart.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_wwdg.h)(0x5B8CD05A)
+I (..\library\std\inc\misc.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_cryp.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_hash.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_rng.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_can.h)(0x5B9D2437)
+I (..\library\std\inc\stm32f4xx_dac.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_dcmi.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_dma2d.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_fmc.h)(0x5B8CD05A)
+I (..\library\std\inc\stm32f4xx_sai.h)(0x5B8CD05A)
+I (..\driver\inc\Driver_PID.h)(0x5BB35057)
+I (..\driver\inc\Driver_DBUS.h)(0x5BB35057)
+I (..\driver\inc\Driver_CAN.h)(0x5BB38170)
+I (..\driver\inc\Driver_Motor.h)(0x5BB5DC88)
+I (..\driver\inc\Driver_Chassis.h)(0x5BB35057)
+I (..\driver\inc\Driver_Armour.h)(0x5BB5BF5F)
+I (..\driver\inc\Driver_Angular.h)(0x5BB5BF5F)
+I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x574E3E26)
+I (..\driver\inc\mpu6500_driver.h)(0x5B8CD05A)
+I (..\driver\inc\mpu6500_interrupt.h)(0x5BB5BF5F)
+I (..\user\config.h)(0x5BB38170)
 F (..\driver\src\Driver_Angular.c)(0x5BB5BF5F)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\driver_angular.o --omf_browse .\objects\driver_angular.crf --depend .\objects\driver_angular.d)
 I (..\driver\inc\Driver_Angular.h)(0x5BB5BF5F)
 I (..\user\stm32f4xx.h)(0x5B8CD05A)
@@ -1367,7 +1430,7 @@ I (..\library\std\inc\stm32f4xx_sai.h)(0x5B8CD05A)
 F (..\driver\src\Driver_PID.c)(0x5BB35057)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\driver_pid.o --omf_browse .\objects\driver_pid.crf --depend .\objects\driver_pid.d)
 I (..\driver\inc\Driver_PID.h)(0x5BB35057)
 I (..\user\macro.h)(0x5BB35057)
-I (..\user\handle.h)(0x5BB38170)
+I (..\user\handle.h)(0x5BB5D814)
 I (..\user\OSinclude.h)(0x5BAD20B0)
 I (..\library\freertos\include\FreeRTOS.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x574E3E26)
@@ -1420,7 +1483,7 @@ I (..\library\std\inc\stm32f4xx_fmc.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_sai.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_DBUS.h)(0x5BB35057)
 I (..\driver\inc\Driver_CAN.h)(0x5BB38170)
-I (..\driver\inc\Driver_Motor.h)(0x5BB38170)
+I (..\driver\inc\Driver_Motor.h)(0x5BB5DC88)
 I (..\driver\inc\Driver_Chassis.h)(0x5BB35057)
 I (..\driver\inc\Driver_Armour.h)(0x5BB5BF5F)
 I (..\driver\inc\Driver_Angular.h)(0x5BB5BF5F)
@@ -1601,7 +1664,7 @@ I (..\library\std\inc\stm32f4xx_sai.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x574E3E26)
 I (..\system\sys\sys.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x574E3E26)
-I (..\user\handle.h)(0x5BB38170)
+I (..\user\handle.h)(0x5BB5D814)
 I (..\user\OSinclude.h)(0x5BAD20B0)
 I (..\library\freertos\include\FreeRTOS.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x574E3E26)
@@ -1617,7 +1680,7 @@ I (..\library\freertos\include\queue.h)(0x5B8CD05A)
 I (..\driver\inc\Driver_PID.h)(0x5BB35057)
 I (..\driver\inc\Driver_DBUS.h)(0x5BB35057)
 I (..\driver\inc\Driver_CAN.h)(0x5BB38170)
-I (..\driver\inc\Driver_Motor.h)(0x5BB38170)
+I (..\driver\inc\Driver_Motor.h)(0x5BB5DC88)
 I (..\driver\inc\Driver_Chassis.h)(0x5BB35057)
 I (..\driver\inc\Driver_Armour.h)(0x5BB5BF5F)
 I (..\driver\inc\Driver_Angular.h)(0x5BB5BF5F)
@@ -1663,7 +1726,7 @@ I (..\library\std\inc\stm32f4xx_fmc.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_sai.h)(0x5B8CD05A)
 I (..\user\macro.h)(0x5BB35057)
 I (..\user\config.h)(0x5BB38170)
-I (..\user\handle.h)(0x5BB38170)
+I (..\user\handle.h)(0x5BB5D814)
 I (..\user\OSinclude.h)(0x5BAD20B0)
 I (..\library\freertos\include\FreeRTOS.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x574E3E26)
@@ -1681,14 +1744,14 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BB35057)
 I (..\driver\inc\Driver_DBUS.h)(0x5BB35057)
 I (..\driver\inc\Driver_CAN.h)(0x5BB38170)
-I (..\driver\inc\Driver_Motor.h)(0x5BB38170)
+I (..\driver\inc\Driver_Motor.h)(0x5BB5DC88)
 I (..\driver\inc\Driver_Armour.h)(0x5BB5BF5F)
 I (..\driver\inc\Driver_Angular.h)(0x5BB5BF5F)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x574E3E26)
 I (..\driver\inc\mpu6500_driver.h)(0x5B8CD05A)
 I (..\driver\inc\mpu6500_interrupt.h)(0x5BB5BF5F)
-F (..\driver\src\Driver_Motor.c)(0x5BB38170)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\driver_motor.o --omf_browse .\objects\driver_motor.crf --depend .\objects\driver_motor.d)
-I (..\driver\inc\Driver_Motor.h)(0x5BB38170)
+F (..\driver\src\Driver_Motor.c)(0x5BB5DCB5)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\driver_motor.o --omf_browse .\objects\driver_motor.crf --depend .\objects\driver_motor.d)
+I (..\driver\inc\Driver_Motor.h)(0x5BB5DC88)
 I (..\user\stm32f4xx.h)(0x5B8CD05A)
 I (..\core\core_cm4.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x574E3E26)
@@ -1725,7 +1788,7 @@ I (..\library\std\inc\stm32f4xx_dcmi.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_dma2d.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_fmc.h)(0x5B8CD05A)
 I (..\library\std\inc\stm32f4xx_sai.h)(0x5B8CD05A)
-F (..\task\src\Task_Sys_Init.c)(0x5BB35057)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\task_sys_init.o --omf_browse .\objects\task_sys_init.crf --depend .\objects\task_sys_init.d)
+F (..\task\src\Task_Sys_Init.c)(0x5BB5D801)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\task_sys_init.o --omf_browse .\objects\task_sys_init.crf --depend .\objects\task_sys_init.d)
 I (..\user\main.h)(0x5BB35057)
 I (..\user\debug.h)(0x5BB35057)
 I (..\system\sys\sys.h)(0x5B8CD05A)
@@ -1771,7 +1834,7 @@ I (..\bsp\inc\beep.h)(0x5B915E88)
 I (..\bsp\inc\key.h)(0x5B8CD05A)
 I (..\user\config.h)(0x5BB38170)
 I (..\user\macro.h)(0x5BB35057)
-I (..\user\handle.h)(0x5BB38170)
+I (..\user\handle.h)(0x5BB5D814)
 I (..\user\OSinclude.h)(0x5BAD20B0)
 I (..\library\freertos\include\FreeRTOS.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x574E3E26)
@@ -1789,7 +1852,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BB35057)
 I (..\driver\inc\Driver_DBUS.h)(0x5BB35057)
 I (..\driver\inc\Driver_CAN.h)(0x5BB38170)
-I (..\driver\inc\Driver_Motor.h)(0x5BB38170)
+I (..\driver\inc\Driver_Motor.h)(0x5BB5DC88)
 I (..\driver\inc\Driver_Chassis.h)(0x5BB35057)
 I (..\driver\inc\Driver_Armour.h)(0x5BB5BF5F)
 I (..\driver\inc\Driver_Angular.h)(0x5BB5BF5F)
@@ -1803,7 +1866,7 @@ I (..\bsp\inc\BSP_UART.h)(0x5B915E88)
 I (..\bsp\inc\BSP_DMA.h)(0x5B915E88)
 I (..\bsp\inc\BSP_CAN.h)(0x5B915E88)
 I (..\bsp\inc\BSP_TIM.h)(0x5B9D2437)
-F (..\task\src\Task_Debug.c)(0x5BB5C2DA)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\task_debug.o --omf_browse .\objects\task_debug.crf --depend .\objects\task_debug.d)
+F (..\task\src\Task_Debug.c)(0x5BB5DB55)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\task_debug.o --omf_browse .\objects\task_debug.crf --depend .\objects\task_debug.d)
 I (..\user\main.h)(0x5BB35057)
 I (..\user\debug.h)(0x5BB35057)
 I (..\system\sys\sys.h)(0x5B8CD05A)
@@ -1849,7 +1912,7 @@ I (..\bsp\inc\beep.h)(0x5B915E88)
 I (..\bsp\inc\key.h)(0x5B8CD05A)
 I (..\user\config.h)(0x5BB38170)
 I (..\user\macro.h)(0x5BB35057)
-I (..\user\handle.h)(0x5BB38170)
+I (..\user\handle.h)(0x5BB5D814)
 I (..\user\OSinclude.h)(0x5BAD20B0)
 I (..\library\freertos\include\FreeRTOS.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x574E3E26)
@@ -1867,7 +1930,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BB35057)
 I (..\driver\inc\Driver_DBUS.h)(0x5BB35057)
 I (..\driver\inc\Driver_CAN.h)(0x5BB38170)
-I (..\driver\inc\Driver_Motor.h)(0x5BB38170)
+I (..\driver\inc\Driver_Motor.h)(0x5BB5DC88)
 I (..\driver\inc\Driver_Chassis.h)(0x5BB35057)
 I (..\driver\inc\Driver_Armour.h)(0x5BB5BF5F)
 I (..\driver\inc\Driver_Angular.h)(0x5BB5BF5F)
@@ -1875,7 +1938,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x574E3E26)
 I (..\driver\inc\mpu6500_driver.h)(0x5B8CD05A)
 I (..\driver\inc\mpu6500_interrupt.h)(0x5BB5BF5F)
 I (..\task\inc\alltask.h)(0x5BB35057)
-F (..\task\src\Task_Function.c)(0x5BB5C5A1)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\task_function.o --omf_browse .\objects\task_function.crf --depend .\objects\task_function.d)
+F (..\task\src\Task_Function.c)(0x5BB5DAEF)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\bsp\inc -I ..\core -I ..\driver\inc -I ..\library\std\inc -I ..\system\delay -I ..\system\sys -I ..\system\usart -I ..\user -I ..\library\freertos\include -I ..\library\freertos\portable\RVDS\ARM_CM4F -I ..\task\inc --gnu-IC:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE-I"C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DSTM32F427_437xx -DSTM32F427_437xx -DUSE_STDPERIPH_DRIVER-o .\objects\task_function.o --omf_browse .\objects\task_function.crf --depend .\objects\task_function.d)
 I (..\user\main.h)(0x5BB35057)
 I (..\user\debug.h)(0x5BB35057)
 I (..\system\sys\sys.h)(0x5B8CD05A)
@@ -1921,7 +1984,7 @@ I (..\bsp\inc\beep.h)(0x5B915E88)
 I (..\bsp\inc\key.h)(0x5B8CD05A)
 I (..\user\config.h)(0x5BB38170)
 I (..\user\macro.h)(0x5BB35057)
-I (..\user\handle.h)(0x5BB38170)
+I (..\user\handle.h)(0x5BB5D814)
 I (..\user\OSinclude.h)(0x5BAD20B0)
 I (..\library\freertos\include\FreeRTOS.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x574E3E26)
@@ -1939,7 +2002,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BB35057)
 I (..\driver\inc\Driver_DBUS.h)(0x5BB35057)
 I (..\driver\inc\Driver_CAN.h)(0x5BB38170)
-I (..\driver\inc\Driver_Motor.h)(0x5BB38170)
+I (..\driver\inc\Driver_Motor.h)(0x5BB5DC88)
 I (..\driver\inc\Driver_Chassis.h)(0x5BB35057)
 I (..\driver\inc\Driver_Armour.h)(0x5BB5BF5F)
 I (..\driver\inc\Driver_Angular.h)(0x5BB5BF5F)
@@ -1993,7 +2056,7 @@ I (..\bsp\inc\beep.h)(0x5B915E88)
 I (..\bsp\inc\key.h)(0x5B8CD05A)
 I (..\user\config.h)(0x5BB38170)
 I (..\user\macro.h)(0x5BB35057)
-I (..\user\handle.h)(0x5BB38170)
+I (..\user\handle.h)(0x5BB5D814)
 I (..\user\OSinclude.h)(0x5BAD20B0)
 I (..\library\freertos\include\FreeRTOS.h)(0x5B8CD05A)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x574E3E26)
@@ -2011,7 +2074,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (..\driver\inc\Driver_PID.h)(0x5BB35057)
 I (..\driver\inc\Driver_DBUS.h)(0x5BB35057)
 I (..\driver\inc\Driver_CAN.h)(0x5BB38170)
-I (..\driver\inc\Driver_Motor.h)(0x5BB38170)
+I (..\driver\inc\Driver_Motor.h)(0x5BB5DC88)
 I (..\driver\inc\Driver_Chassis.h)(0x5BB35057)
 I (..\driver\inc\Driver_Armour.h)(0x5BB5BF5F)
 I (..\driver\inc\Driver_Angular.h)(0x5BB5BF5F)

@@ -37,4 +37,6 @@ __HANDLE_EXT MagicHandle_Type magic;
 // Task_Chassis
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
+void Hanlde_Init(void);
+
 #endif
