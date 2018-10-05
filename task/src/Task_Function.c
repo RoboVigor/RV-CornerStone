@@ -91,14 +91,15 @@ void Task_Chassis(void *Parameters) {
 void Task_Fire(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      rpm2rps      = 3.14 / 60;           // 转子的转速(round/min)换算成角速度(rad/s)
-    uint8_t    startCounter = 0;                   // 启动模式计数器
+    // uint8_t    startCounter = 0;                   // 启动模式计数器
 
 #define LASER_ON GPIO_SetBits(GPIOG, GPIO_Pin_13)    // 激光开启
 #define LASER_OFF GPIO_ResetBits(GPIOG, GPIO_Pin_13) // 激光关闭
 
     // 标志位
-    uint8_t State_Frict = 0;
-    uint8_t State_Stir  = 0;
+    uint8_t frictState = 0;
+    uint8_t stirState  = 0;
+    uint8_t stirFlag   = 0;
 
     // 常量
     float frictSpeed   = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
@@ -119,15 +120,21 @@ void Task_Fire(void *Parameters) {
     while (1) {
         // 控制程序
         if (remoteData.switchRight == 1) {
-            FireState.State_Frict = 1;
-            FireState.State_Stir  = 2;
+            frictState = 1;
+            stirState  = 2;
         } else if (remoteData.switchRight == 3) {
-            FireState.State_Frict = 0;
-            FireState.State_Stir  = 0;
+            frictState = 0;
+            stirState  = 0;
+        }
+
+        // 拨弹轮三连发控制
+        if (stirFlag == 3) {
+            stirFlag  = 0;
+            stirState = 0;
         }
 
         // 摩擦轮 PID 控制
-        if (FireState.State_Frict == 0) {
+        if (frictState == 0) {
             LASER_OFF;                                                                          // 关闭激光
             PID_Increment_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
             PID_Increment_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
@@ -140,15 +147,15 @@ void Task_Fire(void *Parameters) {
         }
 
         // 拨弹轮 PID 控制
-        if (FireState.State_Stir == 0) { // 停止模式
+        if (stirState == 0) { // 停止模式
             PID_Increment_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed * rpm2rps);
             Can_Send(CAN2, 0x200, 0, 0, PID_StirSpeed.output, 0);
-        } else if (FireState.State_Stir == 1) { // 三连发模式
-            // 标志问题
+        } else if (stirState == 1) { // 三连发模式
+            stirFlag++;              // 标志问题
             PID_Increment_Calculate(&PID_StirAnlge, (Motor_Stir.angle - 36 * 60), Motor_Stir.angle);
             PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed);
             Can_Send(CAN2, 0x200, 0, 0, PID_StirSpeed.output, 0);
-        } else if (FireState.State_Stir == 2) { // 连发模式
+        } else if (stirState == 2) { // 连发模式
             PID_Increment_Calculate(&PID_StirSpeed, stirSpeedOne, Motor_Stir.speed * rpm2rps);
             Can_Send(CAN2, 0x200, 0, 0, PID_StirSpeed.output, 0);
         }
