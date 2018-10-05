@@ -102,14 +102,16 @@ void Task_Fire(void *Parameters) {
     uint8_t stirFlag   = 0;
 
     // 常量
-    float frictSpeed   = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
-    float stirSpeedOne = 36 * 36;
-    float stirSpeedTwo = 50 * 36;
+    float frictSpeed         = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
+    float stirSpeedOne       = 36 * 36;
+    float stirSpeedTwo       = 50 * 36;
+    float stirReductionRate  = 0; // to do
+    float frictReductionRate = 0; // to do
 
     // 电机初始化
-    Motor_Init(&Motor_LeftFrict, , 0);
-    Motor_Init(&Motor_RightFrict, , 0);
-    Motor_Init(&Motor_Stir, , 0);
+    Motor_Init(&Motor_LeftFrict, frictReductionRate, 0);
+    Motor_Init(&Motor_RightFrict, frictReductionRate, 0);
+    Motor_Init(&Motor_Stir, stirReductionRate, 0);
 
     // PID 初始化
     PID_Init(&PID_LeftFrictSpeed, 20, 3, 0, 4000, 2000);
@@ -133,7 +135,7 @@ void Task_Fire(void *Parameters) {
             PID_Increment_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
             PID_Increment_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
             Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
-        } else if {
+        } else {
             LASER_ON;                                                                                    // 开启激光
             PID_Increment_Calculate(&PID_LeftFrictSpeed, frictSpeed, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮转动
             PID_Increment_Calculate(&PID_RightFrictSpeed, frictSpeed, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮转动
