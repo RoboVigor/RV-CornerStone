@@ -1,3 +1,8 @@
+/**
+ * @file Driver_DBus.h
+ * @brief 遥控器驱动
+ */
+
 #ifndef __DRIVER_DBUS_H
 #define __DRIVER_DBUS_H
 
@@ -60,7 +65,11 @@ typedef struct {
     } keyBoard;
 } DBusData_Type;
 
-void DBus_Init(DBusData_Type *DBusData);
+/**
+ * @brief DBUS解码
+ *
+ * @param DBusData
+ */
 void DBus_Update(DBusData_Type *DBusData, uint8_t DBusBuffer[]);
 
 #endif

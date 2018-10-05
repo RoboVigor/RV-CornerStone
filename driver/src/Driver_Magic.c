@@ -19,11 +19,6 @@ int fputc(int ch, FILE *f) {
     return ch;
 }
 
-/**
- * @brief 串口 USART6 初始化 (IO3)
- *
- * @param bound - 波特率
- */
 void Magic_Init_Config(u32 bound) {
     // GPIO端口设置
     GPIO_InitTypeDef  GPIO_InitStructure;
@@ -70,21 +65,9 @@ void Magic_Init_Config(u32 bound) {
     NVIC_Init(&NVIC_InitStructure);                                     //根据指定的参数初始化VIC寄存器
 }
 
-/**
- * @brief 初始化调试数据的默认值
- *
- * @param magic
- * @param defaultValue
- */
 void Magic_Init_Handle(MagicHandle_Type *magic, int defaultValue) {
     magic->defaultValue = defaultValue;
 }
-
-/**
- * @brief 调试数据接收函数
- *
- * @return void
- */
 
 int lastResult   = -1; // 记录接收到的调试数据
 int receivedSign = 0;

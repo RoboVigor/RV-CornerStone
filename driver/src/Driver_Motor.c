@@ -1,21 +1,7 @@
-/**
- * @brief 电机信息处理
- *
- * @note 转子位置及速度通过CAN接收,在stm32f4xx_it.c中定义
- * @file Driver_Motor.c
- */
-
 #include "Driver_Motor.h"
 
-/**
- * @brief 初始化 Motor
- *
- * @param Motor_Type
- * @param positionBias
- */
-
 void Motor_Init(volatile Motor_Type *motor, float reductionRate, int8_t angleEnabled) {
-    motor->positionBias  = -1;
+    motor->positionBias  = -1; // -1为未赋值状态
     motor->reductionRate = reductionRate;
     motor->angleEnabled  = angleEnabled;
     motor->position      = 0;
@@ -28,14 +14,6 @@ void Motor_Init(volatile Motor_Type *motor, float reductionRate, int8_t angleEna
     motor->lastAngle     = 0;
 }
 
-/**
- * @brief 通过编码器返回的信息更新电机信息
- * @note  通过转子位置(position)变化判断电机输出的总角度(angle)
- *
- * @param Motor_Type
- * @param position
- * @param speed
- */
 void Motor_Update(volatile Motor_Type *motor, int16_t position, int16_t speed) {
     // 更新转子初始位置
     if (motor->positionBias == -1) {

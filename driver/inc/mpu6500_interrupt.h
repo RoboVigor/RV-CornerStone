@@ -3,6 +3,5 @@
 #include "stm32f4xx.h"
 
 void MPU6500_IntConfiguration(void);
-extern uint8_t isMPU6500_is_DRY;
 
 #endif

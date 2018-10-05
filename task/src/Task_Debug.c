@@ -39,7 +39,7 @@ void Task_RTOSState(void *Parameters) {
 void Task_MagicReceive(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    Magic_Init_Handle(&magic, 0); // 初始化调试数据的默认值
+    Magic_Init_Handle(&magic, 400); // 初始化调试数据的默认值
     while (1) {
         taskENTER_CRITICAL();          // 进入临界段
         Magic_Get_Debug_Value(&magic); // 接收调试数据
@@ -52,17 +52,24 @@ void Task_MagicReceive(void *Parameters) {
 /**
  * @brief 地面站 反馈数据 发送函数
  */
-void Task_MagicSend(void *Parameters) {
+extern int groupMode;
+extern int targetBackGroupOffset;
+extern int targetFrontGroupOffset;
+void       Task_MagicSend(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
     while (1) {
         taskENTER_CRITICAL(); // 进入临界段
-        // PID_Print(&PID_YawAngle);
-        // printf("Yaw %f\r\n", EulerAngle.Yaw);
-        // printf("mpu6500 %d %d %d\r\n", mpu6500_data.gx, mpu6500_data.gy, mpu6500_data.gz);
-        // printf("----------\r\n");
+        // printf("Mode %d Magic %d Angle %f %f %f %f\r\n",
+        //        groupMode,
+        //        magic.value,
+        //        Motor_SumsungLF.angle,
+        //        Motor_SumsungRF.angle,
+        //        Motor_SumsungLB.angle,
+        //        Motor_SumsungRB.angle);
+        printf("Mode %d Magic %d Offset%d %d\r\n", groupMode, magic.value, targetFrontGroupOffset, targetBackGroupOffset);
         taskEXIT_CRITICAL(); // 退出临界段
-        vTaskDelayUntil(&LastWakeTime, 500);
+        vTaskDelayUntil(&LastWakeTime, 1000);
     }
     vTaskDelete(NULL);
 }

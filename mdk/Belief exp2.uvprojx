@@ -614,16 +614,6 @@
           <GroupName>driver</GroupName>
           <Files>
             <File>
-              <FileName>Driver_Angular.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\Driver_Angular.c</FilePath>
-            </File>
-            <File>
-              <FileName>Driver_Armour.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\Driver_Armour.c</FilePath>
-            </File>
-            <File>
               <FileName>Driver_CAN.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_CAN.c</FilePath>
@@ -672,6 +662,16 @@
               <FileName>Driver_Motor.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Motor.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_Filter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Filter.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_Gyroscope.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Gyroscope.c</FilePath>
             </File>
           </Files>
         </Group>

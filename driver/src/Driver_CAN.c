@@ -1,22 +1,5 @@
-/**
- * @brief CAN通讯驱动程序
- *
- * @note CAN接收在stm32f4xx_it.c中定义
- * @file Driver_CAN.c
- */
-
 #include "Driver_CAN.h"
 
-/**
- * @brief CAN发送数据给电调
- *
- * @param CANx  指定一个CAN口,CAN1或CAN2
- * @param id 电调ID,0x200(C620,820R)
- * @param i_201 0x201地址电机给定电流值,范围-32768~32768
- * @param i_202 0x202地址电机给定电流值,范围-32768~32768
- * @param i_203 0x203地址电机给定电流值,范围-32768~32768
- * @param i_204 0x204地址电机给定电流值,范围-32768~32768
- */
 void Can_Send(CAN_TypeDef *CANx, int16_t id, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204) {
     CanTxMsg message;
     message.StdId = id;

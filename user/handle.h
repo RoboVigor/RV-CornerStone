@@ -8,8 +8,7 @@
 #include "Driver_CAN.h"
 #include "Driver_Motor.h"
 #include "Driver_Chassis.h"
-#include "Driver_Armour.h"
-#include "Driver_Angular.h"
+#include "Driver_Gyroscope.h"
 #include "mpu6500_driver.h"
 #include "mpu6500_interrupt.h"
 
@@ -18,6 +17,9 @@
 #else
 #define __HANDLE_EXT extern
 #endif
+
+// 陀螺仪
+__HANDLE_EXT volatile EulerAngle_Type EulerAngle;
 
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;

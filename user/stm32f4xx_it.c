@@ -84,19 +84,19 @@ void CAN1_RX0_IRQHandler(void) {
     // // 安排数据
     switch (CanRxData.StdId) {
     case 0x201:
-        Motor_Update(&Motor_SumsungLB, position, speed);
+        Motor_Update(&Motor_SumsungLF, position, speed);
         break;
 
     case 0x202:
-        Motor_Update(&Motor_SumsungRB, position, speed);
+        Motor_Update(&Motor_SumsungLB, position, speed);
         break;
 
     case 0x203:
-        Motor_Update(&Motor_SumsungRF, position, speed);
+        Motor_Update(&Motor_SumsungRB, position, speed);
         break;
 
     case 0x204:
-        Motor_Update(&Motor_SumsungLF, position, speed);
+        Motor_Update(&Motor_SumsungRF, position, speed);
         break;
 
     default:
