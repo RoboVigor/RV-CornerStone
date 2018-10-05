@@ -47,7 +47,7 @@ void Task_MagicSend(void *Parameters) {
 
     while (1) {
         taskENTER_CRITICAL(); // 进入临界段
-        printf("Yaw: %f\r\n", EulerAngle.Yaw);
+        // printf("Yaw: %f\r\n", EulerAngle.Yaw);
         taskEXIT_CRITICAL(); // 退出临界段
         vTaskDelayUntil(&LastWakeTime, 500);
     }

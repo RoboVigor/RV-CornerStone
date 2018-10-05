@@ -15,6 +15,8 @@ float az_acc = 0;
 
 Filter_Type filterYaw = {.thresholdLB = GYROSCOPE_YAW_FILTER_THRESHOLD, .isInit = 0};
 
+int yawint = 0;
+
 void Gyroscope_Update_Angle_Data(void) {
     a_speed[1] = (float) ((mpu6500_data.gx / GYRO_LSB) * PI / 180);
     a_speed[2] = (float) ((mpu6500_data.gy / GYRO_LSB) * PI / 180);
@@ -37,17 +39,20 @@ void Gyroscope_Update_Angle_Data(void) {
     }
 
     // 更新滤波器
-    Filter_Update(&filterYaw, e_angle[2]);
+    // Filter_Update(&filterYaw, e_angle[2]);
 
     // 计算连续 Yaw 角
-    if (filterYaw.diff > 300) {
-        filterYaw.offset -= 360;
-    } else if (filterYaw.diff < -300) {
-        filterYaw.offset += 360;
-    }
+    // if (filterYaw.diff > 300) {
+    //     filterYaw.offset -= 360;
+    // } else if (filterYaw.diff < -300) {
+    //     filterYaw.offset += 360;
+    // }
 
     // 输出欧拉角
-    EulerAngle.Yaw   = Filter_Limit_Breadth(&filterYaw); // 应用限幅滤波
+    // printf("filter: %f %f\r\n", e_angle[2], filterYaw.offset);
+    // EulerAngle.Yaw   = Filter_Limit_Breadth(&filterYaw); // 应用限幅滤波
+    yawint           = e_angle[2];
+    EulerAngle.Yaw   = e_angle[2];
     EulerAngle.Pitch = -e_angle[1];
     EulerAngle.Pitch += EulerAngle.Pitch_offset;
     EulerAngle.Roll = e_angle[0];
