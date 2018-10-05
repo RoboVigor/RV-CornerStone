@@ -145,7 +145,7 @@ void Task_Fire(void *Parameters) {
         // 拨弹轮 PID 控制
         if (stirState == 0) { // 停止模式
             PID_Increment_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed * rpm2rps);
-            Can_Send(CAN2, 0x200, 0, 0, PID_StirSpeed.output, 0);
+            Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         } else if (stirState == 1) { // 三连发模式
             // Debug Code
             if (stirFlag < 3)
@@ -155,10 +155,10 @@ void Task_Fire(void *Parameters) {
 
             PID_Increment_Calculate(&PID_StirAnlge, (Motor_Stir.angle - 36 * 60), Motor_Stir.angle);
             PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed);
-            Can_Send(CAN2, 0x200, 0, 0, PID_StirSpeed.output, 0);
+            Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         } else if (stirState == 2) { // 连发模式
             PID_Increment_Calculate(&PID_StirSpeed, stirSpeedOne, Motor_Stir.speed * rpm2rps);
-            Can_Send(CAN2, 0x200, 0, 0, PID_StirSpeed.output, 0);
+            Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
 
         vTaskDelayUntil(&LastWakeTime, 5);
