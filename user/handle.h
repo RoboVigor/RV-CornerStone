@@ -2,6 +2,7 @@
 #define __HANDLE_H
 
 #include "OSinclude.h"
+#include "Driver_Filter.h"
 #include "Driver_Magic.h"
 #include "Driver_PID.h"
 #include "Driver_DBUS.h"

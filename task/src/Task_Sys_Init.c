@@ -31,6 +31,7 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_RTOSState, "Task_RTOSState", 500, NULL, 6, NULL);
     xTaskCreate(Task_MagicReceive, "Task_MagicReceive", 500, NULL, 6, NULL);
     xTaskCreate(Task_MagicSend, "Task_MagicSend", 500, NULL, 6, NULL);
+    // xTaskCreate(Task_Sampling, "Task_Sampling", 400, NULL, 6, NULL);
 
     // 高频任务
     xTaskCreate(Task_Gyroscope, "Task_Gyroscope", 400, NULL, 5, NULL);
