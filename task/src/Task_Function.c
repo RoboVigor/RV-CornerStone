@@ -118,19 +118,13 @@ void Task_Fire(void *Parameters) {
     PID_Init(&PID_StirSpeed, 21, 0, 0, 4000, 2000);
 
     while (1) {
-        // 控制程序
+        // Debug Code
         if (remoteData.switchRight == 1) {
             frictState = 1;
             stirState  = 2;
         } else if (remoteData.switchRight == 3) {
             frictState = 0;
             stirState  = 0;
-        }
-
-        // 拨弹轮三连发控制
-        if (stirFlag == 3) {
-            stirFlag  = 0;
-            stirState = 0;
         }
 
         // 摩擦轮 PID 控制
@@ -151,7 +145,12 @@ void Task_Fire(void *Parameters) {
             PID_Increment_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed * rpm2rps);
             Can_Send(CAN2, 0x200, 0, 0, PID_StirSpeed.output, 0);
         } else if (stirState == 1) { // 三连发模式
-            stirFlag++;              // 标志问题
+            // Debug Code
+            if (stirFlag < 3)
+                stirFlag++;
+            else
+                continue;
+
             PID_Increment_Calculate(&PID_StirAnlge, (Motor_Stir.angle - 36 * 60), Motor_Stir.angle);
             PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed);
             Can_Send(CAN2, 0x200, 0, 0, PID_StirSpeed.output, 0);
