@@ -11,6 +11,7 @@
 #define __DRIVER_GYROSCOPE_H
 
 #include "stm32f4xx.h"
+#include "math.h"
 
 #define PI 3.1415926
 #define GYRO_LSB 16.4f

@@ -27,41 +27,6 @@ Project File Date:  10/05/2018
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-compiling BSP_DMA.c...
-..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
-  #include "key.h"
-..\bsp\src\BSP_DMA.c: 1 warning, 0 errors
-compiling stm32f4xx_it.c...
-..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
-  #include "key.h"
-..\user\stm32f4xx_it.c(10): warning:  #550-D: variable "UARTtemp" was set but never used
-      uint8_t UARTtemp;
-..\user\stm32f4xx_it.c(99): warning:  #550-D: variable "position" was set but never used
-      int      position;
-..\user\stm32f4xx_it.c(100): warning:  #550-D: variable "speed" was set but never used
-      int      speed;
-..\user\stm32f4xx_it.c: 4 warnings, 0 errors
-compiling main.c...
-..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
-  #include "key.h"
-..\user\main.c: 1 warning, 0 errors
-compiling mpu6500_driver.c...
-compiling handle.c...
-compiling Driver_PID.c...
-compiling mpu6500_i2c.c...
-compiling mpu6500_interrupt.c...
-..\driver\src\mpu6500_interrupt.c(89): warning:  #1-D: last line of file ends without a newline
-  #endif
-..\driver\src\mpu6500_interrupt.c: 1 warning, 0 errors
-compiling Driver_Magic.c...
-compiling Driver_Chassis.c...
-..\driver\src\Driver_Chassis.c(37): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-                      (Chassisparam.TargetVY - (Chassisparam.TargetVX) + Chassisparam.TargetWR * 
-HASSIS_SIZE_K);
-..\driver\src\Driver_Chassis.c(39): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-                      ((Chassisparam.TargetVY) + (Chassisparam.TargetVX) + Chassisparam.TargetWR * 
-HASSIS_SIZE_K);
-..\driver\src\Driver_Chassis.c: 2 warnings, 0 errors
 compiling Driver_Gyroscope.c...
 ..\driver\src\Driver_Gyroscope.c(21): warning:  #1035-D: single-precision operand implicitly converted to double-precision
       a_speed[1] = (float) ((mpu6500_data.gx / 
@@ -75,35 +40,11 @@ I / 180);
       a_speed[3] = (float) ((mpu6500_data.gz / 
 YRO_LSB) * 
 I / 180);
-..\driver\src\Driver_Gyroscope.c(31): warning:  #223-D: function "atan2" declared implicitly
-      e_angle[1] = atan2(2.0f * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3) * 180 / PI;
-..\driver\src\Driver_Gyroscope.c(32): warning:  #223-D: function "asin" declared implicitly
-      e_angle[0] = asin(2.0f * (q0 * q2 - q1 * q3)) * 180 / PI;
 ..\driver\src\Driver_Gyroscope.c(36): warning:  #1035-D: single-precision operand implicitly converted to double-precision
           e_angle[1] -= 180.0;
 ..\driver\src\Driver_Gyroscope.c(38): warning:  #1035-D: single-precision operand implicitly converted to double-precision
           e_angle[1] += 180.0;
-..\driver\src\Driver_Gyroscope.c: 7 warnings, 0 errors
-compiling Task_Sys_Init.c...
-..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
-  #include "key.h"
-..\task\src\Task_Sys_Init.c: 1 warning, 0 errors
-compiling Task_Function.c...
-..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
-  #include "key.h"
-..\task\src\Task_Function.c(14): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_Function.c(62): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          Chassis_Set_Speed((float) -remoteData.lx / 660.0, (float) remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
-..\task\src\Task_Function.c(62): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          Chassis_Set_Speed((float) -remoteData.lx / 660.0, (float) remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
-..\task\src\Task_Function.c(62): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          Chassis_Set_Speed((float) -remoteData.lx / 660.0, (float) remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
-..\task\src\Task_Function.c(80): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_Function.c(98): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_Function.c: 7 warnings, 0 errors
+..\driver\src\Driver_Gyroscope.c: 5 warnings, 0 errors
 compiling Task_Debug.c...
 ..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
   #include "key.h"
@@ -114,25 +55,17 @@ compiling Task_Debug.c...
 ..\task\src\Task_Debug.c(54): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
 ..\task\src\Task_Debug.c: 4 warnings, 0 errors
-compiling Task_HighFreq.c...
-..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
-  #include "key.h"
-..\task\src\Task_HighFreq.c(14): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_HighFreq.c(15): warning:  #1-D: last line of file ends without a newline
-  }
-..\task\src\Task_HighFreq.c: 3 warnings, 0 errors
 linking...
-Program Size: Code=32148 RO-data=836 RW-data=252 ZI-data=83228  
+Program Size: Code=36180 RO-data=1012 RW-data=252 ZI-data=83228  
 FromELF: creating hex file...
-".\Objects\Belief exp2.axf" - 0 Error(s), 31 Warning(s).
+".\Objects\Belief exp2.axf" - 0 Error(s), 9 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   C:\Users\Tccoin\codes\pkq\RV-CornerStone\mdk\RTE
   C:\Users\Tccoin\Desktop\电控\阿波罗STM32F429 资料盘(A盘)\6，软件资料\1，软件\MDK5\Keil\STM32F4xx_DFP\1.0.8\Device\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:10
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>

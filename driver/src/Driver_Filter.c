@@ -4,6 +4,7 @@
 void Filter_Update(Filter_Type *filter, float value) {
     // 初始化
     if (!filter->isInit) {
+        filter->isInit    = 1;
         filter->diff      = 0;
         filter->offset    = 0;
         filter->value     = value;
