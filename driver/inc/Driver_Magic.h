@@ -12,8 +12,24 @@ typedef struct {
     int   value;        // 调试值
 } MagicHandle_Type;
 
-void Magic_Init_Config(u32 bound);                                 // 串口 USART6 初始化 (IO3)
-void Magic_Init_Handle(MagicHandle_Type *magic, int defaultValue); // 初始化调试数据的默认值
-void Magic_Get_Debug_Value(MagicHandle_Type *magic);               // 调试数据接收函数
+/**
+ * @brief 串口 USART6 初始化
+ *
+ * @param bound 波特率
+ */
+void Magic_Init_Config(u32 bound);
+
+/**
+ * @brief 初始化调试数据的默认值
+ *
+ * @param magic 无线串口数据结构体
+ * @param defaultValue 默认值
+ */
+void Magic_Init_Handle(MagicHandle_Type *magic, int defaultValue);
+
+/**
+ * @brief 调试数据接收函数
+ */
+void Magic_Get_Debug_Value(MagicHandle_Type *magic);
 
 #endif

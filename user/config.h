@@ -8,6 +8,9 @@
 #define CAN2_ENABLED 0
 #define USER_POWER_ENABLED 1
 
+// 陀螺仪
+#define GYROSCOPE_YAW_FILTER_THRESHOLD 0.003
+
 // 底盘
 #define CHASSIS_MOTOR_REDUCTION_RATE 19.2  //底盘电机减速比
 #define CHASSIS_MAX_ROTOR_SPEED 253        //最大轮子转速,单位rad/s
