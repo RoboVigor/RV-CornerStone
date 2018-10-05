@@ -119,7 +119,10 @@ void Task_Sumsung(void *Parameters) {
 /**
  * @brief  底盘运动
  */
-
+int  debug1 = 0;
+int  debug2 = 0;
+int  debug3 = 0;
+int  debug4 = 0;
 void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     int        rotorSpeed[4];                      // 轮子转速
@@ -130,16 +133,19 @@ void Task_Chassis(void *Parameters) {
     float      yawAngleFeed, yawSpeedFeed;         // 反馈值
 
     // 初始化麦轮角速度PID
-    PID_Init(&PID_LFCM, 15, 0.3, 0, 4000, 2000);
-    PID_Init(&PID_LBCM, 15, 0.3, 0, 4000, 2000);
-    PID_Init(&PID_RBCM, 15, 0.3, 0, 4000, 2000);
-    PID_Init(&PID_RFCM, 15, 0.3, 0, 4000, 2000);
+    PID_Init(&PID_LBCM, 70, 0.5, 0, 6000, 3000);
+    PID_Init(&PID_LFCM, 70, 0.5, 0, 6000, 3000);
+    PID_Init(&PID_RBCM, 70, 0.5, 0, 6000, 3000);
+    PID_Init(&PID_RFCM, 70, 0.5, 0, 6000, 3000);
 
     // 初始化航向角角度PID和角速度PID
     PID_Init(&PID_YawAngle, 10, 0, 0, 1000, 1000);
     PID_Init(&PID_YawSpeed, 2, 0, 0, 4000, 1000);
 
     while (1) {
+        debug1 = Motor_LF.speed * rpm2rps;
+        debug2 = rotorSpeed[0];
+        debug3 = PID_LFCM.output;
 
         // 更新运动模式
         mode = ABS(remoteData.rx) < 5 ? 1 : 2;
@@ -177,7 +183,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
 
         // 输出电流值到电调
-        // Can_Send(CAN2, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Can_Send(CAN2, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, 10);
