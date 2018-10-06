@@ -8,6 +8,7 @@ void Task_Sys_Init(void *Parameters);
 void Task_Blink(void *Parameters);
 void Task_Chassis(void *Parameters);
 void Task_Sumsung(void *Parameters);
+void Task_Mode_Switch(void *Parameters);
 // void Task_Event_Group(void *pvParameter);
 void Task_Safe_Mode(void *Parameters);
 

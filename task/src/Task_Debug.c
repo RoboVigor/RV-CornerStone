@@ -39,11 +39,9 @@ void Task_RTOSState(void *Parameters) {
 void Task_MagicReceive(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    Magic_Init_Handle(&magic, 400); // 初始化调试数据的默认值
+    Magic_Init_Handle(&magic, 0); // 初始化调试数据的默认值
     while (1) {
-        taskENTER_CRITICAL();          // 进入临界段
         Magic_Get_Debug_Value(&magic); // 接收调试数据
-        taskEXIT_CRITICAL();           // 退出临界段
         vTaskDelayUntil(&LastWakeTime, 50);
     }
     vTaskDelete(NULL);
@@ -52,24 +50,30 @@ void Task_MagicReceive(void *Parameters) {
 /**
  * @brief 地面站 反馈数据 发送函数
  */
-extern int groupMode;
 extern int targetBackGroupOffset;
+extern int isTurning;
 extern int targetFrontGroupOffset;
 void       Task_MagicSend(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
     while (1) {
-        taskENTER_CRITICAL(); // 进入临界段
         // printf("Mode %d Magic %d Angle %f %f %f %f\r\n",
-        //        groupMode,
+        //        sumsungMode,
         //        magic.value,
         //        Motor_SumsungLF.angle,
         //        Motor_SumsungRF.angle,
         //        Motor_SumsungLB.angle,
         //        Motor_SumsungRB.angle);
-        printf("Mode %d Magic %d Offset%d %d\r\n", groupMode, magic.value, targetFrontGroupOffset, targetBackGroupOffset);
-        taskEXIT_CRITICAL(); // 退出临界段
-        vTaskDelayUntil(&LastWakeTime, 1000);
+        printf("Mode %d Magic %d Error %f %f %f %f\r\n",
+               sumsungMode,
+               magic.value,
+               ChassisAnglePID1.error,
+               ChassisAnglePID4.error,
+               ChassisAnglePID2.error,
+               ChassisAnglePID3.error);
+        // printf("Mode %d Magic %d Yaw %f turn %d\r\n", sumsungMode, magic.value, EulerAngle.Yaw, isTurning);
+        // PID_Print(&PID_LFCM);
+        vTaskDelayUntil(&LastWakeTime, 2000);
     }
     vTaskDelete(NULL);
 }

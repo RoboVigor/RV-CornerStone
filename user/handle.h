@@ -43,6 +43,9 @@ __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_
 // Task_Sumsung
 __HANDLE_EXT PID_Type ChassisAnglePID1, ChassisAnglePID2, ChassisAnglePID3, ChassisAnglePID4, CM1PID, CM2PID, CM3PID, CM4PID;
 
+// Task_Mode_Switch
+__HANDLE_EXT int sumsungMode;
+
 void Handle_Init(void);
 
 #endif

@@ -17,12 +17,46 @@ void Task_Blink(void *Parameters) {
 
     vTaskDelete(NULL);
 }
+
+void Task_Mode_Switch(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    int        lastSwitchRight;
+    int        lastSwitchLeft;
+    int        modeChanged;
+    delay_ms(1000);
+    lastSwitchRight = remoteData.switchRight;
+    lastSwitchLeft  = remoteData.switchLeft;
+    sumsungMode     = 0;
+    while (1) {
+        modeChanged = 0;
+        if (remoteData.switchRight != lastSwitchRight || remoteData.switchLeft != lastSwitchLeft) {
+            lastSwitchRight = remoteData.switchRight;
+            lastSwitchLeft  = remoteData.switchLeft;
+            modeChanged     = 1;
+        }
+        if (modeChanged == 1) {
+            if (remoteData.switchLeft == 3) {
+                sumsungMode = 0;
+            } else if (remoteData.switchLeft == 1 && remoteData.switchRight == 1) {
+                sumsungMode = 1;
+            } else if (remoteData.switchLeft == 2 && remoteData.switchRight == 1) {
+                sumsungMode = 2;
+            } else if (remoteData.switchLeft == 1 && remoteData.switchRight == 3) {
+                sumsungMode = 3;
+            } else if (remoteData.switchLeft == 2 && remoteData.switchRight == 3) {
+                sumsungMode = 8;
+            }
+        }
+        vTaskDelayUntil(&LastWakeTime, 5);
+    }
+    vTaskDelete(NULL);
+}
+
 /**
  * @brief  底盘@三星轮组
  * @param  void *Parameters
  * @return void
  */
-int  groupMode              = 0;
 int  targetBackGroupOffset  = 0;
 int  targetFrontGroupOffset = 0;
 void Task_Sumsung(void *Parameters) {
@@ -32,14 +66,11 @@ void Task_Sumsung(void *Parameters) {
     // 轮组变量
     int targetBackGroup  = 0;
     int targetFrontGroup = 0;
-    int lastSwitchLeft   = 0;
 
     // 硬编码轮组运动参数
-    int targetFrontGroupPreset[] = {0, 900, 700, 0}; // mode0,1,2,3
-    int targetBackGroupPreset[]  = {0, 150, 750, 0}; // mode0,1,2,3
-    int currentAntiFall[]        = {300, 500};       // front,back
-    // int targetFrontGroupPreset[] = {0, 850, 700};
-    // int targetBackGroupPreset[]  = {0, 150, 700};
+    int targetFrontGroupPreset[] = {0, 950, 650}; // mode0,1,2,3
+    int targetBackGroupPreset[]  = {0, 150, 800}; // mode0,1,2,3
+    int currentAntiFall[]        = {200, 100};    // front,back
 
     // 角度PID
     PID_Init(&ChassisAnglePID1, 1.5, 0, 0, 100, 50); // 1.5
@@ -54,45 +85,31 @@ void Task_Sumsung(void *Parameters) {
     PID_Init(&CM4PID, 55, 0, 0, 8000, 4000); // 35   0.01
 
     while (1) {
+        ChassisAnglePID1.i = (float) magic.value / 1000.0;
+        ChassisAnglePID2.i = (float) magic.value / 1000.0;
+        ChassisAnglePID3.i = (float) magic.value / 1000.0;
+        ChassisAnglePID4.i = (float) magic.value / 1000.0;
+
         // 位置调整
-        if (remoteData.switchLeft == 3) {
-            targetFrontGroupOffset = targetFrontGroupPreset[groupMode] - Motor_SumsungRF.angle;
-            targetBackGroupOffset  = targetBackGroupPreset[groupMode] - Motor_SumsungRB.angle;
+        if (sumsungMode == 0) {
+            targetFrontGroupOffset = targetFrontGroup - Motor_SumsungRF.angle;
+            targetBackGroupOffset  = targetBackGroup - Motor_SumsungRB.angle;
             Can_Send(CAN1, 0x200, 0, 0, 0, 0); //轮组电机断电
-            lastSwitchLeft = 3;                //更新模式信息
             vTaskDelayUntil(&LastWakeTime, 5); //任务延时
             continue;
         }
 
-        // 轮组模式判断
-        if (remoteData.switchLeft == 1 && lastSwitchLeft == 3) {
-            if (remoteData.switchRight == 1) {
-                groupMode = 1; //轮组模式1 前侧轮组上台阶
-            } else if (remoteData.switchRight == 3) {
-                groupMode = 3; //轮组模式3  三星轮组底盘向后下台阶
-            }
-            lastSwitchLeft = 1;
-        } else if (remoteData.switchLeft == 2 && lastSwitchLeft == 3) {
-            if (remoteData.switchRight == 1) {
-                groupMode = 2; //轮组模式2 后侧轮组上台阶
-
-            } else if (remoteData.switchRight == 3) {
-                groupMode = 4; //轮组模式4 暂定
-            }
-            lastSwitchLeft = 2;
-        }
-
         // 轮组模式解算
-        if (groupMode <= 2) {
-            targetFrontGroup = targetFrontGroupPreset[groupMode] - targetFrontGroupOffset;
-            targetBackGroup  = targetBackGroupPreset[groupMode] - targetBackGroupOffset;
-        } else if (groupMode == 3) {
-            targetFrontGroupOffset = 0;
-            targetBackGroupOffset  = 0;
+        if (sumsungMode == 1 || sumsungMode == 2) {
+            targetFrontGroup = targetFrontGroupPreset[sumsungMode] - targetFrontGroupOffset;
+            targetBackGroup  = targetBackGroupPreset[sumsungMode] - targetBackGroupOffset;
+        } else if (sumsungMode == 3) {
+            targetFrontGroup = 0;
+            targetBackGroup  = 0;
             Can_Send(CAN1, 0x200, -currentAntiFall[0], -currentAntiFall[1], currentAntiFall[1], currentAntiFall[0]); //增加阻力
             vTaskDelayUntil(&LastWakeTime, 5);
             continue;
-        } else if (groupMode == 4) {
+        } else if (sumsungMode == 8) {
         }
 
         // 轮组PID解算
@@ -117,16 +134,17 @@ void Task_Sumsung(void *Parameters) {
 /**
  * @brief  底盘运动
  */
+int  isTurning = 1;
 int  wheelMode = 0;
 void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     int        rotorSpeed[4];                      // 轮子转速
     float      rpm2rps        = 3.14 / 60;         // 转子的转速(RPM,RoundPerMinute)换算成角速度(RadPerSecond)
-    int        mode           = 2;                 // 底盘运动模式,1直线,2转弯
-    int        lastMode       = 2;                 // 上一次的运动模式
+    int        lastIsTurning  = 1;                 // 上一次的运动模式
     float      yawAngleTarget = 0;                 // 目标值
     float      yawAngleFeed, yawSpeedFeed;
-    int        target = 35; // 麦轮目标值
+    int        movingForwardSpeed  = 30; // 硬编码向前运动的转速
+    int        movingBackwardSpeed = 20; // 硬编码向后运动的转速
 
     // 初始化麦轮角速度PID
     PID_Init(&PID_LBCM, 70, 0.5, 0, 6000, 3000);
@@ -139,35 +157,37 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_YawSpeed, 2, 0, 0, 4000, 1000);
 
     while (1) {
-        //麦轮模式切换
-        if (remoteData.switchLeft == 3) {
-            if (remoteData.switchRight == 1) {
-                wheelMode = 1; //模式1 摇杆控制麦轮
-            } else if (remoteData.switchRight == 3) {
-                wheelMode = 2; //模式2 麦轮控制底盘 整体向后运动
-            }
-        } else {
-            wheelMode = 3; //模式3 麦轮控制底盘  整体向前运动(伴随三星轮组同步进行)
-        }
 
-        if (wheelMode == 1) {
+        if (sumsungMode == 1 || sumsungMode == 2) {
+            lastIsTurning = 0;
+            PID_Calculate(&PID_LFCM, movingForwardSpeed, Motor_LF.speed * rpm2rps);
+            PID_Calculate(&PID_LBCM, movingForwardSpeed, Motor_LB.speed * rpm2rps);
+            PID_Calculate(&PID_RBCM, -movingForwardSpeed, Motor_RB.speed * rpm2rps);
+            PID_Calculate(&PID_RFCM, -movingForwardSpeed, Motor_RF.speed * rpm2rps);
+        } else if (sumsungMode == 3) {
+            lastIsTurning = 1;
+            PID_Calculate(&PID_LFCM, -movingBackwardSpeed, Motor_LF.speed * rpm2rps);
+            PID_Calculate(&PID_LBCM, -movingBackwardSpeed, Motor_LB.speed * rpm2rps);
+            PID_Calculate(&PID_RBCM, movingBackwardSpeed, Motor_RB.speed * rpm2rps);
+            PID_Calculate(&PID_RFCM, movingBackwardSpeed, Motor_RF.speed * rpm2rps);
+        } else if (sumsungMode == 0) {
             // 更新运动模式
-            mode = ABS(remoteData.rx) < 5 ? 1 : 2;
+            isTurning = ABS(remoteData.rx) < 5 && ABS(remoteData.ly) < 5 ? 0 : 1;
 
             // 设置反馈值
             yawAngleFeed = EulerAngle.Yaw;         // 航向角角度反馈
             yawSpeedFeed = mpu6500_data.gz / 16.4; // 航向角角速度反馈
 
             // 切换运动模式
-            if (mode != lastMode) {
+            if (isTurning != lastIsTurning) {
                 PID_YawAngle.output_I = 0;            // 清空角度PID积分
                 PID_YawSpeed.output_I = 0;            // 清空角速度PID积分
                 yawAngleTarget        = yawAngleFeed; // 更新角度PID目标值
-                lastMode              = mode;         // 更新lastMode
+                lastIsTurning         = isTurning;    // 更新lastMode
             }
 
             // 根据运动模式计算PID
-            if (mode == 1) {
+            if (isTurning == 0) {
                 PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngleFeed);      // 计算航向角角度PID
                 PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeedFeed); // 计算航向角角速度PID
             } else {
@@ -185,27 +205,10 @@ void Task_Chassis(void *Parameters) {
             PID_Calculate(&PID_LBCM, rotorSpeed[1], Motor_LB.speed * rpm2rps);
             PID_Calculate(&PID_RBCM, rotorSpeed[2], Motor_RB.speed * rpm2rps);
             PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
-
-            // 输出电流值到电调
-            Can_Send(CAN2, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
         }
 
-        if (wheelMode == 2) {
-            PID_Calculate(&PID_LFCM, -target, Motor_LF.speed * rpm2rps);
-            PID_Calculate(&PID_LBCM, -target, Motor_LB.speed * rpm2rps);
-            PID_Calculate(&PID_RBCM, target, Motor_RB.speed * rpm2rps);
-            PID_Calculate(&PID_RFCM, target, Motor_RF.speed * rpm2rps);
-
-            Can_Send(CAN2, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
-        }
-
-        if (wheelMode == 3) {
-            PID_Calculate(&PID_LFCM, target, Motor_LF.speed * rpm2rps);
-            PID_Calculate(&PID_LBCM, target, Motor_LB.speed * rpm2rps);
-            PID_Calculate(&PID_RBCM, -target, Motor_RB.speed * rpm2rps);
-            PID_Calculate(&PID_RFCM, -target, Motor_RF.speed * rpm2rps);
-            Can_Send(CAN2, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
-        }
+        // 输出电流值到电调
+        Can_Send(CAN2, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, 10);
     }
