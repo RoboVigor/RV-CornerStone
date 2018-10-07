@@ -3,67 +3,38 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Tool Versions:</h2>
-IDE-Version: ¦ÌVision V5.14.0.0
-Copyright (C) 2015 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: alientek ALIENTEK, alientek, LIC=IK130-BIXCW-SA2DJ-U4S8I-LP21U-W3Z4L
+IDE-Version: ¦ÌVision V5.21.1.0
+Copyright (C) 2016 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: Kelvin Cao, SBC, LIC=DSNGK-ZSSDI-TIJ5L-05SC3-HSE4F-F0YID
  
 Tool Versions:
-Toolchain:       MDK-ARM Standard  Version: 5.14.0.0
-Toolchain Path:  E:\MDK5\ARM\ARMCC\Bin
-C Compiler:      Armcc.exe V5.05 update 1 (build 106)
-Assembler:       Armasm.exe V5.05 update 1 (build 106)
-Linker/Locator:  ArmLink.exe V5.05 update 1 (build 106)
-Library Manager: ArmAr.exe V5.05 update 1 (build 106)
-Hex Converter:   FromElf.exe V5.05 update 1 (build 106)
-CPU DLL:         SARMCM3.DLL V5.14.0.0
-Dialog DLL:      DCM.DLL V1.13.1.0
-Target DLL:      Segger\JL2CM3.dll V2.99.13.0
-Dialog DLL:      TCM.DLL V1.14.4.0
+Toolchain:       MDK-ARM Professional  Version: 5.21a
+Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 3 (build 300)
+Assembler:       Armasm.exe V5.06 update 3 (build 300)
+Linker/Locator:  ArmLink.exe V5.06 update 3 (build 300)
+Library Manager: ArmAr.exe V5.06 update 3 (build 300)
+Hex Converter:   FromElf.exe V5.06 update 3 (build 300)
+CPU DLL:         SARMCM3.DLL V5.21a
+Dialog DLL:      DCM.DLL V1.13.8.0
+Target DLL:      Segger\JL2CM3.dll V2.99.23.0
+Dialog DLL:      TCM.DLL V1.14.14.0
  
 <h2>Project:</h2>
-D:\cangku\RV-CornerStone\mdk\Belief exp2.uvprojx
-Project File Date:  10/05/2018
+D:\Repository\RV-CornerStone\mdk\Belief exp2.uvprojx
+Project File Date:  10/07/2018
 
 <h2>Output:</h2>
+*** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-compiling Task_Function.c...
-..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
-  #include "key.h"
-..\task\src\Task_Function.c(18): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_Function.c(52): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_Function.c(88): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          ChassisAnglePID1.i = (float) magic.value / 1000.0;
-..\task\src\Task_Function.c(89): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          ChassisAnglePID2.i = (float) magic.value / 1000.0;
-..\task\src\Task_Function.c(90): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          ChassisAnglePID3.i = (float) magic.value / 1000.0;
-..\task\src\Task_Function.c(91): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          ChassisAnglePID4.i = (float) magic.value / 1000.0;
-..\task\src\Task_Function.c(132): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_Function.c(197): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-              Chassis_Set_Speed((float) -remoteData.lx / 660.0, (float) remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
-..\task\src\Task_Function.c(197): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-              Chassis_Set_Speed((float) -remoteData.lx / 660.0, (float) remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
-..\task\src\Task_Function.c(197): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-              Chassis_Set_Speed((float) -remoteData.lx / 660.0, (float) remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
-..\task\src\Task_Function.c(215): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_Function.c(236): warning:  #111-D: statement is unreachable
-      vTaskDelete(NULL);
-..\task\src\Task_Function.c: 13 warnings, 0 errors
-linking...
-Program Size: Code=38528 RO-data=1048 RW-data=272 ZI-data=83840  
-FromELF: creating hex file...
-".\Objects\Belief exp2.axf" - 0 Error(s), 13 Warning(s).
+".\Objects\Belief exp2.axf" - 0 Error(s), 0 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
-  D:\cangku\RV-CornerStone\mdk\RTE
-  E:\MDK5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0
+  D:\Repository\RV-CornerStone\mdk\RTE
+  C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.9.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 
 <h2>Collection of Component Files used:</h2>
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

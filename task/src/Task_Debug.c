@@ -64,13 +64,14 @@ void       Task_MagicSend(void *Parameters) {
         //        Motor_SumsungRF.angle,
         //        Motor_SumsungLB.angle,
         //        Motor_SumsungRB.angle);
-        printf("Mode %d Magic %d Error %f %f %f %f\r\n",
-               sumsungMode,
-               magic.value,
-               ChassisAnglePID1.error,
-               ChassisAnglePID4.error,
-               ChassisAnglePID2.error,
-               ChassisAnglePID3.error);
+        // printf("Mode %d Magic %d Error %f %f %f %f\r\n",
+        //        sumsungMode,
+        //        magic.value,
+        //        ChassisAnglePID1.error,
+        //        ChassisAnglePID4.error,
+        //        ChassisAnglePID2.error,
+        //        ChassisAnglePID3.error);
+        printf("Pitch %f ax %d ay %d\r\n", EulerAngle.Roll, mpu6500_data.ax, mpu6500_data.ay);
         // printf("Mode %d Magic %d Yaw %f turn %d\r\n", sumsungMode, magic.value, EulerAngle.Yaw, isTurning);
         // PID_Print(&PID_LFCM);
         vTaskDelayUntil(&LastWakeTime, 2000);
