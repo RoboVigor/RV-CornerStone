@@ -29,7 +29,7 @@ void Task_Mode_Switch(void *Parameters) {
     sumsungMode     = 0;
     while (1) {
         modeChanged = 0;
-        if (remoteData.switchRight != lastSwitchRight || remoteData.switchLeft != lastSwitchLeft) {
+        if (remoteData.switchLeft != lastSwitchLeft) {
             lastSwitchRight = remoteData.switchRight;
             lastSwitchLeft  = remoteData.switchLeft;
             modeChanged     = 1;
@@ -68,7 +68,7 @@ void Task_Sumsung(void *Parameters) {
     int targetFrontGroup = 0;
 
     // 硬编码轮组运动参数
-    int targetFrontGroupPreset[] = {0, 950, 650}; // mode0,1,2,3
+    int targetFrontGroupPreset[] = {0, 950, 700}; // mode0,1,2,3
     int targetBackGroupPreset[]  = {0, 150, 800}; // mode0,1,2,3
     int currentAntiFall[]        = {200, 100};    // front,back
 
@@ -85,10 +85,7 @@ void Task_Sumsung(void *Parameters) {
     PID_Init(&CM4PID, 55, 0, 0, 8000, 4000); // 35   0.01
 
     while (1) {
-        ChassisAnglePID1.i = (float) magic.value / 1000.0;
-        ChassisAnglePID2.i = (float) magic.value / 1000.0;
-        ChassisAnglePID3.i = (float) magic.value / 1000.0;
-        ChassisAnglePID4.i = (float) magic.value / 1000.0;
+        targetFrontGroupPreset[2] = magic.value;
 
         // 位置调整
         if (sumsungMode == 0) {
@@ -143,8 +140,9 @@ void Task_Chassis(void *Parameters) {
     int        lastIsTurning  = 1;                 // 上一次的运动模式
     float      yawAngleTarget = 0;                 // 目标值
     float      yawAngleFeed, yawSpeedFeed;
-    int        movingForwardSpeed  = 30; // 硬编码向前运动的转速
-    int        movingBackwardSpeed = 20; // 硬编码向后运动的转速
+    float      ChassisYSpeed;             // 底盘Y轴运动速度
+    int        movingForwardSpeed  = 120; // 硬编码向前运动的转速
+    int        movingBackwardSpeed = -80; // 硬编码向后运动的转速
 
     // 初始化麦轮角速度PID
     PID_Init(&PID_LBCM, 70, 0.5, 0, 6000, 3000);
@@ -159,53 +157,47 @@ void Task_Chassis(void *Parameters) {
     while (1) {
 
         if (sumsungMode == 1 || sumsungMode == 2) {
-            lastIsTurning = 0;
-            PID_Calculate(&PID_LFCM, movingForwardSpeed, Motor_LF.speed * rpm2rps);
-            PID_Calculate(&PID_LBCM, movingForwardSpeed, Motor_LB.speed * rpm2rps);
-            PID_Calculate(&PID_RBCM, -movingForwardSpeed, Motor_RB.speed * rpm2rps);
-            PID_Calculate(&PID_RFCM, -movingForwardSpeed, Motor_RF.speed * rpm2rps);
+            ChassisYSpeed = (float) movingForwardSpeed / 660.0;
         } else if (sumsungMode == 3) {
-            lastIsTurning = 1;
-            PID_Calculate(&PID_LFCM, -movingBackwardSpeed, Motor_LF.speed * rpm2rps);
-            PID_Calculate(&PID_LBCM, -movingBackwardSpeed, Motor_LB.speed * rpm2rps);
-            PID_Calculate(&PID_RBCM, movingBackwardSpeed, Motor_RB.speed * rpm2rps);
-            PID_Calculate(&PID_RFCM, movingBackwardSpeed, Motor_RF.speed * rpm2rps);
+            ChassisYSpeed = (float) movingBackwardSpeed / 660.0;
         } else if (sumsungMode == 0) {
-            // 更新运动模式
-            isTurning = ABS(remoteData.rx) < 5 && ABS(remoteData.ly) < 5 ? 0 : 1;
-
-            // 设置反馈值
-            yawAngleFeed = EulerAngle.Yaw;         // 航向角角度反馈
-            yawSpeedFeed = mpu6500_data.gz / 16.4; // 航向角角速度反馈
-
-            // 切换运动模式
-            if (isTurning != lastIsTurning) {
-                PID_YawAngle.output_I = 0;            // 清空角度PID积分
-                PID_YawSpeed.output_I = 0;            // 清空角速度PID积分
-                yawAngleTarget        = yawAngleFeed; // 更新角度PID目标值
-                lastIsTurning         = isTurning;    // 更新lastMode
-            }
-
-            // 根据运动模式计算PID
-            if (isTurning == 0) {
-                PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngleFeed);      // 计算航向角角度PID
-                PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeedFeed); // 计算航向角角速度PID
-            } else {
-                PID_Calculate(&PID_YawSpeed, -remoteData.rx, yawSpeedFeed); // 计算航向角角速度PID
-            }
-
-            // 设置底盘总体移动速度
-            Chassis_Set_Speed((float) -remoteData.lx / 660.0, (float) remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
-
-            // 麦轮解算&限幅,获得轮子转速
-            Chassis_Get_Rotor_Speed(rotorSpeed);
-
-            // 计算输出电流PID
-            PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * rpm2rps);
-            PID_Calculate(&PID_LBCM, rotorSpeed[1], Motor_LB.speed * rpm2rps);
-            PID_Calculate(&PID_RBCM, rotorSpeed[2], Motor_RB.speed * rpm2rps);
-            PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
+            ChassisYSpeed = (float) remoteData.ly / 660.0;
         }
+
+        // 更新运动模式
+        isTurning = ABS(remoteData.rx) < 5 && ABS(remoteData.ly) < 5 ? 0 : 1;
+
+        // 设置反馈值
+        yawAngleFeed = EulerAngle.Yaw;         // 航向角角度反馈
+        yawSpeedFeed = mpu6500_data.gz / 16.4; // 航向角角速度反馈
+
+        // 切换运动模式
+        if (isTurning != lastIsTurning) {
+            PID_YawAngle.output_I = 0;            // 清空角度PID积分
+            PID_YawSpeed.output_I = 0;            // 清空角速度PID积分
+            yawAngleTarget        = yawAngleFeed; // 更新角度PID目标值
+            lastIsTurning         = isTurning;    // 更新lastMode
+        }
+
+        // 根据运动模式计算PID
+        if (isTurning == 0) {
+            PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngleFeed);      // 计算航向角角度PID
+            PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeedFeed); // 计算航向角角速度PID
+        } else {
+            PID_Calculate(&PID_YawSpeed, -remoteData.rx, yawSpeedFeed); // 计算航向角角速度PID
+        }
+
+        // 设置底盘总体移动速度
+        Chassis_Set_Speed((float) -remoteData.lx / 660.0, ChassisYSpeed, (float) PID_YawSpeed.output / 1320.0);
+
+        // 麦轮解算&限幅,获得轮子转速
+        Chassis_Get_Rotor_Speed(rotorSpeed);
+
+        // 计算输出电流PID
+        PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * rpm2rps);
+        PID_Calculate(&PID_LBCM, rotorSpeed[1], Motor_LB.speed * rpm2rps);
+        PID_Calculate(&PID_RBCM, rotorSpeed[2], Motor_RB.speed * rpm2rps);
+        PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
 
         // 输出电流值到电调
         Can_Send(CAN2, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);

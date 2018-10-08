@@ -39,7 +39,7 @@ void Task_RTOSState(void *Parameters) {
 void Task_MagicReceive(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    Magic_Init_Handle(&magic, 0); // 初始化调试数据的默认值
+    Magic_Init_Handle(&magic, 700); // 初始化调试数据的默认值
     while (1) {
         Magic_Get_Debug_Value(&magic); // 接收调试数据
         vTaskDelayUntil(&LastWakeTime, 50);
@@ -57,20 +57,21 @@ void       Task_MagicSend(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
     while (1) {
-        // printf("Mode %d Magic %d Angle %f %f %f %f\r\n",
-        //        sumsungMode,
-        //        magic.value,
-        //        Motor_SumsungLF.angle,
-        //        Motor_SumsungRF.angle,
-        //        Motor_SumsungLB.angle,
-        //        Motor_SumsungRB.angle);
-        printf("Mode %d Magic %d Error %f %f %f %f\r\n",
+        printf("Mode %d Magic %d Angle %f %f %f %f\r\n",
                sumsungMode,
                magic.value,
-               ChassisAnglePID1.error,
-               ChassisAnglePID4.error,
-               ChassisAnglePID2.error,
-               ChassisAnglePID3.error);
+               Motor_SumsungLF.angle,
+               Motor_SumsungRF.angle,
+               Motor_SumsungLB.angle,
+               Motor_SumsungRB.angle);
+        // printf("Mode %d Magic %d Error %f %f %f %f\r\n",
+        //        sumsungMode,
+        //        magic.value,
+        //        ChassisAnglePID1.error,
+        //        ChassisAnglePID4.error,
+        //        ChassisAnglePID2.error,
+        //        ChassisAnglePID3.error);
+        // printf("ly %d\r\n", remoteData.ly);
         // printf("Mode %d Magic %d Yaw %f turn %d\r\n", sumsungMode, magic.value, EulerAngle.Yaw, isTurning);
         // PID_Print(&PID_LFCM);
         vTaskDelayUntil(&LastWakeTime, 2000);
