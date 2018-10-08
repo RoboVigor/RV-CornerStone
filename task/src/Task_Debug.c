@@ -57,13 +57,13 @@ void       Task_MagicSend(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
     while (1) {
-        printf("Mode %d Magic %d Angle %f %f %f %f\r\n",
-               sumsungMode,
-               magic.value,
-               Motor_SumsungLF.angle,
-               Motor_SumsungRF.angle,
-               Motor_SumsungLB.angle,
-               Motor_SumsungRB.angle);
+        // printf("Mode %d Magic %d Angle %f %f %f %f\r\n",
+        //        sumsungMode,
+        //        magic.value,
+        //        Motor_SumsungLF.angle,
+        //        Motor_SumsungRF.angle,
+        //        Motor_SumsungLB.angle,
+        //        Motor_SumsungRB.angle);
         // printf("Mode %d Magic %d Error %f %f %f %f\r\n",
         //        sumsungMode,
         //        magic.value,
@@ -71,7 +71,7 @@ void       Task_MagicSend(void *Parameters) {
         //        ChassisAnglePID4.error,
         //        ChassisAnglePID2.error,
         //        ChassisAnglePID3.error);
-        // printf("ly %d\r\n", remoteData.ly);
+        printf("Pitch %f ax %d ay %d\r\n", EulerAngle.Roll, mpu6500_data.ax, mpu6500_data.ay);
         // printf("Mode %d Magic %d Yaw %f turn %d\r\n", sumsungMode, magic.value, EulerAngle.Yaw, isTurning);
         // PID_Print(&PID_LFCM);
         vTaskDelayUntil(&LastWakeTime, 2000);

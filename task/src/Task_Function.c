@@ -22,19 +22,22 @@ void Task_Mode_Switch(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     int        lastSwitchRight;
     int        lastSwitchLeft;
-    int        modeChanged;
+    int        modeChangedByRemote = 0;
+    int        modeChangedAuto     = 0;
+    int        modeChangedAutoTo   = 0;
     delay_ms(1000);
     lastSwitchRight = remoteData.switchRight;
     lastSwitchLeft  = remoteData.switchLeft;
     sumsungMode     = 0;
+    lastSumsungMode = 0;
     while (1) {
-        modeChanged = 0;
-        if (remoteData.switchLeft != lastSwitchLeft) {
-            lastSwitchRight = remoteData.switchRight;
-            lastSwitchLeft  = remoteData.switchLeft;
-            modeChanged     = 1;
+        if (remoteData.switchRight != lastSwitchRight || remoteData.switchLeft != lastSwitchLeft) {
+            lastSwitchRight     = remoteData.switchRight;
+            lastSwitchLeft      = remoteData.switchLeft;
+            modeChangedByRemote = 1;
         }
-        if (modeChanged == 1) {
+        if (modeChangedByRemote == 1) {
+            lastSumsungMode = sumsungMode;
             if (remoteData.switchLeft == 3) {
                 sumsungMode = 0;
             } else if (remoteData.switchLeft == 1 && remoteData.switchRight == 1) {
@@ -46,7 +49,24 @@ void Task_Mode_Switch(void *Parameters) {
             } else if (remoteData.switchLeft == 2 && remoteData.switchRight == 3) {
                 sumsungMode = 8;
             }
+            modeChangedByRemote = 0;
+            modeChangedAuto     = 0;
         }
+
+        if (sumsungMode == 1) {
+            modeChangedAuto += EulerAngle.Yaw > 22 ? 1 : 0;
+            modeChangedAutoTo = 0;
+        } else if (lastSumsungMode == 1) {
+            modeChangedAuto += mpu6500_data.ax > 200 ? 1 : 0;
+            modeChangedAutoTo = 2;
+        }
+
+        if (modeChangedAuto >= 100) {
+            lastSumsungMode = sumsungMode;
+            sumsungMode     = modeChangedAutoTo;
+            modeChangedAuto = 0;
+        }
+
         vTaskDelayUntil(&LastWakeTime, 5);
     }
     vTaskDelete(NULL);
