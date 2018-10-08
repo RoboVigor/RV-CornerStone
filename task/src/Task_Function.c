@@ -17,20 +17,23 @@ void Task_Blink(void *Parameters) {
 
     vTaskDelete(NULL);
 }
-
+int  lastSumsungMode;
+int  modeChangedAuto;
+int  debugPitch = 0;
 void Task_Mode_Switch(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     int        lastSwitchRight;
     int        lastSwitchLeft;
     int        modeChangedByRemote = 0;
-    int        modeChangedAuto     = 0;
     int        modeChangedAutoTo   = 0;
     delay_ms(1000);
     lastSwitchRight = remoteData.switchRight;
     lastSwitchLeft  = remoteData.switchLeft;
+    modeChangedAuto = 0;
     sumsungMode     = 0;
     lastSumsungMode = 0;
     while (1) {
+        debugPitch = EulerAngle.Roll;
         if (remoteData.switchRight != lastSwitchRight || remoteData.switchLeft != lastSwitchLeft) {
             lastSwitchRight     = remoteData.switchRight;
             lastSwitchLeft      = remoteData.switchLeft;
@@ -54,14 +57,17 @@ void Task_Mode_Switch(void *Parameters) {
         }
 
         if (sumsungMode == 1) {
-            modeChangedAuto += EulerAngle.Yaw > 22 ? 1 : 0;
+            modeChangedAuto += EulerAngle.Roll > 14 ? 1 : 0;
             modeChangedAutoTo = 0;
         } else if (lastSumsungMode == 1) {
-            modeChangedAuto += mpu6500_data.ax > 200 ? 1 : 0;
+            modeChangedAuto += ABS(mpu6500_data.gx) < 60 ? 1 : 0;
             modeChangedAutoTo = 2;
+        } else if (lastSumsungMode == 0 && sumsungMode == 2) {
+            modeChangedAuto += EulerAngle.Roll < 12 ? 1 : 0;
+            modeChangedAutoTo = 0;
         }
 
-        if (modeChangedAuto >= 100) {
+        if (modeChangedAuto >= 50) {
             lastSumsungMode = sumsungMode;
             sumsungMode     = modeChangedAutoTo;
             modeChangedAuto = 0;

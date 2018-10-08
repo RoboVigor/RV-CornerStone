@@ -53,6 +53,8 @@ void Task_MagicReceive(void *Parameters) {
 extern int targetBackGroupOffset;
 extern int isTurning;
 extern int targetFrontGroupOffset;
+extern int lastSumsungMode;
+extern int modeChangedAuto;
 void       Task_MagicSend(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
@@ -71,10 +73,16 @@ void       Task_MagicSend(void *Parameters) {
         //        ChassisAnglePID4.error,
         //        ChassisAnglePID2.error,
         //        ChassisAnglePID3.error);
-        printf("Pitch %f ax %d ay %d\r\n", EulerAngle.Roll, mpu6500_data.ax, mpu6500_data.ay);
+        printf("Pitch %f ax %d ay %d mode %d lmode %d autoc %d\r\n",
+               EulerAngle.Roll,
+               mpu6500_data.gx,
+               mpu6500_data.gy,
+               sumsungMode,
+               lastSumsungMode,
+               modeChangedAuto);
         // printf("Mode %d Magic %d Yaw %f turn %d\r\n", sumsungMode, magic.value, EulerAngle.Yaw, isTurning);
         // PID_Print(&PID_LFCM);
-        vTaskDelayUntil(&LastWakeTime, 2000);
+        vTaskDelayUntil(&LastWakeTime, 1000);
     }
     vTaskDelete(NULL);
 }
