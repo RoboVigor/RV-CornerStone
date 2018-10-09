@@ -13,6 +13,7 @@ void Task_Safe_Mode(void *Parameters); // 安全模式
 void Task_RTOSState(void *Parameters);    // 输出RTOS系统资源
 void Task_MagicReceive(void *Parameters); // 无线串口调试接收
 void Task_MagicSend(void *Parameters);    // 无线串口调试输出
+void Task_Sampling(void *Parameters);     // 采样任务
 
 // 高频任务
 void Task_Gyroscope(void *Parameters); // 陀螺仪姿态解算

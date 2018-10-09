@@ -27,6 +27,14 @@ typedef struct {
     float Roll;
 } EulerAngle_Type;
 
+/**
+ * @brief 欧拉角解算
+ */
 void Gyroscope_Update_Angle_Data(void);
+
+/**
+ * @brief 获得滤波器diff
+ */
+float Gyroscope_Get_Filter_Diff(void);
 
 #endif

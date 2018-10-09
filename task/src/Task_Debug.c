@@ -47,9 +47,35 @@ void Task_MagicSend(void *Parameters) {
 
     while (1) {
         taskENTER_CRITICAL(); // 进入临界段
-        printf("Yaw: %f\r\n", EulerAngle.Yaw);
+        printf("Yaw: %f \r\n", EulerAngle.Yaw);
         taskEXIT_CRITICAL(); // 退出临界段
         vTaskDelayUntil(&LastWakeTime, 500);
+    }
+    vTaskDelete(NULL);
+}
+
+void Task_Sampling(void *Parameters) {
+    TickType_t  LastWakeTime      = xTaskGetTickCount();
+    Filter_Type Filter_Sampling   = {.count = 0};
+    int32_t     totalSampleNumber = 3000;
+    int16_t     printEvery        = 100;
+
+    while (1) {
+        taskENTER_CRITICAL(); // 进入临界段
+        Filter_Update(&Filter_Sampling, ABS(Gyroscope_Get_Filter_Diff()));
+        Filter_Update_Sample(&Filter_Sampling);
+        if (Filter_Sampling.count % printEvery == 0) {
+            printf("#%d\r\n average: %f\r\n max: %f\r\n min: %f\r\n\r\n",
+                   Filter_Sampling.count,
+                   Filter_Sampling.movingAverage,
+                   Filter_Sampling.max,
+                   Filter_Sampling.min);
+        }
+        if (Filter_Sampling.count == totalSampleNumber) {
+            break;
+        }
+        taskEXIT_CRITICAL(); // 退出临界段
+        vTaskDelayUntil(&LastWakeTime, 5);
     }
     vTaskDelete(NULL);
 }

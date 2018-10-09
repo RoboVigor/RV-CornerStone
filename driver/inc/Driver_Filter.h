@@ -1,6 +1,10 @@
 /**
  * @file Driver_Filter.h
  * @brief 滤波算法
+ * @note "应用"函数会把结果保存到滤波器的result中
+ * @version 0.7
+ * - 原isInit改为count
+ * - 新增采样函数
  * @version 0.6
  * - 新增基础滤波器
  * - 新增限幅滤波
@@ -11,24 +15,36 @@
 #include "stm32f4xx_conf.h"
 
 typedef struct {
-    int8_t isInit;      // 自动初始化
-    float  thresholdLB; // 限幅滤波阈值
+    // 基本滤波器
+    float   value;
+    float   lastValue;
+    float   diff;
+    float   offset;
+    float   result;
+    int32_t count; // 计数器
 
-    float value;
-    float lastValue;
-    float diff;
-    float offset;
-    float result;
+    // 限幅滤波阈值
+    float thresholdLB;
+
+    // 采样
+    float movingAverage; // 移动平均值
+    float max;           // 最大值
+    float min;           // 最小值
 } Filter_Type;
 
 /**
- * @brief 更新基础滤波器
+ * @brief 计算基础滤波器
  */
 void Filter_Update(Filter_Type *filter, float value);
 
 /**
+ * @brief 计算移动平均值
+ */
+void Filter_Update_Moving_Average(Filter_Type *filter);
+
+/**
  * @brief 应用限幅滤波
  */
-float Filter_Limit_Breadth(Filter_Type *filter);
+float Filter_Apply_Limit_Breadth(Filter_Type *filter);
 
 #endif
