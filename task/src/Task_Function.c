@@ -87,6 +87,20 @@ void Task_Chassis(void *Parameters) {
 
     vTaskDelete(NULL);
 }
+/**
+ * @brief 发射机构代码
+ *
+ * @param Parameters
+ */
+// Debug code For Jlink debug
+uint8_t debugA = 0;
+uint8_t debugB = 0;
+uint8_t debugC = 0;
+uint8_t debugD = 0;
+uint8_t debugE = 0;
+uint8_t debugF = 0;
+uint8_t debugG = 0;
+uint8_t debugH = 0;
 
 void Task_Fire(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
