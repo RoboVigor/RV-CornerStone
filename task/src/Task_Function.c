@@ -116,16 +116,14 @@ void Task_Fire(void *Parameters) {
     uint8_t stirFlag   = 0;
 
     // 常量
-    float frictSpeed         = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
-    float stirSpeedOne       = 36 * 36;
-    float stirSpeedTwo       = 50 * 36;
-    float stirReductionRate  = 0; // to do
-    float frictReductionRate = 0; // to do
+    float frictSpeed   = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
+    float stirSpeedOne = 36 * 36;
+    float stirSpeedTwo = 50 * 36;
 
     // 电机初始化
-    Motor_Init(&Motor_LeftFrict, frictReductionRate, 0);
-    Motor_Init(&Motor_RightFrict, frictReductionRate, 0);
-    Motor_Init(&Motor_Stir, stirReductionRate, 0);
+    Motor_Init(&Motor_LeftFrict, 1, 0);
+    Motor_Init(&Motor_RightFrict, 1, 0);
+    Motor_Init(&Motor_Stir, 1, 0);
 
     // PID 初始化
     PID_Init(&PID_LeftFrictSpeed, 20, 3, 0, 4000, 2000);
