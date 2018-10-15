@@ -120,11 +120,6 @@ void Task_Fire(void *Parameters) {
     float stirSpeedOne = 36 * 36;
     float stirSpeedTwo = 50 * 36;
 
-    // 电机初始化
-    Motor_Init(&Motor_LeftFrict, 1, 0);
-    Motor_Init(&Motor_RightFrict, 1, 0);
-    Motor_Init(&Motor_Stir, 1, 0);
-
     // PID 初始化
     PID_Init(&PID_LeftFrictSpeed, 20, 3, 0, 4000, 2000);
     PID_Init(&PID_RightFrictSpeed, 20, 3, 0, 4000, 2000);
