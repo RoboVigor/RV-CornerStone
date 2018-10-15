@@ -116,9 +116,8 @@ void Task_Fire(void *Parameters) {
     uint8_t stirFlag   = 0;
 
     // 常量
-    float frictSpeed   = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
-    float stirSpeedOne = 36 * 36;
-    float stirSpeedTwo = 50 * 36;
+    float frictSpeed = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
+    float stirSpeed  = 36 * 36;
 
     // PID 初始化
     PID_Init(&PID_LeftFrictSpeed, 20, 3, 0, 4000, 2000);
@@ -169,7 +168,7 @@ void Task_Fire(void *Parameters) {
             PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed);
             Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         } else if (stirState == 2) { // 连发模式
-            PID_Increment_Calculate(&PID_StirSpeed, stirSpeedOne, Motor_Stir.speed * rpm2rps);
+            PID_Increment_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * rpm2rps);
             Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
 
