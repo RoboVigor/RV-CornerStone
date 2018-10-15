@@ -93,8 +93,8 @@ void Task_Fire(void *Parameters) {
     float      rpm2rps      = 3.14 / 60;           // 转子的转速(round/min)换算成角速度(rad/s)
     // uint8_t    startCounter = 0;                   // 启动模式计数器
 
-#define LASER_ON GPIO_SetBits(GPIOG, GPIO_Pin_13)    // 激光开启
-#define LASER_OFF GPIO_ResetBits(GPIOG, GPIO_Pin_13) // 激光关闭
+    // #define LASER_ON GPIO_SetBits(GPIOG, GPIO_Pin_13)    // 激光开启
+    // #define LASER_OFF GPIO_ResetBits(GPIOG, GPIO_Pin_13) // 激光关闭
 
     // 标志位
     uint8_t frictState = 0;
@@ -131,12 +131,12 @@ void Task_Fire(void *Parameters) {
 
         // 摩擦轮 PID 控制
         if (frictState == 0) {
-            LASER_OFF;                                                                          // 关闭激光
+            // LASER_OFF;                                                                          // 关闭激光
             PID_Increment_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
             PID_Increment_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
             Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
         } else {
-            LASER_ON;                                                                          // 开启激光
+            // LASER_ON;                                                                          // 开启激光
             PID_Calculate(&PID_LeftFrictSpeed, frictSpeed, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮转动
             PID_Calculate(&PID_RightFrictSpeed, frictSpeed, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮转动
             Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
