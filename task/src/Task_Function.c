@@ -173,6 +173,13 @@ void Task_Fire(void *Parameters) {
             Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
 
+        // Debug code For Jlink
+        debugA = Motor_LeftFrict.speed * rpm2rps;  // 左 摩擦轮 转速反馈
+        debugB = Motor_RightFrict.speed * rpm2rps; // 右 摩擦轮 转速反馈
+        debugC = debugA - debugB;                  // 转速差 left minus right
+        debugD = PID_LeftFrictSpeed.output;
+        debugE = PID_RightFrictSpeed.output;
+
         vTaskDelayUntil(&LastWakeTime, 5);
     }
 
