@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\Belief exp2.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\Belief exp2.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060300: Last Updated: Fri Oct 05 16:33:30 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060300: Last Updated: Tue Oct 16 16:15:52 2018
 <BR><P>
 <H3>Maximum Stack Usage =        344 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1101,13 +1101,11 @@ Global Symbols
 
 <P><STRONG><a name="[ce]"></a>GPIO_ResetBits</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, stm32f4xx_gpio.o(i.GPIO_ResetBits))
 <BR><BR>[Called By]<UL><LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CAN1_SCE_IRQHandler
-<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Fire
 </UL>
 
 <P><STRONG><a name="[b9]"></a>GPIO_SetBits</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, stm32f4xx_gpio.o(i.GPIO_SetBits))
 <BR><BR>[Called By]<UL><LI><a href="#[e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Init
 <LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_GPIO_Init
-<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Fire
 </UL>
 
 <P><STRONG><a name="[f3]"></a>GPIO_ToggleBits</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, stm32f4xx_gpio.o(i.GPIO_ToggleBits))
@@ -1115,7 +1113,7 @@ Global Symbols
 <LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Blink
 </UL>
 
-<P><STRONG><a name="[d8]"></a>Handle_Init</STRONG> (Thumb, 52 bytes, Stack size 8 bytes, handle.o(i.Handle_Init))
+<P><STRONG><a name="[d8]"></a>Handle_Init</STRONG> (Thumb, 88 bytes, Stack size 8 bytes, handle.o(i.Handle_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = Handle_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_Init
@@ -1304,7 +1302,6 @@ Global Symbols
 </UL>
 <P><STRONG><a name="[d9]"></a>Motor_Init</STRONG> (Thumb, 50 bytes, Stack size 0 bytes, driver_motor.o(i.Motor_Init))
 <BR><BR>[Called By]<UL><LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Handle_Init
-<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Fire
 </UL>
 
 <P><STRONG><a name="[cd]"></a>Motor_Update</STRONG> (Thumb, 144 bytes, Stack size 12 bytes, driver_motor.o(i.Motor_Update))
@@ -1454,13 +1451,10 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> task_sys_init.o(i.Task_Sys_Init)
 </UL>
-<P><STRONG><a name="[6d]"></a>Task_Fire</STRONG> (Thumb, 742 bytes, Stack size 40 bytes, task_function.o(i.Task_Fire))
-<BR><BR>[Stack]<UL><LI>Max Depth = 112<LI>Call Chain = Task_Fire &rArr; vTaskDelayUntil &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
+<P><STRONG><a name="[6d]"></a>Task_Fire</STRONG> (Thumb, 434 bytes, Stack size 24 bytes, task_function.o(i.Task_Fire))
+<BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = Task_Fire &rArr; vTaskDelayUntil &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
-<BR>[Calls]<UL><LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_SetBits
-<LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_ResetBits
-<LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_Init
-<LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
+<BR>[Calls]<UL><LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
 <LI><a href="#[f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
 <LI><a href="#[f5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_Init
 <LI><a href="#[f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_Increment_Calculate
