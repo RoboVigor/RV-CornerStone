@@ -15,7 +15,7 @@ void Handle_Init(void) {
     // 发射机构
     // Motor_Init(&Motor_LeftFrict, 1, 0);
     // Motor_Init(&Motor_RightFrict, 1, 0);
-    Motor_Init(&Motor_LeftFrict, 27, 0);
-    Motor_Init(&Motor_RightFrict, 27, 0);
+    Motor_Init(&Motor_LeftFrict, 1, 0);
+    Motor_Init(&Motor_RightFrict, 1, 0);
     Motor_Init(&Motor_Stir, 1, 0);
 }

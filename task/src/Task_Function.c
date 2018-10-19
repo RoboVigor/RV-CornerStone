@@ -121,7 +121,7 @@ void Task_Fire(void *Parameters) {
     float stirSpeed = 36 * 36;
 
     // PID 初始化
-    PID_Init(&PID_LeftFrictSpeed, 20, 3, 0, 4000, 2000);
+    PID_Init(&PID_LeftFrictSpeed, 20, 3, 0, 4000, 2000); // 20 3 0
     PID_Init(&PID_RightFrictSpeed, 20, 3, 0, 4000, 2000);
     PID_Init(&PID_StirAnlge, 2, 0, 0, 4000, 2000);
     PID_Init(&PID_StirSpeed, 21, 0, 0, 4000, 2000);
@@ -143,12 +143,12 @@ void Task_Fire(void *Parameters) {
             // LASER_OFF;                                                                          // 关闭激光
             PID_Increment_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
             PID_Increment_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
-            Can_Send(CAN2, 0x1FF, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
+            Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
         } else {
             // LASER_ON;                                                                          // 开启激光
             PID_Calculate(&PID_LeftFrictSpeed, frictSpeed, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮转动
             PID_Calculate(&PID_RightFrictSpeed, frictSpeed, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮转动
-            Can_Send(CAN2, 0x1FF, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
+            Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
         }
 
         // 拨弹轮 PID 控制
@@ -176,13 +176,13 @@ void Task_Fire(void *Parameters) {
         // }
 
         // Debug code For Jlink
-        debugA = Motor_LeftFrict.speed * rpm2rps;  // 左 摩擦轮 转速反馈
-        debugB = Motor_RightFrict.speed * rpm2rps; // 右 摩擦轮 转速反馈
-        debugC = debugA - debugB;                  // 转速差 left minus right
+        debugA = Motor_LeftFrict.speed;  // 左 摩擦轮 转速反馈
+        debugB = Motor_RightFrict.speed; // 右 摩擦轮 转速反馈
+        debugC = debugA - debugB;        // 转速差 left minus right
         debugD = PID_LeftFrictSpeed.output;
         debugE = PID_RightFrictSpeed.output;
 
-        vTaskDelayUntil(&LastWakeTime, 5);
+        vTaskDelayUntil(&LastWakeTime, 1);
     }
 
     vTaskDelete(NULL);
