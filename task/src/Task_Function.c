@@ -121,8 +121,8 @@ void Task_Fire(void *Parameters) {
     float stirSpeed = 36 * 36;
 
     // PID 初始化
-    PID_Init(&PID_LeftFrictSpeed, 20, 3, 0, 4000, 2000); // 20 3 0
-    PID_Init(&PID_RightFrictSpeed, 20, 3, 0, 4000, 2000);
+    PID_Init(&PID_LeftFrictSpeed, 20, 3, 0, 10000, 6000); // 20 3 0
+    PID_Init(&PID_RightFrictSpeed, 20, 3, 0, 10000, 6000);
     PID_Init(&PID_StirAnlge, 2, 0, 0, 4000, 2000);
     PID_Init(&PID_StirSpeed, 21, 0, 0, 4000, 2000);
 
