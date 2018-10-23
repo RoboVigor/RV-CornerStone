@@ -40,19 +40,19 @@ compiling Task_Function.c...
           Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
 ..\task\src\Task_Function.c(88): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Function.c(188): warning:  #111-D: statement is unreachable
+..\task\src\Task_Function.c(197): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Function.c(115): warning:  #177-D: variable "stirState" was declared but never referenced
+..\task\src\Task_Function.c(116): warning:  #177-D: variable "stirState" was declared but never referenced
       uint8_t stirState  = 0;
-..\task\src\Task_Function.c(116): warning:  #177-D: variable "stirFlag" was declared but never referenced
+..\task\src\Task_Function.c(117): warning:  #177-D: variable "stirFlag" was declared but never referenced
       uint8_t stirFlag   = 0;
-..\task\src\Task_Function.c(121): warning:  #177-D: variable "stirSpeed" was declared but never referenced
-      float stirSpeed = 36 * 36;
-..\task\src\Task_Function.c(209): warning:  #111-D: statement is unreachable
+..\task\src\Task_Function.c(123): warning:  #177-D: variable "stirSpeed" was declared but never referenced
+      float stirSpeed  = 36 * 36;
+..\task\src\Task_Function.c(218): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
 ..\task\src\Task_Function.c: 11 warnings, 0 errors
 linking...
-Program Size: Code=29924 RO-data=780 RW-data=196 ZI-data=83484  
+Program Size: Code=30348 RO-data=780 RW-data=220 ZI-data=83484  
 FromELF: creating hex file...
 ".\Objects\Belief exp2.axf" - 0 Error(s), 11 Warning(s).
 
@@ -61,7 +61,7 @@ FromELF: creating hex file...
   C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.9.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:14
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>

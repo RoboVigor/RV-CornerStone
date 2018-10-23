@@ -93,18 +93,19 @@ void Task_Chassis(void *Parameters) {
  * @param Parameters
  */
 // Debug code For Jlink debug
-uint8_t debugA = 0;
-uint8_t debugB = 0;
-uint8_t debugC = 0;
-uint8_t debugD = 0;
-uint8_t debugE = 0;
-uint8_t debugF = 0;
-uint8_t debugG = 0;
-uint8_t debugH = 0;
+int debugA = 0;
+int debugB = 0;
+int debugC = 0;
+int debugD = 0;
+int debugE = 0;
+int debugF = 0;
+int debugG = 0;
+int debugH = 0;
 
 void Task_Fire(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      rpm2rps      = 3.14 / 60;           // 转子的转速(round/min)换算成角速度(rad/s)
+    float      r            = 0.0595;
     // uint8_t    startCounter = 0;                   // 启动模式计数器
 
     // #define LASER_ON GPIO_SetBits(GPIOG, GPIO_Pin_13)    // 激光开启
@@ -116,13 +117,14 @@ void Task_Fire(void *Parameters) {
     uint8_t stirFlag   = 0;
 
     // 常量
-    float frictSpeed = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
+    // float frictSpeed = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
     // 摩擦轮线速度(mps)转转速(rpm)
-    float stirSpeed = 36 * 36;
+    float frictSpeed = -100; // debug code
+    float stirSpeed  = 36 * 36;
 
     // PID 初始化
-    PID_Init(&PID_LeftFrictSpeed, 20, 3, 0, 10000, 6000); // 20 3 0
-    PID_Init(&PID_RightFrictSpeed, 20, 3, 0, 10000, 6000);
+    PID_Init(&PID_LeftFrictSpeed, 20, 0, 0, 20000, 6000); // 20 3 0
+    PID_Init(&PID_RightFrictSpeed, 20, 0, 0, 20000, 6000);
     PID_Init(&PID_StirAnlge, 2, 0, 0, 4000, 2000);
     PID_Init(&PID_StirSpeed, 21, 0, 0, 4000, 2000);
 
@@ -141,14 +143,21 @@ void Task_Fire(void *Parameters) {
         // 摩擦轮 PID 控制
         if (frictState == 0) {
             // LASER_OFF;                                                                          // 关闭激光
-            PID_Increment_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
-            PID_Increment_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
+            PID_Increment_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps * r);   // 左摩擦轮停止
+            PID_Increment_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps * r); // 右摩擦轮停止
+            PID_LeftFrictSpeed.output  = PID_LeftFrictSpeed.output / 0.0595 * 60 / 3.14;
+            PID_RightFrictSpeed.output = PID_RightFrictSpeed.output / 0.0595 * 60 / 3.14;
             Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
         } else {
             // LASER_ON;                                                                          // 开启激光
-            PID_Calculate(&PID_LeftFrictSpeed, frictSpeed, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮转动
-            PID_Calculate(&PID_RightFrictSpeed, frictSpeed, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮转动
-            Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
+            PID_Calculate(&PID_LeftFrictSpeed, frictSpeed, Motor_LeftFrict.speed * rpm2rps * r);   // 左摩擦轮转动
+            PID_Calculate(&PID_RightFrictSpeed, frictSpeed, Motor_RightFrict.speed * rpm2rps * r); // 右摩擦轮转动
+            debugF                     = PID_LeftFrictSpeed.output;
+            debugG                     = PID_RightFrictSpeed.output;
+            PID_LeftFrictSpeed.output  = PID_LeftFrictSpeed.output / 0.0595 * 60 / 3.14;
+            PID_RightFrictSpeed.output = PID_RightFrictSpeed.output / 0.0595 * 60 / 3.14;
+            // Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
+            Can_Send(CAN2, 0x200, 500, 500, 0, 0);
         }
 
         // 拨弹轮 PID 控制
@@ -176,9 +185,9 @@ void Task_Fire(void *Parameters) {
         // }
 
         // Debug code For Jlink
-        debugA = Motor_LeftFrict.speed;  // 左 摩擦轮 转速反馈
-        debugB = Motor_RightFrict.speed; // 右 摩擦轮 转速反馈
-        debugC = debugA - debugB;        // 转速差 left minus right
+        debugA = Motor_LeftFrict.speed * rpm2rps * r * 1000;  // 左 摩擦轮 转速反馈
+        debugB = Motor_RightFrict.speed * rpm2rps * r * 1000; // 右 摩擦轮 转速反馈
+        debugC = debugA - debugB;                             // 转速差 left minus right
         debugD = PID_LeftFrictSpeed.output;
         debugE = PID_RightFrictSpeed.output;
 
