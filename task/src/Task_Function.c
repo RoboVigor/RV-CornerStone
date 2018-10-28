@@ -184,12 +184,16 @@ void Task_Fire(void *Parameters) {
         //     Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         // }
 
+        Decode_JudgeData();
+
         // Debug code For Jlink
         debugA = Motor_LeftFrict.speed * rpm2rps * r * 1000;  // 左 摩擦轮 转速反馈
         debugB = Motor_RightFrict.speed * rpm2rps * r * 1000; // 右 摩擦轮 转速反馈
         debugC = debugA - debugB;                             // 转速差 left minus right
         debugD = PID_LeftFrictSpeed.output;
         debugE = PID_RightFrictSpeed.output;
+
+        debugF = Judge_ShootData.bullet_int; // 裁判系统射速
 
         vTaskDelayUntil(&LastWakeTime, 1);
     }

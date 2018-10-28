@@ -1,7 +1,9 @@
-#define __DRIVER_JUDGE_GLOBALS
+// #define __DRIVER_JUDGE_GLOBALS
+// #include "Driver_JudgeSys.h"
+// #include "IntToFloatTran_DataStructure.h"
 
-#include "Driver_JudgeSys.h"
-#include "IntToFloatTran_DataStructure.h"
+#include "Driver_Referee.h"
+#include "handle.h"
 
 uint8_t data[29] = {0};
 

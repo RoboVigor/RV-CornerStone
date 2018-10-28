@@ -46,6 +46,13 @@ typedef __packed struct {
     uint16_t shooterHeat1;
 } extPowerHeatData_t; //功率热量数据
 
+//格式转换联合体
+typedef union {
+    uint8_t U[4];
+    float   F;
+    int     I;
+} FormatTrans;
+
 // To del - transmit to handle.h
 // __DRIVER_JUDGE_EXT uint8_t JudgeDataBuffer[JudgeBufferLength];
 // __DRIVER_JUDGE_EXT extGameRobotState_t Judge_RobotState;
