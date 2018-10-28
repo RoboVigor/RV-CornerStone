@@ -644,6 +644,11 @@
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Motor.c</FilePath>
             </File>
+            <File>
+              <FileName>Driver_Referee.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Referee.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
