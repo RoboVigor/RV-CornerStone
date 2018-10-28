@@ -11,11 +11,12 @@
 
 #define JudgeFrameHeader 0xA5 //帧头
 
-#ifdef __DRIVER_JUDGE_GLOBALS
-#define __DRIVER_JUDGE_EXT
-#else
-#define __DRIVER_JUDGE_EXT extern
-#endif
+// To del
+// #ifdef __DRIVER_JUDGE_GLOBALS
+// #define __DRIVER_JUDGE_EXT
+// #else
+// #define __DRIVER_JUDGE_EXT extern
+// #endif
 
 typedef __packed struct {
     uint16_t stageRemainTime;
@@ -45,10 +46,11 @@ typedef __packed struct {
     uint16_t shooterHeat1;
 } extPowerHeatData_t; //功率热量数据
 
-__DRIVER_JUDGE_EXT uint8_t JudgeDataBuffer[JudgeBufferLength];
-__DRIVER_JUDGE_EXT extGameRobotState_t Judge_RobotState;
-__DRIVER_JUDGE_EXT extShootData_t Judge_ShootData;
-__DRIVER_JUDGE_EXT extPowerHeatData_t Judge_PowerHeatData;
+// To del - transmit to handle.h
+// __DRIVER_JUDGE_EXT uint8_t JudgeDataBuffer[JudgeBufferLength];
+// __DRIVER_JUDGE_EXT extGameRobotState_t Judge_RobotState;
+// __DRIVER_JUDGE_EXT extShootData_t Judge_ShootData;
+// __DRIVER_JUDGE_EXT extPowerHeatData_t Judge_PowerHeatData;
 
 unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength, unsigned char ucCRC8);
 unsigned int  Verify_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength);

@@ -10,6 +10,7 @@
 #include "Driver_Chassis.h"
 #include "Driver_Armour.h"
 #include "Driver_Angular.h"
+#include "Driver_Referee.h"
 #include "mpu6500_driver.h"
 #include "mpu6500_interrupt.h"
 
@@ -28,6 +29,12 @@ __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type remoteData;
+
+// Referee System
+__HANDLE_EXT uint8_t JudgeDataBuffer[JudgeBufferLength];
+__HANDLE_EXT extGameRobotState_t Judge_RobotState;
+__HANDLE_EXT extShootData_t Judge_ShootData;
+__HANDLE_EXT extPowerHeatData_t Judge_PowerHeatData;
 
 // 无线串口调试
 __HANDLE_EXT u8 USART_RX_BUF[MAGIC_MAX_LENGTH];
