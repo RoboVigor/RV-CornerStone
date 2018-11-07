@@ -37,6 +37,6 @@ void Motor_Update(volatile Motor_Type *motor, int16_t position, int16_t speed) {
             motor->round--;
         }
         //计算得到连续角度值,范围正负无穷大
-        motor->angle = (float) ((motor->position - motor->positionBias) / 8192 * 360 + motor->round * 360) / motor->reductionRate;
+        motor->angle = ((float) (motor->position - motor->positionBias) / 8192 * 360 + motor->round * 360) / motor->reductionRate;
     }
 }

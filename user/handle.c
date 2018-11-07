@@ -17,5 +17,5 @@ void Handle_Init(void) {
     // Motor_Init(&Motor_RightFrict, 1, 0);
     Motor_Init(&Motor_LeftFrict, 1, 0);
     Motor_Init(&Motor_RightFrict, 1, 0);
-    Motor_Init(&Motor_Stir, 1, 0);
+    Motor_Init(&Motor_Stir, 36, 1);
 }

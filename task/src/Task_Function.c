@@ -101,6 +101,7 @@ int debugE = 0;
 int debugF = 0;
 int debugG = 0;
 int debugH = 0;
+int debugI = 0;
 
 void Task_Fire(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -125,7 +126,7 @@ void Task_Fire(void *Parameters) {
     // PID 初始化
     PID_Init(&PID_LeftFrictSpeed, 20, 0, 0, 20000, 6000); // 20 3 0
     PID_Init(&PID_RightFrictSpeed, 20, 0, 0, 20000, 6000);
-    PID_Init(&PID_StirAnlge, 2, 0, 0, 4000, 2000);
+    PID_Init(&PID_StirAnlge, 20, 0, 0, 4000, 2000);
     PID_Init(&PID_StirSpeed, 21, 0, 0, 4000, 2000);
 
     while (1) {
@@ -157,8 +158,13 @@ void Task_Fire(void *Parameters) {
             debugG                     = PID_RightFrictSpeed.output;
             PID_LeftFrictSpeed.output  = PID_LeftFrictSpeed.output / 0.0595 * 60 / 3.14;
             PID_RightFrictSpeed.output = PID_RightFrictSpeed.output / 0.0595 * 60 / 3.14;
-            Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
-            // Can_Send(CAN2, 0x200, -1000, 1000, 0, 0);
+            // Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
+            Can_Send(CAN2, 0x200, 0, 0, 0, 0);
+        }
+
+        int turnNumber = 1;
+        if (remoteData.switchLeft == 2) {
+            turnNumber++;
         }
 
         //拨弹轮 PID 控制
@@ -177,18 +183,18 @@ void Task_Fire(void *Parameters) {
                                      //     //     Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
                                      //     // }
 
-            PID_Increment_Calculate(&PID_StirAnlge, (Motor_Stir.angle - 36 * 60), Motor_Stir.angle);
+            PID_Increment_Calculate(&PID_StirAnlge, (Motor_Stir.angle - 36), Motor_Stir.angle);
             PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed);
             Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         } else if (stirState == 2) { // 连发模式
             PID_Increment_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * rpm2rps);
             Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         } else if (stirState == 3) { // 单点测试模式
-            vTaskDelay(5000);
-            PID_Increment_Calculate(&PID_StirAnlge, (Motor_Stir.angle - 36 * 60), Motor_Stir.angle);
+            PID_Increment_Calculate(&PID_StirAnlge, turnNumber * 36, Motor_Stir.angle);
             PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed);
             Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
-            stirState == 0;
+        } else if (stirState == 4) { // 直接给电流
+            Can_Send(CAN1, 0x1FF, 0, 0, 300, 0);
         }
 
         // Decode_JudgeData();
@@ -201,7 +207,9 @@ void Task_Fire(void *Parameters) {
         debugE = PID_RightFrictSpeed.output;
 
         debugF = Judge_ShootData.bullet_int; // 裁判系统射速
-
+        debugG = Motor_Stir.angle;
+        debugH = Motor_Stir.position;
+        debugI = PID_StirSpeed.output;
         vTaskDelayUntil(&LastWakeTime, 1);
     }
 
