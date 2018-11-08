@@ -15,21 +15,21 @@
 #include "stm32f4xx_conf.h"
 
 typedef struct {
-    // 基本滤波器
-    float   value;
-    float   lastValue;
-    float   diff;
-    float   offset;
-    float   result;
-    int32_t count; // 计数器
+  // 基本滤波器
+  float value;
+  float lastValue;
+  float diff;
+  float offset;
+  float result;
+  int32_t count; // 计数器
 
-    // 限幅滤波阈值
-    float thresholdLB;
+  // 限幅滤波阈值
+  float thresholdLB;
 
-    // 采样
-    float movingAverage; // 移动平均值
-    float max;           // 最大值
-    float min;           // 最小值
+  // 采样
+  float movingAverage; // 移动平均值
+  float max;           // 最大值
+  float min;           // 最小值
 } Filter_Type;
 
 /**

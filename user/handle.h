@@ -1,15 +1,16 @@
 #ifndef __HANDLE_H
 #define __HANDLE_H
 
-#include "OSinclude.h"
-#include "Driver_Filter.h"
-#include "Driver_Magic.h"
-#include "Driver_PID.h"
-#include "Driver_DBUS.h"
 #include "Driver_CAN.h"
-#include "Driver_Motor.h"
 #include "Driver_Chassis.h"
+#include "Driver_Cloud.h"
+#include "Driver_DBUS.h"
+#include "Driver_Filter.h"
 #include "Driver_Gyroscope.h"
+#include "Driver_Magic.h"
+#include "Driver_Motor.h"
+#include "Driver_PID.h"
+#include "OSinclude.h"
 #include "mpu6500_driver.h"
 #include "mpu6500_interrupt.h"
 
@@ -25,6 +26,14 @@ __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
 
+//云台
+__HANDLE_EXT Motor_Type Motor_Yaw, Motor_Pitch;
+__HANDLE_EXT Cloud_Type Pitch, Yaw;
+__HANDLE_EXT PID_Type PID_Cloud_YawAngle, PID_Cloud_YawSpeed,
+    PID_Cloud_PitchAngle, PID_Cloud_PitchSpeed;
+__HANDLE_EXT PID_Type PID_Follow_Angle, PID_Follow_Speed;
+__HANDLE_EXT uint16_t cloud_counter; //初始化计时器
+
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type remoteData;
@@ -38,7 +47,8 @@ __HANDLE_EXT u16 USART_RX_STA;
 __HANDLE_EXT MagicHandle_Type magic;
 
 // 底盘PID
-__HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
+__HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle,
+    PID_YawSpeed;
 
 /**
  * @brief 初始化结构体
