@@ -54,10 +54,15 @@ void Task_MagicReceive(void *Parameters) {
  */
 void Task_MagicSend(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
+    float      rpm2rps      = 3.14 / 60; // 转子的转速(round/min)换算成角速度(rad/s)
 
     while (1) {
         taskENTER_CRITICAL(); // 进入临界段
-        printf("%10f %10f %10f %10f\r\n", Motor_LF.angle, Motor_LB.angle, Motor_RB.angle, Motor_RF.angle);
+        // printf("%10f %10f %10f %10f\r\n", Motor_LF.angle, Motor_LB.angle, Motor_RB.angle, Motor_RF.angle);
+        printf("%.2f %.2f %.2f\r\n",
+               Motor_LeftFrict.speed * rpm2rps,
+               -Motor_RightFrict.speed * rpm2rps,
+               Motor_LeftFrict.speed * rpm2rps + Motor_LeftFrict.speed * rpm2rps);
         taskEXIT_CRITICAL(); // 退出临界段
         vTaskDelayUntil(&LastWakeTime, 500);
     }
