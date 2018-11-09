@@ -1,16 +1,19 @@
 /**
- * @brief 功能任务
+ * @brief 步兵任务
+ * @version 0.8.0
  */
-
 #include "main.h"
 
-void Task_Blink(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount();
-    while (1) {
-        GREEN_LIGHT_TOGGLE;
-        vTaskDelayUntil(&LastWakeTime, 250);
-    }
+#if ROBOT_TYPE == 1
 
+void Task_Safe_Mode(void *Parameters) {
+    while (1) {
+        if (remoteData.switchRight == 2) {
+            Can_Send(CAN1, 0x200, 0, 0, 0, 0);
+            vTaskSuspendAll();
+        }
+        vTaskDelay(100);
+    }
     vTaskDelete(NULL);
 }
 
@@ -80,20 +83,80 @@ void Task_Chassis(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_Safe_Mode(void *Parameters) {
+void Task_Debug_Magic_Send(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
 
     while (1) {
-        if (remoteData.switchRight == 2) {
-#if CAN1_ENABLED
-            Can_Send(CAN1, 0x200, 0, 0, 0, 0);
-#endif // CAN1_ENABLED
-#if CAN2_ENABLED
-            Can_Send(CAN2, 0x200, 0, 0, 0, 0);
-#endif // CAN1_ENABLED
-            vTaskSuspendAll();
-        }
-        vTaskDelay(100);
+        taskENTER_CRITICAL(); // 进入临界段
+        printf("Yaw: %f \r\n", EulerAngle.Yaw);
+        taskEXIT_CRITICAL(); // 退出临界段
+        vTaskDelayUntil(&LastWakeTime, 500);
+    }
+    vTaskDelete(NULL);
+}
+
+void Task_Sys_Init(void *Parameters) {
+    // 进入临界区
+    taskENTER_CRITICAL();
+
+    // 初始化全局变量
+    Handle_Init();
+
+    // BSP们
+    BSP_GPIO_Init();
+    BSP_CAN_Init();
+    BSP_UART_Init();
+    BSP_DMA_Init();
+    BSP_TIM_Init();
+    BSP_NVIC_Init();
+
+    // 初始化陀螺仪
+    MPU6500_IntConfiguration();
+    MPU6500_Initialize();
+    MPU6500_EnableInt();
+
+    // 调试任务
+#if DEBUG_ENABLED
+    Magic_Init_Handle(&magic, 0); // 初始化调试数据的默认值
+    xTaskCreate(Task_Debug_Magic_Receive, "Task_Debug_Magic_Receive", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Debug_Magic_Send, "Task_Debug_Magic_Send", 500, NULL, 6, NULL);
+    // xTaskCreate(Task_Debug_RTOS_State, "Task_Debug_RTOS_State", 500, NULL, 6, NULL);
+    // xTaskCreate(Task_Debug_Gyroscope_Sampling, "Task_Debug_Gyroscope_Sampling", 400, NULL, 6, NULL);
+#endif
+
+    // 高频任务
+    xTaskCreate(Task_Gyroscope, "Task_Gyroscope", 400, NULL, 5, NULL);
+
+    // 功能任务
+    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
+    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+
+    // 完成使命
+    vTaskDelete(NULL);
+
+    // 退出临界区
+    taskEXIT_CRITICAL();
+}
+
+void Task_Blink(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    while (1) {
+        GREEN_LIGHT_TOGGLE;
+        vTaskDelayUntil(&LastWakeTime, 250);
     }
 
     vTaskDelete(NULL);
 }
+
+void Task_Gyroscope(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+
+    while (1) {
+        Gyroscope_Update_Angle_Data();
+        vTaskDelayUntil(&LastWakeTime, 5);
+    }
+    vTaskDelete(NULL);
+}
+
+#endif

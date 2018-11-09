@@ -650,24 +650,19 @@
           <GroupName>task</GroupName>
           <Files>
             <File>
-              <FileName>Task_Sys_Init.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\task\src\Task_Sys_Init.c</FilePath>
-            </File>
-            <File>
               <FileName>Task_Debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\task\src\Task_Debug.c</FilePath>
             </File>
             <File>
-              <FileName>Task_Function.c</FileName>
+              <FileName>Task_Infantry.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\task\src\Task_Function.c</FilePath>
+              <FilePath>..\task\src\Task_Infantry.c</FilePath>
             </File>
             <File>
-              <FileName>Task_HighFreq.c</FileName>
+              <FileName>Task_Shuaiguo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\task\src\Task_HighFreq.c</FilePath>
+              <FilePath>..\task\src\Task_Shuaiguo.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -1,6 +1,8 @@
 #ifndef __HANDLE_H
 #define __HANDLE_H
 
+#include "sys.h"
+#include "delay.h"
 #include "OSinclude.h"
 #include "Driver_Filter.h"
 #include "Driver_Magic.h"

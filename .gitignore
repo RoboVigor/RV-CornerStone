@@ -1,5 +1,5 @@
 JLinkLog.txt
 .vscode/*
 mdk/DebugConfig/*
-mdk/Objects/*
 mdk/Belief exp2.uvguix.*
+mdk/Objects/
