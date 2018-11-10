@@ -124,7 +124,7 @@ void Task_Fire(void *Parameters) {
     // 常量
     // float frictSpeed = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
     // 摩擦轮线速度(mps)转转速(rpm)
-    float frictSpeed = 336; // rad/s
+    float frictSpeed = 336; // 336 rad/s
     float stirSpeed  = 36 * 36;
 
     // PID 初始化
@@ -213,11 +213,11 @@ void Task_Fire(void *Parameters) {
         // Decode_JudgeData();
 
         // Debug code For Jlink
-        debugA = Motor_LeftFrict.speed * rpm2rps;         // 左 摩擦轮 转速反馈
-        debugB = -Motor_RightFrict.speed * rpm2rps;       // 右 摩擦轮 转速反馈
-        debugC = debugA * 1000 - debugB * 1000;           // 转速差 left minus right
-        debugD = Motor_LeftFrict.speed * rpm2rps * 2 * r; //左 摩擦轮 转速 m/s
-        debugE = Motor_LeftFrict.speed * rpm2rps * 2 * r; //右 摩擦轮 转速 m/s
+        debugA = Motor_LeftFrict.speed * rpm2rps;                  // 左 摩擦轮 转速反馈
+        debugB = -Motor_RightFrict.speed * rpm2rps;                // 右 摩擦轮 转速反馈
+        debugC = debugA * 1000 - debugB * 1000;                    // 转速差 left minus right
+        debugD = Motor_LeftFrict.speed * rpm2rps * 2 * r * 1000;   //左 摩擦轮 转速 m/s
+        debugE = -Motor_RightFrict.speed * rpm2rps * 2 * r * 1000; //右 摩擦轮 转速 m/s
 
         debugF = Judge_ShootData.bullet_int; // 裁判系统射速
         debugG = Motor_Stir.angle;
