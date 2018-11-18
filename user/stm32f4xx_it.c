@@ -82,14 +82,15 @@ void CAN1_RX0_IRQHandler(void) {
     case 0x204:
         Motor_Update(&Motor_RF, position, speed);
         break;
-    
+#if ROBOT_TYPE == 1
     case 0x205:
         Motor_Update(&Motor_Yaw, position, 0);
         break;
-    
-    case 0x206:
-        Motor_Update(&Motor_Pitch,position,0);
 
+    case 0x206:
+        Motor_Update(&Motor_Pitch, position, 0);
+        break;
+#endif
     default:
         break;
     }

@@ -3,18 +3,18 @@
 
 #include "sys.h"
 #include "delay.h"
-#include "Driver_CAN.h"
-#include "Driver_Chassis.h"
-#include "Driver_Stabilizer.h"
-#include "Driver_DBUS.h"
-#include "Driver_Filter.h"
-#include "Driver_Gyroscope.h"
-#include "Driver_Magic.h"
-#include "Driver_Motor.h"
-#include "Driver_PID.h"
 #include "OSinclude.h"
+#include "Driver_Filter.h"
+#include "Driver_Magic.h"
+#include "Driver_PID.h"
+#include "Driver_DBUS.h"
+#include "Driver_CAN.h"
+#include "Driver_Motor.h"
+#include "Driver_Chassis.h"
+#include "Driver_Gyroscope.h"
 #include "mpu6500_driver.h"
 #include "mpu6500_interrupt.h"
+#include "Driver_Stabilizer.h"
 
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT
@@ -33,7 +33,7 @@ __HANDLE_EXT Motor_Type Motor_Yaw, Motor_Pitch;
 __HANDLE_EXT Cloud_Type Pitch, Yaw;
 __HANDLE_EXT PID_Type PID_Cloud_YawAngle, PID_Cloud_YawSpeed, PID_Cloud_PitchAngle, PID_Cloud_PitchSpeed;
 __HANDLE_EXT PID_Type PID_Follow_Angle, PID_Follow_Speed;
-__HANDLE_EXT uint16_t cloud_counter; //初始化计时器
+__HANDLE_EXT uint16_t cloudcounter; //初始化计时器
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];

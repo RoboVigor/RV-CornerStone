@@ -34,7 +34,7 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_Follow_Angle, 2, 0, 0, 500, 0);   // 0.6
     PID_Init(&PID_Follow_Speed, 0.4, 0, 0, 660, 0); // 0.3
     while (1) {
-        if (cloud_counter > COUNT_QUATERNIONABSTRACTION) {
+        if (cloudcounter > COUNT_QUATERNIONABSTRACTION) {
 
             if (Motor_Yaw.angle < 3 && Motor_Yaw.angle > -3) {
                 FollowOutput = 0; //偏差小于3度认为跟上
@@ -139,11 +139,11 @@ void Task_Blink(void *Parameters) {
 
 void Task_Gyroscope(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    cloud_counter           = 0;
+    cloudcounter            = 0;
     while (1) {
-        if (GYROSCOPE_YAW_QUATERNIONABSTRACTION == 1) {
-            if (cloud_counter <= COUNT_QUATERNIONABSTRACTION) {
-                cloud_counter = cloud_counter + 1;
+        if (GYROSCOPE_YAW_QUATERNION_ABSTRACTION == 1) {
+            if (cloudcounter <= COUNT_QUATERNIONABSTRACTION) {
+                cloudcounter = cloudcounter + 1;
             }
         }
         Gyroscope_Update_Angle_Data();
@@ -173,7 +173,7 @@ void Task_Cloud(void *Parameters) {
     CloudPara_Init(&Yaw);
 
     while (1) {
-        if (cloud_counter > COUNT_QUATERNIONABSTRACTION) {
+        if (cloudcounter > COUNT_QUATERNIONABSTRACTION) {
 
             Pitch.AngularSpeed = (float) (mpu6500_data.gx / GYRO_LSB); // UP- DOWN+
             Yaw.AngularSpeed   = (float) (mpu6500_data.gz / GYRO_LSB); // L- R+
