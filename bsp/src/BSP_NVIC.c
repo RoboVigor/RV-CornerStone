@@ -42,4 +42,11 @@ void BSP_NVIC_Init(void) {
     NVIC_Init(&NVIC_InitStructure);
     TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
     TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+
+    // 微动开关
+    NVIC_InitStructure.NVIC_IRQChannel                   = EXTI9_5_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;      //子优先级1
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE; //使能外部中断通道
+    NVIC_Init(&NVIC_InitStructure);
 }
