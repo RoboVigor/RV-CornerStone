@@ -45,9 +45,9 @@ __HANDLE_EXT MagicHandle_Type magic;
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
 // Task_Fire
-__HANDLE_EXT Motor_Type Motor_LeftFrict, Motor_RightFrict, Motor_Stir;             // 左/右 摩擦轮 拨弹轮 电机
-__HANDLE_EXT PID_Type PID_LeftFrictSpeed, PID_RightFrictSpeed;                     // 左/右 摩擦轮 PID
-__HANDLE_EXT PID_Type PID_StirSpeed, PID_StirAnlge;                                // 拨弹轮 速度/角度 PID
+__HANDLE_EXT Motor_Type Motor_LeftFrict, Motor_RightFrict, Motor_Stir; // 左/右 摩擦轮 拨弹轮 电机
+__HANDLE_EXT PID_Type PID_LeftFrictSpeed, PID_RightFrictSpeed;         // 左/右 摩擦轮 PID
+__HANDLE_EXT PID_Type PID_StirSpeed, PID_StirAngle;                    // 拨弹轮 速度/角度 PID
 
 void Handle_Init(void);
 
