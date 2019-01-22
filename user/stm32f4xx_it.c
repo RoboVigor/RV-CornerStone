@@ -35,6 +35,10 @@ void USART6_IRQHandler(void) {
         res = USART_ReceiveData(USART6);                     // 读取数据
         RED_LIGHT_TOGGLE;
     }
+
+    // 视觉通讯
+    Ps_On_Received(res);
+
     if ((USART_RX_STA & 0x8000) == 0) { // 接收未完成
         if (USART_RX_STA & 0x4000) {    // 接收到 0x0d
             if (res != 0x0a)            // 接收错误，重新开始

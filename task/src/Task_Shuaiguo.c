@@ -53,6 +53,20 @@ void Task_Chassis(void *Parameters) {
             lastMode              = mode;         // 更新lastMode
         }
 
+#if PS_ENABLE
+        // todo:添加视觉反馈角度
+        if (PsData[16] == 0) {
+            // DECO
+            // 通过 XCOM 测试视觉精度
+            // yawAngleTarget += atof(PsData[0]); // 添加视觉反馈角度
+
+            printf("yawAngleTarget: %f\r\n", yawAngleTarget);
+            yawAngleTarget += PsData[0]; // 假设视觉数据为数字
+            printf("yawAngleTarget: %f\r\n", yawAngleTarget);
+            Ps_DataUsed(); // 标志位更新 - 视觉数据已使用
+        }
+#endif
+
         // 根据运动模式计算PID
         if (mode == 1) {
             PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngleFeed);      // 计算航向角角度PID
