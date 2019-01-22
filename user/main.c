@@ -11,6 +11,7 @@ int main(void) {
     LED_Init();              // 初始化LED
     Beep_Init();             // 初始化蜂鸣器
     Magic_Init_Config(9600); // 初始化串口
+    Ps_Init_Config(9600);    // 初始化USART3
 
     //创建系统初始化任务
     xTaskCreate(Task_Sys_Init, "Task_Sys_Init", 400, NULL, 1, NULL);

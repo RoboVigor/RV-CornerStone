@@ -18,4 +18,4 @@
 #define CHASSIS_INVERSE_WHEEL_RADIUS 13.16 //测量值, 麦克纳姆轮半径的倒数
 
 // PS
-#define PS_ENABLE 0 // PS 开关
+#define PS_ENABLE 1 // PS 开关

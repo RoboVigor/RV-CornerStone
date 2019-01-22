@@ -36,9 +36,6 @@ void USART6_IRQHandler(void) {
         RED_LIGHT_TOGGLE;
     }
 
-    // 视觉通讯
-    Ps_On_Received(res);
-
     if ((USART_RX_STA & 0x8000) == 0) { // 接收未完成
         if (USART_RX_STA & 0x4000) {    // 接收到 0x0d
             if (res != 0x0a)            // 接收错误，重新开始
@@ -56,6 +53,39 @@ void USART6_IRQHandler(void) {
             }
         }
     }
+}
+
+/**
+ * @brief 视觉通讯
+ *
+ */
+void USART3_IRQHandler(void) {
+    u8 res;
+
+    if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
+        res = USART_ReceiveData(USART6);                     // 读取数据
+        RED_LIGHT_TOGGLE;
+    }
+
+    Ps_On_Received(res);
+
+    // if ((USART_RX_STA & 0x8000) == 0) { // 接收未完成
+    //     if (USART_RX_STA & 0x4000) {    // 接收到 0x0d
+    //         if (res != 0x0a)            // 接收错误，重新开始
+    //             USART_RX_STA = 0;
+    //         else // 接收完成
+    //             USART_RX_STA |= 0x8000;
+    //     } else { // 未接收到 0x0d
+    //         if (res == 0x0d) {
+    //             USART_RX_STA |= 0x4000;
+    //         } else {
+    //             USART_RX_BUF[USART_RX_STA & 0X3FFF] = res;
+    //             USART_RX_STA++;
+    //             // USART6->DR = res;
+    //             if (USART_RX_STA > (MAGIC_MAX_LENGTH - 1)) USART_RX_STA = 0; // 接收数据错误，重新开始接收
+    //         }
+    //     }
+    // }
 }
 
 // CAN1数据接收中断服务函数

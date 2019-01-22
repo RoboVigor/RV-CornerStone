@@ -11,7 +11,7 @@
 #define SOF (uint8_t) 87 // start of file
 #define EOF (uint8_t) 88 // end of file
 
-void Ps_Init_Config(void);
+void Ps_Init_Config(u32 bound);
 
 /**
  * @brief 接收字节

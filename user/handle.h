@@ -12,6 +12,7 @@
 #include "Driver_Motor.h"
 #include "Driver_Chassis.h"
 #include "Driver_Gyroscope.h"
+#include "Driver_Ps.h"
 #include "mpu6500_driver.h"
 #include "mpu6500_interrupt.h"
 
@@ -41,6 +42,9 @@ __HANDLE_EXT MagicHandle_Type magic;
 
 // 底盘PID
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
+
+// 视觉数据
+__HANDLE_EXT uint16_t PsData[17];
 
 /**
  * @brief 初始化结构体
