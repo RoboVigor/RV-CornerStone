@@ -79,7 +79,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
 
         // 输出电流值到电调
-        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, 10);
@@ -101,6 +101,14 @@ int debugE = 0;
 int debugF = 0;
 int debugG = 0;
 int debugH = 0;
+int debugI = 0;
+int debugJ = 0;
+int debugK = 0;
+int debugL = 0;
+
+int turnNumber    = 1;
+int currentSwitch = -1;
+int lastSwitch    = -1;
 
 void Task_Fire(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -119,14 +127,14 @@ void Task_Fire(void *Parameters) {
     // 常量
     // float frictSpeed = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
     // 摩擦轮线速度(mps)转转速(rpm)
-    float frictSpeed = -100; // debug code
+    float frictSpeed = 336; // 336 rad/s
     float stirSpeed  = 36 * 36;
 
     // PID 初始化
-    PID_Init(&PID_LeftFrictSpeed, 20, 0, 0, 20000, 6000); // 20 3 0
-    PID_Init(&PID_RightFrictSpeed, 20, 0, 0, 20000, 6000);
-    PID_Init(&PID_StirAnlge, 2, 0, 0, 4000, 2000);
-    PID_Init(&PID_StirSpeed, 21, 0, 0, 4000, 2000);
+    PID_Init(&PID_LeftFrictSpeed, 25, 0.5, 0, 20000, 6000);  // 4 0.08 0    6000  1000
+    PID_Init(&PID_RightFrictSpeed, 25, 0.5, 0, 20000, 6000); // 10 0.08           1000
+    PID_Init(&PID_StirAnlge, 12, 0.01, 0, 4000, 2000);       // 8
+    PID_Init(&PID_StirSpeed, 100, 1.8, 0, 20000, 6000);      // 2 0.05    4000 2000
 
     while (1) {
         // Debug Code
@@ -139,7 +147,7 @@ void Task_Fire(void *Parameters) {
         // }
 
         frictState = 1;
-        stirState  = 3;
+        stirState  = 5;
 
         // 摩擦轮 PID 控制
         if (frictState == 0) {
@@ -150,21 +158,42 @@ void Task_Fire(void *Parameters) {
             PID_RightFrictSpeed.output = PID_RightFrictSpeed.output / 0.0595 * 60 / 3.14;
             Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
         } else {
-            LASER_ON;                                                                              // 开启激光
-            PID_Calculate(&PID_LeftFrictSpeed, frictSpeed, Motor_LeftFrict.speed * rpm2rps * r);   // 左摩擦轮转动
-            PID_Calculate(&PID_RightFrictSpeed, frictSpeed, Motor_RightFrict.speed * rpm2rps * r); // 右摩擦轮转动
-            debugF                     = PID_LeftFrictSpeed.output;
-            debugG                     = PID_RightFrictSpeed.output;
-            PID_LeftFrictSpeed.output  = PID_LeftFrictSpeed.output / 0.0595 * 60 / 3.14;
-            PID_RightFrictSpeed.output = PID_RightFrictSpeed.output / 0.0595 * 60 / 3.14;
+            LASER_ON; // 开启激光
+            // PID_Calculate(&PID_LeftFrictSpeed, frictSpeed, Motor_LeftFrict.speed * rpm2rps * r);   // 左摩擦轮转动
+            // PID_Calculate(&PID_RightFrictSpeed, frictSpeed, Motor_RightFrict.speed * rpm2rps * r); // 右摩擦轮转动
+            // debugF                     = PID_LeftFrictSpeed.output;
+            // debugG                     = PID_RightFrictSpeed.output;
+            // PID_LeftFrictSpeed.output  = PID_LeftFrictSpeed.output / 0.0595 * 60 / 3.14;
+            // PID_RightFrictSpeed.output = PID_RightFrictSpeed.output / 0.0595 * 60 / 3.14;
+            // Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
+            PID_Calculate(&PID_LeftFrictSpeed, 0.5 * frictSpeed, Motor_LeftFrict.speed * rpm2rps);    // 左摩擦轮转动
+            PID_Calculate(&PID_RightFrictSpeed, -0.5 * frictSpeed, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮转动
             Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
+            // Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, 0, 0, 0);
             // Can_Send(CAN2, 0x200, -1000, 1000, 0, 0);
+            // Can_Send(CAN2, 0x200, 0, 0, 0, 0);
+        }
+        lastSwitch    = currentSwitch;
+        currentSwitch = remoteData.switchLeft;
+
+        if (remoteData.switchLeft == 3 && lastSwitch == 2) {
+            //     lastSwitch    = currentSwitch;
+            //     currentSwitch = remoteData.switchLeft;
+            turnNumber = 0;
         }
 
+        if (remoteData.switchLeft == 2 && lastSwitch == 3) {
+            turnNumber = 1;
+        }
+
+        /*if (SWITCH == 1) { //子弹通过，微动开关闭合
+            lastSwitch = 2;
+            turnNumber = 0; //拨弹轮停止
+        }
+*/
         //拨弹轮 PID 控制
         if (stirState == 0) { // 停止模式
             PID_Increment_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed * rpm2rps);
-            Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         } else if (stirState == 1) { // 三连发模式
                                      //     // Debug Code
                                      //     // if (stirFlag < 3) {
@@ -177,32 +206,65 @@ void Task_Fire(void *Parameters) {
                                      //     //     Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
                                      //     // }
 
-            PID_Increment_Calculate(&PID_StirAnlge, (Motor_Stir.angle - 36 * 60), Motor_Stir.angle);
+            PID_Increment_Calculate(&PID_StirAnlge, (Motor_Stir.angle - 36), Motor_Stir.angle);
             PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed);
             Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         } else if (stirState == 2) { // 连发模式
-            PID_Increment_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * rpm2rps);
+            PID_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * rpm2rps);
             Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         } else if (stirState == 3) { // 单点测试模式
-            vTaskDelay(5000);
-            PID_Increment_Calculate(&PID_StirAnlge, (Motor_Stir.angle - 36 * 60), Motor_Stir.angle);
-            PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed);
+            PID_Increment_Calculate(&PID_StirAnlge, -turnNumber * 36, Motor_Stir.angle);
+            // PID_Increment_Calculate(&PID_StirAnlge, 0, Motor_Stir.angle);
+            PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed * 2 * rpm2rps);
+            // PID_Increment_Calculate(&PID_StirSpeed, 100, Motor_Stir.speed);
             Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
-            stirState == 0;
+        } else if (stirState == 4) { // 直接给电流
+            Can_Send(CAN1, 0x1FF, 0, 0, 500, 0);
+        } else if (stirState == 5) { //利用微动开关，单点发射
+            if (currentSwitch != lastSwitch) {
+                isStirSwitchOn = 0;
+            }
+            if (isStirSwitchOn) {
+                Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
+            } else {
+                PID_Calculate(&PID_StirSpeed, -0.05 * stirSpeed, Motor_Stir.speed * rpm2rps); //-0.05
+                Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+            }
+            // if (lastSwitch == 2) {
+            //     if (isStirSwitchOn == 0) {                                                        // io输入
+            //         PID_Calculate(&PID_StirSpeed, -0.05 * stirSpeed, Motor_Stir.speed * rpm2rps); //-0.05
+            //         Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+            //     } else {
+            //         // PID_Increment_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed * rpm2rps);
+            //         // Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+            //         Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
+            //         turnNumber = 0;
+            //         lastSwitch = 3;
+            //     }
+            // } else {
+            //     // PID_Increment_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed * rpm2rps);
+            //     // Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+            //     Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
+            // }
         }
 
         // Decode_JudgeData();
 
         // Debug code For Jlink
-        debugA = Motor_LeftFrict.speed * rpm2rps * r * 1000;  // 左 摩擦轮 转速反馈
-        debugB = Motor_RightFrict.speed * rpm2rps * r * 1000; // 右 摩擦轮 转速反馈
-        debugC = debugA - debugB;                             // 转速差 left minus right
-        debugD = PID_LeftFrictSpeed.output;
-        debugE = PID_RightFrictSpeed.output;
+        debugA = Motor_LeftFrict.speed * rpm2rps;                  // 左 摩擦轮 转速反馈
+        debugB = -Motor_RightFrict.speed * rpm2rps;                // 右 摩擦轮 转速反馈
+        debugC = debugA * 1000 - debugB * 1000;                    // 转速差 left minus right
+        debugD = Motor_LeftFrict.speed * rpm2rps * 2 * r * 1000;   //左 摩擦轮 转速 m/s
+        debugE = -Motor_RightFrict.speed * rpm2rps * 2 * r * 1000; //右 摩擦轮 转速 m/s
 
         debugF = Judge_ShootData.bullet_int; // 裁判系统射速
-
-        vTaskDelayUntil(&LastWakeTime, 1);
+        debugG = Motor_Stir.angle;
+        debugH = PID_StirAnlge.output;
+        debugI = PID_StirSpeed.output;
+        debugJ = 336;
+        // debugK = (int) 1000 * microSwitch;
+        debugL = turnNumber;
+        vTaskDelayUntil(&LastWakeTime, 10);
     }
 
     vTaskDelete(NULL);
