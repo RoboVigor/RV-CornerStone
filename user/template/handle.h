@@ -3,6 +3,9 @@
 
 #include "sys.h"
 #include "delay.h"
+#include "led.h"
+#include "beep.h"
+#include "key.h"
 #include "rtos.h"
 #include "Driver_Filter.h"
 #include "Driver_Magic.h"
@@ -13,8 +16,6 @@
 #include "Driver_Chassis.h"
 #include "Driver_Gyroscope.h"
 #include "Driver_Ps.h"
-#include "mpu6500_driver.h"
-#include "mpu6500_interrupt.h"
 
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT

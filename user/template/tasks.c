@@ -121,9 +121,9 @@ void Task_Sys_Init(void *Parameters) {
     BSP_DMA_Init();
     BSP_TIM_Init();
     BSP_NVIC_Init();
+    BSP_USER_Init();
 
     // 初始化陀螺仪
-    MPU6500_IntConfiguration();
     MPU6500_Initialize();
     MPU6500_EnableInt();
 

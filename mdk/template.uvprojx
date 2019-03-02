@@ -335,7 +335,7 @@
               <MiscControls>--gnu</MiscControls>
               <Define>STM32F427_437xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\user\template;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart</IncludePath>
+              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\user\template;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -380,11 +380,6 @@
           <GroupName>bsp</GroupName>
           <Files>
             <File>
-              <FileName>beep.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\beep.c</FilePath>
-            </File>
-            <File>
               <FileName>BSP_CAN.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\bsp\src\BSP_CAN.c</FilePath>
@@ -413,16 +408,6 @@
               <FileName>BSP_UART.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\bsp\src\BSP_UART.c</FilePath>
-            </File>
-            <File>
-              <FileName>key.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\key.c</FilePath>
-            </File>
-            <File>
-              <FileName>led.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\led.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -549,6 +534,36 @@
               <FileType>1</FileType>
               <FilePath>..\library\atom\sys\sys.c</FilePath>
             </File>
+            <File>
+              <FileName>MadgwickAHRS.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\mpu6500\MadgwickAHRS.c</FilePath>
+            </File>
+            <File>
+              <FileName>mpu6500_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\mpu6500\mpu6500_driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>mpu6500_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\mpu6500\mpu6500_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>beep.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\atom\debug\beep.c</FilePath>
+            </File>
+            <File>
+              <FileName>key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\atom\debug\key.c</FilePath>
+            </File>
+            <File>
+              <FileName>led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\atom\debug\led.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -568,26 +583,6 @@
               <FileName>Driver_PID.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_PID.c</FilePath>
-            </File>
-            <File>
-              <FileName>MadgwickAHRS.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\MadgwickAHRS.c</FilePath>
-            </File>
-            <File>
-              <FileName>mpu6500_driver.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\mpu6500_driver.c</FilePath>
-            </File>
-            <File>
-              <FileName>mpu6500_i2c.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\mpu6500_i2c.c</FilePath>
-            </File>
-            <File>
-              <FileName>mpu6500_interrupt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\mpu6500_interrupt.c</FilePath>
             </File>
             <File>
               <FileName>Driver_Magic.c</FileName>
@@ -624,11 +619,6 @@
         <Group>
           <GroupName>user_common</GroupName>
           <Files>
-            <File>
-              <FileName>debug.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\common\debug.h</FilePath>
-            </File>
             <File>
               <FileName>macro.h</FileName>
               <FileType>5</FileType>
@@ -698,6 +688,11 @@
               <FileName>tasks.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\user\template\tasks.h</FilePath>
+            </File>
+            <File>
+              <FileName>bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\template\bsp.c</FilePath>
             </File>
           </Files>
         </Group>

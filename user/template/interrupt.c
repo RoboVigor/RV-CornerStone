@@ -5,6 +5,16 @@
 #include "main.h"
 #include "interrupt.h"
 
+// EXTI9_5 陀螺仪中断
+void EXTI9_5_IRQHandler(void) //中断频率1KHz
+{
+    if (EXTI_GetITStatus(EXTI_Line8) != RESET) {
+        EXTI_ClearFlag(EXTI_Line8);
+        EXTI_ClearITPendingBit(EXTI_Line8);
+        MPU6500_getMotion6();
+    }
+}
+
 // DBus空闲中断(USART1)
 void USART1_IRQHandler(void) {
     uint8_t UARTtemp;
@@ -28,9 +38,9 @@ void USART1_IRQHandler(void) {
 }
 
 /**
- * @brief USART6 串口中断
+ * @brief USART3 串口中断
  */
-void USART6_IRQHandler(void) {
+void USART3_IRQHandler(void) {
     u8 res;
 
     if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
@@ -58,9 +68,9 @@ void USART6_IRQHandler(void) {
 }
 
 /**
- * @brief USART3 串口中断
+ * @brief USART6 串口中断
  */
-void USART3_IRQHandler(void) {
+void USART6_IRQHandler(void) {
     u8 res;
 
     if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
