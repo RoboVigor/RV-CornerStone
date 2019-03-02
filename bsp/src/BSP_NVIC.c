@@ -19,18 +19,22 @@ void BSP_NVIC_Init(void) {
     USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
 
     // USART3
+#if USART3_ENABLED
     NVIC_InitStructure.NVIC_IRQChannel                   = USART3_IRQn; //串口3中断通道
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;           //抢占优先级3
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;           //子优先级3
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;      // IRQ通道使能
     NVIC_Init(&NVIC_InitStructure);                                     //根据指定的参数初始化VIC寄存器
+#endif
 
     // USART6
+#if USART6_ENABLED
     NVIC_InitStructure.NVIC_IRQChannel                   = USART6_IRQn; //串口3中断通道
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;           //抢占优先级3
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;           //子优先级3
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;      // IRQ通道使能
     NVIC_Init(&NVIC_InitStructure);                                     //根据指定的参数初始化VIC寄存器
+#endif
 
     // Gyroscope (NVIC)
     NVIC_InitStructure.NVIC_IRQChannel                   = EXTI9_5_IRQn;
