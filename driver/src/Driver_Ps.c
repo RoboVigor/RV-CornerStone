@@ -2,15 +2,15 @@
 #include "Driver_Magic.h"
 #include "handle.h"
 
-enum Status_Type { WAITING, STARTED, VALIDED, INTERRUPTED };
-enum Status_Type status = WAITING;
+static enum Status_Type { WAITING, STARTED, VALIDED, INTERRUPTED };
+static enum Status_Type status = WAITING;
 
-uint8_t len;
-uint8_t id;
-uint8_t data[34];
-uint8_t counter = 0;
+static uint8_t len;
+static uint8_t id;
+static uint8_t data[34];
+static uint8_t counter = 0;
 
-uint8_t psDebugEnabled = 0;
+static uint8_t psDebugEnabled = 0;
 
 void Ps_On_Received(uint8_t newByte) {
     Ps_Append(newByte);
