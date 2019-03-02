@@ -1,5 +1,5 @@
 /**
- * @brief 调试
+ * @brief 调试工具
  */
 
 #include "led.h"

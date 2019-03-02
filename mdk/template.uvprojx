@@ -335,7 +335,7 @@
               <MiscControls>--gnu</MiscControls>
               <Define>STM32F427_437xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\bsp\inc;..\core;..\driver\inc;..\library\std\inc;..\system\delay;..\system\sys;..\system\usart;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\task\inc</IncludePath>
+              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\user\template;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -539,45 +539,15 @@
               <FileType>1</FileType>
               <FilePath>..\library\freertos\portable\RVDS\ARM_CM4F\port.c</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>system</GroupName>
-          <Files>
             <File>
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\system\delay\delay.c</FilePath>
+              <FilePath>..\library\atom\delay\delay.c</FilePath>
             </File>
             <File>
               <FileName>sys.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\system\sys\sys.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>user</GroupName>
-          <Files>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\stm32f4xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>system_stm32f4xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\system_stm32f4xx.c</FilePath>
-            </File>
-            <File>
-              <FileName>handle.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\handle.c</FilePath>
+              <FilePath>..\library\atom\sys\sys.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -644,25 +614,90 @@
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Gyroscope.c</FilePath>
             </File>
+            <File>
+              <FileName>Driver_Ps.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Ps.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>task</GroupName>
+          <GroupName>user_common</GroupName>
           <Files>
             <File>
-              <FileName>Task_Debug.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\task\src\Task_Debug.c</FilePath>
+              <FileName>debug.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\common\debug.h</FilePath>
             </File>
             <File>
-              <FileName>Task_Infantry.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\task\src\Task_Infantry.c</FilePath>
+              <FileName>macro.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\common\macro.h</FilePath>
             </File>
             <File>
-              <FileName>Task_Shuaiguo.c</FileName>
+              <FileName>system_stm32f4xx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\task\src\Task_Shuaiguo.c</FilePath>
+              <FilePath>..\user\common\system_stm32f4xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>interrupt.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\common\interrupt.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>user_template</GroupName>
+          <Files>
+            <File>
+              <FileName>handle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\template\handle.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\template\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>task_debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\template\task_debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>interrupt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\template\interrupt.c</FilePath>
+            </File>
+            <File>
+              <FileName>config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\template\config.h</FilePath>
+            </File>
+            <File>
+              <FileName>handle.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\template\handle.h</FilePath>
+            </File>
+            <File>
+              <FileName>main.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\template\main.h</FilePath>
+            </File>
+            <File>
+              <FileName>rtos.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\template\rtos.h</FilePath>
+            </File>
+            <File>
+              <FileName>tasks.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\template\tasks.c</FilePath>
+            </File>
+            <File>
+              <FileName>tasks.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\template\tasks.h</FilePath>
             </File>
           </Files>
         </Group>

@@ -3,7 +3,7 @@
  */
 
 #include "main.h"
-#include "stm32f4xx_it.h"
+#include "interrupt.h"
 
 // DBus空闲中断(USART1)
 void USART1_IRQHandler(void) {
@@ -27,7 +27,9 @@ void USART1_IRQHandler(void) {
     DMA_Cmd(DMA2_Stream2, ENABLE);
 }
 
-//无线串口中断(USART6)
+/**
+ * @brief USART6 串口中断
+ */
 void USART6_IRQHandler(void) {
     u8 res;
 
@@ -56,8 +58,7 @@ void USART6_IRQHandler(void) {
 }
 
 /**
- * @brief 视觉通讯
- *
+ * @brief USART3 串口中断
  */
 void USART3_IRQHandler(void) {
     u8 res;
@@ -67,25 +68,23 @@ void USART3_IRQHandler(void) {
         RED_LIGHT_TOGGLE;
     }
 
-    Ps_On_Received(res);
-
-    // if ((USART_RX_STA & 0x8000) == 0) { // 接收未完成
-    //     if (USART_RX_STA & 0x4000) {    // 接收到 0x0d
-    //         if (res != 0x0a)            // 接收错误，重新开始
-    //             USART_RX_STA = 0;
-    //         else // 接收完成
-    //             USART_RX_STA |= 0x8000;
-    //     } else { // 未接收到 0x0d
-    //         if (res == 0x0d) {
-    //             USART_RX_STA |= 0x4000;
-    //         } else {
-    //             USART_RX_BUF[USART_RX_STA & 0X3FFF] = res;
-    //             USART_RX_STA++;
-    //             // USART6->DR = res;
-    //             if (USART_RX_STA > (MAGIC_MAX_LENGTH - 1)) USART_RX_STA = 0; // 接收数据错误，重新开始接收
-    //         }
-    //     }
-    // }
+    if ((USART_RX_STA & 0x8000) == 0) { // 接收未完成
+        if (USART_RX_STA & 0x4000) {    // 接收到 0x0d
+            if (res != 0x0a)            // 接收错误，重新开始
+                USART_RX_STA = 0;
+            else // 接收完成
+                USART_RX_STA |= 0x8000;
+        } else { // 未接收到 0x0d
+            if (res == 0x0d) {
+                USART_RX_STA |= 0x4000;
+            } else {
+                USART_RX_BUF[USART_RX_STA & 0X3FFF] = res;
+                USART_RX_STA++;
+                // USART6->DR = res;
+                if (USART_RX_STA > (MAGIC_MAX_LENGTH - 1)) USART_RX_STA = 0; // 接收数据错误，重新开始接收
+            }
+        }
+    }
 }
 
 // CAN1数据接收中断服务函数

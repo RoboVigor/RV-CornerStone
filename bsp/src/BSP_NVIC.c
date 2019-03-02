@@ -9,13 +9,27 @@
 void BSP_NVIC_Init(void) {
     NVIC_InitTypeDef NVIC_InitStructure;
 
-    // UART(DBus)
+    // UART1(DBus)
     NVIC_InitStructure.NVIC_IRQChannel                   = USART1_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
     NVIC_Init(&NVIC_InitStructure);
     USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
+
+    // USART3
+    NVIC_InitStructure.NVIC_IRQChannel                   = USART3_IRQn; //串口3中断通道
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;           //抢占优先级3
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;           //子优先级3
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;      // IRQ通道使能
+    NVIC_Init(&NVIC_InitStructure);                                     //根据指定的参数初始化VIC寄存器
+
+    // USART6
+    NVIC_InitStructure.NVIC_IRQChannel                   = USART6_IRQn; //串口3中断通道
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;           //抢占优先级3
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;           //子优先级3
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;      // IRQ通道使能
+    NVIC_Init(&NVIC_InitStructure);                                     //根据指定的参数初始化VIC寄存器
 
     // CAN1
     NVIC_InitStructure.NVIC_IRQChannel                   = CAN1_RX0_IRQn;

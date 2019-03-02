@@ -14,8 +14,9 @@ void BSP_GPIO_Init(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
 
-    // UART1(DBus)
+    // USART1 (DBus)
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_7;
@@ -23,6 +24,26 @@ void BSP_GPIO_Init(void) {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOB, &GPIO_InitStructure);
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_USART1);
+
+    // USART3
+    GPIO_PinAFConfig(GPIOG, GPIO_PinSource5, GPIO_AF_USART3); // GPIOD8复用为USART3
+    GPIO_PinAFConfig(GPIOG, GPIO_PinSource6, GPIO_AF_USART3); // GPIOD9复用为USART3
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_8 | GPIO_Pin_9;  // GPIOD8与GPIOD9
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;             //复用功能
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;         //速度50MHz
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;            //推挽复用输出
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;             //上拉
+    GPIO_Init(GPIOG, &GPIO_InitStructure);                    //初始化
+
+    // USART6
+    GPIO_PinAFConfig(GPIOG, GPIO_PinSource9, GPIO_AF_USART6);  // GPIOG8复用为USART6
+    GPIO_PinAFConfig(GPIOG, GPIO_PinSource14, GPIO_AF_USART6); // GPIOG9复用为USART6
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_9 | GPIO_Pin_14;  // GPIOG9与GPIOG14
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;              //复用功能
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;          //速度50MHz
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;             //推挽复用输出
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;              //上拉
+    GPIO_Init(GPIOG, &GPIO_InitStructure);                     //初始化
 
     // CAN1
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
