@@ -1,19 +1,21 @@
 #ifndef __MPU6500_DRIVER_H__
 #define __MPU6500_DRIVER_H__
 #include "stm32f4xx.h"
+#include "delay.h"
+#include "mpu6500_i2c.h"
+#include "mpu6500_IST8310.h"
 
-typedef struct
-{
-	volatile int16_t ax;
-	volatile int16_t ay;
-	volatile int16_t az;
-	volatile int16_t temp;
-	volatile int16_t gx;
-	volatile int16_t gy;
-	volatile int16_t gz;
-	int16_t gx_offset;
-	int16_t gy_offset;
-	int16_t gz_offset;
+typedef struct {
+    volatile int16_t ax;
+    volatile int16_t ay;
+    volatile int16_t az;
+    volatile int16_t temp;
+    volatile int16_t gx;
+    volatile int16_t gy;
+    volatile int16_t gz;
+    int16_t          gx_offset;
+    int16_t          gy_offset;
+    int16_t          gz_offset;
 } IMU_DataType;
 
 #ifdef __DRIVER_MPU6500_GLOBALS

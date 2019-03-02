@@ -1,7 +1,6 @@
 #include "Driver_Ps.h"
 #include "Driver_Magic.h"
 #include "handle.h"
-#include "debug.h"
 
 enum Status_Type { WAITING, STARTED, VALIDED, INTERRUPTED };
 enum Status_Type status = WAITING;

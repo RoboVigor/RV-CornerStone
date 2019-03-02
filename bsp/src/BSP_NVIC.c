@@ -8,6 +8,7 @@
  */
 void BSP_NVIC_Init(void) {
     NVIC_InitTypeDef NVIC_InitStructure;
+    EXTI_InitTypeDef EXTI_InitStructure;
 
     // UART1(DBus)
     NVIC_InitStructure.NVIC_IRQChannel                   = USART1_IRQn;
@@ -30,6 +31,21 @@ void BSP_NVIC_Init(void) {
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;           //子优先级3
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;      // IRQ通道使能
     NVIC_Init(&NVIC_InitStructure);                                     //根据指定的参数初始化VIC寄存器
+
+    // Gyroscope (NVIC)
+    NVIC_InitStructure.NVIC_IRQChannel                   = EXTI9_5_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    // Gyroscope (EXTI)
+    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, GPIO_PinSource8);
+    EXTI_InitStructure.EXTI_Line    = EXTI_Line8;
+    EXTI_InitStructure.EXTI_Mode    = EXTI_Mode_Interrupt;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling; //下降沿中断
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init(&EXTI_InitStructure);
 
     // CAN1
     NVIC_InitStructure.NVIC_IRQChannel                   = CAN1_RX0_IRQn;

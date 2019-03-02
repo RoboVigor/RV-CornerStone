@@ -1,10 +1,5 @@
 #define __DRIVER_GYROSCOPE_GLOBALS
 #include "Driver_Gyroscope.h"
-#include "Driver_Filter.h"
-#include "mpu6500_driver.h"
-#include "config.h"
-#include "handle.h"
-#include "MadgwickAHRS.h"
 
 float e_angle[3] = {0, 0, 0}; // yaw,pitch,roll
 float a_speed[4] = {0, 0, 0, 0};

@@ -11,7 +11,6 @@
 #define __DRIVER_GYROSCOPE_H
 
 #include "stm32f4xx.h"
-#include "math.h"
 
 #define PI 3.1415926f
 #define GYRO_LSB 16.4f
@@ -38,3 +37,10 @@ void Gyroscope_Update_Angle_Data(void);
 float Gyroscope_Get_Filter_Diff(void);
 
 #endif
+
+#include "math.h"
+#include "Driver_Filter.h"
+#include "config.h"
+#include "handle.h"
+#include "mpu6500_driver.h"
+#include "MadgwickAHRS.h"

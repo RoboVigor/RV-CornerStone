@@ -1,10 +1,6 @@
 #define __DRIVER_MPU6500_GLOBALS
 
-#include "delay.h"
 #include "mpu6500_driver.h"
-#include "mpu6500_i2c.h"
-#include "mpu6500_interrupt.h"
-#include "MPU6500_IST8310.h"
 
 // MPU6050 初始化,成功返回0  失败返回 0xff
 int MPU6500_Init(void) {

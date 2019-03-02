@@ -33,7 +33,7 @@ void BSP_UART_Init(void) {
     USART_Cmd(USART3, ENABLE);                                                      //使能串口
     USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);                                  //开启相关中断
 
-    // USART6 初始化设置
+    // USART6
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);                          //使能USART6时钟
     USART_InitStructure.USART_BaudRate            = 9600;                           //波特率设置
     USART_InitStructure.USART_WordLength          = USART_WordLength_8b;            //字长为8位数据格式
