@@ -31,9 +31,9 @@ void Gyroscope_Update_Angle_Data(void) {
     e_angle[2] = atan2(2.0f * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 180 / PI;
 
     if (e_angle[1] >= 0) {
-        e_angle[1] -= 180.0;
+        e_angle[1] -= 180.0f;
     } else {
-        e_angle[1] += 180.0;
+        e_angle[1] += 180.0f;
     }
 
     // 更新滤波器

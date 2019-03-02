@@ -13,13 +13,6 @@ typedef struct {
 } MagicHandle_Type;
 
 /**
- * @brief 串口 USART6 初始化
- *
- * @param bound 波特率
- */
-void Magic_Init_Config(u32 bound);
-
-/**
  * @brief 初始化调试数据的默认值
  *
  * @param magic 无线串口数据结构体
