@@ -1,5 +1,9 @@
 JLinkLog.txt
 .vscode/*
 mdk/DebugConfig/*
-mdk/Belief exp2.uvguix.*
+mdk/*.uvguix.*
 mdk/Objects/
+mdk/Belief exp2.map
+mdk/Belief exp2.uvoptx
+mdk/Belief exp2.uvprojx
+mdk/startup_stm32f427xx.lst
