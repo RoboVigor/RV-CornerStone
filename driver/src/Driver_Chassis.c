@@ -3,7 +3,7 @@
 #include "config.h"
 #include "handle.h"
 
-staitc ChassisParam_Type Chassisparam;
+static ChassisParam_Type Chassisparam;
 
 /**
  * @brief 配置小车整体 XYW 三个轴的速度
