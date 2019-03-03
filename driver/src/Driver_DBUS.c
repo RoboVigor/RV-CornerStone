@@ -1,4 +1,5 @@
 #include "Driver_DBUS.h"
+#include "handle.h"
 
 void DBus_Update(DBusData_Type *DBusData, uint8_t DBusBuffer[]) {
     DBusData->ch1 = (DBusBuffer[0] | DBusBuffer[1] << 8) & 0x07FF;
@@ -21,4 +22,13 @@ void DBus_Update(DBusData_Type *DBusData, uint8_t DBusBuffer[]) {
     DBusData->mouse.pressRight = DBusBuffer[13];
 
     DBusData->keyBoard.keyCode = DBusBuffer[14] | DBusBuffer[15] << 8; // key borad code
+}
+
+void DBUS_Init() {
+    remoteData.ch1 = 0;
+    remoteData.ch2 = 0;
+    remoteData.ch3 = 0;
+    remoteData.ch4 = 0;
+
+    remoteData.keyBoard.keyCode = 0;
 }
