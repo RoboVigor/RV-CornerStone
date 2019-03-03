@@ -25,10 +25,10 @@ void Task_Chassis(void *Parameters) {
     float      yawAngleFeed, yawSpeedFeed;         // 反馈值
 
     // 初始化麦轮角速度PID
-    PID_Init(&PID_LFCM, 15, 0.3, 0, 4000, 2000);
-    PID_Init(&PID_LBCM, 15, 0.3, 0, 4000, 2000);
-    PID_Init(&PID_RBCM, 15, 0.3, 0, 4000, 2000);
-    PID_Init(&PID_RFCM, 15, 0.3, 0, 4000, 2000);
+    PID_Init(&PID_LFCM, 25, 0.15, 0, 4000, 2000);
+    PID_Init(&PID_LBCM, 25, 0.15, 0, 4000, 2000);
+    PID_Init(&PID_RBCM, 25, 0.15, 0, 4000, 2000);
+    PID_Init(&PID_RFCM, 25, 0.15, 0, 4000, 2000);
 
     // 初始化航向角角度PID和角速度PID
     PID_Init(&PID_YawAngle, 10, 0, 0, 1000, 1000);
@@ -86,7 +86,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
 
         // 输出电流值到电调(安全起见默认注释此行)
-        // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, 10);
@@ -280,6 +280,10 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Take, "Task_Take", 400, NULL, 3, NULL);
+    xTaskCreate(Task_GuideWheel, "Task_GuideWheel", 400, NULL, 3, NULL);
+    xTaskCreate(Task_BANG, "Task_BANG", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Transmission, "Task_Transmission", 400, NULL, 3, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
