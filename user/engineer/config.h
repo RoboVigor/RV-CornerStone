@@ -2,6 +2,9 @@
  * @brief 机器人参数
  */
 
+// Driver版本
+#define DRIVER_VERSION_1_0 // 适配版本1.0
+
 // 硬件
 #define DEBUG_ENABLED 1       // 调试开关
 #define BOARD_VERSION 1       // 开发板型号, 0:旧板, 1:A板
