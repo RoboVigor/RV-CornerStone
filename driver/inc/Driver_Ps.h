@@ -1,6 +1,6 @@
 /**
  * @file Driver_Ps.h
- * @brief 视觉辅助
+ * @brief 视觉通讯
  */
 
 #ifndef __DRIVER_PS_H

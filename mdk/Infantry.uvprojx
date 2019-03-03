@@ -365,7 +365,7 @@
               <MiscControls>--gnu</MiscControls>
               <Define>STM32F427_437xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\user\template;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500</IncludePath>
+              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\user\Infantry</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -643,6 +643,21 @@
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Ps.c</FilePath>
             </File>
+            <File>
+              <FileName>Driver_JudgeSys.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_JudgeSys.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_Stabilizer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Stabilizer.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_Math.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Math.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -666,62 +681,37 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_template</GroupName>
+          <GroupName>user_infantry</GroupName>
           <Files>
+            <File>
+              <FileName>bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\Infantry\bsp.c</FilePath>
+            </File>
             <File>
               <FileName>handle.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\template\handle.c</FilePath>
-            </File>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\template\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>task_debug.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\template\task_debug.c</FilePath>
+              <FilePath>..\user\Infantry\handle.c</FilePath>
             </File>
             <File>
               <FileName>interrupt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\template\interrupt.c</FilePath>
+              <FilePath>..\user\Infantry\interrupt.c</FilePath>
             </File>
             <File>
-              <FileName>config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\template\config.h</FilePath>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\Infantry\main.c</FilePath>
             </File>
             <File>
-              <FileName>handle.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\template\handle.h</FilePath>
-            </File>
-            <File>
-              <FileName>main.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\template\main.h</FilePath>
-            </File>
-            <File>
-              <FileName>rtos.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\template\rtos.h</FilePath>
+              <FileName>task_debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\Infantry\task_debug.c</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\template\tasks.c</FilePath>
-            </File>
-            <File>
-              <FileName>tasks.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\template\tasks.h</FilePath>
-            </File>
-            <File>
-              <FileName>bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\template\bsp.c</FilePath>
+              <FilePath>..\user\Infantry\tasks.c</FilePath>
             </File>
           </Files>
         </Group>

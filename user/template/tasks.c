@@ -18,7 +18,7 @@ void Task_Safe_Mode(void *Parameters) {
 void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     int        rotorSpeed[4];                      // 轮子转速
-    float      rpm2rps        = 0.104667f;         // 转子的转速(round/min)换算成角速度(rad/s) = 2 * 3.14 / 60
+    float      rpm2rps        = 0.104667f;         // 转子的转速(RPM,RoundPerMinute)换算成角速度(RadPerSecond)
     int        mode           = 2;                 // 底盘运动模式,1直线,2转弯
     int        lastMode       = 2;                 // 上一次的运动模式
     float      yawAngleTarget = 0;                 // 目标值
@@ -85,7 +85,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RBCM, rotorSpeed[2], Motor_RB.speed * rpm2rps);
         PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
 
-        // 输出电流值到电调(安全起见默认注释此行)
+        // 输出电流值到电调
         // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率

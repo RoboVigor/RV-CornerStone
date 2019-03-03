@@ -17,6 +17,10 @@ typedef struct {
     int   WheelSpeed[4];
 } ChassisParam_Type;
 
+typedef struct {
+    char NeedStop;
+} ChassisStatus_Type;
+
 void Chassis_Set_Speed(float XSpeed, float YSpeed, float WSpeed);
 
 void Chassis_Get_Rotor_Speed(int rotorSpeed[4]);

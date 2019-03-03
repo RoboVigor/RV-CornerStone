@@ -19,7 +19,6 @@ void BSP_GPIO_Init(void) {
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_USART1);
 
     // USART3
-#if USART3_ENABLED
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
     GPIO_PinAFConfig(GPIOD, GPIO_PinSource5, GPIO_AF_USART3); // GPIOD8复用为USART3
     GPIO_PinAFConfig(GPIOD, GPIO_PinSource6, GPIO_AF_USART3); // GPIOD9复用为USART3
@@ -29,10 +28,8 @@ void BSP_GPIO_Init(void) {
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;            //推挽复用输出
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;             //上拉
     GPIO_Init(GPIOD, &GPIO_InitStructure);                    //初始化
-#endif
 
     // USART6
-#if USART6_ENABLED
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
     GPIO_PinAFConfig(GPIOG, GPIO_PinSource9, GPIO_AF_USART6);  // GPIOG9复用为USART6
     GPIO_PinAFConfig(GPIOG, GPIO_PinSource14, GPIO_AF_USART6); // GPIOG14复用为USART6
@@ -42,7 +39,6 @@ void BSP_GPIO_Init(void) {
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;             //推挽复用输出
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;              //上拉
     GPIO_Init(GPIOG, &GPIO_InitStructure);                     //初始化
-#endif
 
     // CAN1
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);

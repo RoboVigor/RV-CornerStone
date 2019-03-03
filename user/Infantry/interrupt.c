@@ -68,16 +68,16 @@ void USART3_IRQHandler(void) {
 }
 
 /**
- * @brief USART6 串口中断
+ * @brief USART2 串口中断
  */
-void USART6_IRQHandler(void) {
+//无线串口中断(USART2)
+void USATR2_IRQHandler(void) {
     u8 res;
 
-    if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
-        res = USART_ReceiveData(USART6);                     // 读取数据
+    if (USART_GetITStatus(USART2, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
+        res = USART_ReceiveData(USART2);                     // 读取数据
         RED_LIGHT_TOGGLE;
     }
-
     if ((USART_RX_STA & 0x8000) == 0) { // 接收未完成
         if (USART_RX_STA & 0x4000) {    // 接收到 0x0d
             if (res != 0x0a)            // 接收错误，重新开始
@@ -90,7 +90,7 @@ void USART6_IRQHandler(void) {
             } else {
                 USART_RX_BUF[USART_RX_STA & 0X3FFF] = res;
                 USART_RX_STA++;
-                // USART6->DR = res;
+                // USART2->DR = res;
                 if (USART_RX_STA > (MAGIC_MAX_LENGTH - 1)) USART_RX_STA = 0; // 接收数据错误，重新开始接收
             }
         }
@@ -124,6 +124,14 @@ void CAN1_RX0_IRQHandler(void) {
 
     case 0x204:
         Motor_Update(&Motor_RF, position, speed);
+        break;
+
+    case 0x205:
+        Motor_Update(&Motor_Yaw, position, 0);
+        break;
+
+    case 0x206:
+        Motor_Update(&Motor_Pitch, position, 0);
         break;
 
     default:
@@ -179,6 +187,24 @@ void TIM2_IRQHandler(void) {
         TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
         TIM_ClearFlag(TIM2, TIM_FLAG_Update);
     }
+}
+// DMA Handle function
+void DMA2_Stream1_IRQHandler(void) {
+    uint8_t UARTtemp;
+
+    UARTtemp = USART6->DR;
+    UARTtemp = USART6->SR;
+
+    DMA_Cmd(DMA2_Stream1, DISABLE);
+    if (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != RESET) {
+        Decode_JudgeData(); //½âÂë
+    }
+    //ÖØÆôDMA
+    DMA_ClearFlag(DMA2_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
+    while (DMA_GetCmdStatus(DMA2_Stream1) != DISABLE)
+        ;
+    DMA_SetCurrDataCounter(DMA2_Stream1, JudgeBufferLength);
+    DMA_Cmd(DMA2_Stream1, ENABLE);
 }
 
 /**

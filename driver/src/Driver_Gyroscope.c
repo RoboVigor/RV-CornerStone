@@ -1,14 +1,14 @@
 #define __DRIVER_GYROSCOPE_GLOBALS
 #include "Driver_Gyroscope.h"
 
-static float e_angle[3] = {0, 0, 0}; // yaw,pitch,roll
-static float a_speed[4] = {0, 0, 0, 0};
+float e_angle[3] = {0, 0, 0}; // yaw,pitch,roll
+float a_speed[4] = {0, 0, 0, 0};
 
-static float ax_acc = 0;
-static float ay_acc = 0;
-static float az_acc = 0;
+float ax_acc = 0;
+float ay_acc = 0;
+float az_acc = 0;
 
-static Filter_Type Filter_Yaw = {.count = 0, .thresholdLB = GYROSCOPE_YAW_FILTER_THRESHOLD};
+Filter_Type Filter_Yaw = {.count = 0, .thresholdLB = GYROSCOPE_YAW_FILTER_THRESHOLD};
 
 void Gyroscope_Update_Angle_Data(void) {
     a_speed[1] = (float) ((mpu6500_data.gx / GYRO_LSB) * PI / 180);
