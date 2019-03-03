@@ -5,10 +5,10 @@
 enum Status_Type { WAITING, STARTED, VALIDED, INTERRUPTED };
 enum Status_Type status = WAITING;
 
-uint8_t len;
-uint8_t id;
-uint8_t data[34];
-uint8_t counter = 0;
+uint8_t        len;
+uint8_t        id;
+static uint8_t data[34];
+uint8_t        counter = 0;
 
 uint8_t psDebugEnabled = 0;
 
