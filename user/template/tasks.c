@@ -40,7 +40,7 @@ void Task_Chassis(void *Parameters) {
         mode = ABS(remoteData.rx) < 5 ? 1 : 2;
 
         // 设置反馈值
-        yawAngleFeed = Euler_Angle.yaw;        // 航向角角度反馈
+        yawAngleFeed = EulerAngle.Yaw;         // 航向角角度反馈
         yawSpeedFeed = mpu6500_data.gz / 16.4; // 航向角角速度反馈
 
         // 切换运动模式
@@ -100,7 +100,7 @@ void Task_Debug_Magic_Send(void *Parameters) {
 
     while (1) {
         taskENTER_CRITICAL(); // 进入临界段
-        printf("Yaw: %f \r\n", Euler_Angle.yaw);
+        printf("Yaw: %f \r\n", EulerAngle.Yaw);
         taskEXIT_CRITICAL(); // 退出临界段
         vTaskDelayUntil(&LastWakeTime, 500);
     }
@@ -108,6 +108,8 @@ void Task_Debug_Magic_Send(void *Parameters) {
 }
 
 void Task_Sys_Init(void *Parameters) {
+    // 进入临界区
+    taskENTER_CRITICAL();
 
     // 初始化全局变量
     Handle_Init();
@@ -125,18 +127,6 @@ void Task_Sys_Init(void *Parameters) {
     MPU6500_Initialize();
     MPU6500_EnableInt();
 
-    // 遥控器数据初始化
-    DBUS_Init();
-
-    //陀螺仪计数器开启确认
-#if GYROSCOPE_YAW_DOWN_COUNTER == 1
-    while (1) {
-        if (g_stabilizerCounter == COUNT_QUATERNIONABSTRACTION) {
-            break;
-        }
-    }
-#endif
-
     // 调试任务
 #if DEBUG_ENABLED
     Magic_Init_Handle(&magic, 0); // 初始化调试数据的默认值
@@ -146,6 +136,9 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Debug_Gyroscope_Sampling, "Task_Debug_Gyroscope_Sampling", 400, NULL, 6, NULL);
 #endif
 
+    // 高频任务
+    xTaskCreate(Task_Gyroscope, "Task_Gyroscope", 400, NULL, 5, NULL);
+
     // 功能任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
@@ -153,6 +146,9 @@ void Task_Sys_Init(void *Parameters) {
 
     // 完成使命
     vTaskDelete(NULL);
+
+    // 退出临界区
+    taskEXIT_CRITICAL();
 }
 
 void Task_Blink(void *Parameters) {
@@ -162,5 +158,15 @@ void Task_Blink(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, 250);
     }
 
+    vTaskDelete(NULL);
+}
+
+void Task_Gyroscope(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+
+    while (1) {
+        Gyroscope_Update_Angle_Data();
+        vTaskDelayUntil(&LastWakeTime, 5);
+    }
     vTaskDelete(NULL);
 }
