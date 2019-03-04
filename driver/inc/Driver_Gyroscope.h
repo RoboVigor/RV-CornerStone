@@ -17,13 +17,12 @@
 #define ACC_LSB 4096.0f
 
 typedef struct {
-    float Yaw;
-    int   Yaw_offset;
+    float yaw;
     int   round;
-    float Yawfeedback;
-    float Pitch;
-    int   Pitch_offset;
-    float Roll;
+    float yaw_feedback;
+    float pitch;
+    float roll;
+    float yawoffset;
 } EulerAngle_Type;
 
 /**
