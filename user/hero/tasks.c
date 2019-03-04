@@ -92,7 +92,8 @@ void Task_Chassis(void *Parameters) {
         followOutput = -followOutput / 660.0f * 12;
 
         // 设置底盘总体移动速度
-        Chassis_Set_Speed(lx, ly, followOutput);
+        // Chassis_Set_Speed(lx, ly, followOutput);
+        Chassis_Set_Speed(lx, ly, 0);
 
         // 麦轮解算&限幅,获得轮子转速
         Chassis_Get_Rotor_Speed(rotorSpeed);
