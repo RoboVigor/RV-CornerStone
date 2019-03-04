@@ -16,6 +16,20 @@ void Task_Safe_Mode(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+float Chassis_Power_Control(float VX, float VY) {
+
+    float powerfeed = Judge_PowerHeatData.chassisPower;
+    if (powerfeed >= 60) {
+        PID_Power.output_I = 0;
+        return (float) (PID_Power.output + 1000) / 1000.0;
+    } else {
+        if (VX == 0 && VY == 0) {
+            PID_Power.output_I = 0;
+        }
+        return 1.0f;
+    }
+}
+
 void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     int        rotorSpeed[4];                      // 轮子转速
@@ -92,8 +106,8 @@ void Task_Chassis(void *Parameters) {
         followOutput = -followOutput / 660.0f * 12;
 
         // 设置底盘总体移动速度
-        // Chassis_Set_Speed(lx, ly, followOutput);
-        Chassis_Set_Speed(lx, ly, 0);
+        Chassis_Set_Speed(lx, ly, followOutput);
+        // Chassis_Set_Speed(lx, ly, 0);
 
         // 麦轮解算&限幅,获得轮子转速
         Chassis_Get_Rotor_Speed(rotorSpeed);
@@ -118,20 +132,6 @@ void Task_Chassis(void *Parameters) {
     }
 
     vTaskDelete(NULL);
-}
-
-float Chassis_Power_Control(float VX, float VY) {
-
-    float powerfeed = Judge_PowerHeatData.chassisPower;
-    if (powerfeed >= 60) {
-        PID_Power.output_I = 0;
-        return (float) (PID_Power.output + 1000) / 1000.0;
-    } else {
-        if (VX == 0 && VY == 0) {
-            PID_Power.output_I = 0;
-        }
-        return 1.0f;
-    }
 }
 
 void Task_Debug_Magic_Send(void *Parameters) {
@@ -181,7 +181,7 @@ void Task_Sys_Init(void *Parameters) {
 #endif
 
     // 高频任务
-    // xTaskCreate(Task_Gyroscope, "Task_Gyroscope", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Cloud, "Task_Cloud", 1000, NULL, 5, NULL);
 
     // 功能任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
@@ -203,19 +203,74 @@ void Task_Blink(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_Gyroscope(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    g_stabilizerCounter     = 0;
-    /*while (1) {
-        if (GYROSCOPE_YAW_QUATERNION_ABSTRACTION == 1) {
-            if (g_stabilizerCounter <= COUNT_QUATERNIONABSTRACTION) {
-                g_stabilizerCounter = g_stabilizerCounter + 1;
-                debugA       = g_stabilizerCounter;
-            }
-        }
-        Gyroscope_Update_Angle_Data();
+void Task_Cloud(void *Parameters) {
 
-        vTaskDelayUntil(&LastWakeTime, 3);
-    }*/
+    // 时钟
+    TickType_t LastWakeTime = xTaskGetTickCount();
+
+    //初始化offset
+    mpu6500_data.gx_offset = 35;
+    mpu6500_data.gy_offset = -9;
+    mpu6500_data.gz_offset = -20;
+
+    //初始化航向角target
+    float yawTargetangle   = 0;
+    float pitchTargetangle = 0;
+
+    //初始化角速度反馈
+    float yawnAngularSpeed  = 0;
+    float pitchAngularSpeed = 0;
+
+    //初始化角度反馈(陀螺仪反馈角度)
+    float yawAnglePosition   = 0;
+    float pitchAnglePosition = 0;
+
+    // yaw pitch 增量
+    float yawDiff   = 0;
+    float pitchDiff = 0;
+
+    //初始化云台PID
+    PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 2000, 0);   // 10
+    PID_Init(&PID_Cloud_YawSpeed, 15, 0, 0, 2000, 0);   // 15
+    PID_Init(&PID_Cloud_PitchAngle, 20, 0, 0, 2000, 0); // 20
+    PID_Init(&PID_Cloud_PitchSpeed, 15, 0, 0, 5000, 0); // 15
+
+    while (1) {
+        //将陀螺仪值赋予使用变量
+        yawAnglePosition   = -Euler_Angle.yaw;
+        pitchAnglePosition = Euler_Angle.pitch;
+        yawnAngularSpeed   = -(float) (mpu6500_data.gz / 16.4f);
+        pitchAngularSpeed  = -(float) (mpu6500_data.gx / 16.4f);
+
+        debugA = remoteData.rx;
+        debugB = remoteData.ry;
+
+        //设定输入target
+        if (remoteData.rx <= 10 && remoteData.rx >= -10) {
+            yawDiff = 0;
+        } else {
+            yawDiff = remoteData.rx / 660.0f;
+        }
+        MIAO(yawDiff, -1, 1);
+        yawTargetangle = yawTargetangle + yawDiff;
+
+        if (remoteData.ry <= 10 && remoteData.ry >= -10) {
+            pitchDiff = 0;
+        } else {
+            pitchDiff = remoteData.ry / 2200.0f;
+        }
+
+        MIAO(pitchDiff, -0.3, 0.3);
+        pitchTargetangle = pitchTargetangle + pitchDiff;
+
+        PID_Calculate(&PID_Cloud_YawAngle, yawTargetangle, yawAnglePosition);
+        PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawnAngularSpeed);
+        PID_Calculate(&PID_Cloud_PitchAngle, pitchTargetangle, pitchAnglePosition);
+        PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchAngularSpeed);
+        // Can_Send(CAN1, 0x1FF, PID_Cloud_PitchSpeed.output, PID_Cloud_YawSpeed.output, 0, 0);
+
+        Can_Send(CAN1, 0x1FF, PID_Cloud_PitchSpeed.output, PID_Cloud_YawSpeed.output, 0, 0);
+        vTaskDelayUntil(&LastWakeTime, 5);
+    }
     vTaskDelete(NULL);
 }

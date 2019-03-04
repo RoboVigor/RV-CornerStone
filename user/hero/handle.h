@@ -16,6 +16,7 @@
 #include "Driver_Chassis.h"
 #include "Driver_Gyroscope.h"
 #include "Driver_Ps.h"
+#include "mpu6500_driver.h"
 #include "Driver_Judgesys.h"
 
 #ifdef __HANDLE_GLOBALS
