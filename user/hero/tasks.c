@@ -164,7 +164,7 @@ void Task_Sys_Init(void *Parameters) {
     MPU6500_EnableInt();
 
     while (1) {
-        if (g_stabilizerCounter == COUNT_QUATERNIONABSTRACTION) {
+        if (Gyroscope_EulerData.downcounter == GYROSCOPE_START_UP_DELAT) {
             break;
         }
     }
@@ -214,16 +214,16 @@ void Task_Cloud(void *Parameters) {
     mpu6500_data.gz_offset = -20;
 
     //初始化航向角target
-    float yawTargetangle   = 0;
-    float pitchTargetangle = 0;
+    float yawTargetAngle   = 0;
+    float pitchTargetAngle = 0;
 
     //初始化角速度反馈
-    float yawnAngularSpeed  = 0;
-    float pitchAngularSpeed = 0;
+    float yawFeedAngularSpeed   = 0;
+    float pitchFeedAngularSpeed = 0;
 
     //初始化角度反馈(陀螺仪反馈角度)
-    float yawAnglePosition   = 0;
-    float pitchAnglePosition = 0;
+    float yawFeedAngle   = 0;
+    float pitchFeedAngle = 0;
 
     // yaw pitch 增量
     float yawDiff   = 0;
@@ -237,10 +237,10 @@ void Task_Cloud(void *Parameters) {
 
     while (1) {
         //将陀螺仪值赋予使用变量
-        yawAnglePosition   = -Euler_Angle.yaw;
-        pitchAnglePosition = Euler_Angle.pitch;
-        yawnAngularSpeed   = -(float) (mpu6500_data.gz / 16.4f);
-        pitchAngularSpeed  = -(float) (mpu6500_data.gx / 16.4f);
+        yawFeedAngle          = -Gyroscope_EulerData.yaw;
+        pitchFeedAngle        = Gyroscope_EulerData.pitch;
+        yawFeedAngularSpeed   = -(float) (mpu6500_data.gz / 16.4f);
+        pitchFeedAngularSpeed = -(float) (mpu6500_data.gx / 16.4f);
 
         debugA = remoteData.rx;
         debugB = remoteData.ry;
@@ -252,7 +252,7 @@ void Task_Cloud(void *Parameters) {
             yawDiff = remoteData.rx / 660.0f;
         }
         MIAO(yawDiff, -1, 1);
-        yawTargetangle = yawTargetangle + yawDiff;
+        yawTargetAngle = yawTargetAngle + yawDiff;
 
         if (remoteData.ry <= 10 && remoteData.ry >= -10) {
             pitchDiff = 0;
@@ -261,12 +261,12 @@ void Task_Cloud(void *Parameters) {
         }
 
         MIAO(pitchDiff, -0.3, 0.3);
-        pitchTargetangle = pitchTargetangle + pitchDiff;
+        pitchTargetAngle = pitchTargetAngle + pitchDiff;
 
-        PID_Calculate(&PID_Cloud_YawAngle, yawTargetangle, yawAnglePosition);
-        PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawnAngularSpeed);
-        PID_Calculate(&PID_Cloud_PitchAngle, pitchTargetangle, pitchAnglePosition);
-        PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchAngularSpeed);
+        PID_Calculate(&PID_Cloud_YawAngle, yawTargetAngle, yawFeedAngle);
+        PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawFeedAngularSpeed);
+        PID_Calculate(&PID_Cloud_PitchAngle, pitchTargetAngle, pitchFeedAngle);
+        PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchFeedAngularSpeed);
         // Can_Send(CAN1, 0x1FF, PID_Cloud_PitchSpeed.output, PID_Cloud_YawSpeed.output, 0, 0);
 
         Can_Send(CAN1, 0x1FF, PID_Cloud_PitchSpeed.output, PID_Cloud_YawSpeed.output, 0, 0);

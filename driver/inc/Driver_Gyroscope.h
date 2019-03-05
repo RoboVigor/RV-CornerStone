@@ -18,12 +18,11 @@
 
 typedef struct {
     float yaw;
-    int   round;
-    float yaw_feedback;
     float pitch;
     float roll;
     float yawoffset;
-} EulerAngle_Type;
+    int   downcounter;
+} GyrosocopeData_Type;
 
 /**
  * @brief 欧拉角解算
@@ -41,5 +40,4 @@ float Gyroscope_Get_Filter_Diff(void);
 #include "Driver_Filter.h"
 #include "config.h"
 #include "handle.h"
-#include "mpu6500_driver.h"
 #include "MadgwickAHRS.h"

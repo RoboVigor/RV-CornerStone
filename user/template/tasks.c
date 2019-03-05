@@ -40,8 +40,8 @@ void Task_Chassis(void *Parameters) {
         mode = ABS(remoteData.rx) < 5 ? 1 : 2;
 
         // 设置反馈值
-        yawAngleFeed = Euler_Angle.yaw;        // 航向角角度反馈
-        yawSpeedFeed = mpu6500_data.gz / 16.4; // 航向角角速度反馈
+        yawAngleFeed = Gyroscope_EulerData.yaw; // 航向角角度反馈
+        yawSpeedFeed = mpu6500_data.gz / 16.4;  // 航向角角速度反馈
 
         // 切换运动模式
         if (mode != lastMode) {
@@ -86,7 +86,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
 
         // 输出电流值到电调(安全起见默认注释此行)
-         Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, 10);
@@ -100,7 +100,7 @@ void Task_Debug_Magic_Send(void *Parameters) {
 
     while (1) {
         taskENTER_CRITICAL(); // 进入临界段
-        printf("Yaw: %f \r\n", Euler_Angle.yaw);
+        printf("Yaw: %f \r\n", Gyroscope_EulerData.yaw);
         taskEXIT_CRITICAL(); // 退出临界段
         vTaskDelayUntil(&LastWakeTime, 500);
     }
@@ -131,7 +131,7 @@ void Task_Sys_Init(void *Parameters) {
     //陀螺仪计数器开启确认
 #if GYROSCOPE_YAW_DOWN_COUNTER == 1
     while (1) {
-        if (g_stabilizerCounter == COUNT_QUATERNIONABSTRACTION) {
+        if (Gyroscope_EulerData.downcounter == GYROSCOPE_START_UP_DELAT) {
             break;
         }
     }

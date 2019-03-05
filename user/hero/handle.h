@@ -35,14 +35,13 @@ __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
 __HANDLE_EXT Motor_Type Motor_Yaw, Motor_Pitch;
 __HANDLE_EXT PID_Type PID_Cloud_YawAngle, PID_Cloud_YawSpeed, PID_Cloud_PitchAngle, PID_Cloud_PitchSpeed;
 __HANDLE_EXT PID_Type PID_Follow_Angle, PID_Follow_Speed;
-__HANDLE_EXT uint16_t g_stabilizerCounter; //初始化计时器
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type remoteData;
 
 // 陀螺仪
-__HANDLE_EXT volatile EulerAngle_Type Euler_Angle;
+__HANDLE_EXT volatile GyrosocopeData_Type Gyroscope_EulerData;
 
 // 无线串口调试
 __HANDLE_EXT u8 USART_RX_BUF[MAGIC_MAX_LENGTH];
