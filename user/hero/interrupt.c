@@ -5,6 +5,25 @@
 #include "main.h"
 #include "interrupt.h"
 
+// DMA Handle function
+void DMA2_Stream1_IRQHandler(void) {
+    uint8_t UARTtemp;
+
+    UARTtemp = USART6->DR;
+    UARTtemp = USART6->SR;
+
+    DMA_Cmd(DMA2_Stream1, DISABLE);
+    if (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != RESET) {
+        Decode_JudgeData(); //½âÂë
+    }
+    //ÖØÆôDMA
+    DMA_ClearFlag(DMA2_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
+    while (DMA_GetCmdStatus(DMA2_Stream1) != DISABLE)
+        ;
+    DMA_SetCurrDataCounter(DMA2_Stream1, JudgeBufferLength);
+    DMA_Cmd(DMA2_Stream1, ENABLE);
+}
+
 // EXTI9_5 陀螺仪中断
 void EXTI9_5_IRQHandler(void) //中断频率1KHz
 {
@@ -85,13 +104,13 @@ void USART3_IRQHandler(void) {
 }
 
 /**
- * @brief USART6 串口中断
+ * @brief USART2 串口中断
  */
-void USART6_IRQHandler(void) {
+void USART2_IRQHandler(void) {
     u8 res;
 
-    if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
-        res = USART_ReceiveData(USART6);                     // 读取数据
+    if (USART_GetITStatus(USART2, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
+        res = USART_ReceiveData(USART2);                     // 读取数据
         RED_LIGHT_TOGGLE;
     }
 
@@ -141,6 +160,14 @@ void CAN1_RX0_IRQHandler(void) {
 
     case 0x204:
         Motor_Update(&Motor_RF, position, speed);
+        break;
+
+    case 0x205:
+        Motor_Update(&Motor_Yaw, position, 0);
+        break;
+
+    case 0x206:
+        Motor_Update(&Motor_Pitch, position, 0);
         break;
 
     default:

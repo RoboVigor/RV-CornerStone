@@ -17,14 +17,12 @@
 #define ACC_LSB 4096.0f
 
 typedef struct {
-    float Yaw;
-    int   Yaw_offset;
-    int   round;
-    float Yawfeedback;
-    float Pitch;
-    int   Pitch_offset;
-    float Roll;
-} EulerAngle_Type;
+    float yaw;
+    float pitch;
+    float roll;
+    float yawoffset;
+    int   downcounter;
+} GyrosocopeData_Type;
 
 /**
  * @brief 欧拉角解算
@@ -42,5 +40,4 @@ float Gyroscope_Get_Filter_Diff(void);
 #include "Driver_Filter.h"
 #include "config.h"
 #include "handle.h"
-#include "mpu6500_driver.h"
 #include "MadgwickAHRS.h"
