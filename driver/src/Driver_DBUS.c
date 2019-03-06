@@ -1,5 +1,4 @@
 #include "Driver_DBUS.h"
-#include "handle.h"
 
 void DBus_Update(DBusData_Type *DBusData, uint8_t DBusBuffer[]) {
     DBusData->ch1 = (DBusBuffer[0] | DBusBuffer[1] << 8) & 0x07FF;
@@ -25,7 +24,7 @@ void DBus_Update(DBusData_Type *DBusData, uint8_t DBusBuffer[]) {
 }
 
 void DBUS_Init(DBusData_Type *DBusData) {
-    DBusData->ch1         = 0;
+    DBusData->ch1 = 0;
     DBusData->ch2 = 0;
     DBusData->ch3 = 0;
     DBusData->ch4 = 0;

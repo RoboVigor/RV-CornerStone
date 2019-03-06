@@ -84,20 +84,20 @@ void USART3_IRQHandler(void) {
         RED_LIGHT_TOGGLE;
     }
 
-    if ((USART_RX_STA & 0x8000) == 0) { // 接收未完成
-        if (USART_RX_STA & 0x4000) {    // 接收到 0x0d
-            if (res != 0x0a)            // 接收错误，重新开始
-                USART_RX_STA = 0;
+    if ((magic.sta & 0x8000) == 0) { // 接收未完成
+        if (magic.sta & 0x4000) {    // 接收到 0x0d
+            if (res != 0x0a)         // 接收错误，重新开始
+                magic.sta = 0;
             else // 接收完成
-                USART_RX_STA |= 0x8000;
+                magic.sta |= 0x8000;
         } else { // 未接收到 0x0d
             if (res == 0x0d) {
-                USART_RX_STA |= 0x4000;
+                magic.sta |= 0x4000;
             } else {
-                USART_RX_BUF[USART_RX_STA & 0X3FFF] = res;
-                USART_RX_STA++;
+                magic.buf[magic.sta & 0X3FFF] = res;
+                magic.sta++;
                 // USART3->DR = res;
-                if (USART_RX_STA > (MAGIC_MAX_LENGTH - 1)) USART_RX_STA = 0; // 接收数据错误，重新开始接收
+                if (magic.sta > (MAGIC_MAX_LENGTH - 1)) magic.sta = 0; // 接收数据错误，重新开始接收
             }
         }
     }
@@ -114,20 +114,20 @@ void USART2_IRQHandler(void) {
         RED_LIGHT_TOGGLE;
     }
 
-    if ((USART_RX_STA & 0x8000) == 0) { // 接收未完成
-        if (USART_RX_STA & 0x4000) {    // 接收到 0x0d
-            if (res != 0x0a)            // 接收错误，重新开始
-                USART_RX_STA = 0;
+    if ((magic.sta & 0x8000) == 0) { // 接收未完成
+        if (magic.sta & 0x4000) {    // 接收到 0x0d
+            if (res != 0x0a)         // 接收错误，重新开始
+                magic.sta = 0;
             else // 接收完成
-                USART_RX_STA |= 0x8000;
+                magic.sta |= 0x8000;
         } else { // 未接收到 0x0d
             if (res == 0x0d) {
-                USART_RX_STA |= 0x4000;
+                magic.sta |= 0x4000;
             } else {
-                USART_RX_BUF[USART_RX_STA & 0X3FFF] = res;
-                USART_RX_STA++;
+                magic.buf[magic.sta & 0X3FFF] = res;
+                magic.sta++;
                 // USART6->DR = res;
-                if (USART_RX_STA > (MAGIC_MAX_LENGTH - 1)) USART_RX_STA = 0; // 接收数据错误，重新开始接收
+                if (magic.sta > (MAGIC_MAX_LENGTH - 1)) magic.sta = 0; // 接收数据错误，重新开始接收
             }
         }
     }

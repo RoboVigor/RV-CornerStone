@@ -15,12 +15,12 @@ typedef struct {
     float TargetVY;
     float TargetWR;
     int   WheelSpeed[4];
-} ChassisParam_Type;
+} ChassisData_Type;
 
-void Chassis_Set_Speed(float XSpeed, float YSpeed, float WSpeed);
+void Chassis_Update(ChassisData_Type *ChassisData, float XSpeed, float YSpeed, float WSpeed);
 
-void Chassis_Get_Rotor_Speed(int rotorSpeed[4]);
+void Chassis_Get_Rotor_Speed(ChassisData_Type *ChassisData, int rotorSpeed[4]);
 
-void Chassis_Limit_Rotor_Speed(int wheelSpeed[4], int rotorSpeed[4]);
+void Chassis_Limit_Rotor_Speed(ChassisData_Type *ChassisData, int wheelSpeed[4], int rotorSpeed[4]);
 
 #endif

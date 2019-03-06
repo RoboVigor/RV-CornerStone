@@ -1,7 +1,6 @@
 #define __DRIVER_JUDGE_GLOBALS
 
 #include "Driver_JudgeSys.h"
-#include "handle.h"
 #include "macro.h"
 
 uint8_t data[29] = {0};

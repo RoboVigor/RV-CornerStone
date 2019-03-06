@@ -38,11 +38,10 @@ __HANDLE_EXT DBusData_Type remoteData;
 __HANDLE_EXT volatile GyrosocopeData_Type Gyroscope_EulerData;
 
 // 无线串口调试
-__HANDLE_EXT u8 USART_RX_BUF[MAGIC_MAX_LENGTH];
-__HANDLE_EXT u16 USART_RX_STA;
 __HANDLE_EXT MagicHandle_Type magic;
 
-// 底盘PID
+// 底盘
+__HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
 // 视觉数据

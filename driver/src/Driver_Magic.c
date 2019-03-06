@@ -2,7 +2,6 @@
 #include "string.h"
 #include "sys.h"
 #include "math.h"
-#include "handle.h"
 
 //标准库需要的支持函数
 struct __FILE {
@@ -30,17 +29,17 @@ void Magic_Get_Debug_Value(MagicHandle_Type *magic) {
     int result = 0;
     int length = 0;
 
-    if ((USART_RX_STA & 0x8000) > 0) { // 串口接收到调试数据
+    if ((magic->sta & 0x8000) > 0) { // 串口接收到调试数据
         uint8_t i = 0;
 
-        length = USART_RX_STA - 0xC000; // 调试数据的长度
-        result = 0;                     // 调试数据
+        length = magic->sta - 0xC000; // 调试数据的长度
+        result = 0;                   // 调试数据
 
         for (i = 0; i < length; i++) {
-            result += pow(10.0, length - i - 1) * (USART_RX_BUF[i] - 48); // 将串口数据转码
-            USART_RX_BUF[i] = 0;                                          // 清空数据缓存
+            result += pow(10.0, length - i - 1) * (magic->buf[i] - 48); // 将串口数据转码
+            magic->buf[i] = 0;                                          // 清空数据缓存
         }
-        USART_RX_STA = 0;      // 清空串口的接收缓存
+        magic->sta   = 0;      // 清空串口的接收缓存
         lastResult   = result; // 记录接收到的调试数据
         receivedSign = 1;
     } else {                              // 串口 没有 接收到调试数据

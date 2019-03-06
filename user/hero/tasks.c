@@ -92,11 +92,11 @@ void Task_Chassis(void *Parameters) {
         followOutput = -followOutput / 660.0f * 12;
         debugF       = Judge_PowerHeatData.chassisPower;
         // 设置底盘总体移动速度
-        Chassis_Set_Speed(lx, ly, followOutput);
-        // Chassis_Set_Speed(lx, ly, 0);
+        Chassis_Update(&ChassisData, lx, ly, followOutput);
+        // Chassis_Update(&ChassisData, lx, ly, 0);
 
         // 麦轮解算&限幅,获得轮子转速
-        Chassis_Get_Rotor_Speed(rotorSpeed);
+        Chassis_Get_Rotor_Speed(&ChassisData, rotorSpeed);
 
         // 根据功率限幅
         powerScale    = Chassis_Power_Control(lx, ly);

@@ -7,6 +7,9 @@
 #define MAGIC_MAX_LENGTH 200 //定义最大接收字节数 200
 
 typedef struct {
+    uint8_t  buf[MAGIC_MAX_LENGTH];
+    uint16_t sta;
+
     char *name;
     int   defaultValue; // 默认值
     int   value;        // 调试值
