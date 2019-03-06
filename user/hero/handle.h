@@ -64,7 +64,7 @@ __HANDLE_EXT extPowerHeatData_t Judge_PowerHeatData;
 __HANDLE_EXT float powerfeed;
 
 // 视觉数据
-__HANDLE_EXT uint16_t PsData[17];
+__HANDLE_EXT PsData_Type PsData;
 
 /**
  * @brief 初始化结构体

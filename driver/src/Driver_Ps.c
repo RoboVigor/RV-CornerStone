@@ -7,70 +7,69 @@ static enum Status_Type status = WAITING;
 
 static uint8_t len;
 static uint8_t id;
-static uint8_t data[34];
 static uint8_t counter = 0;
 
 static uint8_t psDebugEnabled = 0;
 
-void Ps_On_Received(uint8_t newByte) {
-    Ps_Append(newByte);
+void Ps_On_Received(PsData_Type PsData, uint8_t newByte) {
+    Ps_Append(PsData, newByte);
     if (psDebugEnabled) printf("[%d:%d]", counter, newByte);
     if (status == WAITING && newByte == SOP) {
-        Ps_On_Start();
+        Ps_On_Start(PsData);
     } else if (status == STARTED && counter == 2) {
-        Ps_Parse_Header(newByte);
+        Ps_Parse_Header(PsData, newByte);
     } else if (counter == 2 * len + 4 && newByte == EOP) {
-        Ps_Valid();
+        Ps_Valid(PsData);
     }
 }
 
-void Ps_Append(uint8_t value) {
-    data[counter] = value;
+void Ps_Append(PsData_Type PsData, uint8_t value) {
+    PsData.data[counter] = value;
     counter++;
 }
 
-void Ps_Parse_Header(uint8_t value) {
+void Ps_Parse_Header(PsData_Type PsData, uint8_t value) {
     len = value >> 4;
     id  = value & 0x0f;
     if (psDebugEnabled) printf("len:%d\r\n", len);
 }
 
-void Ps_Valid(void) {
-    uint8_t crc = data[2 * len + 2];
-    if (CRC_Valid(data + 1, 2 * len + 1, crc)) {
+void Ps_Valid(PsData_Type PsData) {
+    uint8_t crc = PsData.data[2 * len + 2];
+    if (CRC_Valid(PsData.data + 1, 2 * len + 1, crc)) {
         if (psDebugEnabled) printf("done%d\r\n", len);
-        Ps_On_Done();
+        Ps_On_Done(PsData);
     } else {
-        Ps_On_Interrupted();
+        Ps_On_Interrupted(PsData);
     }
 }
 
-void Ps_Reset(void) {
+void Ps_Reset(PsData_Type PsData) {
     int i;
     for (i = 0; i < 34; i++) {
-        data[i] = 0;
+        PsData.data[i] = 0;
     }
     counter = 0;
     status  = WAITING;
     if (psDebugEnabled) printf("reset\r\n");
 }
 
-void Ps_On_Start(void) {
+void Ps_On_Start(PsData_Type PsData) {
     if (psDebugEnabled) printf("start\r\n");
     status = STARTED;
 }
 
-void Ps_On_Done(void) {
+void Ps_On_Done(PsData_Type PsData) {
     // todo:解析data
     status = VALIDED;
-    Ps_DataAnalysis();
-    Ps_Reset();
+    Ps_DataAnalysis(PsData);
+    Ps_Reset(PsData);
 }
 
-void Ps_On_Interrupted(void) {
+void Ps_On_Interrupted(PsData_Type PsData) {
     if (psDebugEnabled) printf("interrupted\r\n");
     status = INTERRUPTED;
-    Ps_Reset();
+    Ps_Reset(PsData);
 }
 
 static const unsigned char crc_table[] = {
@@ -104,20 +103,20 @@ uint8_t CRC_Valid(uint8_t *data, uint8_t len, uint8_t crc) {
     // return CRC_Calculate(data, len) == crc;
 }
 
-void Ps_DataAnalysis(void) {
+void Ps_DataAnalysis(PsData_Type PsData) {
     int i = 0;
-    if (psDebugEnabled) printf("rec: %d %d\r\n", data[2], data[3]);
+    if (psDebugEnabled) printf("rec: %d %d\r\n", PsData.data[2], PsData.data[3]);
 
     for (i = 0; i < len; i++) {
-        PsData[i] = (data[2 * i + 2] << 8) | (data[2 * i + 3]);
+        PsData.data[i] = (PsData.data[2 * i + 2] << 8) | (PsData.data[2 * i + 3]);
     }
-    Ps_DataUnused();
+    Ps_DataUnused(PsData);
 }
 
-void Ps_DataUnused(void) {
-    PsData[16] = 0; // 数据未被使用过
+void Ps_DataUnused(PsData_Type PsData) {
+    PsData.data[16] = 0; // 数据未被使用过
 }
 
-void Ps_DataUsed(void) {
-    PsData[16] = 1; // 数据被使用过
+void Ps_DataUsed(PsData_Type PsData) {
+    PsData.data[16] = 1; // 数据被使用过
 }
