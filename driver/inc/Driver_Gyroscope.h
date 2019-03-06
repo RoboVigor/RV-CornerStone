@@ -11,26 +11,23 @@
 #define __DRIVER_GYROSCOPE_H
 
 #include "stm32f4xx.h"
-#include "math.h"
 
-#define PI 3.1415926
+#define PI 3.1415926f
 #define GYRO_LSB 16.4f
-#define ACC_LSB 4096.0
+#define ACC_LSB 4096.0f
 
 typedef struct {
-    float Yaw;
-    int   Yaw_offset;
-    int   round;
-    float Yawfeedback;
-    float Pitch;
-    int   Pitch_offset;
-    float Roll;
-} EulerAngle_Type;
+    float yaw;
+    float pitch;
+    float roll;
+    float yawoffset;
+    int   downcounter;
+} GyrosocopeData_Type;
 
 /**
  * @brief 欧拉角解算
  */
-void Gyroscope_Update_Angle_Data(void);
+void Gyroscope_Update_Angle_Data(GyrosocopeData_Type *GyrosocopeData);
 
 /**
  * @brief 获得滤波器diff

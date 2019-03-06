@@ -40,7 +40,7 @@ void Filter_Update(Filter_Type *filter, float value);
 /**
  * @brief 计算移动平均值
  */
-void Filter_Update_Moving_Average(Filter_Type *filter);
+void Filter_Update_Sample(Filter_Type *filter);
 
 /**
  * @brief 应用限幅滤波

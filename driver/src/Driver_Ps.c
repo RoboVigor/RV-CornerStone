@@ -1,124 +1,74 @@
 #include "Driver_Ps.h"
 #include "Driver_Magic.h"
-#include "handle.h"
-#include "debug.h"
 
-enum Status_Type { WAITING, STARTED, VALIDED, INTERRUPTED };
-enum Status_Type status = WAITING;
+static enum Status_Type { WAITING, STARTED, VALIDED, INTERRUPTED };
+static enum Status_Type status = WAITING;
 
-uint8_t len;
-uint8_t id;
-uint8_t data[34];
-uint8_t counter = 0;
+static uint8_t len;
+static uint8_t id;
+static uint8_t counter = 0;
 
-uint8_t psDebugEnabled = 0;
+static uint8_t psDebugEnabled = 0;
 
-void Ps_Init_Config(u32 bound) {
-    // GPIO端口设置
-    GPIO_InitTypeDef  GPIO_InitStructure;
-    USART_InitTypeDef USART_InitStructure;
-    NVIC_InitTypeDef  NVIC_InitStructure;
-
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);  //使能GPIOD时钟
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE); //使能USART3时钟
-
-    //串口3对应引脚复用映射
-    GPIO_PinAFConfig(GPIOG, GPIO_PinSource5,
-                     GPIO_AF_USART3); // GPIOD8复用为USART3
-    GPIO_PinAFConfig(GPIOG, GPIO_PinSource6,
-                     GPIO_AF_USART3); // GPIOD9复用为USART3
-
-    // USART6端口配置
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_8 | GPIO_Pin_9; // GPIOD8与GPIOD9
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;            //复用功能
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;        //速度50MHz
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;           //推挽复用输出
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;            //上拉
-    GPIO_Init(GPIOG, &GPIO_InitStructure);                   //初始化
-
-    // USART6 初始化设置
-    USART_InitStructure.USART_BaudRate            = bound;                          //波特率设置
-    USART_InitStructure.USART_WordLength          = USART_WordLength_8b;            //字长为8位数据格式
-    USART_InitStructure.USART_StopBits            = USART_StopBits_1;               //一个停止位
-    USART_InitStructure.USART_Parity              = USART_Parity_No;                //无奇偶校验位
-    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None; //无硬件数据流控制
-    USART_InitStructure.USART_Mode                = USART_Mode_Rx | USART_Mode_Tx;  //收发模式
-    USART_Init(USART3, &USART_InitStructure);                                       //初始化串口3
-
-    USART_Cmd(USART3, ENABLE); //使能串口3
-
-    // USART_ClearFlag(USART6, USART_FLAG_TC);
-
-    USART_ITConfig(USART3, USART_IT_RXNE, ENABLE); //开启相关中断
-
-    // USART6 NVIC 配置
-    NVIC_InitStructure.NVIC_IRQChannel                   = USART3_IRQn; //串口3中断通道
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;           //抢占优先级3
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;           //子优先级3
-    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;      // IRQ通道使能
-    NVIC_Init(&NVIC_InitStructure);                                     //根据指定的参数初始化VIC寄存器
-}
-
-void Ps_On_Received(uint8_t newByte) {
-    // USART6->DR = counter;
-    Ps_Append(newByte);
+void Ps_On_Received(PsData_Type *PsData, uint8_t newByte) {
+    Ps_Append(&PsData, newByte);
     if (psDebugEnabled) printf("[%d:%d]", counter, newByte);
-    if (status == WAITING && newByte == SOF) {
-        Ps_On_Start();
+    if (status == WAITING && newByte == SOP) {
+        Ps_On_Start(&PsData);
     } else if (status == STARTED && counter == 2) {
-        Ps_Parse_Header(newByte);
-    } else if (counter == 2 * len + 4 && newByte == 88) {
-        Ps_Valid();
+        Ps_Parse_Header(&PsData, newByte);
+    } else if (counter == 2 * len + 4 && newByte == EOP) {
+        Ps_Valid(&PsData);
     }
 }
 
-void Ps_Append(uint8_t value) {
-    data[counter] = value;
+void Ps_Append(PsData_Type *PsData, uint8_t value) {
+    PsData->data[counter] = value;
     counter++;
 }
 
-void Ps_Parse_Header(uint8_t value) {
+void Ps_Parse_Header(PsData_Type *PsData, uint8_t value) {
     len = value >> 4;
     id  = value & 0x0f;
     if (psDebugEnabled) printf("len:%d\r\n", len);
 }
 
-void Ps_Valid(void) {
-    uint8_t crc = data[2 * len + 2];
-    if (CRC_Valid(data + 1, 2 * len + 1, crc)) {
+void Ps_Valid(PsData_Type *PsData) {
+    uint8_t crc = PsData->data[2 * len + 2];
+    if (CRC_Valid(PsData->data + 1, 2 * len + 1, crc)) {
         if (psDebugEnabled) printf("done%d\r\n", len);
-        Ps_On_Done();
+        Ps_On_Done(&PsData);
     } else {
-        Ps_On_Interrupted();
+        Ps_On_Interrupted(&PsData);
     }
 }
 
-void Ps_Reset(void) {
+void Ps_Reset(PsData_Type *PsData) {
     int i;
     for (i = 0; i < 34; i++) {
-        data[i] = 0;
+        PsData->data[i] = 0;
     }
     counter = 0;
     status  = WAITING;
     if (psDebugEnabled) printf("reset\r\n");
 }
 
-void Ps_On_Start(void) {
+void Ps_On_Start(PsData_Type *PsData) {
     if (psDebugEnabled) printf("start\r\n");
     status = STARTED;
 }
 
-void Ps_On_Done(void) {
+void Ps_On_Done(PsData_Type *PsData) {
     // todo:解析data
     status = VALIDED;
-    Ps_DataAnalysis();
-    Ps_Reset();
+    Ps_DataAnalysis(&PsData);
+    Ps_Reset(&PsData);
 }
 
-void Ps_On_Interrupted(void) {
+void Ps_On_Interrupted(PsData_Type *PsData) {
     if (psDebugEnabled) printf("interrupted\r\n");
     status = INTERRUPTED;
-    Ps_Reset();
+    Ps_Reset(&PsData);
 }
 
 static const unsigned char crc_table[] = {
@@ -152,20 +102,20 @@ uint8_t CRC_Valid(uint8_t *data, uint8_t len, uint8_t crc) {
     // return CRC_Calculate(data, len) == crc;
 }
 
-void Ps_DataAnalysis(void) {
+void Ps_DataAnalysis(PsData_Type *PsData) {
     int i = 0;
-    if (psDebugEnabled) printf("rec: %d %d\r\n", data[2], data[3]);
+    if (psDebugEnabled) printf("rec: %d %d\r\n", PsData->data[2], PsData->data[3]);
 
     for (i = 0; i < len; i++) {
-        PsData[i] = (data[2 * i + 2] << 8) | (data[2 * i + 3]);
+        PsData->data[i] = (PsData->data[2 * i + 2] << 8) | (PsData->data[2 * i + 3]);
     }
-    Ps_DataUnused();
+    Ps_DataUnused(&PsData);
 }
 
-void Ps_DataUnused(void) {
-    PsData[16] = 0; // 数据未被使用过
+void Ps_DataUnused(PsData_Type *PsData) {
+    PsData->data[16] = 0; // 数据未被使用过
 }
 
-void Ps_DataUsed(void) {
-    PsData[16] = 1; // 数据被使用过
+void Ps_DataUsed(PsData_Type *PsData) {
+    PsData->data[16] = 1; // 数据被使用过
 }

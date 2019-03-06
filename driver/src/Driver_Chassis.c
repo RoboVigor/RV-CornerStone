@@ -1,9 +1,6 @@
 #include "Driver_Chassis.h"
 #include "macro.h"
 #include "config.h"
-#include "handle.h"
-
-ChassisParam_Type Chassisparam;
 
 /**
  * @brief 配置小车整体 XYW 三个轴的速度
@@ -13,10 +10,10 @@ ChassisParam_Type Chassisparam;
  * @param YSpeed **左右**
  * @param WSpeed
  */
-void Chassis_Set_Speed(float XSpeed, float YSpeed, float WSpeed) {
-    Chassisparam.TargetVX = XSpeed;
-    Chassisparam.TargetVY = YSpeed;
-    Chassisparam.TargetWR = WSpeed;
+void Chassis_Update(ChassisData_Type *ChassisData, float XSpeed, float YSpeed, float WSpeed) {
+    ChassisData->TargetVX = XSpeed;
+    ChassisData->TargetVY = YSpeed;
+    ChassisData->TargetWR = WSpeed;
 }
 
 /**
@@ -26,19 +23,19 @@ void Chassis_Set_Speed(float XSpeed, float YSpeed, float WSpeed) {
  *
  * @param result[4] 返回值,轮子速度
  * */
-void Chassis_Get_Rotor_Speed(int rotorSpeed[4]) {
+void Chassis_Get_Rotor_Speed(ChassisData_Type *ChassisData, int rotorSpeed[4]) {
     int wheelSpeed[4];
     // 麦克纳姆轮解算
     wheelSpeed[0] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
-                    ((Chassisparam.TargetVY) - (Chassisparam.TargetVX) + Chassisparam.TargetWR * -CHASSIS_SIZE_K);
+                    ((ChassisData->TargetVY) - (ChassisData->TargetVX) + ChassisData->TargetWR * -CHASSIS_SIZE_K);
     wheelSpeed[1] = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
-                    ((Chassisparam.TargetVY) + (Chassisparam.TargetVX) + Chassisparam.TargetWR * -CHASSIS_SIZE_K);
+                    ((ChassisData->TargetVY) + (ChassisData->TargetVX) + ChassisData->TargetWR * -CHASSIS_SIZE_K);
     wheelSpeed[2] = -CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
-                    (Chassisparam.TargetVY - (Chassisparam.TargetVX) + Chassisparam.TargetWR * CHASSIS_SIZE_K);
+                    (ChassisData->TargetVY - (ChassisData->TargetVX) + ChassisData->TargetWR * CHASSIS_SIZE_K);
     wheelSpeed[3] = -CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE *
-                    ((Chassisparam.TargetVY) + (Chassisparam.TargetVX) + Chassisparam.TargetWR * CHASSIS_SIZE_K);
+                    ((ChassisData->TargetVY) + (ChassisData->TargetVX) + ChassisData->TargetWR * CHASSIS_SIZE_K);
     // 限速
-    Chassis_Limit_Rotor_Speed(wheelSpeed, rotorSpeed);
+    Chassis_Limit_Rotor_Speed(&ChassisData, wheelSpeed, rotorSpeed);
 }
 /**
  * @brief 按比例限速
@@ -46,7 +43,7 @@ void Chassis_Get_Rotor_Speed(int rotorSpeed[4]) {
  * @param wheelSpeed
  * @param rotorSpeed
  */
-void Chassis_Limit_Rotor_Speed(int wheelSpeed[4], int rotorSpeed[4]) {
+void Chassis_Limit_Rotor_Speed(ChassisData_Type *ChassisData, int wheelSpeed[4], int rotorSpeed[4]) {
     float maxSpeed = 0;
     float param    = 0;
     int   index    = 0;
