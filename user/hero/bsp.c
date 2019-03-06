@@ -2,6 +2,7 @@
 #include "BSP_DMA.h"
 #include "BSP_NVIC.h"
 #include "BSP_UART.h"
+#include "Driver_JudgeSys.h"
 /**
  * @brief 用户BSP
  * @note 该函数应该在task.c中被执行

@@ -4,7 +4,7 @@
 #include "handle.h"
 #include "macro.h"
 
-static uint8_t data[29] = {0};
+uint8_t data[29] = {0};
 
 void Judge_Init(void) {
 }

@@ -6,6 +6,25 @@
 #include "interrupt.h"
 #include "mpu6500_driver.h"
 
+// DMA Handle function
+void DMA2_Stream1_IRQHandler(void) {
+    uint8_t UARTtemp;
+
+    UARTtemp = USART6->DR;
+    UARTtemp = USART6->SR;
+
+    DMA_Cmd(DMA2_Stream1, DISABLE);
+    if (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != RESET) {
+        Decode_JudgeData(); //½âÂë
+    }
+    //ÖØÆôDMA
+    DMA_ClearFlag(DMA2_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
+    while (DMA_GetCmdStatus(DMA2_Stream1) != DISABLE)
+        ;
+    DMA_SetCurrDataCounter(DMA2_Stream1, JudgeBufferLength);
+    DMA_Cmd(DMA2_Stream1, ENABLE);
+}
+
 // EXTI9_5 陀螺仪中断
 void EXTI9_5_IRQHandler(void) //中断频率1KHz
 {
@@ -205,25 +224,6 @@ void TIM2_IRQHandler(void) {
         TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
         TIM_ClearFlag(TIM2, TIM_FLAG_Update);
     }
-}
-
-// DMA Handle function
-void DMA2_Stream1_IRQHandler(void) {
-    uint8_t UARTtemp;
-
-    UARTtemp = USART6->DR;
-    UARTtemp = USART6->SR;
-
-    DMA_Cmd(DMA2_Stream1, DISABLE);
-    if (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != RESET) {
-        Decode_JudgeData(); //½âÂë
-    }
-    //ÖØÆôDMA
-    DMA_ClearFlag(DMA2_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
-    while (DMA_GetCmdStatus(DMA2_Stream1) != DISABLE)
-        ;
-    DMA_SetCurrDataCounter(DMA2_Stream1, JudgeBufferLength);
-    DMA_Cmd(DMA2_Stream1, ENABLE);
 }
 
 /**

@@ -21,7 +21,7 @@ void Task_Chassis(void *Parameters) {
     int        rotorSpeed[4];                      // 轮子转速
     float      rpm2rps      = 3.14 / 60;           // 转子的转速(RPM,RoundPerMinute)换算成角速度(RadPerSecond)
     int        followOutput = 0;                   // 输出底盘跟随
-    float      powerScale;
+    float      powerScale   = 1;
 
     // 遥控器输入限幅
     float lx     = 0;
@@ -60,10 +60,10 @@ void Task_Chassis(void *Parameters) {
         lx = remoteData.lx;
         ly = remoteData.ly;
 
-        if (abs(lx) < 90) {
+        if (ABS(lx) < 90) {
             lxDiff = 0;
         }
-        if (abs(ly) < 120) {
+        if (ABS(ly) < 120) {
             lyDiff = 0;
         }
 
@@ -90,7 +90,7 @@ void Task_Chassis(void *Parameters) {
         lx           = -lx / 660.0f;
         ly           = ly / 660.0f * 3;
         followOutput = -followOutput / 660.0f * 12;
-
+        debugF       = Judge_PowerHeatData.chassisPower;
         // 设置底盘总体移动速度
         // Chassis_Set_Speed(lx, ly, followOutput);
         Chassis_Set_Speed(lx, ly, 0);
@@ -104,6 +104,8 @@ void Task_Chassis(void *Parameters) {
         rotorSpeed[1] = rotorSpeed[1] * powerScale;
         rotorSpeed[2] = rotorSpeed[2] * powerScale;
         rotorSpeed[3] = rotorSpeed[3] * powerScale;
+        debugH        = powerScale;
+        debugG        = powerfeed;
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * rpm2rps);
@@ -122,13 +124,15 @@ void Task_Chassis(void *Parameters) {
 
 float Chassis_Power_Control(float VX, float VY) {
 
-    float powerfeed = Judge_PowerHeatData.chassisPower;
+    powerfeed = Judge_PowerHeatData.chassisPower;
     if (powerfeed >= 60) {
-        PID_Power.output_I = 0;
+        PID_Calculate(&PID_Power, 700, powerfeed * 10);
+
         return (float) (PID_Power.output + 1000) / 1000.0;
     } else {
         if (VX == 0 && VY == 0) {
             PID_Power.output_I = 0;
+            PID_Power.output   = 0;
         }
         return 1.0f;
     }
@@ -158,6 +162,7 @@ void Task_Sys_Init(void *Parameters) {
     BSP_DMA_Init();
     BSP_TIM_Init();
     BSP_NVIC_Init();
+    BSP_USER_Init();
 
     // 初始化陀螺仪
     MPU6500_Initialize();

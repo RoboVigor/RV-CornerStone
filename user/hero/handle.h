@@ -61,7 +61,7 @@ __HANDLE_EXT extShootData_t Judge_ShootData;
 __HANDLE_EXT extPowerHeatData_t Judge_PowerHeatData;
 
 //功率
-__HANDLE_EXT float PowerParam, powerfeed, powercurrent, powerlast;
+__HANDLE_EXT float powerfeed;
 
 // 视觉数据
 __HANDLE_EXT uint16_t PsData[17];
