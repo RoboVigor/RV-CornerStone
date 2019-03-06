@@ -4,7 +4,6 @@
 
 #include "main.h"
 #include "interrupt.h"
-#include "mpu6500_driver.h"
 
 // DMA Handle function
 void DMA2_Stream1_IRQHandler(void) {
@@ -44,8 +43,8 @@ void EXTI9_5_IRQHandler(void) //中断频率1KHz
         mpu6500_data.gz += mpu6500_data.gz_offset;
 
 #if GYROSCOPE_YAW_DOWN_COUNTER == 1
-        if (g_stabilizerCounter <= COUNT_QUATERNIONABSTRACTION) {
-            g_stabilizerCounter = g_stabilizerCounter + 1;
+        if (Gyroscope_EulerData.downcounter <= GYROSCOPE_START_UP_DELAT) {
+            Gyroscope_EulerData.downcounter = Gyroscope_EulerData.downcounter + 1;
         }
 #endif
         Gyroscope_Update_Angle_Data();

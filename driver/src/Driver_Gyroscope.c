@@ -1,7 +1,6 @@
 #define __DRIVER_GYROSCOPE_GLOBALS
 #include "Driver_Gyroscope.h"
 #include "Driver_Filter.h"
-#include "mpu6500_driver.h"
 #include "config.h"
 #include "handle.h"
 #include "MadgwickAHRS.h"
@@ -52,13 +51,13 @@ void Gyroscope_Update_Angle_Data(void) {
 
     // 输出欧拉角
 
-    Euler_Angle.yaw = Filter_Apply_Limit_Breadth(&Filter_Yaw) + Euler_Angle.yawoffset; // 应用限幅滤波
-    if (g_stabilizerCounter == COUNT_QUATERNIONABSTRACTION - 1) {
-        Euler_Angle.yawoffset = -Euler_Angle.yaw;
+    Gyroscope_EulerData.yaw = Filter_Apply_Limit_Breadth(&Filter_Yaw) + Gyroscope_EulerData.yawoffset; // 应用限幅滤波
+    if (Gyroscope_EulerData.downcounter == GYROSCOPE_START_UP_DELAT - 1) {
+        Gyroscope_EulerData.yawoffset = -Gyroscope_EulerData.yaw;
     }
 
-    Euler_Angle.pitch = -pitchAngle;
-    Euler_Angle.roll  = rollAngle;
+    Gyroscope_EulerData.pitch = -pitchAngle;
+    Gyroscope_EulerData.roll  = rollAngle;
 }
 
 float Gyroscope_Get_Filter_Diff(void) {
