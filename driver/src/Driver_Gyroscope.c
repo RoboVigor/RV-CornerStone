@@ -2,8 +2,8 @@
 #include "Driver_Gyroscope.h"
 #include "Driver_Filter.h"
 #include "config.h"
-#include "handle.h"
 #include "MadgwickAHRS.h"
+#include "mpu6500_driver.h"
 
 static float rollAngle;
 static float pitchAngle;
@@ -17,7 +17,7 @@ static float zAcc;
 
 Filter_Type Filter_Yaw = {.count = 0, .thresholdLB = GYROSCOPE_YAW_FILTER_THRESHOLD};
 
-void Gyroscope_Update_Angle_Data(void) {
+void Gyroscope_Update_Angle_Data(GyrosocopeData_Type *GyrosocopeData) {
 
     xSpeed = (float) ((mpu6500_data.gx / GYRO_LSB) * PI / 180.0);
     ySpeed = (float) ((mpu6500_data.gy / GYRO_LSB) * PI / 180.0);
@@ -51,13 +51,13 @@ void Gyroscope_Update_Angle_Data(void) {
 
     // 输出欧拉角
 
-    Gyroscope_EulerData.yaw = Filter_Apply_Limit_Breadth(&Filter_Yaw) + Gyroscope_EulerData.yawoffset; // 应用限幅滤波
-    if (Gyroscope_EulerData.downcounter == GYROSCOPE_START_UP_DELAY - 1) {
-        Gyroscope_EulerData.yawoffset = -Gyroscope_EulerData.yaw;
+    GyrosocopeData->yaw = Filter_Apply_Limit_Breadth(&Filter_Yaw) + GyrosocopeData->yawoffset; // 应用限幅滤波
+    if (GyrosocopeData->downcounter == GYROSCOPE_START_UP_DELAY - 1) {
+        GyrosocopeData->yawoffset = -GyrosocopeData->yaw;
     }
 
-    Gyroscope_EulerData.pitch = -pitchAngle;
-    Gyroscope_EulerData.roll  = rollAngle;
+    GyrosocopeData->pitch = -pitchAngle;
+    GyrosocopeData->roll  = rollAngle;
 }
 
 float Gyroscope_Get_Filter_Diff(void) {

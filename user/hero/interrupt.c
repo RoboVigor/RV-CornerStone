@@ -47,7 +47,7 @@ void EXTI9_5_IRQHandler(void) //中断频率1KHz
             Gyroscope_EulerData.downcounter = Gyroscope_EulerData.downcounter + 1;
         }
 #endif
-        Gyroscope_Update_Angle_Data();
+        Gyroscope_Update_Angle_Data(&Gyroscope_EulerData);
     }
 }
 

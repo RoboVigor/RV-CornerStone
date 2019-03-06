@@ -27,7 +27,7 @@ typedef struct {
 /**
  * @brief 欧拉角解算
  */
-void Gyroscope_Update_Angle_Data(void);
+void Gyroscope_Update_Angle_Data(GyrosocopeData_Type *GyrosocopeData);
 
 /**
  * @brief 获得滤波器diff
@@ -39,5 +39,4 @@ float Gyroscope_Get_Filter_Diff(void);
 #include "math.h"
 #include "Driver_Filter.h"
 #include "config.h"
-#include "handle.h"
 #include "MadgwickAHRS.h"
