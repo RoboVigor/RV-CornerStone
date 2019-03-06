@@ -24,11 +24,11 @@ void DBus_Update(DBusData_Type *DBusData, uint8_t DBusBuffer[]) {
     DBusData->keyBoard.keyCode = DBusBuffer[14] | DBusBuffer[15] << 8; // key borad code
 }
 
-void DBUS_Init() {
-    remoteData.ch1 = 0;
-    remoteData.ch2 = 0;
-    remoteData.ch3 = 0;
-    remoteData.ch4 = 0;
+void DBUS_Init(DBusData_Type *DBusData) {
+    DBusData->ch1         = 0;
+    DBusData->ch2 = 0;
+    DBusData->ch3 = 0;
+    DBusData->ch4 = 0;
 
-    remoteData.keyBoard.keyCode = 0;
+    DBusData->keyBoard.keyCode = 0;
 }

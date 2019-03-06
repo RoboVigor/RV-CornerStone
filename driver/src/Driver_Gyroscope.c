@@ -52,7 +52,7 @@ void Gyroscope_Update_Angle_Data(void) {
     // 输出欧拉角
 
     Gyroscope_EulerData.yaw = Filter_Apply_Limit_Breadth(&Filter_Yaw) + Gyroscope_EulerData.yawoffset; // 应用限幅滤波
-    if (Gyroscope_EulerData.downcounter == GYROSCOPE_START_UP_DELAT - 1) {
+    if (Gyroscope_EulerData.downcounter == GYROSCOPE_START_UP_DELAY - 1) {
         Gyroscope_EulerData.yawoffset = -Gyroscope_EulerData.yaw;
     }
 

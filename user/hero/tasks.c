@@ -168,8 +168,11 @@ void Task_Sys_Init(void *Parameters) {
     MPU6500_Initialize();
     MPU6500_EnableInt();
 
+    // 遥控器数据初始化
+    DBUS_Init(&remoteData);
+
     while (1) {
-        if (Gyroscope_EulerData.downcounter == GYROSCOPE_START_UP_DELAT) {
+        if (Gyroscope_EulerData.downcounter == GYROSCOPE_START_UP_DELAY) {
             break;
         }
     }

@@ -23,8 +23,8 @@ void EXTI9_5_IRQHandler(void) //中断频率1KHz
         mpu6500_data.gz = (((int16_t) mpu_buf[12]) << 8) | mpu_buf[13];
         mpu6500_data.gz += mpu6500_data.gz_offset;
 
-#if GYROSCOPE_YAW_DOWN_COUNTER == 1
-        if (Gyroscope_EulerData.downcounter <= GYROSCOPE_START_UP_DELAT) {
+#if GYROSCOPE_YAW_START_UP_DELAY_ENABLED == 1
+        if (Gyroscope_EulerData.downcounter <= GYROSCOPE_START_UP_DELAY) {
             Gyroscope_EulerData.downcounter = Gyroscope_EulerData.downcounter + 1;
         }
 #endif

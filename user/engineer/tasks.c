@@ -40,8 +40,8 @@ void Task_Chassis(void *Parameters) {
         mode = ABS(remoteData.rx) < 5 ? 1 : 2;
 
         // 设置反馈值
-        yawAngleFeed = EulerAngle.Yaw;         // 航向角角度反馈
-        yawSpeedFeed = mpu6500_data.gz / 16.4; // 航向角角速度反馈
+        yawAngleFeed = Gyroscope_EulerData.yaw; // 航向角角度反馈
+        yawSpeedFeed = mpu6500_data.gz / 16.4;  // 航向角角速度反馈
 
         // 切换运动模式
         if (mode != lastMode) {
@@ -237,7 +237,7 @@ void Task_Debug_Magic_Send(void *Parameters) {
 
     while (1) {
         taskENTER_CRITICAL(); // 进入临界段
-        printf("Yaw: %f \r\n", EulerAngle.Yaw);
+        printf("Yaw: %f \r\n", Gyroscope_EulerData.yaw);
         taskEXIT_CRITICAL(); // 退出临界段
         vTaskDelayUntil(&LastWakeTime, 500);
     }
@@ -264,6 +264,9 @@ void Task_Sys_Init(void *Parameters) {
     MPU6500_Initialize();
     MPU6500_EnableInt();
 
+    // 遥控器数据初始化
+    DBUS_Init(&remoteData);
+
     // 调试任务
 #if DEBUG_ENABLED
     Magic_Init_Handle(&magic, 0); // 初始化调试数据的默认值
@@ -272,9 +275,6 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Debug_RTOS_State, "Task_Debug_RTOS_State", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Debug_Gyroscope_Sampling, "Task_Debug_Gyroscope_Sampling", 400, NULL, 6, NULL);
 #endif
-
-    // 高频任务
-    xTaskCreate(Task_Gyroscope, "Task_Gyroscope", 400, NULL, 5, NULL);
 
     // 功能任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
@@ -299,15 +299,5 @@ void Task_Blink(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, 250);
     }
 
-    vTaskDelete(NULL);
-}
-
-void Task_Gyroscope(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount();
-
-    while (1) {
-        Gyroscope_Update_Angle_Data();
-        vTaskDelayUntil(&LastWakeTime, 5);
-    }
     vTaskDelete(NULL);
 }
