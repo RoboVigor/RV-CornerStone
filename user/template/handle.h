@@ -46,7 +46,7 @@ __HANDLE_EXT MagicHandle_Type magic;
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
 // 视觉数据
-__HANDLE_EXT uint16_t PsData[17];
+__HANDLE_EXT PsData_Type PsData;
 
 /**
  * @brief 初始化结构体
