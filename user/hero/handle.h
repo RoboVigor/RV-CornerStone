@@ -17,7 +17,7 @@
 #include "Driver_Gyroscope.h"
 #include "Driver_Ps.h"
 #include "mpu6500_driver.h"
-#include "Driver_Judgesys.h"
+#include "Driver_Judge.h"
 
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT
@@ -54,10 +54,7 @@ __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_
 __HANDLE_EXT int debugA, debugB, debugC, debugD, debugE, debugF, debugG, debugH;
 
 //裁判系统
-__HANDLE_EXT uint8_t JudgeDataBuffer[JudgeBufferLength];
-__HANDLE_EXT extGameRobotState_t Judge_RobotState;
-__HANDLE_EXT extShootData_t Judge_ShootData;
-__HANDLE_EXT extPowerHeatData_t Judge_PowerHeatData;
+__HANDLE_EXT Judge_Type Judge;
 
 //功率
 __HANDLE_EXT float powerfeed;

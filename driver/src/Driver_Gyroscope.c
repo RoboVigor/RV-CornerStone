@@ -1,9 +1,10 @@
 #define __DRIVER_GYROSCOPE_GLOBALS
-#include "Driver_Gyroscope.h"
+#include "math.h"
 #include "Driver_Filter.h"
 #include "config.h"
 #include "MadgwickAHRS.h"
 #include "mpu6500_driver.h"
+#include "Driver_Gyroscope.h"
 
 static float rollAngle;
 static float pitchAngle;

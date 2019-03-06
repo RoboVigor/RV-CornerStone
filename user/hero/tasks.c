@@ -90,7 +90,7 @@ void Task_Chassis(void *Parameters) {
         lx           = -lx / 660.0f;
         ly           = ly / 660.0f * 3;
         followOutput = -followOutput / 660.0f * 12;
-        debugF       = Judge_PowerHeatData.chassisPower;
+        debugF       = Judge.powerHeatData.chassisPower;
         // 设置底盘总体移动速度
         Chassis_Update(&ChassisData, lx, ly, followOutput);
         // Chassis_Update(&ChassisData, lx, ly, 0);
@@ -124,7 +124,7 @@ void Task_Chassis(void *Parameters) {
 
 float Chassis_Power_Control(float VX, float VY) {
 
-    powerfeed = Judge_PowerHeatData.chassisPower;
+    powerfeed = Judge.powerHeatData.chassisPower;
     if (powerfeed >= 60) {
         PID_Calculate(&PID_Power, 700, powerfeed * 10);
 

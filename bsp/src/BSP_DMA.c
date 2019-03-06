@@ -1,4 +1,6 @@
 #include "BSP_DMA.h"
+#include "config.h"
+#include "handle.h"
 
 /**
  * @brief  DMA初始化

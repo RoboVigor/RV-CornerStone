@@ -1,12 +1,10 @@
-#include "BSP_GPIO.h"
-#include "BSP_DMA.h"
-#include "BSP_NVIC.h"
-#include "BSP_UART.h"
-#include "Driver_JudgeSys.h"
 /**
  * @brief 用户BSP
  * @note 该函数应该在task.c中被执行
  */
+
+#include "bsp.h"
+#include "handle.h"
 
 void BSP_USER_Init(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -48,7 +46,7 @@ void BSP_USER_Init(void) {
     // Judge
     DMA_InitStructure.DMA_Channel            = DMA_Channel_5;
     DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(&USART6->DR);
-    DMA_InitStructure.DMA_Memory0BaseAddr    = (uint32_t)(JudgeDataBuffer);
+    DMA_InitStructure.DMA_Memory0BaseAddr    = (uint32_t)(Judge.buf);
     DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
     DMA_InitStructure.DMA_BufferSize         = JudgeBufferLength;
     DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;

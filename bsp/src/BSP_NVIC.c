@@ -1,4 +1,5 @@
 #include "BSP_NVIC.h"
+#include "config.h"
 
 /**
  * @brief  中断初始化

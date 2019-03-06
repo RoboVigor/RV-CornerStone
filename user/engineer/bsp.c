@@ -1,11 +1,10 @@
-
-#include "BSP_GPIO.h"
-#include "config.h"
-
 /**
  * @brief 用户BSP
  * @note 该函数应该在task.c中被执行
  */
+
+#include "bsp.h"
+
 void BSP_USER_Init(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);

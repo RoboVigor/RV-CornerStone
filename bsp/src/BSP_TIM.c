@@ -1,4 +1,5 @@
 #include "BSP_TIM.h"
+#include "config.h"
 
 /**
  * @brief  TIM初始化

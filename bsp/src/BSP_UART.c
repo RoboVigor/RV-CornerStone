@@ -1,4 +1,5 @@
 #include "BSP_UART.h"
+#include "config.h"
 
 /**
  * @brief  UART初始化

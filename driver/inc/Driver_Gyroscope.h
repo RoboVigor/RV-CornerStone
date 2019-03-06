@@ -35,8 +35,3 @@ void Gyroscope_Update_Angle_Data(GyrosocopeData_Type *GyrosocopeData);
 float Gyroscope_Get_Filter_Diff(void);
 
 #endif
-
-#include "math.h"
-#include "Driver_Filter.h"
-#include "config.h"
-#include "MadgwickAHRS.h"

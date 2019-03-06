@@ -15,7 +15,7 @@
         <TargetCommonOption>
           <Device>STM32F427II</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.9.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.1.0.8</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x200000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -615,9 +615,9 @@
               <FilePath>..\driver\src\Driver_Ps.c</FilePath>
             </File>
             <File>
-              <FileName>Driver_Judgesys.c</FileName>
+              <FileName>Driver_Judge.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\driver\src\Driver_Judgesys.c</FilePath>
+              <FilePath>..\driver\src\Driver_Judge.c</FilePath>
             </File>
           </Files>
         </Group>
