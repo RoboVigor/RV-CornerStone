@@ -1,16 +1,6 @@
 #include "Driver_PID.h"
 #include "macro.h"
-#include "handle.h"
 
-/**
- * @brief PID初始化
- *
- * @param pid PID结构句柄
- * @param p P系数
- * @param i I系数
- * @param d D系数
- * @param maxOutput 最大输出值
- */
 void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput, float maxOutput_I) {
     pid->p         = p;
     pid->i         = i;
@@ -30,14 +20,6 @@ void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput, float m
     pid->lastOutput  = 0;
 }
 
-/**
- * @brief 计算PID输出值
- *
- * @param pid PID结构句柄
- * @param target 目标量
- * @param feedback 反馈量
- * @return int
- */
 int PID_Calculate(PID_Type *pid, float target, float feedback) {
     pid->lastTarget = pid->target;
     pid->target     = target;
@@ -74,11 +56,6 @@ int PID_Increment_Calculate(PID_Type *pid, float target, float feedback) {
     return pid->output;
 }
 
-/**
- * @brief 输出PID参量
- *
- * @param pid
- */
 void PID_Print(PID_Type *pid) {
     printf("PID(%f, %f, %d)\r\n", pid->target, pid->feedback, pid->output);
 }

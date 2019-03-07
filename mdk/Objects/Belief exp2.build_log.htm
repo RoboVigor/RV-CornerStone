@@ -21,38 +21,48 @@ Target DLL:      Segger\JL2CM3.dll V2.99.13.0
 Dialog DLL:      TCM.DLL V1.14.4.0
  
 <h2>Project:</h2>
-C:\Users\12168\Desktop\RV-CornerStone-Max\mdk\Belief exp2.uvprojx
-Project File Date:  11/07/2018
+C:\Users\12168\Desktop\RV\RV-CornerStone-develop-newFire\mdk\hero.uvprojx
+Project File Date:  03/07/2019
 
 <h2>Output:</h2>
 Build target 'Target 1'
-compiling Task_Function.c...
-..\user\debug.h(9): warning:  #1-D: last line of file ends without a newline
-  #include "key.h"
-..\task\src\Task_Function.c(18): warning:  #111-D: statement is unreachable
+compiling tasks.c...
+..\user\hero\tasks.c(16): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Function.c(70): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
-..\task\src\Task_Function.c(70): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
-..\task\src\Task_Function.c(70): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-          Chassis_Set_Speed((float) remoteData.lx / 660.0, (float) -remoteData.ly / 660.0, (float) PID_YawSpeed.output / 1320.0);
-..\task\src\Task_Function.c(88): warning:  #111-D: statement is unreachable
+..\user\hero\tasks.c(81): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+              lyDiff += 0.3;
+..\user\hero\tasks.c(85): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+              lyDiff += 0.3;
+..\user\hero\tasks.c(122): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Function.c(230): warning:  #111-D: statement is unreachable
+..\user\hero\tasks.c(131): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          return (float) (PID_Power.output + 1000) / 1000.0;
+..\user\hero\tasks.c(150): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Function.c(122): warning:  #177-D: variable "stirFlag" was declared but never referenced
+..\user\hero\tasks.c(271): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\user\hero\tasks.c(174): warning:  #177-D: variable "stirFlag" was declared but never referenced
       uint8_t stirFlag   = 0;
-..\task\src\Task_Function.c(251): warning:  #111-D: statement is unreachable
+..\user\hero\tasks.c(286): warning:  #223-D: function "BSP_USER_Init" declared implicitly
+      BSP_USER_Init();
+..\user\hero\tasks.c(293): warning:  #223-D: function "DBUS_Init" declared implicitly
+      DBUS_Init(&remoteData);
+..\user\hero\tasks.c(333): warning:  #111-D: statement is unreachable
       vTaskDelete(NULL);
-..\task\src\Task_Function.c: 9 warnings, 0 errors
+..\user\hero\tasks.c(393): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          MIAO(pitchDiff, -0.3, 0.3);
+..\user\hero\tasks.c(393): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+          MIAO(pitchDiff, -0.3, 0.3);
+..\user\hero\tasks.c(405): warning:  #111-D: statement is unreachable
+      vTaskDelete(NULL);
+..\user\hero\tasks.c: 14 warnings, 0 errors
 linking...
-Program Size: Code=30772 RO-data=780 RW-data=252 ZI-data=83540  
+Program Size: Code=32878 RO-data=1474 RW-data=328 ZI-data=84160  
 FromELF: creating hex file...
-".\Objects\Belief exp2.axf" - 0 Error(s), 9 Warning(s).
+".\Objects\Belief exp2.axf" - 0 Error(s), 14 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
-  C:\Users\12168\Desktop\RV-CornerStone-Max\mdk\RTE
+  C:\Users\12168\Desktop\RV\RV-CornerStone-develop-newFire\mdk\RTE
   C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\1.0.8\Device\Include
 
 <h2>Collection of Component Files used:</h2>
