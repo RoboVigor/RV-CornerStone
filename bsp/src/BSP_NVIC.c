@@ -77,4 +77,31 @@ void BSP_NVIC_Init(void) {
     NVIC_Init(&NVIC_InitStructure);
     TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
     TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+
+    /*// 微动开关
+    NVIC_InitStructure.NVIC_IRQChannel                   = EXTI9_5_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;      //子优先级1
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE; //使能外部中断通道
+    NVIC _Init(&NVIC_InitStructure);
+    */
+
+    //拨弹轮微动开关外部中断
+    EXTI_InitTypeDef EXTI_InitStructure;
+
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOF, EXTI_PinSource10); //将EXIT线9连接到PF10
+
+    EXTI_InitStructure.EXTI_Line    = EXTI_Line10;
+    EXTI_InitStructure.EXTI_Mode    = EXTI_Mode_Interrupt;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising; //上升沿触发
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;              //使能中断线
+    EXTI_Init(&EXTI_InitStructure);                        //初始化中断
+
+    NVIC_InitStructure.NVIC_IRQChannel                   = EXTI15_10_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
 }

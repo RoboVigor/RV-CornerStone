@@ -1,5 +1,8 @@
 #include "BSP_GPIO.h"
 #include "config.h"
+#include "stm32f4xx_exti.h"
+
+static uint8_t turnNumber = 0;
 
 /**
  * @brief  GPIO初始化
@@ -107,6 +110,22 @@ void BSP_GPIO_Init(void) {
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+    // 发射机构微动开关
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_10;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOF, &GPIO_InitStructure);
+
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_9;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOI, &GPIO_InitStructure);
+    GPIO_SetBits(GPIOI, GPIO_Pin_9);
 
 #if USER_POWER_ENABLED
     // User Power

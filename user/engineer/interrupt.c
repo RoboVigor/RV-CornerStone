@@ -67,7 +67,7 @@ void USART3_IRQHandler(void) {
 
     if ((magic.sta & 0x8000) == 0) { // 接收未完成
         if (magic.sta & 0x4000) {    // 接收到 0x0d
-            if (res != 0x0a)            // 接收错误，重新开始
+            if (res != 0x0a)         // 接收错误，重新开始
                 magic.sta = 0;
             else // 接收完成
                 magic.sta |= 0x8000;
@@ -97,7 +97,7 @@ void USART6_IRQHandler(void) {
 
     if ((magic.sta & 0x8000) == 0) { // 接收未完成
         if (magic.sta & 0x4000) {    // 接收到 0x0d
-            if (res != 0x0a)            // 接收错误，重新开始
+            if (res != 0x0a)         // 接收错误，重新开始
                 magic.sta = 0;
             else // 接收完成
                 magic.sta |= 0x8000;
