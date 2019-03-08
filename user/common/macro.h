@@ -14,6 +14,9 @@
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
+#define LASER_ON GPIO_SetBits(GPIOG, GPIO_Pin_13) // 激光开启
+#define LASER_OFF GPIO_ResetBits(GPIOG, GPIO_Pin_13) // 激光关闭
+
 /**
  * @brief 限流
  * @note

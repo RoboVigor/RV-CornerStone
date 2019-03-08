@@ -165,9 +165,6 @@ void Task_Fire(void *Parameters) {
     float      r            = 0.0595;
     // uint8_t    startCounter = 0;                   // 启动模式计数器
 
-#define LASER_ON GPIO_SetBits(GPIOG, GPIO_Pin_13) // 激光开启
-    // #define LASER_OFF GPIO_ResetBits(GPIOG, GPIO_Pin_13) // 激光关闭
-
     // 标志位
     uint8_t frictState = 0;
     uint8_t stirState  = 0;
