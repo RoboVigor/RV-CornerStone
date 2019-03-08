@@ -20,6 +20,7 @@ void  Task_Blink(void *Parameters);     // 确认存活
 void  Task_Chassis(void *Parameters);   // 底盘运动
 void  Task_Safe_Mode(void *Parameters); // 安全模式
 void  Task_Cloud(void *Parameters);     // 云台任务
+void  Task_Fire(void *Parameters);      // 发射机构
 float Chassis_Power_Control(float VX, float VY);
 
 #endif
