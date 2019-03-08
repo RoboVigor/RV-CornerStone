@@ -62,6 +62,11 @@ __HANDLE_EXT float powerfeed;
 // 视觉数据
 __HANDLE_EXT PsData_Type PsData;
 
+//发射机构
+__HANDLE_EXT Motor_Type Motor_LeftFrict, Motor_RightFrict, Motor_Stir; // 左/右 摩擦轮 拨弹轮 电机
+__HANDLE_EXT PID_Type PID_LeftFrictSpeed, PID_RightFrictSpeed;         // 左/右 摩擦轮 PID
+__HANDLE_EXT PID_Type PID_StirSpeed, PID_StirAnlge;                    // 拨弹轮 速度/角度 PID
+
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行
