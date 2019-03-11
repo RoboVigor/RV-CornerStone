@@ -83,6 +83,8 @@ void Task_Chassis(void *Parameters) {
 
 /**
  * @brief 取弹结构
+ * @try
+ * @problem
  * @keep
  *  + Can_Send 电流值：电机向里收时, Left > 0, Right < 0
  *  + 电机角度解析：电机往里收时, Left > 0, Right < 0
@@ -105,6 +107,9 @@ void Task_Take(void *Parameters) {
 
     while (1) {
 
+        // 控制代码
+        // 置位 3 - 初始状态，往里收
+        // 置位 1 - 夹取状态，向外旋转
         if (remoteData.switchLeft == 1) {
             targetAngle = target;
         } else if (remoteData.switchLeft == 3) {
@@ -126,8 +131,8 @@ void Task_Take(void *Parameters) {
         PID_Calculate(&PID_TakeRight_Speed, PID_TakeRight_Angle.output, Motor_TakeRight.speed * rpm2rps);
 
         // Can_Send(CAN1, 0x1FF, PID_TakeLeft_Speed.output, PID_TakeRight_Speed.output, 0, 0);
-        Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
 
+        // 读取电机角度值
         lastAngle = Motor_TakeLeft.angle;
 
         vTaskDelayUntil(&LastWakeTime, 10);
@@ -137,6 +142,8 @@ void Task_Take(void *Parameters) {
 
 /**
  * @brief 传动装置
+ * @try
+ * @problem
  * @keep
  *  + Motor_Tansmission 2006 CAN1 ID:7
  *  + 电流方向：正 往回
@@ -155,8 +162,12 @@ void Task_Transmission(void *Parameters) {
 
     while (1) {
 
+        // 读取电机角度值
         lastAngle = Motor_Transmission.angle;
 
+        // 控制代码
+        // 置位 3 - 向内传动
+        // 置位 1 - 向外传动
         if (remoteData.switchRight == 3) {
             targetAngle = 0;
             if (lastAngle > -20000 && Motor_Transmission.speed == 0) {
@@ -178,6 +189,10 @@ void Task_Transmission(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+/**
+ * @brief 引导轮
+ *
+ */
 void Task_GuideWheel(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      rpm2rps      = 3.14 / 60;           // 转子的转速(RPM,RoundPerMinute)换算成角速度(RadPerSecond)
@@ -200,6 +215,12 @@ void Task_GuideWheel(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+/**
+ * @brief 上岛气动控制
+ * @try
+ * @problem
+ * @keep
+ */
 void Task_BANG(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     int        cnt          = 0;

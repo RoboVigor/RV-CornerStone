@@ -19,8 +19,8 @@ void Task_Sys_Init(void *Parameters);     // 硬件初始化和任务初始化
 void Task_Blink(void *Parameters);        // 确认存活
 void Task_Chassis(void *Parameters);      // 底盘运动
 void Task_Safe_Mode(void *Parameters);    // 安全模式
-void Task_Take(void *Parameters);         // 取弹
-void Task_Transmission(void *Parameters); // 传动
-void Task_GuideWheel(void *Parameters);
-void Task_BANG(void *Parameters);
+void Task_Take(void *Parameters);         // 取弹装置
+void Task_Transmission(void *Parameters); // 传动装置
+void Task_GuideWheel(void *Parameters);   // 引导轮
+void Task_BANG(void *Parameters);         // 登岛气动控制
 #endif
