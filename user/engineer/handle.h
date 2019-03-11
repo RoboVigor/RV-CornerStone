@@ -29,6 +29,8 @@
 #define BANG_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_2);
 #define TAKE_ON GPIO_SetBits(GPIOA, GPIO_Pin_3);
 #define TAKE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3);
+#define POSITIVE_SUPPLY GPIO_ResetBits(GPIOI, GPIO_Pin_5 | GPIO_Pin_6);
+#define NEGATIVE_SUPPLY GPIO_SetBits(GPIOI, GPIO_Pin_5 | GPIO_Pin_6);
 
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;

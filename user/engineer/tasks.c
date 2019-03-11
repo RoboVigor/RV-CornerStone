@@ -116,11 +116,13 @@ void Task_Take(void *Parameters) {
             targetAngle = -30;
         }
 
-        // if (remoteData.switchRight == 1) {
-        //     TAKE_ON;
-        // } else if (remoteData.switchRight == 3) {
-        //     TAKE_OFF;
-        // }
+        if (remoteData.switchRight == 1) {
+            // TAKE_ON;
+            POSITIVE_SUPPLY;
+        } else if (remoteData.switchRight == 3) {
+            // TAKE_OFF;
+            NEGATIVE_SUPPLY;
+        }
 
         TAKE_OFF;
 
@@ -208,7 +210,7 @@ void Task_GuideWheel(void *Parameters) {
         PID_Increment_Calculate(&PID_RGW, -remoteData.ry, Motor_RGW.speed * rpm2rps);
 
         // 发送数据至电调
-        Can_Send(CAN2, 0x200, PID_LGW.output, PID_RGW.output, 0, 0);
+        // Can_Send(CAN2, 0x200, PID_LGW.output, PID_RGW.output, 0, 0);
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -229,9 +231,9 @@ void Task_BANG(void *Parameters) {
 
         // BANG !!!
         if (remoteData.switchRight == 1) {
-            BANG_ON;
+            // BANG_ON;
         } else if (remoteData.switchRight == 3) {
-            BANG_OFF;
+            // BANG_OFF;
         }
 
         vTaskDelayUntil(&LastWakeTime, 10);
