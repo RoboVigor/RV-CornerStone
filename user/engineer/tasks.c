@@ -285,6 +285,8 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Debug_Gyroscope_Sampling, "Task_Debug_Gyroscope_Sampling", 400, NULL, 6, NULL);
 #endif
 
+    // GREEN_LIGHT_ON;
+
     // 功能任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);

@@ -6,7 +6,7 @@
 #define DRIVER_VERSION_1_0 // 适配版本1.0
 
 // 硬件
-#define DEBUG_ENABLED 1       // 调试开关
+#define DEBUG_ENABLED 0       // 调试开关
 #define BOARD_VERSION 1       // 开发板型号, 0:旧板, 1:A板
 #define USER_POWER_ENABLED 1  // 24V用户电源开关
 #define USART3_ENABLED 1      // 串口3开关
