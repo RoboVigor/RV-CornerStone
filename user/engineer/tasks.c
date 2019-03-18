@@ -25,10 +25,10 @@ void Task_Chassis(void *Parameters) {
     float      yawAngleFeed, yawSpeedFeed;         // 反馈值
 
     // 初始化麦轮角速度PID
-    PID_Init(&PID_LFCM, 25, 0.15, 0, 4000, 2000);
-    PID_Init(&PID_LBCM, 25, 0.15, 0, 4000, 2000);
-    PID_Init(&PID_RBCM, 25, 0.15, 0, 4000, 2000);
-    PID_Init(&PID_RFCM, 25, 0.15, 0, 4000, 2000);
+    PID_Init(&PID_LFCM, 19, 0.15, 0, 4000, 2000);
+    PID_Init(&PID_LBCM, 19, 0.15, 0, 4000, 2000);
+    PID_Init(&PID_RBCM, 19, 0.15, 0, 4000, 2000);
+    PID_Init(&PID_RFCM, 19, 0.15, 0, 4000, 2000);
 
     // 初始化航向角角度PID和角速度PID
     PID_Init(&PID_YawAngle, 10, 0, 0, 1000, 1000);
@@ -74,6 +74,8 @@ void Task_Chassis(void *Parameters) {
         // 输出电流值到电调(安全起见默认注释此行)
         Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
+        DebugA = Motor_LF.speed;
+
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -106,31 +108,6 @@ void Task_Take(void *Parameters) {
     PID_Init(&PID_TakeRight_Angle, 14, 0, 0, 4000, 2000);
 
     while (1) {
-
-        // 控制代码
-        // 置位 3 - 初始状态，往里收
-        // 置位 1 - 夹取状态，向外旋转
-        if (remoteData.switchLeft == 1) {
-            targetAngle = target;
-        } else if (remoteData.switchLeft == 3) {
-            targetAngle = -30;
-        }
-
-        if (remoteData.switchRight == 1) {
-            // TAKE_ON;
-            POSITIVE_SUPPLY;
-        } else if (remoteData.switchRight == 3) {
-            // TAKE_OFF;
-            NEGATIVE_SUPPLY;
-        }
-
-        TAKE_OFF;
-
-        PID_Calculate(&PID_TakeLeft_Angle, targetAngle, Motor_TakeLeft.angle);
-        PID_Calculate(&PID_TakeRight_Angle, -targetAngle, Motor_TakeRight.angle);
-
-        PID_Calculate(&PID_TakeLeft_Speed, PID_TakeLeft_Angle.output, Motor_TakeLeft.speed * rpm2rps);
-        PID_Calculate(&PID_TakeRight_Speed, PID_TakeRight_Angle.output, Motor_TakeRight.speed * rpm2rps);
 
         // Can_Send(CAN1, 0x1FF, PID_TakeLeft_Speed.output, PID_TakeRight_Speed.output, 0, 0);
 
