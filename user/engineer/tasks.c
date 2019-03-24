@@ -109,10 +109,17 @@ void Task_Take(void *Parameters) {
 
     while (1) {
 
-        // Can_Send(CAN1, 0x1FF, PID_TakeLeft_Speed.output, PID_TakeRight_Speed.output, 0, 0);
+        if (remoteData.switchLeft == 1) {
+            TAKE_ON;
+        } else if (remoteData.switchLeft == 2) {
+            TAKE_OFF;
+        }
 
-        // 读取电机角度值
-        lastAngle = Motor_TakeLeft.angle;
+        if (remoteData.switchLeft == 3) {
+            BANG_ON;
+        } else {
+            BANG_OFF;
+        }
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
