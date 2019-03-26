@@ -23,4 +23,5 @@ void Task_Take(void *Parameters);         // 取弹装置
 void Task_Transmission(void *Parameters); // 传动装置
 void Task_GuideWheel(void *Parameters);   // 引导轮
 void Task_BANG(void *Parameters);         // 登岛气动控制
+void Task_Distance_Sensor(void *Parameters); // 距离传感器
 #endif

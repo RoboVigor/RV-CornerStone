@@ -237,6 +237,42 @@ void Task_Debug_Magic_Send(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_Distance_Sensor(void *Parameter){
+    TickType_t LastWakeTime = xTaskGetTickCount();
+
+    u8 sum=0,i=0;
+	u8 RangeStatus=0,Time=0,Mode=0;
+	int16_t data=0;
+	uint16_t distance=0;
+    extern u8 re_buf_Data[8],receive_ok;
+
+    while(1)
+	{
+
+        if(receive_ok)//串口接收完毕
+		    {
+			    for(sum=0,i=0;i<(re_buf_Data[3]+4);i++)//rgb_data[3]=3
+			    sum+=re_buf_Data[i];
+			    if(sum==re_buf_Data[i])//校验和判断
+			    {
+				    distance=re_buf_Data[4]<<8|re_buf_Data[5];
+				    RangeStatus=(re_buf_Data[6]>>4)&0x0f;
+				    Time=(re_buf_Data[6]>>2)&0x03;
+				    Mode=re_buf_Data[6]&0x03;
+			    }
+			    receive_ok=0;//处理数据完毕标志
+		    }
+
+
+
+        vTaskDelayUntil(&LastWakeTime, 10);
+        
+    }
+	
+
+    vTaskDelete(NULL);
+}
+
 void Task_Sys_Init(void *Parameters) {
     // 进入临界区
     taskENTER_CRITICAL();
@@ -279,6 +315,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_GuideWheel, "Task_GuideWheel", 400, NULL, 3, NULL);
     xTaskCreate(Task_BANG, "Task_BANG", 400, NULL, 3, NULL);
     xTaskCreate(Task_Transmission, "Task_Transmission", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Distance_Sensor,"Task_Distance_Sensor",400,NULL,3,NULL);
 
     // 完成使命
     vTaskDelete(NULL);

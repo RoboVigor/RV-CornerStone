@@ -114,6 +114,57 @@ void USART6_IRQHandler(void) {
     }
 }
 
+// 传感器串口中断配置
+void USART2_IRQHandler(void) {
+    static uint8_t i=0,recevie_data[20]={0};
+    u8 re_buf_Data[8]={0},receive_ok=0;
+
+     if (USART_GetFlagStatus(USART2, USART_FLAG_PE) != RESET){
+        USART_ReceiveData(USART2);
+        USART_ClearFlag(USART2, USART_FLAG_PE);
+   }
+    
+   if (USART_GetFlagStatus(USART2, USART_FLAG_ORE) != RESET){
+        USART_ReceiveData(USART2);
+        USART_ClearFlag(USART2, USART_FLAG_ORE);
+   }
+    
+    if (USART_GetFlagStatus(USART2, USART_FLAG_FE) != RESET){
+        USART_ReceiveData(USART2);
+        USART_ClearFlag(USART2, USART_FLAG_FE);
+   }
+
+	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)//判断接收标志
+	{
+        USART_ClearFlag(USART2, USART_FLAG_RXNE); // 试图解决问题
+        USART_ClearITPendingBit(USART2, USART_IT_RXNE); // 试图解决问题
+
+		recevie_data[i++]=USART_ReceiveData(USART2);//读取串口数据，同时清接收标志
+		if (recevie_data[0]!=0x5a)//帧头不对
+			i=0;	
+		if ((i==2)&&(recevie_data[1]!=0x5a))//帧头不对
+			i=0;
+	
+		if(i>3)//i等于4时，已经接收到数据量字节recevie_data[3]
+		{
+			if(i!=(recevie_data[3]+5))//判断是否接收一帧数据完毕
+				return;	
+			switch(recevie_data[2])//接收完毕后处理
+			{
+				case 0x15:
+					if(!receive_ok)//当数据处理完成后才接收新的数据
+					{
+						memcpy(re_buf_Data,recevie_data,8);//拷贝接收到的数据
+						receive_ok=1;//接收完成标志
+					}
+					break;
+			
+			}
+			i=0;//缓存清0
+		}
+	}
+}
+
 // CAN1数据接收中断服务函数
 void CAN1_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;

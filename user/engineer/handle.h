@@ -66,6 +66,9 @@ __HANDLE_EXT PsData_Type PsData;
 // 调试变量
 __HANDLE_EXT int DebugA, DebugB, DebugC, DebugD, DebugE, DebugF, DebugG, DebugH, DebugI;
 
+// 传感器返回值
+__HANDLE_EXT u8 re_buf_Data[8],receive_ok;
+
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行
