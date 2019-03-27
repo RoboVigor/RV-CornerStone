@@ -32,21 +32,21 @@ void Task_Chassis(void *Parameters) {
     float lyDiff = 0;
 
     // 初始化麦轮速度PID（步兵）
-    PID_Init(&PID_LFCM, 25, 0.5, 0, 3500, 1750); //  4400 5500 2750  0.18
-    PID_Init(&PID_LBCM, 25, 0.5, 0, 3500, 1750);
-    PID_Init(&PID_RBCM, 25, 0.5, 0, 3500, 1750);
-    PID_Init(&PID_RFCM, 25, 0.5, 0, 3500, 1750);
+    PID_Init(&PID_LFCM, 28, 0.5, 0, 3500, 1750); //  4400 5500 2750  0.18  25
+    PID_Init(&PID_LBCM, 28, 0.5, 0, 3500, 1750);
+    PID_Init(&PID_RBCM, 28, 0.5, 0, 3500, 1750);
+    PID_Init(&PID_RFCM, 28, 0.5, 0, 3500, 1750);
 
     // 初始化底盘跟随PID(步兵)
-    PID_Init(&PID_Follow_Angle, 17, 0, 0, 500, 0);   // 20
-    PID_Init(&PID_Follow_Speed, 0.22, 0, 0, 660, 0); // 0.024  0.12
+    PID_Init(&PID_Follow_Angle, 8, 0, 0, 500, 0);   // 17
+    PID_Init(&PID_Follow_Speed, 0.8, 0, 0, 660, 0); // 0.22
 
     //功率PID
     PID_Init(&PID_Power, 0.5, 0.02, 0, 1000, 500); // 0.5 0.12  //0.2  0.05
 
     while (1) {
 
-        if (Motor_Pitch.angle < 3 && Motor_Pitch.angle > -3) {
+        if (Motor_Pitch.angle < 2 && Motor_Pitch.angle > -2) {
             followOutput = 0; //偏差小于3度认为跟上
         } else {
             //计算followpid
@@ -67,29 +67,29 @@ void Task_Chassis(void *Parameters) {
             lyDiff = 0;
         }
 
-        if (lx >= 90 && lxLast < lx) {
-            lx = 90 + lxDiff;
+        if (lx >= 200 && lxLast < lx) { // 90
+            lx = 200 + lxDiff;
             lxDiff++;
             lxLast = lx;
-        } else if (lx <= -90 && lxLast > lx) {
-            lx = -90 - lxDiff;
+        } else if (lx <= -200 && lxLast > lx) {
+            lx = -200 - lxDiff;
             lxDiff++;
             lxLast = lx;
         }
         if (ly > 120 && lyLast < ly) {
             ly = 120 + lyDiff;
-            lyDiff += 0.3;
+            lyDiff += 0.5;
             lyLast = ly;
         } else if (ly < -120 && lyLast > ly) {
             ly = -120 - lyDiff;
-            lyDiff += 0.3;
+            lyDiff += 0.5;
             lyLast = ly;
         }
 
         // 修正转向力
         lx           = -lx / 660.0f;
         ly           = ly / 660.0f * 3;
-        followOutput = -followOutput / 660.0f * 12;
+        followOutput = -followOutput / 660.0f * 12; // 12
         debugF       = Judge.powerHeatData.chassisPower;
         // 设置底盘总体移动速度
         Chassis_Update(&ChassisData, lx, ly, followOutput);
@@ -99,7 +99,7 @@ void Task_Chassis(void *Parameters) {
         Chassis_Get_Rotor_Speed(&ChassisData, rotorSpeed);
 
         // 根据功率限幅
-        powerScale    = Chassis_Power_Control(lx, ly);
+        // powerScale    = Chassis_Power_Control(lx, ly);
         rotorSpeed[0] = rotorSpeed[0] * powerScale;
         rotorSpeed[1] = rotorSpeed[1] * powerScale;
         rotorSpeed[2] = rotorSpeed[2] * powerScale;
@@ -193,7 +193,7 @@ void Task_Fire(void *Parameters) {
         // }
 
         frictState = 1;
-        stirState  = 3;
+        stirState  = 2;
         // 摩擦轮 PID 控制
         if (frictState == 0) {
             // LASER_OFF;                                                                          // 关闭激光
@@ -376,12 +376,12 @@ void Task_Cloud(void *Parameters) {
         if (remoteData.rx <= 10 && remoteData.rx >= -10) {
             yawDiff = 0;
         } else {
-            yawDiff = remoteData.rx / 660.0f;
+            yawDiff = remoteData.rx / 660.0f * 2;
         }
         MIAO(yawDiff, -1, 1);
         yawTargetAngle = yawTargetAngle + yawDiff;
 
-        if (remoteData.ry <= 10 && remoteData.ry >= -10) {
+        if (remoteData.ry <= 30 && remoteData.ry >= -30) {
             pitchDiff = 0;
         } else {
             pitchDiff = remoteData.ry / 2200.0f;
@@ -394,7 +394,6 @@ void Task_Cloud(void *Parameters) {
         PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawFeedAngularSpeed);
         PID_Calculate(&PID_Cloud_PitchAngle, pitchTargetAngle, pitchFeedAngle);
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchFeedAngularSpeed);
-        // Can_Send(CAN1, 0x1FF, PID_Cloud_PitchSpeed.output, PID_Cloud_YawSpeed.output, 0, 0);
 
         Can_Send(CAN1, 0x1FF, PID_Cloud_PitchSpeed.output, PID_Cloud_YawSpeed.output, 0, 0);
         vTaskDelayUntil(&LastWakeTime, 5);

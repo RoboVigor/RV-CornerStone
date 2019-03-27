@@ -16,8 +16,8 @@ void Handle_Init(void) {
     Motor_Init(&Motor_RightFrict, 1, 0);
     Motor_Init(&Motor_Stir, 36, 1);
 
+    Motor_Pitch.positionBias        = 1300;
     Gyroscope_EulerData.downcounter = 0;
     Motor_Init(&Motor_Yaw, 1.0, 1);
-    Motor_Yaw.positionBias = 2720;
     Motor_Init(&Motor_Pitch, 1.0, 1);
 }
