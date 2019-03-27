@@ -105,7 +105,6 @@ void Task_Chassis(void *Parameters) {
         rotorSpeed[2] = rotorSpeed[2] * powerScale;
         rotorSpeed[3] = rotorSpeed[3] * powerScale;
         debugH        = powerScale;
-        debugG        = powerfeed;
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * rpm2rps);
@@ -157,7 +156,6 @@ void Task_Debug_Magic_Send(void *Parameters) {
  */
 
 int turnNumber = 1;
-int lastSwitch = 2; //
 
 void Task_Fire(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -169,18 +167,19 @@ void Task_Fire(void *Parameters) {
     uint8_t frictState = 0;
     uint8_t stirState  = 0;
     uint8_t stirFlag   = 0;
+    int     lastSwitch = 0;
 
     // 常量
     // float frictSpeed = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
     // 摩擦轮线速度(mps)转转速(rpm)
     float frictSpeed = 336; // 336 rad/s
-    float stirSpeed  = 36;
+    float stirSpeed  = -40;
 
     // PID 初始化
     PID_Init(&PID_LeftFrictSpeed, 25, 0.5, 0, 20000, 6000);  // 4 0.08 0    6000  1000
     PID_Init(&PID_RightFrictSpeed, 25, 0.5, 0, 20000, 6000); // 10 0.08           1000
     PID_Init(&PID_StirAnlge, 12, 0.01, 0, 4000, 2000);       // 12 0.01
-    PID_Init(&PID_StirSpeed, 5, 0, 0, 4000, 2000);           // 5
+    PID_Init(&PID_StirSpeed, 5, 0.2, 0, 4000, 2000);         // 5
 
     while (1) {
         // Debug Code
@@ -191,9 +190,12 @@ void Task_Fire(void *Parameters) {
         //     frictState = 0;
         //     stirState  = 0;
         // }
+        if (remoteData.switchRight == 1) {
+            frictState = 1;
+        } else if (remoteData.switchRight == 3) {
+            frictState = 0;
+        }
 
-        frictState = 1;
-        stirState  = 2;
         // 摩擦轮 PID 控制
         if (frictState == 0) {
             // LASER_OFF;                                                                          // 关闭激光
@@ -213,53 +215,60 @@ void Task_Fire(void *Parameters) {
             // Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
             PID_Calculate(&PID_LeftFrictSpeed, frictSpeed, Motor_LeftFrict.speed * rpm2rps);    // 左摩擦轮转动
             PID_Calculate(&PID_RightFrictSpeed, -frictSpeed, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮转动
-            Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
+            Can_Send(CAN2, 0x200, PID_RightFrictSpeed.output, PID_LeftFrictSpeed.output, 0, 0);
             // Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, 0, 0, 0);
             // Can_Send(CAN2, 0x200, -1000, 1000, 0, 0);
             // Can_Send(CAN2, 0x200, -500, 500, 0, 0);
         }
-
-        if (remoteData.switchLeft == 3) {
-            lastSwitch = 3;
+        if (remoteData.switchLeft == 1) {
+            TIM_SetCompare1(TIM4, 15);
         }
-
-        if (remoteData.switchLeft == 2 && lastSwitch == 3) {
-            turnNumber++;
-            lastSwitch = 2;
+        if (remoteData.switchLeft == 2) {
+            stirState = 2;
+        } else if (remoteData.switchLeft == 3) {
+            // lastSwitch = 3;
+            stirState = 0;
+            TIM_SetCompare1(TIM4, 7);
         }
+        debugG = PID_StirSpeed.output;
+        // else if (remoteData.switchLeft == 2 && lastSwitch == 3) {
+        //     stirState = 3;
+        //     turnNumber++;
+        //     lastSwitch = 2;
+        // }
 
         //拨弹轮 PID 控制
         if (stirState == 0) { // 停止模式
             PID_Increment_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed * rpm2rps);
+            // }
+            // else if (stirState == 1) { // 三连发模式
+            //                              //     // Debug Code
+            //                              //     // if (stirFlag < 3) {
+            //                              //     //     stirFlag++;
+            //                              //     //     PID_Increment_Calculate(&PID_StirAnlge, (Motor_Stir.angle - 36 * 60), Motor_Stir.angle);
+            //                              //     //     PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed);
+            //                              //     //     Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+            //                              //     // } else {
+            //                              //     //     PID_Increment_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed * rpm2rps);
+            //                              //     //     Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+            //                              //     // }
 
-        } else if (stirState == 1) { // 三连发模式
-                                     //     // Debug Code
-                                     //     // if (stirFlag < 3) {
-                                     //     //     stirFlag++;
-                                     //     //     PID_Increment_Calculate(&PID_StirAnlge, (Motor_Stir.angle - 36 * 60), Motor_Stir.angle);
-                                     //     //     PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed);
-                                     //     //     Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
-                                     //     // } else {
-                                     //     //     PID_Increment_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed * rpm2rps);
-                                     //     //     Can_Send(CAN1, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
-                                     //     // }
-
-            PID_Increment_Calculate(&PID_StirAnlge, (Motor_Stir.angle - 60), Motor_Stir.angle);
-            PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed);
-            Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+            //     PID_Increment_Calculate(&PID_StirAnlge, (Motor_Stir.angle - 60), Motor_Stir.angle);
+            //     PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed);
+            //     Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         } else if (stirState == 2) { // 连发模式
             PID_Increment_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * rpm2rps);
-            Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
-        } else if (stirState == 3) { // 单点测试模式
-            PID_Increment_Calculate(&PID_StirAnlge, -turnNumber * 60, Motor_Stir.angle);
-            // PID_Increment_Calculate(&PID_StirAnlge, 0, Motor_Stir.angle);
-            PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed * 2 * rpm2rps);
-            // PID_Increment_Calculate(&PID_StirSpeed, 100, Motor_Stir.speed);
-            Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
-        } else if (stirState == 4) { // 直接给电流
-            Can_Send(CAN2, 0x1FF, 0, 0, 500, 0);
+            //     Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+            // } else if (stirState == 3) { // 单点测试模式
+            //     PID_Increment_Calculate(&PID_StirAnlge, -turnNumber * 60, Motor_Stir.angle);
+            //     // PID_Increment_Calculate(&PID_StirAnlge, 0, Motor_Stir.angle);
+            //     PID_Increment_Calculate(&PID_StirSpeed, PID_StirAnlge.output, Motor_Stir.speed * 2 * rpm2rps);
+            //     // PID_Increment_Calculate(&PID_StirSpeed, 100, Motor_Stir.speed);
+            //     Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+            // } else if (stirState == 4) { // 直接给电流
         }
-
+        // Can_Send(CAN2, 0x1FF, 0, 0, 500, 0);
+        Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         // Decode_JudgeData();
 
         vTaskDelayUntil(&LastWakeTime, 10);
@@ -376,7 +385,7 @@ void Task_Cloud(void *Parameters) {
         if (remoteData.rx <= 10 && remoteData.rx >= -10) {
             yawDiff = 0;
         } else {
-            yawDiff = remoteData.rx / 660.0f * 2;
+            yawDiff = remoteData.rx / 660.0f;
         }
         MIAO(yawDiff, -1, 1);
         yawTargetAngle = yawTargetAngle + yawDiff;
