@@ -24,13 +24,17 @@
 #define __HANDLE_EXT extern
 #endif
 
-// GPIO
-#define BANG_ON GPIO_SetBits(GPIOA, GPIO_Pin_2);
-#define BANG_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_2);
+/**** GPIO ****/
+// Landing
+#define LANDING_SWITCH_FRONT GPIO_SetBits(GPIOH, GPIO_Pin_11);
+#define LANDING_SWITCH_BEHIND GPIO_ResetBits(GPIOH, GPIO_Pin_11);
+#define LANDING_POWER_ON GPIO_SetBits(GPIOH, GPIO_Pin_12);
+#define LANDING_POWER_OFF GPIO_ResetBits(GPIOH, GPIO_Pin_12);
+
 #define TAKE_ON GPIO_SetBits(GPIOA, GPIO_Pin_3);
 #define TAKE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3);
-#define POSITIVE_SUPPLY GPIO_ResetBits(GPIOI, GPIO_Pin_5 | GPIO_Pin_6);
-#define NEGATIVE_SUPPLY GPIO_SetBits(GPIOI, GPIO_Pin_5 | GPIO_Pin_6);
+// #define POSITIVE_SUPPLY GPIO_ResetBits(GPIOI, GPIO_Pin_5 | GPIO_Pin_6);
+// #define NEGATIVE_SUPPLY GPIO_SetBits(GPIOI, GPIO_Pin_5 | GPIO_Pin_6);
 
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
@@ -67,7 +71,7 @@ __HANDLE_EXT PsData_Type PsData;
 __HANDLE_EXT int DebugA, DebugB, DebugC, DebugD, DebugE, DebugF, DebugG, DebugH, DebugI;
 
 // 传感器返回值
-__HANDLE_EXT u8 re_buf_Data[8],receive_ok;
+__HANDLE_EXT u8 re_buf_Data[8], receive_ok;
 
 /**
  * @brief 初始化结构体

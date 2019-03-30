@@ -83,16 +83,6 @@ void Task_Chassis(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-/**
- * @brief 取弹结构
- * @try
- * @problem
- * @keep
- *  + Can_Send 电流值：电机向里收时, Left > 0, Right < 0
- *  + 电机角度解析：电机往里收时, Left > 0, Right < 0
- *  + Motor_TakeLeft 3508 CAN1 ID:5
- *  + Motor_TakeRight 3508 CAN1 ID:6
- */
 void Task_Take(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     float      rpm2rps      = 3.14 / 60; // 转子的转速(RPM,RoundPerMinute)换算成角速度(RadPerSecond)
@@ -110,30 +100,21 @@ void Task_Take(void *Parameters) {
     while (1) {
 
         if (remoteData.switchLeft == 1) {
-            TAKE_ON;
+            // TAKE_ON;
         } else if (remoteData.switchLeft == 2) {
-            TAKE_OFF;
+            // TAKE_OFF;
         }
 
         if (remoteData.switchLeft == 3) {
-            BANG_ON;
+            // BANG_ON;
         } else {
-            BANG_OFF;
+            // BANG_OFF;
         }
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
     vTaskDelete(NULL);
 }
-
-/**
- * @brief 传动装置
- * @try
- * @problem
- * @keep
- *  + Motor_Tansmission 2006 CAN1 ID:7
- *  + 电流方向：正 往回
- */
 
 void Task_Transmission(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
@@ -175,10 +156,6 @@ void Task_Transmission(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-/**
- * @brief 引导轮
- *
- */
 void Task_GuideWheel(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      rpm2rps      = 3.14 / 60;           // 转子的转速(RPM,RoundPerMinute)换算成角速度(RadPerSecond)
@@ -201,23 +178,37 @@ void Task_GuideWheel(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-/**
- * @brief 上岛气动控制
- * @try
- * @problem
- * @keep
- */
 void Task_BANG(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
-    int        cnt          = 0;
+    uint8_t    bangMode     = 0;
+    uint8_t    powerMode    = 0;
 
     while (1) {
 
-        // BANG !!!
-        if (remoteData.switchRight == 1) {
-            // BANG_ON;
-        } else if (remoteData.switchRight == 3) {
-            // BANG_OFF;
+        // Monitor
+        if (remoteData.switchLeft == 3) {
+            bangMode = 0;
+        } else if (remoteData.switchLeft == 1) {
+            bangMode = 1;
+        }
+        if (remoteData.switchRight == 3) {
+            powerMode = 0;
+        } else if (remoteData.switchRight == 1) {
+            powerMode = 1;
+        }
+
+        // Switch Control
+        if (bangMode == 0) {
+            LANDING_SWITCH_FRONT;
+        } else if (bangMode == 1) {
+            LANDING_SWITCH_BEHIND;
+        }
+
+        // Power Control
+        if (powerMode == 0) {
+            LANDING_POWER_OFF;
+        } else if (powerMode == 1) {
+            LANDING_POWER_ON;
         }
 
         vTaskDelayUntil(&LastWakeTime, 10);
@@ -237,38 +228,33 @@ void Task_Debug_Magic_Send(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_Distance_Sensor(void *Parameter){
+void Task_Distance_Sensor(void *Parameter) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    u8 sum=0,i=0;
-	u8 RangeStatus=0,Time=0,Mode=0;
-	int16_t data=0;
-	uint16_t distance=0;
-    extern u8 re_buf_Data[8],receive_ok;
+    u8        sum = 0, i = 0;
+    u8        RangeStatus = 0, Time = 0, Mode = 0;
+    int16_t   data     = 0;
+    uint16_t  distance = 0;
+    extern u8 re_buf_Data[8], receive_ok;
 
-    while(1)
-	{
+    while (1) {
 
-        if(receive_ok)//串口接收完毕
-		    {
-			    for(sum=0,i=0;i<(re_buf_Data[3]+4);i++)//rgb_data[3]=3
-			    sum+=re_buf_Data[i];
-			    if(sum==re_buf_Data[i])//校验和判断
-			    {
-				    distance=re_buf_Data[4]<<8|re_buf_Data[5];
-				    RangeStatus=(re_buf_Data[6]>>4)&0x0f;
-				    Time=(re_buf_Data[6]>>2)&0x03;
-				    Mode=re_buf_Data[6]&0x03;
-			    }
-			    receive_ok=0;//处理数据完毕标志
-		    }
-
-
+        if (receive_ok) //串口接收完毕
+        {
+            for (sum = 0, i = 0; i < (re_buf_Data[3] + 4); i++) // rgb_data[3]=3
+                sum += re_buf_Data[i];
+            if (sum == re_buf_Data[i]) //校验和判断
+            {
+                distance    = re_buf_Data[4] << 8 | re_buf_Data[5];
+                RangeStatus = (re_buf_Data[6] >> 4) & 0x0f;
+                Time        = (re_buf_Data[6] >> 2) & 0x03;
+                Mode        = re_buf_Data[6] & 0x03;
+            }
+            receive_ok = 0; //处理数据完毕标志
+        }
 
         vTaskDelayUntil(&LastWakeTime, 10);
-        
     }
-	
 
     vTaskDelete(NULL);
 }
@@ -315,7 +301,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_GuideWheel, "Task_GuideWheel", 400, NULL, 3, NULL);
     xTaskCreate(Task_BANG, "Task_BANG", 400, NULL, 3, NULL);
     xTaskCreate(Task_Transmission, "Task_Transmission", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Distance_Sensor,"Task_Distance_Sensor",400,NULL,3,NULL);
+    xTaskCreate(Task_Distance_Sensor, "Task_Distance_Sensor", 400, NULL, 3, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
