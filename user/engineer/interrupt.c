@@ -259,6 +259,59 @@ void TIM2_IRQHandler(void) {
     }
 }
 
+/** 
+ * @TIM5 输入捕获
+ * 捕获状态
+ * [7]:0,没有成功的捕获;1,成功捕获到一次. 
+ * [6]:0,还没捕获到低电平;1,已经捕获到低电平了. 
+ * [5:0]:捕获低电平后溢出的次数(对于 32 位定时器来说,1us 计数器加 1,溢出时间:4294 秒)
+ */
+// TIM5 输入捕获初始化
+u8  TIM5CH1_CAPTURE_STA=0; //输入捕获状态 
+u32 TIM5CH1_CAPTURE_VAL; //输入捕获值(TIM2/TIM5 是 32 位) 
+
+void TIM5_IRQHandler(void)  {
+    // 还未成功捕获
+    if((TIM5CH1_CAPTURE_STA&0X80)==0) {
+        // 溢出(在此应用中不会溢出)
+        // if(TIM_GetITStatus(TIM5, TIM_IT_Update) != RESET) {
+        //     // 已经捕获到高电平了 
+        //     if(TIM5CH1_CAPTURE_STA&0X40) {
+        //         // 高电平太长
+        //         if((TIM5CH1_CAPTURE_STA&0X3F)==0X3F) {
+        //             TIM5CH1_CAPTURE_STA|=0X80; // 标记成功捕获一次
+        //             TIM5CH1_CAPTURE_VAL=0XFFFFFFFF; 
+        //         } else {
+        //             TIM5CH1_CAPTURE_STA++; 
+        //         }
+        //     }
+        // }
+        // 捕获 1 发生捕获事件 
+        if(TIM_GetITStatus(TIM5, TIM_IT_CC1) != RESET) {
+            // 捕获到一个下降沿 
+            if(TIM5CH1_CAPTURE_STA&0X40) {
+                //标记成功捕获到一次高电平脉宽 
+                TIM5CH1_CAPTURE_STA|=0X80;
+                //获取当前的捕获值
+                TIM5CH1_CAPTURE_VAL=TIM_GetCapture1(TIM5);
+                //设置上升沿捕获 
+                TIM_OC1PolarityConfig(TIM5,TIM_ICPolarity_Rising); 
+            } else {
+                TIM5CH1_CAPTURE_STA=0; // 清空
+                TIM5CH1_CAPTURE_VAL=0;
+                TIM5CH1_CAPTURE_STA|=0X40; //标记捕获到了上升沿 
+                TIM_Cmd(TIM5, ENABLE);  //使能定时器 5 
+                TIM_SetCounter(TIM5,0); //计数器清空
+                TIM_OC1PolarityConfig(TIM5,TIM_ICPolarity_Falling);//设置下降沿捕获 
+                TIM_Cmd(TIM5,ENABLE );  //使能定时器 5
+            }
+
+        }
+    }
+    
+    TIM_ClearITPendingBit(TIM5, TIM_IT_CC1|TIM_IT_Update); //清除中断标志位 
+}
+
 /**
  * @brief  This function handles NMI exception.
  * @param  None

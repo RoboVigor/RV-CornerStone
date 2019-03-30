@@ -231,30 +231,58 @@ void Task_Debug_Magic_Send(void *Parameters) {
 void Task_Distance_Sensor(void *Parameter) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    u8        sum = 0, i = 0;
-    u8        RangeStatus = 0, Time = 0, Mode = 0;
-    int16_t   data     = 0;
-    uint16_t  distance = 0;
-    extern u8 re_buf_Data[8], receive_ok;
+    // 通过PWM波读取距离信息
+    int time = 0;
+    extern u8  TIM5CH1_CAPTURE_STA; //输入捕获状态 
+    extern u32 TIM5CH1_CAPTURE_VAL; //输入捕获值 
+    uint16_t distance = 0;
+    uint16_t temp = 0; 
 
     while (1) {
+        //成功捕获到了一次高电平 
+        if(TIM5CH1_CAPTURE_STA&0X80) {
+            temp=TIM5CH1_CAPTURE_STA&0X3F; 
+            // temp*=0XFFFFFFFF; //溢出时间总和
+            temp+=TIM5CH1_CAPTURE_VAL; //得到总的高电平时间 
 
-        if (receive_ok) //串口接收完毕
-        {
-            for (sum = 0, i = 0; i < (re_buf_Data[3] + 4); i++) // rgb_data[3]=3
-                sum += re_buf_Data[i];
-            if (sum == re_buf_Data[i]) //校验和判断
-            {
-                distance    = re_buf_Data[4] << 8 | re_buf_Data[5];
-                RangeStatus = (re_buf_Data[6] >> 4) & 0x0f;
-                Time        = (re_buf_Data[6] >> 2) & 0x03;
-                Mode        = re_buf_Data[6] & 0x03;
+            if (temp < 40000 && temp > 500) {
+                distance = temp / 100; // cm us
             }
-            receive_ok = 0; //处理数据完毕标志
-        }
 
+            DebugZ = distance;
+
+            TIM5CH1_CAPTURE_STA=0; // 开启下一次捕获
+        }
+        
         vTaskDelayUntil(&LastWakeTime, 10);
+        
     }
+
+    // 串口2读取传感器MCU信息
+    // u8        sum = 0, i = 0;
+    // u8        RangeStatus = 0, Time = 0, Mode = 0;
+    // int16_t   data     = 0;
+    // uint16_t  distance = 0;
+    // extern u8 re_buf_Data[8], receive_ok;
+
+    // while (1) {
+
+    //     if (receive_ok) //串口接收完毕
+    //     {
+    //         for (sum = 0, i = 0; i < (re_buf_Data[3] + 4); i++) // rgb_data[3]=3
+    //             sum += re_buf_Data[i];
+    //         if (sum == re_buf_Data[i]) //校验和判断
+    //         {
+    //             distance    = re_buf_Data[4] << 8 | re_buf_Data[5];
+    //             RangeStatus = (re_buf_Data[6] >> 4) & 0x0f;
+    //             Time        = (re_buf_Data[6] >> 2) & 0x03;
+    //             Mode        = re_buf_Data[6] & 0x03;
+    //         }
+    //         receive_ok = 0; //处理数据完毕标志
+    //     }
+
+    //     vTaskDelayUntil(&LastWakeTime, 10);
+    // }
 
     vTaskDelete(NULL);
 }

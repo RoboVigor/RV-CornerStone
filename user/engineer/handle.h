@@ -69,9 +69,16 @@ __HANDLE_EXT PsData_Type PsData;
 
 // 调试变量
 __HANDLE_EXT int DebugA, DebugB, DebugC, DebugD, DebugE, DebugF, DebugG, DebugH, DebugI;
+__HANDLE_EXT uint16_t DebugZ;
 
 // 传感器返回值
 __HANDLE_EXT u8 re_buf_Data[8], receive_ok;
+
+// 传感器距离
+__HANDLE_EXT uint16_t distance;
+
+// 取弹状态
+__HANDLE_EXT int take_state;
 
 /**
  * @brief 初始化结构体
