@@ -1,5 +1,5 @@
 /**
- * @brief 甩锅小车
+ * @brief 哨兵
  * @version 0.8.0
  */
 #include "main.h"
@@ -15,30 +15,31 @@ void Task_Safe_Mode(void *Parameters) {
   vTaskDelete(NULL);
 }
 
-int debug1 = 0;
+// int debug1 = 0;
 
 void Task_Chassis(void *Parameters) {
   TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
   float rpm2rps =
       0.104667f; // 转子的转速(round/min)换算成角速度(rad/s) = 2 * 3.14 / 60
 
-  // 初始化麦轮角速度PID
-  PID_Init(&PID_LFCM, 30, 0, 0, 4000, 2000);
-  PID_Init(&PID_RFCM, 30, 0, 0, 4000, 2000);
+  // 初始化角速度PID
+  PID_Init(&PID_Motor_Chassis_Left, 15, 0, 0, 4000, 2000);
+  PID_Init(&PID_Motor_Chassis_Right, 15, 0, 0, 4000, 2000);
+  PID_Init(&PID_Stabilizer_Yaw_Speed, 5, 0, 0, 4000, 2000);
 
   while (1) {
     // 计算输出电流PID
-    PID_Calculate(&PID_LFCM, (float)remoteData.ly / 5.0f,
-                  Motor_LF.speed * rpm2rps);
-    PID_Calculate(&PID_RFCM, (float)remoteData.ly / 5.0f,
-                  Motor_RF.speed * rpm2rps);
+    PID_Calculate(&PID_LFCM, (float)remoteData.lx,
+                  Motor_Chassis_Left.speed * rpm2rps);
+    PID_Calculate(&PID_RFCM, (float)remoteData.lx,
+                  Motor_Chassis_Right.speed * rpm2rps);
+    PID_Calculate(&PID_Stabilizer_Yaw_Speed, (float)remoteData.rx,
+                  Motor_Stabilizer_Yaw.speed * rpm2rps);
 
-    debug1 = PID_LFCM.output;
-    // 输出电流值到电调(安全起见默认注释此行)
-    // if (remoteData.ly > 20) {
-    //         RED_LIGHT_ON;
-    Can_Send(CAN1, 0x200, PID_LFCM.output, PID_RFCM.output, 0, 0);
-    //}
+    // 输出电流值到电调
+    Can_Send(CAN1, 0x200, PID_Motor_Chassis_Left.output,
+             PID_Motor_Chassis_Right.output, PID_Stabilizer_Yaw_Speed.output,
+             0);
 
     // 底盘运动更新频率
     vTaskDelayUntil(&LastWakeTime, 10);

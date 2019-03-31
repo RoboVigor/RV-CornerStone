@@ -28,7 +28,8 @@
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 电机
-__HANDLE_EXT Motor_Type Motor_LF, Motor_RF;
+__HANDLE_EXT Motor_Type Motor_Chassis_Left, Motor_Chassis_Right,
+    Motor_Stabilizer_Yaw;
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
@@ -41,8 +42,10 @@ __HANDLE_EXT volatile GyrosocopeData_Type Gyroscope_EulerData;
 __HANDLE_EXT MagicHandle_Type magic;
 
 // 底盘
-__HANDLE_EXT ChassisData_Type ChassisData;
-__HANDLE_EXT PID_Type PID_LFCM, PID_RFCM;
+__HANDLE_EXT PID_Type PID_Chassis_Left, PID_Chassis_Right;
+
+// 云台
+__HANDLE_EXT PID_Type PID_Stabilizer_Yaw_Angle, PID_Stabilizer_Yaw_Speed;
 
 // 视觉数据
 __HANDLE_EXT PsData_Type PsData;
