@@ -56,7 +56,7 @@ void BSP_USER_Init(void) {
     TIM_Cmd(TIM8, ENABLE);
     TIM_CtrlPWMOutputs(TIM8, ENABLE);
 
-    /**** Landing ****/
+    /**** LANDING ****/
 
     // Switch - PH11
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
@@ -77,8 +77,12 @@ void BSP_USER_Init(void) {
     /**** RESCUE ****/
 
     // HOOK - PI0
-
-    /**** RESCUE END ****/
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOI, &GPIO_InitStructure);
 
     /**** SUPPLY ****/
 
@@ -160,6 +164,9 @@ void BSP_USER_Init(void) {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
+    // Sensor1 - PI7 - TIM8 Channel 3 - PWM INPUT CAPTURE
+    // Sensor2 - PI2 - TIM8 Channel 4 - PWM INPUT CAPTURE
+
     // Distance_Sensor - PH10 - TIM5 Channel 1 - PWM INPUT CAPTURE
     // RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
@@ -194,7 +201,10 @@ void BSP_USER_Init(void) {
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-    /**** TAKE END ****/
+
+    // Lift Power 1 - PD12
+    // Lift Control - PD13
+    // Lift Power 2 - PD14
 
     // GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     // GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
