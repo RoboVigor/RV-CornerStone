@@ -29,9 +29,9 @@ void Task_Chassis(void *Parameters) {
 
   while (1) {
     // 计算输出电流PID
-    PID_Calculate(&PID_LFCM, (float)remoteData.lx,
+    PID_Calculate(&PID_Motor_Chassis_Left, (float)remoteData.lx,
                   Motor_Chassis_Left.speed * rpm2rps);
-    PID_Calculate(&PID_RFCM, (float)remoteData.lx,
+    PID_Calculate(&PID_Motor_Chassis_Right, (float)remoteData.lx,
                   Motor_Chassis_Right.speed * rpm2rps);
     PID_Calculate(&PID_Stabilizer_Yaw_Speed, (float)remoteData.rx,
                   Motor_Stabilizer_Yaw.speed * rpm2rps);
