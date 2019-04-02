@@ -124,12 +124,12 @@ void BSP_GPIO_Init(void) {
 #endif
 
     // TIM2(高频计数器)
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource1, GPIO_AF_TIM2); // GPIOA1复用为定时器2
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_1;             // GPIOB4
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;           //复用功能
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;      //速度100MHz
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;          //推挽复用输出
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;           //上拉
-    GPIO_Init(GPIOA, &GPIO_InitStructure);                  //初始化
+    // RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+    // GPIO_PinAFConfig(GPIOA, GPIO_PinSource1, GPIO_AF_TIM2); // GPIOA1复用为定时器2
+    // GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_1;             // GPIOB4
+    // GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;           //复用功能
+    // GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;      //速度100MHz
+    // GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;          //推挽复用输出
+    // GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;           //上拉
+    // GPIO_Init(GPIOA, &GPIO_InitStructure);                  //初始化
 }

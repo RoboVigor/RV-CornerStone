@@ -12,13 +12,13 @@ void BSP_TIM_Init(void) {
     TIM_OCInitTypeDef       TIM_OCInitStructure;       // TIM4_PWM PWM模式
 
     // TIM2
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-    TIM_TimeBaseInitStructure.TIM_Period        = 2 - 1;
-    TIM_TimeBaseInitStructure.TIM_Prescaler     = 9000 - 1;
-    TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up;
-    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-    TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStructure);
-    TIM_Cmd(TIM2, ENABLE);
+    // RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+    // TIM_TimeBaseInitStructure.TIM_Period        = 2 - 1;
+    // TIM_TimeBaseInitStructure.TIM_Prescaler     = 9000 - 1;
+    // TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up;
+    // TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+    // TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStructure);
+    // TIM_Cmd(TIM2, ENABLE);
 
     // TIM6
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
