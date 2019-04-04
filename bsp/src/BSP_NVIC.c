@@ -70,11 +70,11 @@ void BSP_NVIC_Init(void) {
     CAN_ITConfig(CAN2, CAN_IT_FMP0, ENABLE);
 
     // TIM2
-    NVIC_InitStructure.NVIC_IRQChannel                   = TIM2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-    TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
-    TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+    // NVIC_InitStructure.NVIC_IRQChannel                   = TIM2_IRQn;
+    // NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9;
+    // NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    // NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    // NVIC_Init(&NVIC_InitStructure);
+    // TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+    // TIM_ClearFlag(TIM2, TIM_FLAG_Update);
 }
