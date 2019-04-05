@@ -164,7 +164,7 @@ void BSP_USER_Init(void) {
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN; // 下拉
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource0, GPIO_AF_TIM2); // PA0 复用位定时器 2
 
@@ -180,7 +180,7 @@ void BSP_USER_Init(void) {
     TIM2_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
     TIM2_ICInitStructure.TIM_ICFilter    = 0x00; // 不滤波
     TIM_ICInit(TIM2, &TIM2_ICInitStructure);
-    TIM_ITConfig(TIM2, TIM_IT_Update | TIM_IT_CC1, ENABLE);
+    TIM_ITConfig(TIM2, TIM_IT_Update|TIM_IT_CC1, ENABLE);
     TIM_Cmd(TIM2, ENABLE);
 
     NVIC_InitStructure.NVIC_IRQChannel                   = TIM2_IRQn;
@@ -195,15 +195,9 @@ void BSP_USER_Init(void) {
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_1;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN; // 下拉
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource0, GPIO_AF_TIM2); // PA0 复用位定时器 2
-
-    TIM_TimeBaseInitStructure.TIM_Period        = 0xFFFFFFFF; // 设置ARR
-    TIM_TimeBaseInitStructure.TIM_Prescaler     = 84 - 1;     // 设置分频
-    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-    TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up; // 向上计数
-    TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStructure);
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource1, GPIO_AF_TIM2); // PA0 复用位定时器 2
 
     TIM2_ICInitStructure.TIM_Channel     = TIM_Channel_2;            // TIM2通道1
     TIM2_ICInitStructure.TIM_ICPolarity  = TIM_ICPolarity_Rising;    // 上升沿捕获
@@ -211,14 +205,8 @@ void BSP_USER_Init(void) {
     TIM2_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
     TIM2_ICInitStructure.TIM_ICFilter    = 0x00; // 不滤波
     TIM_ICInit(TIM2, &TIM2_ICInitStructure);
-    TIM_ITConfig(TIM2, TIM_IT_Update | TIM_IT_CC1, ENABLE);
+    TIM_ITConfig(TIM2, TIM_IT_Update|TIM_IT_CC2, ENABLE);
     TIM_Cmd(TIM2, ENABLE);
-
-    NVIC_InitStructure.NVIC_IRQChannel                   = TIM2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
 
     // Lift Power 1 - PD12
 
