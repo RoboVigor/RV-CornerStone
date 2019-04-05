@@ -234,44 +234,47 @@ void Task_Distance_Sensor(void *Parameter) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
     // 通过PWM波读取距离信息
-    extern u8  TIM2CH_CAPTURE_STA[2]; //输入捕获状态
-    extern u32 TIM2CH_CAPTURE_VAL[2]; //输入捕获值
-    uint16_t   distance1 = 0;
-    uint16_t   distance2 = 0;
-    uint16_t   temp      = 0;
+    extern u8  TIM2CH_CAPTURE_STA[2]; //输入捕获状态 
+    extern u32 TIM2CH_CAPTURE_VAL[2]; //输入捕获值 
+    extern u8  TIM5CH1_CAPTURE_STA; //输入捕获状态 
+    extern u32 TIM5CH1_CAPTURE_VAL;
+    uint16_t distance1 = 0;
+    uint16_t distance2 = 0;
+    uint16_t temp = 0;
 
     while (1) {
-        // CH1成功捕获到了一次高电平
-        if (TIM2CH_CAPTURE_STA[0] & 0X80) {
-            // temp=TIM2CH_CAPTURE_STA[0]&0X3F;
+        //CH1成功捕获到了一次高电平 
+        if(TIM2CH_CAPTURE_STA[0]&0X80) {
+            // temp=TIM2CH_CAPTURE_STA[0]&0X3F; 
             // temp*=0XFFFFFFFF; //溢出时间总和
-            temp = TIM2CH_CAPTURE_VAL[0]; //得到总的高电平时间
+            temp=TIM2CH_CAPTURE_VAL[0]; //得到总的高电平时间 
 
             if (temp < 40000 && temp > 500) {
                 distance1 = temp / 100; // cm us
             }
 
             DebugZ = distance1;
-
-            TIM2CH_CAPTURE_STA[0] = 0; // 开启下一次捕获
+					
+            TIM2CH_CAPTURE_STA[0]=0; // 开启下一次捕获
         }
 
-        // CH2成功捕获到了一次高电平
-        if (TIM2CH_CAPTURE_STA[1] & 0X80) {
-            // temp=TIM2CH_CAPTURE_STA[0]&0X3F;
+        //CH2成功捕获到了一次高电平 
+        if(TIM5CH1_CAPTURE_STA&0X80) {
+            temp=TIM5CH1_CAPTURE_VAL&0X3F; 
             // temp*=0XFFFFFFFF; //溢出时间总和
-            temp = TIM2CH_CAPTURE_VAL[1]; //得到总的高电平时间
+            temp+=TIM5CH1_CAPTURE_VAL; //得到总的高电平时间 
 
             if (temp < 40000 && temp > 500) {
                 distance2 = temp / 100; // cm us
             }
 
             DebugY = distance2;
-
-            TIM2CH_CAPTURE_STA[1] = 0; // 开启下一次捕获
+					
+            TIM5CH1_CAPTURE_STA=0; // 开启下一次捕获
         }
-
+        
         vTaskDelayUntil(&LastWakeTime, 10);
+        
     }
 
     // 串口2读取传感器MCU信息
