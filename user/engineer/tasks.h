@@ -1,17 +1,17 @@
 #ifndef __TASK_SYSTEMINIT_H
 #define __TASK_SYSTEMINIT_H
 
+#include "BSP_CAN.h"
+#include "BSP_DMA.h"
 #include "BSP_GPIO.h"
 #include "BSP_NVIC.h"
-#include "BSP_UART.h"
-#include "BSP_DMA.h"
-#include "BSP_CAN.h"
 #include "BSP_TIM.h"
+#include "BSP_UART.h"
 
 #if DEBUG_ENABLED
-void Task_Debug_Magic_Send(void *Parameters);         // 无线串口调试输出
-void Task_Debug_Magic_Receive(void *Parameters);      // 无线串口调试接收
-void Task_Debug_RTOS_State(void *Parameters);         // 输出RTOS系统资源
+void Task_Debug_Magic_Send(void *Parameters);    // 无线串口调试输出
+void Task_Debug_Magic_Receive(void *Parameters); // 无线串口调试接收
+void Task_Debug_RTOS_State(void *Parameters);    // 输出RTOS系统资源
 void Task_Debug_Gyroscope_Sampling(void *Parameters); // 采样任务
 #endif
 
@@ -35,6 +35,7 @@ void Task_BANG(void *Parameters);       // 登岛气动控制
 void Task_Take(void *Parameters);            // 取弹装置
 void Task_Transmission(void *Parameters);    // 传动装置
 void Task_Distance_Sensor(void *Parameters); // 距离传感器
+void Task_Pushrod(void *Parameters);         //电推杆
 // Supply
 // Rescue
 /**** Function ****/
