@@ -63,6 +63,14 @@ void BSP_USER_Init(void) {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOH, &GPIO_InitStructure);
 
+    // Switch - PI2
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_2;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOI, &GPIO_InitStructure);
+
     // Power - PH12
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -128,10 +136,10 @@ void BSP_USER_Init(void) {
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
     TIM_OCInitStructure.TIM_OCPolarity  = TIM_OCPolarity_Low;     //输出极性:TIM输出比较极性低
     TIM_OCInitStructure.TIM_Pulse       = 25;                     //初始化占空比
-    TIM_OC1Init(TIM5, &TIM_OCInitStructure);          //根据指定的参数初始化外设TIM1 4OC1
-    TIM_OC1PreloadConfig(TIM5, TIM_OCPreload_Enable); //使能TIM5在CCR1上的预装载寄存器
-    TIM_ARRPreloadConfig(TIM5, ENABLE);               // ARPE使能
-    TIM_Cmd(TIM5, ENABLE);                            //使能TIM5
+    TIM_OC1Init(TIM5, &TIM_OCInitStructure);                      //根据指定的参数初始化外设TIM1 4OC1
+    TIM_OC1PreloadConfig(TIM5, TIM_OCPreload_Enable);             //使能TIM5在CCR1上的预装载寄存器
+    TIM_ARRPreloadConfig(TIM5, ENABLE);                           // ARPE使能
+    TIM_Cmd(TIM5, ENABLE);                                        //使能TIM5
 
     /**** TAKE ****/
 
@@ -238,7 +246,6 @@ void BSP_USER_Init(void) {
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOD, &GPIO_InitStructure);
-
 }
 
 /**** Distance_Sensor ****/

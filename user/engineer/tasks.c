@@ -138,16 +138,16 @@ void Task_Transmission(void *Parameters) {
         if (remoteData.switchRight == 3) {
             targetAngle = 0;
             if (lastAngle > -20000 && Motor_Transmission.speed == 0) {
-                Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
+                // Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
             } else {
-                Can_Send(CAN1, 0x1FF, 0, 0, 2000, 0);
+                // Can_Send(CAN1, 0x1FF, 0, 0, 2000, 0);
             }
         } else if (remoteData.switchRight == 1) {
             targetAngle = target;
             if (lastAngle < -20000 && Motor_Transmission.speed == 0) {
-                Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
+                // Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
             } else {
-                Can_Send(CAN1, 0x1FF, 0, 0, -2000, 0);
+                // Can_Send(CAN1, 0x1FF, 0, 0, -2000, 0);
             }
         }
 
@@ -200,8 +200,10 @@ void Task_BANG(void *Parameters) {
         // Switch Control
         if (bangMode == 0) {
             LANDING_SWITCH_FRONT;
+            LANDING_SWITCH_FRONT2;
         } else if (bangMode == 1) {
             LANDING_SWITCH_BEHIND;
+            LANDING_SWITCH_BEHIND2;
         }
 
         // Power Control
@@ -232,30 +234,29 @@ void Task_Distance_Sensor(void *Parameter) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
     // 通过PWM波读取距离信息
-    extern u8  TIM2CH1_CAPTURE_STA; //输入捕获状态 
-    extern u32 TIM2CH1_CAPTURE_VAL; //输入捕获值 
-    uint16_t distance = 0;
-    uint16_t temp = 0; 
+    extern u8  TIM2CH1_CAPTURE_STA; //输入捕获状态
+    extern u32 TIM2CH1_CAPTURE_VAL; //输入捕获值
+    uint16_t   distance = 0;
+    uint16_t   temp     = 0;
 
     while (1) {
-        //成功捕获到了一次高电平 
-        if(TIM2CH1_CAPTURE_STA&0X80) {
-            temp=TIM2CH1_CAPTURE_STA&0X3F; 
+        //成功捕获到了一次高电平
+        if (TIM2CH1_CAPTURE_STA & 0X80) {
+            temp = TIM2CH1_CAPTURE_STA & 0X3F;
             // temp*=0XFFFFFFFF; //溢出时间总和
-            temp+=TIM2CH1_CAPTURE_VAL; //得到总的高电平时间 
+            temp += TIM2CH1_CAPTURE_VAL; //得到总的高电平时间
 
             // if (temp < 40000 && temp > 500) {
-                distance = temp / 100; // cm us
+            distance = temp / 100; // cm us
             // }
 
             DebugZ = distance;
             // DebugZ = 10;
 
-            TIM2CH1_CAPTURE_STA=0; // 开启下一次捕获
+            TIM2CH1_CAPTURE_STA = 0; // 开启下一次捕获
         }
-        
+
         vTaskDelayUntil(&LastWakeTime, 10);
-        
     }
 
     // 串口2读取传感器MCU信息
