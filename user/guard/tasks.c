@@ -35,7 +35,7 @@ void Task_Chassis(void *Parameters) {
   PID_Init(&PID_Chassis_Left, 1, 0, 0, 4000, 2000);
   PID_Init(&PID_Chassis_Right, 1, 0, 0, 4000, 2000);
 
-  PID_Init(&PID_Stabilizer_Yaw_Angle, 0.7, 0, 0, 4000, 2000);
+  PID_Init(&PID_Stabilizer_Yaw_Angle, 3, 0.06, 0, 4000, 300);
   PID_Init(&PID_Stabilizer_Yaw_Speed, 5, 0, 0, 800, 2000);
 
   //   PID_Init(&PID_Stabilizer_Pitch_Angle, 0, 0, 0, 4000, 2000);
@@ -43,15 +43,17 @@ void Task_Chassis(void *Parameters) {
 
   while (1) {
     if (remoteData.switchLeft == 1) {
-      p = 4;
+      p = 20;
     } else if (remoteData.switchLeft == 3) {
-      p = 6;
+      p = 50;
     } else if (remoteData.switchLeft == 2) {
-      p = 8;
+      p = 80;
     }
-    PID_Stabilizer_Yaw_Angle.p = p;
+    PID_Stabilizer_Yaw_Angle.d = p;
 
-    yawAngleTarget -= (float)remoteData.rx / 200.0f;
+    if (remoteData.rx > 10) {
+      yawAngleTarget -= (float)remoteData.rx / 200.0f;
+    }
 
     // 计算输出电流PID
     PID_Calculate(&PID_Chassis_Left, (float)remoteData.lx,
@@ -78,6 +80,7 @@ void Task_Chassis(void *Parameters) {
     debug1 = PID_Stabilizer_Yaw_Angle.error * 1000;
     debug2 = PID_Stabilizer_Yaw_Speed.output;
     debug3 = yawAngleTarget * 1000;
+    debug4 = PID_Stabilizer_Yaw_Angle.output_D / p * 1000;
 
     // 底盘运动更新频率
     vTaskDelayUntil(&LastWakeTime, 10);
