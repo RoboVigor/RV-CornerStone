@@ -24,35 +24,47 @@ int debug6 = 0;
 int debug7 = 0;
 int debug8 = 0;
 
+float chooseBySwitch(float a, float b, float c) {
+  if (remoteData.switchLeft == 1) {
+    return a;
+  } else if (remoteData.switchLeft == 3) {
+    return b;
+  } else if (remoteData.switchLeft == 2) {
+    return c;
+  }
+}
+
 void Task_Chassis(void *Parameters) {
   TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
   float rpm2rps =
       0.104667f; // 转子的转速(round/min)换算成角速度(rad/s) = 2 * 3.14 / 60
   float yawAngleTarget = 0;
   float p = 0;
+  uint32_t psid = 0;
 
   // 初始化角速度PID
   PID_Init(&PID_Chassis_Left, 1, 0, 0, 4000, 2000);
   PID_Init(&PID_Chassis_Right, 1, 0, 0, 4000, 2000);
 
-  PID_Init(&PID_Stabilizer_Yaw_Angle, 3, 0.06, 0, 4000, 300);
+  PID_Init(&PID_Stabilizer_Yaw_Angle, 16, 0, 0, 4000, 800); // i 0.06
   PID_Init(&PID_Stabilizer_Yaw_Speed, 5, 0, 0, 800, 2000);
 
   //   PID_Init(&PID_Stabilizer_Pitch_Angle, 0, 0, 0, 4000, 2000);
   //   PID_Init(&PID_Stabilizer_Pitch_Speed, 0, 0, 0, 4000, 2000);
 
   while (1) {
-    if (remoteData.switchLeft == 1) {
-      p = 20;
-    } else if (remoteData.switchLeft == 3) {
-      p = 50;
-    } else if (remoteData.switchLeft == 2) {
-      p = 80;
-    }
-    PID_Stabilizer_Yaw_Angle.d = p;
 
-    if (remoteData.rx > 10) {
-      yawAngleTarget -= (float)remoteData.rx / 200.0f;
+    // PS
+    if (PsData.id != psid) {
+      psid = PsData.id;
+      yawAngleTarget -= PsData.result[0] - 128;
+    }
+
+    // debug
+    PID_Stabilizer_Yaw_Angle.i = chooseBySwitch(0.06, 0.1, 0.15);
+
+    if (ABS(remoteData.rx) > 10) {
+      yawAngleTarget -= (float)remoteData.rx / 660.0f * 0.05;
     }
 
     // 计算输出电流PID
@@ -78,9 +90,9 @@ void Task_Chassis(void *Parameters) {
              PID_Stabilizer_Yaw_Speed.output, 0);
 
     debug1 = PID_Stabilizer_Yaw_Angle.error * 1000;
-    debug2 = PID_Stabilizer_Yaw_Speed.output;
-    debug3 = yawAngleTarget * 1000;
-    debug4 = PID_Stabilizer_Yaw_Angle.output_D / p * 1000;
+    debug2 = PID_Stabilizer_Yaw_Angle.output_I * 1000;
+    debug3 = PID_Stabilizer_Yaw_Speed.output * 1000;
+    debug4 = yawAngleTarget;
 
     // 底盘运动更新频率
     vTaskDelayUntil(&LastWakeTime, 10);
@@ -94,7 +106,7 @@ void Task_Debug_Magic_Send(void *Parameters) {
 
   while (1) {
     taskENTER_CRITICAL(); // 进入临界段
-    printf("Yaw: %f \r\n", Gyroscope_EulerData.yaw);
+    // printf("Yaw: %f \r\n", Gyroscope_EulerData.yaw);
     taskEXIT_CRITICAL(); // 退出临界段
     vTaskDelayUntil(&LastWakeTime, 500);
   }

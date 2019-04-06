@@ -8,11 +8,13 @@
 
 #include "stm32f4xx.h"
 
-#define SOP (uint8_t) 87 // start of package
-#define EOP (uint8_t) 88 // end of package
+#define SOP (uint8_t)87 // start of package
+#define EOP (uint8_t)88 // end of package
 
 typedef struct {
-    uint8_t data[34];
+  uint8_t data[34];
+  uint16_t result[10];
+  uint32_t id;
 } PsData_Type;
 
 void Ps_Append(PsData_Type *PsData, uint8_t value);

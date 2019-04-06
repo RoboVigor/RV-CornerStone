@@ -11,4 +11,5 @@ void Handle_Init(void) {
   Motor_Init(&Motor_Stabilizer_Yaw, CHASSIS_MOTOR_REDUCTION_RATE, 1);
   Motor_Init(&Motor_Stabilizer_Pitch, CHASSIS_MOTOR_REDUCTION_RATE, 1);
   Gyroscope_EulerData.downcounter = 0;
+  PsData.id = 0;
 }
