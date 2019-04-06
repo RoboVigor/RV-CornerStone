@@ -391,7 +391,7 @@ void Task_Pushrod(void *Parameters) {
     if (remoteData.switchLeft == 1) {
       if (Out_Count_1 == 0) {
         GPIO_SetBits(GPIOD, GPIO_Pin_12);
-        GPIO_SetBits(GPIOD, GPIO_Pin_14);
+        GPIO_SetBits(GPIOD, GPIO_Pin_13);
         GPIO_SetBits(GPIOA, GPIO_Pin_1);
         vTaskDelayUntil(&LastWakeTime, 250);
         GPIO_ResetBits(GPIOA, GPIO_Pin_1);
@@ -403,7 +403,7 @@ void Task_Pushrod(void *Parameters) {
     if (remoteData.switchLeft == 3) {
       if (Out_Count_2 == 0) {
         GPIO_SetBits(GPIOD, GPIO_Pin_12);
-        GPIO_SetBits(GPIOD, GPIO_Pin_14);
+        GPIO_SetBits(GPIOD, GPIO_Pin_13);
         GPIO_SetBits(GPIOA, GPIO_Pin_1);
         vTaskDelayUntil(&LastWakeTime, 250);
         GPIO_ResetBits(GPIOA, GPIO_Pin_1);
@@ -415,7 +415,7 @@ void Task_Pushrod(void *Parameters) {
     if (remoteData.switchLeft == 2) {
       if (In_Count_1 == 0) {
         GPIO_ResetBits(GPIOD, GPIO_Pin_12);
-        GPIO_ResetBits(GPIOD, GPIO_Pin_14);
+        GPIO_ResetBits(GPIOD, GPIO_Pin_13);
         GPIO_SetBits(GPIOA, GPIO_Pin_1);
         vTaskDelayUntil(&LastWakeTime, 250);
         GPIO_ResetBits(GPIOA, GPIO_Pin_1);
@@ -427,7 +427,7 @@ void Task_Pushrod(void *Parameters) {
     if (remoteData.switchLeft == 2 && remoteData.switchRight == 1) {
       if (In_Count_2 == 0) {
         GPIO_ResetBits(GPIOD, GPIO_Pin_12);
-        GPIO_ResetBits(GPIOD, GPIO_Pin_14);
+        GPIO_ResetBits(GPIOD, GPIO_Pin_13);
         GPIO_SetBits(GPIOA, GPIO_Pin_1);
         vTaskDelayUntil(&LastWakeTime, 250);
         GPIO_ResetBits(GPIOA, GPIO_Pin_1);
