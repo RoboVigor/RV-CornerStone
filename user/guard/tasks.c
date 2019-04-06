@@ -14,24 +14,44 @@ void Task_Safe_Mode(void *Parameters) {
   }
   vTaskDelete(NULL);
 }
+
 int debug1 = 0;
 int debug2 = 0;
+int debug3 = 0;
+int debug4 = 0;
+int debug5 = 0;
+int debug6 = 0;
+int debug7 = 0;
+int debug8 = 0;
+
 void Task_Chassis(void *Parameters) {
   TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
   float rpm2rps =
       0.104667f; // 转子的转速(round/min)换算成角速度(rad/s) = 2 * 3.14 / 60
+  float yawAngleTarget = 0;
+  float p = 0;
 
   // 初始化角速度PID
   PID_Init(&PID_Chassis_Left, 1, 0, 0, 4000, 2000);
   PID_Init(&PID_Chassis_Right, 1, 0, 0, 4000, 2000);
 
-  PID_Init(&PID_Stabilizer_Yaw_Angle, 1, 0, 0, 4000, 2000);
-  PID_Init(&PID_Stabilizer_Yaw_Speed, 1.2, 0, 0, 4000, 2000);
+  PID_Init(&PID_Stabilizer_Yaw_Angle, 0.7, 0, 0, 4000, 2000);
+  PID_Init(&PID_Stabilizer_Yaw_Speed, 5, 0, 0, 800, 2000);
 
   //   PID_Init(&PID_Stabilizer_Pitch_Angle, 0, 0, 0, 4000, 2000);
   //   PID_Init(&PID_Stabilizer_Pitch_Speed, 0, 0, 0, 4000, 2000);
 
   while (1) {
+    if (remoteData.switchLeft == 1) {
+      p = 4;
+    } else if (remoteData.switchLeft == 3) {
+      p = 6;
+    } else if (remoteData.switchLeft == 2) {
+      p = 8;
+    }
+    PID_Stabilizer_Yaw_Angle.p = p;
+
+    yawAngleTarget -= (float)remoteData.rx / 200.0f;
 
     // 计算输出电流PID
     PID_Calculate(&PID_Chassis_Left, (float)remoteData.lx,
@@ -39,8 +59,10 @@ void Task_Chassis(void *Parameters) {
     PID_Calculate(&PID_Chassis_Right, (float)remoteData.lx,
                   Motor_Chassis_Right.speed * rpm2rps);
 
-    PID_Calculate(&PID_Stabilizer_Yaw_Angle, 30 * 19.2,
+    PID_Calculate(&PID_Stabilizer_Yaw_Angle, yawAngleTarget,
                   Motor_Stabilizer_Yaw.angle);
+    // PID_Calculate(&PID_Stabilizer_Yaw_Speed, ,
+    //               Motor_Stabilizer_Yaw.speed * rpm2rps);
     PID_Calculate(&PID_Stabilizer_Yaw_Speed, PID_Stabilizer_Yaw_Angle.output,
                   Motor_Stabilizer_Yaw.speed * rpm2rps);
 
@@ -53,8 +75,9 @@ void Task_Chassis(void *Parameters) {
     Can_Send(CAN1, 0x200, PID_Chassis_Left.output, PID_Chassis_Right.output,
              PID_Stabilizer_Yaw_Speed.output, 0);
 
-    debug1 = 30 * 19.2;
-    debug2 = PID_Stabilizer_Yaw_Angle.output;
+    debug1 = PID_Stabilizer_Yaw_Angle.error * 1000;
+    debug2 = PID_Stabilizer_Yaw_Speed.output;
+    debug3 = yawAngleTarget * 1000;
 
     // 底盘运动更新频率
     vTaskDelayUntil(&LastWakeTime, 10);
