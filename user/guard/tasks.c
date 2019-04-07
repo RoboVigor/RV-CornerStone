@@ -38,7 +38,7 @@ void Task_Chassis(void *Parameters) {
   TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
   float rpm2rps =
       0.104667f; // 转子的转速(round/min)换算成角速度(rad/s) = 2 * 3.14 / 60
-  float yawAngleTarget = 0;
+  float yawAngleTarget = 0, pitchAngleTarget = 0;
   float p = 0;
   uint32_t pid = 0;
 
@@ -48,6 +48,9 @@ void Task_Chassis(void *Parameters) {
 
   PID_Init(&PID_Stabilizer_Yaw_Angle, 16, 0, 0, 4000, 800); // i 0.06
   PID_Init(&PID_Stabilizer_Yaw_Speed, 5, 0, 0, 800, 2000);
+
+  PID_Init(&PID_Stabilizer_Pitch_Angle, 30, 0.08, 0, 4000, 800);
+  PID_Init(&PID_Stabilizer_Pitch_Speed, 4, 0, 0, 3000, 2000);
 
   while (1) {
 
@@ -63,42 +66,62 @@ void Task_Chassis(void *Parameters) {
     //   yawAngleTarget -= PsData.result[0] - 128;
     // }
 
-    // debug
-    // p = chooseBySwitch(0.06, 0.1, 0.15);
+    // if (ABS(remoteData.rx) > 10) {
+    //   yawAngleTarget -=
+    //       (float)remoteData.rx / 660.0f * 0.3;
+    // }
 
-    if (ABS(remoteData.rx) > 10) {
-      yawAngleTarget -=
-          (float)remoteData.rx / 660.0f * chooseBySwitch(0.1, 0.25, 0.5);
+    if (ABS(remoteData.ry) > 50) {
+      pitchAngleTarget -= (float)remoteData.ry / 660.0f * 0.3;
+      MIAO(pitchAngleTarget, -110, 0);
     }
 
-    // 计算输出电流PID
+    // 计算输出电流PID:底盘PID
     PID_Calculate(&PID_Chassis_Left, (float)remoteData.lx,
                   Motor_Chassis_Left.speed * rpm2rps);
     PID_Calculate(&PID_Chassis_Right, (float)remoteData.lx,
                   Motor_Chassis_Right.speed * rpm2rps);
 
+    // 计算输出电流PID:Yaw轴PID
     PID_Calculate(&PID_Stabilizer_Yaw_Angle, yawAngleTarget,
                   Motor_Stabilizer_Yaw.angle);
     PID_Calculate(&PID_Stabilizer_Yaw_Speed, PID_Stabilizer_Yaw_Angle.output,
                   Motor_Stabilizer_Yaw.speed * rpm2rps);
 
+    // 计算输出电流PID:Pitch轴PID
+    PID_Calculate(&PID_Stabilizer_Pitch_Angle, pitchAngleTarget,
+                  Motor_Stabilizer_Pitch.angle);
+    PID_Calculate(&PID_Stabilizer_Pitch_Speed,
+                  PID_Stabilizer_Pitch_Angle.output,
+                  Motor_Stabilizer_Pitch.speed * rpm2rps);
+
+    // Yaw轴起转电流
     if (PID_Stabilizer_Yaw_Angle.error < -0.5 &&
         ABS(Motor_Stabilizer_Yaw.speed) < 5) {
       PID_Stabilizer_Yaw_Speed.output = -800;
-    }
-    if (PID_Stabilizer_Yaw_Angle.error > 0.5 &&
-        ABS(Motor_Stabilizer_Yaw.speed) < 5) {
+    } else if (PID_Stabilizer_Yaw_Angle.error > 0.5 &&
+               ABS(Motor_Stabilizer_Yaw.speed) < 5) {
       PID_Stabilizer_Yaw_Speed.output = 800;
+    }
+    // Pitch轴起转电流
+    if (PID_Stabilizer_Pitch_Angle.error < -1 &&
+        ABS(Motor_Stabilizer_Pitch.speed) < 5) {
+      PID_Stabilizer_Pitch_Speed.output = -2100;
+    } else if (PID_Stabilizer_Pitch_Angle.error > 1 &&
+               ABS(Motor_Stabilizer_Pitch.speed) < 5) {
+      PID_Stabilizer_Pitch_Speed.output = 0;
     }
 
     // 输出电流值到电调
     Can_Send(CAN1, 0x200, PID_Chassis_Left.output, PID_Chassis_Right.output,
-             PID_Stabilizer_Yaw_Speed.output, 0);
+             PID_Stabilizer_Yaw_Speed.output,
+             PID_Stabilizer_Pitch_Speed.output);
 
-    debug1 = PID_Stabilizer_Yaw_Angle.error * 1000;
-    debug2 = Motor_Stabilizer_Yaw.speed * 1000;
-    debug3 = yawAngleTarget;
-    debug4 = Motor_Stabilizer_Yaw.angle * 1000;
+    // debug
+    debug1 = PID_Stabilizer_Pitch_Angle.error;
+    debug2 = PID_Stabilizer_Pitch_Speed.output;
+    debug3 = pitchAngleTarget * 1000;
+    debug4 = Motor_Stabilizer_Pitch.angle;
 
     // 底盘运动更新频率
     vTaskDelayUntil(&LastWakeTime, 10);
