@@ -25,6 +25,7 @@
 #endif
 
 /**** GPIO ****/
+
 // Landing
 #define LANDING_SWITCH_FRONT GPIO_ResetBits(GPIOH, GPIO_Pin_11);
 #define LANDING_SWITCH_BEHIND GPIO_SetBits(GPIOH, GPIO_Pin_11);
@@ -33,8 +34,19 @@
 #define LANDING_SWITCH_FRONT2 GPIO_ResetBits(GPIOI, GPIO_Pin_2);
 #define LANDING_SWITCH_BEHIND2 GPIO_SetBits(GPIOI, GPIO_Pin_2);
 
+// Taking
 #define TAKE_ON GPIO_SetBits(GPIOA, GPIO_Pin_3);
 #define TAKE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3);
+
+#define TAKING_ROD_PUSH GPIO_SetBits(GPIOD, GPIO_Pin_12 | GPIO_Pin_13);
+#define TAKING_ROD_PULL GPIO_ResetBits(GPIOD, GPIO_Pin_12 | GPIO_Pin_13);
+#define TAKING_ROD_POWER_ON GPIO_SetBits(GPIOA, GPIO_Pin_1);
+#define TAKING_ROD_POWER_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_1);
+
+// Rescue
+#define RESCUE_HOOK_DOWN GPIO_SetBits(GPIOI, GPIO_Pin_0);
+#define RESCUE_HOOK_UP GPIO_ResetBits(GPIOI, GPIO_Pin_0);
+
 // #define POSITIVE_SUPPLY GPIO_ResetBits(GPIOI, GPIO_Pin_5 | GPIO_Pin_6);
 // #define NEGATIVE_SUPPLY GPIO_SetBits(GPIOI, GPIO_Pin_5 | GPIO_Pin_6);
 
