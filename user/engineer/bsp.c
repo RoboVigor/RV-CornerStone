@@ -157,7 +157,7 @@ void BSP_USER_Init(void) {
     TIM_OCInitStructure.TIM_OCMode      = TIM_OCMode_PWM2;        //选择定时器模式:TIM脉冲宽度调制模式2
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
     TIM_OCInitStructure.TIM_OCPolarity  = TIM_OCPolarity_Low;     //输出极性:TIM输出比较极性低
-    TIM_OCInitStructure.TIM_Pulse       = 5;                      //初始化占空比
+    TIM_OCInitStructure.TIM_Pulse       = 15;                     //初始化占空比
     TIM_OC4Init(TIM4, &TIM_OCInitStructure);
     TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);
     TIM_ARRPreloadConfig(TIM4, ENABLE);
@@ -172,12 +172,12 @@ void BSP_USER_Init(void) {
     GPIO_Init(GPIOD, &GPIO_InitStructure);                   //初始化
     GPIO_PinAFConfig(GPIOD, GPIO_PinSource14, GPIO_AF_TIM4); // GPIOH10复用为定时器5
 
-    // TIM_OCInitStructure.TIM_Pulse       = 25; //初始化占空比
+    TIM_OCInitStructure.TIM_Pulse = 5;                //初始化占空比
     TIM_OC3Init(TIM4, &TIM_OCInitStructure);          //根据指定的参数初始化外设TIM1 4OC1
     TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable); //使能TIM4在CCR1上的预装载寄存器
     TIM_ARRPreloadConfig(TIM4, ENABLE);               // ARPE使能
     TIM_Cmd(TIM4, ENABLE);                            //使能TIM4
-    TIM_SetCompare3(TIM4, 25);                        //设置占空比
+    // TIM_SetCompare3(TIM4, 25);                        //设置占空比
 
     /**** TAKING ****/
 
