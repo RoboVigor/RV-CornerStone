@@ -19,7 +19,7 @@ static uint8_t psDebugEnabled = 0;
  */
 
 void Ps_Update(PsData_Type *PsData, uint8_t newByte) {
-    printf("%d", newByte);
+    // printf("%d", newByte);
     if (status == WAITING && newByte == SOP) {
         counter         = 1;
         PsData->data[0] = newByte;
