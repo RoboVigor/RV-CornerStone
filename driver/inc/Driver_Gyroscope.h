@@ -22,12 +22,12 @@ typedef struct {
     float roll;
     float yawoffset;
     int   downcounter;
-} GyrosocopeData_Type;
+} GyroscopeData_Type;
 
 /**
  * @brief 欧拉角解算
  */
-void Gyroscope_Update_Angle_Data(GyrosocopeData_Type *GyrosocopeData);
+void Gyroscope_Update_Angle_Data(GyroscopeData_Type *GyroscopeData);
 
 /**
  * @brief 获得滤波器diff

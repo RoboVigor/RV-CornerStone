@@ -18,7 +18,7 @@ static float zAcc;
 
 Filter_Type Filter_Yaw = {.count = 0, .thresholdLB = GYROSCOPE_YAW_FILTER_THRESHOLD};
 
-void Gyroscope_Update_Angle_Data(GyrosocopeData_Type *GyrosocopeData) {
+void Gyroscope_Update_Angle_Data(GyroscopeData_Type *GyroscopeData) {
 
     xSpeed = (float) ((mpu6500_data.gx / GYRO_LSB) * PI / 180.0);
     ySpeed = (float) ((mpu6500_data.gy / GYRO_LSB) * PI / 180.0);
@@ -52,13 +52,13 @@ void Gyroscope_Update_Angle_Data(GyrosocopeData_Type *GyrosocopeData) {
 
     // 输出欧拉角
 
-    GyrosocopeData->yaw = Filter_Apply_Limit_Breadth(&Filter_Yaw) + GyrosocopeData->yawoffset; // 应用限幅滤波
-    if (GyrosocopeData->downcounter == GYROSCOPE_START_UP_DELAY - 1) {
-        GyrosocopeData->yawoffset = -GyrosocopeData->yaw;
+    GyroscopeData->yaw = Filter_Apply_Limit_Breadth(&Filter_Yaw) + GyroscopeData->yawoffset; // 应用限幅滤波
+    if (GyroscopeData->downcounter == GYROSCOPE_START_UP_DELAY - 1) {
+        GyroscopeData->yawoffset = -GyroscopeData->yaw;
     }
 
-    GyrosocopeData->pitch = -pitchAngle;
-    GyrosocopeData->roll  = rollAngle;
+    GyroscopeData->pitch = -pitchAngle;
+    GyroscopeData->roll  = rollAngle;
 }
 
 float Gyroscope_Get_Filter_Diff(void) {
