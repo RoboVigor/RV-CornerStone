@@ -157,7 +157,7 @@ void BSP_USER_Init(void) {
     TIM_OCInitStructure.TIM_OCMode      = TIM_OCMode_PWM2;        //选择定时器模式:TIM脉冲宽度调制模式2
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
     TIM_OCInitStructure.TIM_OCPolarity  = TIM_OCPolarity_Low;     //输出极性:TIM输出比较极性低
-    TIM_OCInitStructure.TIM_Pulse       = 15;                     //初始化占空比
+    TIM_OCInitStructure.TIM_Pulse       = 25;                     //初始化占空比
     TIM_OC4Init(TIM4, &TIM_OCInitStructure);
     TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);
     TIM_ARRPreloadConfig(TIM4, ENABLE);
