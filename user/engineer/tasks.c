@@ -56,8 +56,8 @@ void Task_Chassis(void *Parameters) {
     float      yawAngleTarget = 0;                 // 目标值
     float      yawAngleFeed, yawSpeedFeed;         // 反馈值
 
-    float debug_p = 40;
-    float debug_i = 15;
+    float debug_p = 30;
+    float debug_i = 0;
 
     // TIM_SetCompare4(TIM4, 5);
 
@@ -100,7 +100,8 @@ void Task_Chassis(void *Parameters) {
         }
 
         // 设置底盘总体移动速度
-        Chassis_Update(&ChassisData, -(float) remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, (float) PID_YawSpeed.output / 1320.0f);
+        // Chassis_Update(&ChassisData, -(float) remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, (float) PID_YawSpeed.output / 1320.0f);
+        Chassis_Update(&ChassisData, -(float) remoteData.lx / 330.0f, (float) remoteData.ly / 330.0f, (float) PID_YawSpeed.output / 660.0f);
         // Chassis_Update(&ChassisData, -(float) remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, 0);
 
         // 麦轮解算&限幅,获得轮子转速
@@ -114,7 +115,7 @@ void Task_Chassis(void *Parameters) {
 
         // 输出电流值到电调(安全起见默认注释此行)
         Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
-        // Can_Send(CAN1, 0x200, 0, 0, 0, 0);
+        // Can_Send(CAN1, 0x200, 2000, 2000, 2000, 2000);
 
         DebugA = Motor_LF.speed;
         DebugB = Motor_LB.speed;
