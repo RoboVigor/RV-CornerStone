@@ -1,46 +1,72 @@
 #include "Driver_Ps.h"
 #include "Driver_Magic.h"
 
-static enum Status_Type { WAITING, STARTED, VALIDED, INTERRUPTED };
+static enum Status_Type { WAITING, STARTED };
 static enum Status_Type status = WAITING;
 
 static uint8_t len;
-static uint8_t id;
 static uint8_t counter = 0;
 
 static uint8_t psDebugEnabled = 0;
 
-void Ps_On_Received(PsData_Type *PsData, uint8_t newByte) {
-    Ps_Append(&PsData, newByte);
-    if (psDebugEnabled) printf("[%d:%d]", counter, newByte);
-    if (status == WAITING && newByte == SOP) {
-        Ps_On_Start(&PsData);
-    } else if (status == STARTED && counter == 2) {
-        Ps_Parse_Header(&PsData, newByte);
-    } else if (counter == 2 * len + 4 && newByte == EOP) {
-        Ps_Valid(&PsData);
-    }
-}
+/* Frame Struct
+ * Index     Description
+ * 0         SOP(87)
+ * 1         len&id
+ * 2-2*len+2 data
+ * 2*len+3   CRC
+ * 2*len+4   SOP(87)
+ */
 
-void Ps_Append(PsData_Type *PsData, uint8_t value) {
-    PsData->data[counter] = value;
-    counter++;
+void Ps_Update(PsData_Type *PsData, uint8_t newByte) {
+    // printf("%d", newByte);
+    if (status == WAITING && newByte == SOP) {
+        counter         = 1;
+        PsData->data[0] = newByte;
+        status          = STARTED;
+        if (psDebugEnabled) printf("start\r\n");
+    } else if (counter == 1) {
+        PsData->data[counter] = newByte;
+        counter++;
+        Ps_Parse_Header(&PsData, newByte);
+    } else if (counter > 1) {
+        PsData->data[counter] = newByte;
+        counter++;
+    } else if (counter == 2 * len + 3 && newByte == EOP) {
+        Ps_Valid(&PsData, newByte);
+    } else if (counter == 2 * len + 3 && newByte != EOP) {
+        if (psDebugEnabled) printf("interrupted\r\n");
+        Ps_Reset(&PsData);
+    } else if (counter == 32) {
+        if (psDebugEnabled) printf("interrupted\r\n");
+        Ps_Reset(&PsData);
+    }
 }
 
 void Ps_Parse_Header(PsData_Type *PsData, uint8_t value) {
-    len = value >> 4;
-    id  = value & 0x0f;
+    len         = value >> 4;
+    PsData->len = len;
+    PsData->id  = value & 0x0f;
     if (psDebugEnabled) printf("len:%d\r\n", len);
 }
 
-void Ps_Valid(PsData_Type *PsData) {
-    uint8_t crc = PsData->data[2 * len + 2];
-    if (CRC_Valid(PsData->data + 1, 2 * len + 1, crc)) {
-        if (psDebugEnabled) printf("done%d\r\n", len);
-        Ps_On_Done(&PsData);
-    } else {
-        Ps_On_Interrupted(&PsData);
+void Ps_Parse_Data(PsData_Type *PsData, uint8_t *data) {
+    int i;
+    for (i = 0; i < len; i++) {
+        PsData->result[i] = (PsData->data[2 * i] << 8) | (PsData->data[2 * i + 1]);
     }
+    PsData->pid++;
+    if (psDebugEnabled) printf("data[0]:%d\r\n", PsData->result[0]);
+}
+
+void Ps_Valid(PsData_Type *PsData, uint8_t crc) {
+    if (CRC_Valid(PsData->data + 1, 2 * len + 1, crc)) {
+        if (psDebugEnabled) printf("done\r\n");
+        Ps_Parse_Data(&PsData, PsData->data + 2);
+    } else {
+        if (psDebugEnabled) printf("invalid\r\n");
+    }
+    Ps_Reset(&PsData);
 }
 
 void Ps_Reset(PsData_Type *PsData) {
@@ -51,24 +77,6 @@ void Ps_Reset(PsData_Type *PsData) {
     counter = 0;
     status  = WAITING;
     if (psDebugEnabled) printf("reset\r\n");
-}
-
-void Ps_On_Start(PsData_Type *PsData) {
-    if (psDebugEnabled) printf("start\r\n");
-    status = STARTED;
-}
-
-void Ps_On_Done(PsData_Type *PsData) {
-    // todo:解析data
-    status = VALIDED;
-    Ps_DataAnalysis(&PsData);
-    Ps_Reset(&PsData);
-}
-
-void Ps_On_Interrupted(PsData_Type *PsData) {
-    if (psDebugEnabled) printf("interrupted\r\n");
-    status = INTERRUPTED;
-    Ps_Reset(&PsData);
 }
 
 static const unsigned char crc_table[] = {
@@ -100,22 +108,4 @@ uint8_t CRC_Calculate(uint8_t *data, uint8_t len) {
 uint8_t CRC_Valid(uint8_t *data, uint8_t len, uint8_t crc) {
     return 1;
     // return CRC_Calculate(data, len) == crc;
-}
-
-void Ps_DataAnalysis(PsData_Type *PsData) {
-    int i = 0;
-    if (psDebugEnabled) printf("rec: %d %d\r\n", PsData->data[2], PsData->data[3]);
-
-    for (i = 0; i < len; i++) {
-        PsData->data[i] = (PsData->data[2 * i + 2] << 8) | (PsData->data[2 * i + 3]);
-    }
-    Ps_DataUnused(&PsData);
-}
-
-void Ps_DataUnused(PsData_Type *PsData) {
-    PsData->data[16] = 0; // 数据未被使用过
-}
-
-void Ps_DataUsed(PsData_Type *PsData) {
-    PsData->data[16] = 1; // 数据被使用过
 }
