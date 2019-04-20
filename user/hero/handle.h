@@ -14,9 +14,9 @@
 #include "Driver_CAN.h"
 #include "Driver_Motor.h"
 #include "Driver_Chassis.h"
+#include "mpu6500_driver.h"
 #include "Driver_Gyroscope.h"
 #include "Driver_Ps.h"
-#include "mpu6500_driver.h"
 #include "Driver_Judge.h"
 
 #ifdef __HANDLE_GLOBALS
@@ -41,17 +41,16 @@ __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type remoteData;
 
 // 陀螺仪
+__HANDLE_EXT volatile ImuData_Type       ImuData;
 __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
-// 无线串口调试
+// 调试数据
 __HANDLE_EXT MagicHandle_Type magic;
+__HANDLE_EXT DebugData_Type DebugData;
 
 // 底盘
 __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed, PID_Power;
-
-// Debug陀螺仪用
-__HANDLE_EXT int debugA, debugB, debugC, debugD, debugE, debugF, debugG, debugH;
 
 //裁判系统
 __HANDLE_EXT Judge_Type Judge;

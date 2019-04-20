@@ -90,7 +90,6 @@ void Task_Chassis(void *Parameters) {
         lx           = -lx / 660.0f;
         ly           = ly / 660.0f * 3;
         followOutput = -followOutput / 660.0f * 12; // 12
-        debugF       = Judge.powerHeatData.chassisPower;
         // 设置底盘总体移动速度
         Chassis_Update(&ChassisData, lx, ly, followOutput);
         // Chassis_Update(&ChassisData, lx, ly, 0);
@@ -104,7 +103,6 @@ void Task_Chassis(void *Parameters) {
         rotorSpeed[1] = rotorSpeed[1] * powerScale;
         rotorSpeed[2] = rotorSpeed[2] * powerScale;
         rotorSpeed[3] = rotorSpeed[3] * powerScale;
-        debugH        = powerScale;
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * rpm2rps);
@@ -139,7 +137,6 @@ float Chassis_Power_Control(float VX, float VY) {
 
 void Task_Debug_Magic_Send(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
-
     while (1) {
         taskENTER_CRITICAL(); // 进入临界段
         // printf();
@@ -230,7 +227,6 @@ void Task_Fire(void *Parameters) {
             stirState = 0;
             TIM_SetCompare1(TIM4, 7);
         }
-        debugG = PID_StirSpeed.output;
         // else if (remoteData.switchLeft == 2 && lastSwitch == 3) {
         //     stirState = 3;
         //     turnNumber++;
@@ -277,58 +273,6 @@ void Task_Fire(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_Sys_Init(void *Parameters) {
-
-    // 初始化全局变量
-    Handle_Init();
-
-    // BSP们
-    BSP_GPIO_Init();
-    BSP_CAN_Init();
-    BSP_UART_Init();
-    BSP_DMA_Init();
-    BSP_TIM_Init();
-    BSP_NVIC_Init();
-    BSP_USER_Init();
-
-    // 初始化陀螺仪
-    MPU6500_Initialize();
-    MPU6500_EnableInt();
-
-    // 遥控器数据初始化
-    DBUS_Init(&remoteData);
-
-    while (1) {
-        if (Gyroscope_EulerData.downcounter == GYROSCOPE_START_UP_DELAY) {
-            break;
-        }
-    }
-
-    // 调试任务
-#if DEBUG_ENABLED
-    Magic_Init_Handle(&magic, 0); // 初始化调试数据的默认值
-    xTaskCreate(Task_Debug_Magic_Receive, "Task_Debug_Magic_Receive", 500, NULL, 6, NULL);
-    xTaskCreate(Task_Debug_Magic_Send, "Task_Debug_Magic_Send", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Debug_RTOS_State, "Task_Debug_RTOS_State", 500, NULL, 6,
-    // NULL); xTaskCreate(Task_Debug_Gyroscope_Sampling,
-    // "Task_Debug_Gyroscope_Sampling", 400, NULL, 6, NULL);
-
-#endif
-
-    // 高频任务
-    xTaskCreate(Task_Cloud, "Task_Cloud", 1000, NULL, 5, NULL);
-
-    // 功能任务
-    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 3, NULL);
-
-    // 完成使命
-    vTaskDelete(NULL);
-    vTaskDelay(10);
-}
-
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
@@ -343,11 +287,6 @@ void Task_Cloud(void *Parameters) {
 
     // 时钟
     TickType_t LastWakeTime = xTaskGetTickCount();
-
-    //初始化offset
-    mpu6500_data.gx_offset = 35;
-    mpu6500_data.gy_offset = -9;
-    mpu6500_data.gz_offset = -20;
 
     //初始化航向角target
     float yawTargetAngle   = 0;
@@ -375,11 +314,8 @@ void Task_Cloud(void *Parameters) {
         //将陀螺仪值赋予使用变量
         yawFeedAngle          = -Gyroscope_EulerData.yaw;
         pitchFeedAngle        = Gyroscope_EulerData.pitch;
-        yawFeedAngularSpeed   = -(float) (mpu6500_data.gz / 16.4f);
-        pitchFeedAngularSpeed = -(float) (mpu6500_data.gx / 16.4f);
-
-        debugA = remoteData.rx;
-        debugB = remoteData.ry;
+        yawFeedAngularSpeed   = -(float) (ImuData.gz / 16.4f);
+        pitchFeedAngularSpeed = -(float) (ImuData.gx / 16.4f);
 
         //设定输入target
         if (remoteData.rx <= 10 && remoteData.rx >= -10) {
@@ -408,4 +344,43 @@ void Task_Cloud(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, 5);
     }
     vTaskDelete(NULL);
+}
+
+void Task_Sys_Init(void *Parameters) {
+
+    // 初始化全局变量
+    Handle_Init();
+
+    // BSP们
+    BSP_GPIO_Init();
+    BSP_CAN_Init();
+    BSP_UART_Init();
+    BSP_DMA_Init();
+    BSP_TIM_Init();
+    BSP_NVIC_Init();
+    BSP_USER_Init();
+
+    // 初始化陀螺仪
+    Gyroscope_Init(&Gyroscope_EulerData);
+
+    // 调试任务
+#if DEBUG_ENABLED
+    // xTaskCreate(Task_Debug_Magic_Receive, "Task_Debug_Magic_Receive", 500, NULL, 6, NULL);
+    // xTaskCreate(Task_Debug_Magic_Send, "Task_Debug_Magic_Send", 500, NULL, 6, NULL);
+    // xTaskCreate(Task_Debug_RTOS_State, "Task_Debug_RTOS_State", 500, NULL, 6, NULL);
+    // xTaskCreate(Task_Debug_Gyroscope_Sampling, "Task_Debug_Gyroscope_Sampling", 400, NULL, 6, NULL);
+#endif
+
+    // 高频任务
+    xTaskCreate(Task_Cloud, "Task_Cloud", 1000, NULL, 5, NULL);
+
+    // 功能任务
+    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
+    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 3, NULL);
+
+    // 完成使命
+    vTaskDelete(NULL);
+    vTaskDelay(10);
 }

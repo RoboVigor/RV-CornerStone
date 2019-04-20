@@ -44,6 +44,7 @@ __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type remoteData;
 
 // 陀螺仪
+__HANDLE_EXT volatile ImuData_Type       ImuData;
 __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 无线串口调试

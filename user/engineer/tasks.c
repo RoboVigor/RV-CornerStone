@@ -41,7 +41,7 @@ void Task_Chassis(void *Parameters) {
 
         // 设置反馈值
         yawAngleFeed = Gyroscope_EulerData.yaw; // 航向角角度反馈
-        yawSpeedFeed = mpu6500_data.gz / 16.4;  // 航向角角速度反馈
+        yawSpeedFeed = ImuData.gz / 16.4;       // 航向角角速度反馈
 
         // 切换运动模式
         if (mode != lastMode) {
