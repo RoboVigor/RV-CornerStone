@@ -27,19 +27,31 @@
 #endif
 
 /**** GPIO ****/
+
 // Landing
 #define LANDING_SWITCH_FRONT GPIO_ResetBits(GPIOH, GPIO_Pin_11);
+#define LANDING_SWITCH_FRONT2 GPIO_ResetBits(GPIOI, GPIO_Pin_2);
 #define LANDING_SWITCH_BEHIND GPIO_SetBits(GPIOH, GPIO_Pin_11);
+#define LANDING_SWITCH_BEHIND2 GPIO_SetBits(GPIOI, GPIO_Pin_2);
 #define LANDING_POWER_ON GPIO_SetBits(GPIOH, GPIO_Pin_12);
 #define LANDING_POWER_OFF GPIO_ResetBits(GPIOH, GPIO_Pin_12);
-#define LANDING_SWITCH_FRONT2 GPIO_ResetBits(GPIOI, GPIO_Pin_2);
-#define LANDING_SWITCH_BEHIND2 GPIO_SetBits(GPIOI, GPIO_Pin_2);
+
+// Taking
+#define ROTATE_ON GPIO_SetBits(GPIOA, GPIO_Pin_2);
+#define ROTATE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_2);
 
 #define TAKE_ON GPIO_SetBits(GPIOA, GPIO_Pin_3);
 #define TAKE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3);
-#define TURN_FORWARD GPIO_SetBits(GPIOA, GPIO_Pin_2);
-#define TURN_BACK GPIO_ResetBits(GPIOA, GPIO_Pin_2);
-#define TURN_OFF_PUSHROD GPIO_ResetBits(GPIOA, GPIO_Pin_1);
+
+#define TAKING_ROD_PUSH GPIO_SetBits(GPIOD, GPIO_Pin_12 | GPIO_Pin_13);
+#define TAKING_ROD_PULL GPIO_ResetBits(GPIOD, GPIO_Pin_12 | GPIO_Pin_13);
+#define TAKING_ROD_POWER_ON GPIO_SetBits(GPIOA, GPIO_Pin_1);
+#define TAKING_ROD_POWER_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_1);
+
+// Rescue
+#define RESCUE_HOOK_DOWN GPIO_SetBits(GPIOI, GPIO_Pin_0);
+#define RESCUE_HOOK_UP GPIO_ResetBits(GPIOI, GPIO_Pin_0);
+
 // #define POSITIVE_SUPPLY GPIO_ResetBits(GPIOI, GPIO_Pin_5 | GPIO_Pin_6);
 // #define NEGATIVE_SUPPLY GPIO_SetBits(GPIOI, GPIO_Pin_5 | GPIO_Pin_6);
 
@@ -67,7 +79,6 @@ __HANDLE_EXT ChassisData_Type ChassisData;
 
 // PID
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
-__HANDLE_EXT PID_Type PID_TakeLeft_Speed, PID_TakeRight_Speed, PID_TakeLeft_Angle, PID_TakeRight_Angle;
 __HANDLE_EXT PID_Type PID_Transmission_Speed, PID_Transmission_Angle;
 __HANDLE_EXT PID_Type PID_LGW, PID_RGW;
 
