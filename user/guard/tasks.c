@@ -24,21 +24,6 @@ int debug6 = 0;
 int debug7 = 0;
 int debug8 = 0;
 
-float chooseBySwitch(float a, float b, float c) {
-    if (remoteData.switchLeft == 1) {
-        return a;
-    } else if (remoteData.switchLeft == 3) {
-        return b;
-    } else if (remoteData.switchLeft == 2) {
-        return c;
-    }
-}
-
-float ramp(float start, float stop, float progress) {
-    MIAO(progress, 0, 1);
-    return (start + (stop - start) * progress);
-}
-
 void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime   = xTaskGetTickCount(); // 时钟
     float      rpm2rps        = 0.104667f;           // 转子的转速(round/min)换算成角速度(rad/s) = 2 * 3.14 / 60
@@ -63,7 +48,7 @@ void Task_Chassis(void *Parameters) {
         if (PsData.id != pid) {
             pid = PsData.id;
             yawAngleTarget -= (PsData.result[0] >> 3) - 15;
-            pitchAngleTarget -= ((PsData.result[0] & 7) - 3) * chooseBySwitch(1.5, 2, 2.5);
+            pitchAngleTarget -= ((PsData.result[0] & 7) - 3) * CHOOSE(1.5, 2, 2.5);
             MIAO(pitchAngleTarget, -35, 60);
             printf("%d", pitchAngleTarget);
         }
@@ -75,7 +60,7 @@ void Task_Chassis(void *Parameters) {
         // }
 
         // 调试
-        // PID_Stabilizer_Pitch_Speed.p = chooseBySwitch(4, 6, 8);
+        // PID_Stabilizer_Pitch_Speed.p = CHOOSE(4, 6, 8);
 
         // 遥控器
         if (ABS(remoteData.rx) > 10) {
@@ -99,7 +84,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Stabilizer_Yaw_Speed, PID_Stabilizer_Yaw_Angle.output, Motor_Stabilizer_Yaw.speed * rpm2rps);
 
         // 计算输出电流PID:Pitch轴PID
-        PID_Calculate(&PID_Stabilizer_Pitch_Angle, pitchAngleTarget - ramp(0.0f, 90.0f, pitchAngleRampProgress), Motor_Stabilizer_Pitch.angle);
+        PID_Calculate(&PID_Stabilizer_Pitch_Angle, pitchAngleTarget - RAMP(0.0f, 90.0f, pitchAngleRampProgress), Motor_Stabilizer_Pitch.angle);
         PID_Calculate(&PID_Stabilizer_Pitch_Speed, PID_Stabilizer_Pitch_Angle.output, Motor_Stabilizer_Pitch.speed * rpm2rps);
 
         // // Yaw轴起转电流
@@ -122,7 +107,7 @@ void Task_Chassis(void *Parameters) {
         // debug
         debug1 = yawAngleTarget;
         debug2 = pitchAngleTarget;
-        debug3 = ramp(0.0f, 80.0f, pitchAngleRampProgress);
+        debug3 = RAMP(0.0f, 80.0f, pitchAngleRampProgress);
         debug4 = pitchAngleRampProgress * 1000;
 
         // 底盘运动更新频率
