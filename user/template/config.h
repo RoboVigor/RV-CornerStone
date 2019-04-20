@@ -6,13 +6,14 @@
 #define DRIVER_VERSION_1_0 // 适配版本1.0
 
 // 硬件
-#define DEBUG_ENABLED 1       // 调试开关
-#define BOARD_VERSION 1       // 开发板型号, 0:旧板, 1:A板
-#define USER_POWER_ENABLED 1  // 24V用户电源开关
-#define USART3_ENABLED 1      // 串口3开关
-#define USART3_BAUD_RATE 9600 // 串口3波特率
-#define USART6_ENABLED 1      // 串口6开关
-#define USART6_BAUD_RATE 9600 // 串口6波特率
+#define DEBUG_ENABLED 1          // 调试开关
+#define BOARD_VERSION 1          // 开发板型号, 0:旧板, 1:A板
+#define USER_POWER_ENABLED 1     // 24V用户电源开关
+#define USART3_ENABLED 1         // 串口3开关
+#define USART3_BAUD_RATE 9600    // 串口3波特率
+#define USART6_ENABLED 1         // 串口6开关
+#define USART6_BAUD_RATE 9600    // 串口6波特率
+#define SERIAL_DEBUG_PORT USART6 // 串口调试端口
 
 // 陀螺仪
 #define GYROSCOPE_YAW_START_UP_DELAY_ENABLED 1
