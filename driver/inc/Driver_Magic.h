@@ -15,6 +15,17 @@ typedef struct {
     int   value;        // 调试值
 } MagicHandle_Type;
 
+typedef struct {
+    int16_t debug1;
+    int16_t debug2;
+    int16_t debug3;
+    int16_t debug4;
+    int16_t debug5;
+    int16_t debug6;
+    int16_t debug7;
+    int16_t debug8;
+} DebugData_Type;
+
 /**
  * @brief 初始化调试数据的默认值
  *
