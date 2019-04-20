@@ -18,6 +18,8 @@
 #include "Driver_Ps.h"
 #include "mpu6500_driver.h"
 
+#include "driver_engineer.h"
+
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT
 #else
@@ -35,6 +37,9 @@
 
 #define TAKE_ON GPIO_SetBits(GPIOA, GPIO_Pin_3);
 #define TAKE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3);
+#define TURN_FORWARD GPIO_SetBits(GPIOA, GPIO_Pin_2);
+#define TURN_BACK GPIO_ResetBits(GPIOA, GPIO_Pin_2);
+#define TURN_OFF_PUSHROD GPIO_ResetBits(GPIOA, GPIO_Pin_1);
 // #define POSITIVE_SUPPLY GPIO_ResetBits(GPIOI, GPIO_Pin_5 | GPIO_Pin_6);
 // #define NEGATIVE_SUPPLY GPIO_SetBits(GPIOI, GPIO_Pin_5 | GPIO_Pin_6);
 
@@ -82,6 +87,8 @@ __HANDLE_EXT uint16_t distance1, distance2;
 // 取弹状态
 __HANDLE_EXT int take_state;
 
+// 电推杆状态
+__HANDLE_EXT int pushrod_state;
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行

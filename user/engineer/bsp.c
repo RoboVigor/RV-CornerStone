@@ -9,7 +9,6 @@ void BSP_USER_Init(void) {
   GPIO_InitTypeDef GPIO_InitStructure;
   TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
   TIM_OCInitTypeDef TIM_OCInitStructure;
-  TIM_BDTRInitTypeDef TIM8_BDTRInitStruct;
   NVIC_InitTypeDef NVIC_InitStructure;
   TIM_ICInitTypeDef TIM2_ICInitStructure;
   TIM_ICInitTypeDef TIM5_ICInitStructure;
@@ -19,14 +18,16 @@ void BSP_USER_Init(void) {
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOI, ENABLE);
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE); 
 
   // 定时器时钟使能
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3,ENABLE);    
 
-  /**** PUBLIC ****/
+//   /**** PUBLIC ****/
 
   // VIEW MODE CHANGE - PI6 - TIM8 Channel 2 - PWM OUTPUT
 
@@ -38,7 +39,7 @@ void BSP_USER_Init(void) {
   GPIO_Init(GPIOI, &GPIO_InitStructure);
   GPIO_PinAFConfig(GPIOI, GPIO_PinSource6, GPIO_AF_TIM8);
 
-  TIM_TimeBaseInitStructure.TIM_Prescaler = 9000 - 1;
+  TIM_TimeBaseInitStructure.TIM_Prescaler = 18000 - 1;
   TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
   TIM_TimeBaseInitStructure.TIM_Period = 200 - 1;
   TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
@@ -93,53 +94,104 @@ void BSP_USER_Init(void) {
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
   GPIO_Init(GPIOI, &GPIO_InitStructure);
 
-  /**** SUPPLY ****/
+//   /**** SUPPLY ****/
 
   // GATE1 - PD15 - TIM4 Channel 4 - PWM OUTPUT
-
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(GPIOD, &GPIO_InitStructure);
-  GPIO_PinAFConfig(GPIOD, GPIO_PinSource15, GPIO_AF_TIM4);
-
-  TIM_TimeBaseInitStructure.TIM_Prescaler = 9000 - 1;
-  TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
-  TIM_TimeBaseInitStructure.TIM_Period = 200 - 1;
-  TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-  TIM_TimeBaseInit(TIM4, &TIM_TimeBaseInitStructure);
-
-  TIM_OCInitStructure.TIM_OCMode =
-      TIM_OCMode_PWM2; //选择定时器模式:TIM脉冲宽度调制模式2
-  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
-  TIM_OCInitStructure.TIM_OCPolarity =
-      TIM_OCPolarity_Low;            //输出极性:TIM输出比较极性低
-  TIM_OCInitStructure.TIM_Pulse = 5; //初始化占空比
-  TIM_OC4Init(TIM4, &TIM_OCInitStructure);
-  TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);
-  TIM_ARRPreloadConfig(TIM4, ENABLE);
-  TIM_Cmd(TIM4, ENABLE);
-
   // GATE2 - PD14 - TIM4 Channel 3 - PWM OUTPUT
 
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;       //复用功能
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz; //速度100MHz
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;     //推挽复用输出
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;       //上拉
-  GPIO_Init(GPIOD, &GPIO_InitStructure);             //初始化
-  GPIO_PinAFConfig(GPIOD, GPIO_PinSource14,
-                   GPIO_AF_TIM4); // GPIOH10复用为定时器5
+  // GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+  // GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  // GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  // GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  // GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+  // GPIO_Init(GPIOD, &GPIO_InitStructure);
+  // GPIO_PinAFConfig(GPIOD, GPIO_PinSource15, GPIO_AF_TIM4);
 
-  // TIM_OCInitStructure.TIM_Pulse       = 25; //初始化占空比
-  TIM_OC3Init(TIM4, &TIM_OCInitStructure); //根据指定的参数初始化外设TIM1 4OC1
-  TIM_OC3PreloadConfig(TIM4,
-                       TIM_OCPreload_Enable); //使能TIM4在CCR1上的预装载寄存器
-  TIM_ARRPreloadConfig(TIM4, ENABLE); // ARPE使能
-  TIM_Cmd(TIM4, ENABLE);              //使能TIM4
-  TIM_SetCompare3(TIM4, 25);          //设置占空比
+  // GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+  // GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  // GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  // GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  // GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+  // GPIO_Init(GPIOD, &GPIO_InitStructure);
+  // GPIO_PinAFConfig(GPIOD, GPIO_PinSource14, GPIO_AF_TIM4);
+
+  // TIM_TimeBaseInitStructure.TIM_Prescaler = 9000 - 1;  // 分频系数
+  // TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
+  // TIM_TimeBaseInitStructure.TIM_Period = 200 - 1;    // ARR
+  // TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+  // TIM_TimeBaseInit(TIM4, &TIM_TimeBaseInitStructure);
+
+  // TIM_OCInitStructure.TIM_OCMode =
+  //     TIM_OCMode_PWM2; //选择定时器模式:TIM脉冲宽度调制模式2
+  // TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
+  // TIM_OCInitStructure.TIM_OCPolarity =
+  //     TIM_OCPolarity_Low;            //输出极性:TIM输出比较极性低
+  // TIM_OCInitStructure.TIM_Pulse = 5; //初始化占空比
+  // TIM_OC4Init(TIM4, &TIM_OCInitStructure);
+  // TIM_OC3Init(TIM4, &TIM_OCInitStructure);
+  // TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);
+  // TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);
+  // TIM_ARRPreloadConfig(TIM4, ENABLE);
+  // TIM_Cmd(TIM4, ENABLE);
+
+    GPIO_PinAFConfig(GPIOD,GPIO_PinSource15,GPIO_AF_TIM4);
+    GPIO_PinAFConfig(GPIOD,GPIO_PinSource14,GPIO_AF_TIM4);
+
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15 | GPIO_Pin_14; 
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF; 
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz; 
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP; 
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP; 
+    GPIO_Init(GPIOD,&GPIO_InitStructure);
+
+    TIM_TimeBaseInitStructure.TIM_Prescaler=9000-1; 
+    TIM_TimeBaseInitStructure.TIM_CounterMode=TIM_CounterMode_Up; 
+    TIM_TimeBaseInitStructure.TIM_Period=200-1;   //自动重装载值 
+    TIM_TimeBaseInitStructure.TIM_ClockDivision=TIM_CKD_DIV1;  
+    TIM_TimeBaseInit(TIM4,&TIM_TimeBaseInitStructure); 
+
+    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2; 
+    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; 
+    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low; 
+    TIM_OCInitStructure.TIM_Pulse = 5;
+
+    TIM_OC3Init(TIM4, &TIM_OCInitStructure);
+    TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable); 
+    TIM_OC4Init(TIM4, &TIM_OCInitStructure);
+    TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable); 
+    TIM_ARRPreloadConfig(TIM4,ENABLE);
+
+    TIM_Cmd(TIM4, ENABLE); 
+
+// 预留口 - PB0 - TIM3 Channel 3 - PWM OUTPUT
+  GPIO_PinAFConfig(GPIOB,GPIO_PinSource0,GPIO_AF_TIM3);
+  GPIO_PinAFConfig(GPIOB,GPIO_PinSource1,GPIO_AF_TIM3);
+
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1; 
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF; 
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz; 
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP; 
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP; 
+  GPIO_Init(GPIOB,&GPIO_InitStructure);
+
+  TIM_TimeBaseInitStructure.TIM_Prescaler=9000-1; 
+  TIM_TimeBaseInitStructure.TIM_CounterMode=TIM_CounterMode_Up; 
+  TIM_TimeBaseInitStructure.TIM_Period=200-1;   //自动重装载值 
+  TIM_TimeBaseInitStructure.TIM_ClockDivision=TIM_CKD_DIV1;  
+  TIM_TimeBaseInit(TIM3,&TIM_TimeBaseInitStructure); 
+
+  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2; 
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; 
+  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low; 
+  TIM_OCInitStructure.TIM_Pulse = 5;
+  TIM_OC3Init(TIM3, &TIM_OCInitStructure);
+  TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable); 
+  TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+  TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable); 
+  TIM_ARRPreloadConfig(TIM3,ENABLE);
+
+  TIM_Cmd(TIM3, ENABLE); 
+
 
   /**** TAKE ****/
   // Pushrod - PD12
@@ -150,10 +202,10 @@ void BSP_USER_Init(void) {
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
   GPIO_Init(GPIOD, &GPIO_InitStructure);
 
-  // Pushrod - PD14
+  // Pushrod - PD13
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
   GPIO_Init(GPIOD, &GPIO_InitStructure);
@@ -263,33 +315,6 @@ void BSP_USER_Init(void) {
   // TIM_ICInit(TIM2, &TIM2_ICInitStructure);
   // TIM_ITConfig(TIM2, TIM_IT_Update|TIM_IT_CC2, ENABLE);
   // TIM_Cmd(TIM2, ENABLE);
-
-  // Lift Power 1 - PD12
-
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-  GPIO_Init(GPIOD, &GPIO_InitStructure);
-
-  // Lift Control - PD13
-
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-  GPIO_Init(GPIOD, &GPIO_InitStructure);
-
-  // Lift Power 2 - PD14
-
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-  GPIO_Init(GPIOD, &GPIO_InitStructure);
 }
 
 /**** Distance_Sensor ****/

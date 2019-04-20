@@ -136,6 +136,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Counter, "Task_Counter", 400, NULL, 3, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
@@ -146,6 +147,16 @@ void Task_Blink(void *Parameters) {
     while (1) {
         GREEN_LIGHT_TOGGLE;
         vTaskDelayUntil(&LastWakeTime, 250);
+    }
+
+    vTaskDelete(NULL);
+}
+
+void Task_Counter (void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    while (1) {
+        DebugA = 1 + DebugA;
+        vTaskDelayUntil(&LastWakeTime, 100);
     }
 
     vTaskDelete(NULL);

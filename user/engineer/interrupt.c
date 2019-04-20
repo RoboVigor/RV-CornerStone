@@ -60,8 +60,8 @@ void USART1_IRQHandler(void) {
 void USART3_IRQHandler(void) {
     u8 res;
 
-    if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
-        res = USART_ReceiveData(USART6);                     // 读取数据
+    if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
+        res = USART_ReceiveData(USART3);                     // 读取数据
         RED_LIGHT_TOGGLE;
     }
 
@@ -77,7 +77,7 @@ void USART3_IRQHandler(void) {
             } else {
                 magic.buf[magic.sta & 0X3FFF] = res;
                 magic.sta++;
-                // USART6->DR = res;
+                // USART3->DR = res;
                 if (magic.sta > (MAGIC_MAX_LENGTH - 1)) magic.sta = 0; // 接收数据错误，重新开始接收
             }
         }

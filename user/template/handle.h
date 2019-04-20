@@ -47,6 +47,9 @@ __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_
 // 视觉数据
 __HANDLE_EXT PsData_Type PsData;
 
+// 调试变量
+__HANDLE_EXT int DebugA;
+
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行
