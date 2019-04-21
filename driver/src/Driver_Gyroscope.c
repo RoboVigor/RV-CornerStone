@@ -17,18 +17,27 @@ static float zAcc;
 
 int debugA = 0;
 int debugB = 0;
+int debugC = 0;
+int debugD = 0;
+int debugE = 0;
+int debugF = 0;
 
 Filter_Type Filter_Yaw = {.count = 0, .thresholdLB = GYROSCOPE_YAW_FILTER_THRESHOLD};
 
-extern ImuData_Type ImuData;
+extern ImuData_Type       ImuData;
+extern GyroscopeData_Type Gyroscope_EulerData;
+
+int test = 0;
 
 void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
     GyroscopeData->startupCounter = 0;
     MPU6500_Initialize();
     MPU6500_EnableInt();
 #if GYROSCOPE_START_UP_DELAY_ENABLED
-    while (1)
-        if (Gyroscope_EulerData.startupCounter == GYROSCOPE_START_UP_DELAY) break;
+    while (1) {
+        if (Gyroscope_EulerData.startupCounter >= GYROSCOPE_START_UP_DELAY) break;
+        test = test % 1000 + 1;
+    }
 #endif
 }
 
@@ -72,12 +81,16 @@ void Gyroscope_Update_Angle_Data(GyroscopeData_Type *GyroscopeData) {
 
     // todo:删掉debugAB
     debugA = GyroscopeData->yaw;
-    debugB = GyroscopeData->startupCounter;
+    debugB = GyroscopeData->pitch;
+    debugC = GyroscopeData->roll;
+    debugD = ImuData.gx;
+    debugE = ImuData.gy;
+    debugF = ImuData.gz;
 
     // 输出欧拉角
 #if GYROSCOPE_START_UP_DELAY_ENABLED
-    if (GyroscopeData.startupCounter <= GYROSCOPE_START_UP_DELAY) {
-        GyroscopeData.startupCounter += 1;
+    if (GyroscopeData->startupCounter < GYROSCOPE_START_UP_DELAY) {
+        GyroscopeData->startupCounter += 1;
     }
 #endif
 }

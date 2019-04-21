@@ -88,7 +88,7 @@ void MPU6500_Initialize(void) {
 uint8_t mpu_buf[20];
 int     MPU6500_ReadData(void) {
     //尝试读取数据
-    if (IIC_ReadData(MPU_IIC_ADDR, MPU6500_ACCEL_XOUT_H, mpu_buf, 14) == 0xff) return 0xff;
+    if (IIC_ReadData(MPU_IIC_ADDR, MPU6500_ACCEL_XOUT_H, mpu_buf, 14) == 0xff) return 0;
 
     //成功的话进行赋值
     ImuData.ax   = (((int16_t) mpu_buf[0]) << 8) | mpu_buf[1];
@@ -101,5 +101,5 @@ int     MPU6500_ReadData(void) {
     ImuData.gy += ImuData.gy_offset;
     ImuData.gz = (((int16_t) mpu_buf[12]) << 8) | mpu_buf[13];
     ImuData.gz += ImuData.gz_offset;
-    return 0;
+    return 1;
 }
