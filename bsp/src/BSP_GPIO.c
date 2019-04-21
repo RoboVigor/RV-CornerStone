@@ -19,6 +19,32 @@ void BSP_GPIO_Init(void) {
     GPIO_Init(GPIOB, &GPIO_InitStructure);
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_USART1);
 
+    // USART3
+#if USART3_ENABLED
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+    GPIO_PinAFConfig(GPIOD, GPIO_PinSource5, GPIO_AF_USART3); // GPIOD8复用为USART3
+    GPIO_PinAFConfig(GPIOD, GPIO_PinSource6, GPIO_AF_USART3); // GPIOD9复用为USART3
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_8 | GPIO_Pin_9;  // GPIOD8与GPIOD9
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;             //复用功能
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;         //速度50MHz
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;            //推挽复用输出
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;             //上拉
+    GPIO_Init(GPIOD, &GPIO_InitStructure);                    //初始化
+#endif
+
+    // USART6
+#if USART6_ENABLED
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
+    GPIO_PinAFConfig(GPIOG, GPIO_PinSource9, GPIO_AF_USART6);  // GPIOG9复用为USART6
+    GPIO_PinAFConfig(GPIOG, GPIO_PinSource14, GPIO_AF_USART6); // GPIOG14复用为USART6
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_9 | GPIO_Pin_14;  // GPIOG9与GPIOG14
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;              //复用功能
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;          //速度50MHz
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;             //推挽复用输出
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;              //上拉
+    GPIO_Init(GPIOG, &GPIO_InitStructure);                     //初始化
+#endif
+
     // CAN1
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
@@ -73,7 +99,7 @@ void BSP_GPIO_Init(void) {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOF, &GPIO_InitStructure);
 
-    // IMU中断
+    // IMU_INT
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_8;
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
@@ -81,32 +107,6 @@ void BSP_GPIO_Init(void) {
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-#if USART3_ENABLED
-    // USART3
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-    GPIO_PinAFConfig(GPIOD, GPIO_PinSource5, GPIO_AF_USART3); // GPIOD8复用为USART3
-    GPIO_PinAFConfig(GPIOD, GPIO_PinSource6, GPIO_AF_USART3); // GPIOD9复用为USART3
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_8 | GPIO_Pin_9;  // GPIOD8与GPIOD9
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;             //复用功能
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;         //速度50MHz
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;            //推挽复用输出
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;             //上拉
-    GPIO_Init(GPIOD, &GPIO_InitStructure);                    //初始化
-#endif
-
-#if USART6_ENABLED
-    // USART6
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
-    GPIO_PinAFConfig(GPIOG, GPIO_PinSource9, GPIO_AF_USART6);  // GPIOG9复用为USART6
-    GPIO_PinAFConfig(GPIOG, GPIO_PinSource14, GPIO_AF_USART6); // GPIOG14复用为USART6
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_9 | GPIO_Pin_14;  // GPIOG9与GPIOG14
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;              //复用功能
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;          //速度50MHz
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;             //推挽复用输出
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;              //上拉
-    GPIO_Init(GPIOG, &GPIO_InitStructure);                     //初始化
-#endif
 
 #if USER_POWER_ENABLED
     // User Power
@@ -121,17 +121,6 @@ void BSP_GPIO_Init(void) {
     GPIO_SetBits(GPIOH, GPIO_Pin_3);
     GPIO_SetBits(GPIOH, GPIO_Pin_4);
     GPIO_SetBits(GPIOH, GPIO_Pin_5);
-#endif
-
-#if LASER_ENABLED
-    // Laser
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_13;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOG, &GPIO_InitStructure);
 #endif
 
     // TIM2(高频计数器)
