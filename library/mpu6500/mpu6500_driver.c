@@ -80,7 +80,7 @@ int MPU6500_EnableInt(void) {
 
 void MPU6500_Initialize(void) {
     while (MPU6500_Init() == 0xff) {
-        delay_ms(200); // todo: decrease this value
+        delay_ms(10);
     }
 }
 

@@ -76,10 +76,9 @@ void Gyroscope_Update_Angle_Data(GyroscopeData_Type *GyroscopeData) {
         GyroscopeData->yawoffset = -GyroscopeData->yaw;
     }
 
-    GyroscopeData->pitch = -pitchAngle; // todo:这负号干嘛的?
+    GyroscopeData->pitch = -pitchAngle;
     GyroscopeData->roll  = rollAngle;
 
-    // todo:删掉debugAB
     debugA = GyroscopeData->yaw;
     debugB = GyroscopeData->pitch;
     debugC = GyroscopeData->roll;

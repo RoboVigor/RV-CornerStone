@@ -16,7 +16,7 @@
 
 // 陀螺仪
 #define GYROSCOPE_START_UP_DELAY_ENABLED 1    //开机解算延迟开关
-#define GYROSCOPE_START_UP_DELAY 3500         //开机解算延迟量
+#define GYROSCOPE_START_UP_DELAY 500          //开机解算延迟量
 #define GYROSCOPE_YAW_FILTER_THRESHOLD 0.003f // 零飘修正阈值
 
 // 底盘
