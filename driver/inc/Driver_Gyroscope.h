@@ -12,6 +12,8 @@
 
 #include "stm32f4xx.h"
 
+#include "mpu6500_driver.h"
+
 #define PI 3.1415926f
 #define GYRO_LSB 16.4f
 #define ACC_LSB 4096.0f
@@ -21,8 +23,13 @@ typedef struct {
     float pitch;
     float roll;
     float yawoffset;
-    int   downcounter;
+    int   startupCounter;
 } GyroscopeData_Type;
+
+/**
+ * @brief 陀螺仪初始化
+ */
+void Gyroscope_Init(GyroscopeData_Type *GyroscopeData);
 
 /**
  * @brief 欧拉角解算

@@ -3,6 +3,8 @@
 #include "string.h"
 #include "sys.h"
 
+#define Magic_Init_Handle Magic_Init
+
 //标准库需要的支持函数
 struct __FILE {
     int handle;
@@ -22,7 +24,7 @@ int fputc(int ch, FILE *f) {
     return ch;
 }
 
-void Magic_Init_Handle(MagicHandle_Type *magic, int defaultValue) {
+void Magic_Init(MagicHandle_Type *magic, int defaultValue) {
     magic->defaultValue = defaultValue;
 }
 

@@ -16,7 +16,6 @@
 #include "Driver_Chassis.h"
 #include "Driver_Gyroscope.h"
 #include "Driver_Ps.h"
-#include "mpu6500_driver.h"
 
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT
@@ -35,6 +34,7 @@ __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type remoteData;
 
 // 陀螺仪
+__HANDLE_EXT volatile ImuData_Type ImuData;
 __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 无线串口调试
