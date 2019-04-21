@@ -38,24 +38,24 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_RFCM, 28, 0.5, 0, 3500, 1750);
 
     // 初始化底盘跟随PID(步兵)
-    PID_Init(&PID_Follow_Angle, 8, 0, 0, 500, 0);   // 17
-    PID_Init(&PID_Follow_Speed, 0.8, 0, 0, 660, 0); // 0.22
+    PID_Init(&PID_Follow_Angle, 8, 0, 0, 1000, 0);   // 17
+    PID_Init(&PID_Follow_Speed, 0.8, 0, 0, 1000, 0); // 0.22
 
     //功率PID
     PID_Init(&PID_Power, 0.5, 0.02, 0, 1000, 500); // 0.5 0.12  //0.2  0.05
 
     while (1) {
+        PID_Follow_Angle.p = CHOOSE(8, 12, 16);
+        // if (Motor_Pitch.angle < 2 && Motor_Pitch.angle > -2) {
+        //     followOutput = 0; //偏差小于3度认为跟上
+        // } else {
+        //计算followpid
+        PID_Calculate(&PID_Follow_Angle, 0, Motor_Pitch.angle);
+        PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, Motor_Pitch.positionDiff);
 
-        if (Motor_Pitch.angle < 2 && Motor_Pitch.angle > -2) {
-            followOutput = 0; //偏差小于3度认为跟上
-        } else {
-            //计算followpid
-            PID_Calculate(&PID_Follow_Angle, 0, Motor_Pitch.angle);
-            PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, Motor_Pitch.positionDiff);
-
-            //输出followpid
-            followOutput = PID_Follow_Speed.output;
-        }
+        //输出followpid
+        followOutput = PID_Follow_Speed.output;
+        // }
 
         lx = remoteData.lx;
         ly = remoteData.ly;
@@ -218,14 +218,14 @@ void Task_Fire(void *Parameters) {
             // Can_Send(CAN2, 0x200, -500, 500, 0, 0);
         }
         if (remoteData.switchLeft == 1) {
-            TIM_SetCompare1(TIM4, 15);
+            // TIM_SetCompare1(TIM4, 15);
         }
         if (remoteData.switchLeft == 2) {
             stirState = 2;
         } else if (remoteData.switchLeft == 3) {
             // lastSwitch = 3;
             stirState = 0;
-            TIM_SetCompare1(TIM4, 7);
+            // TIM_SetCompare1(TIM4, 7);
         }
         // else if (remoteData.switchLeft == 2 && lastSwitch == 3) {
         //     stirState = 3;
@@ -286,7 +286,8 @@ void Task_Blink(void *Parameters) {
 void Task_Cloud(void *Parameters) {
 
     // 时钟
-    TickType_t LastWakeTime = xTaskGetTickCount();
+    TickType_t LastWakeTime     = xTaskGetTickCount();
+    TickType_t lastLastWakeTime = 0;
 
     //初始化航向角target
     float yawTargetAngle   = 0;
@@ -304,10 +305,14 @@ void Task_Cloud(void *Parameters) {
     float yawDiff   = 0;
     float pitchDiff = 0;
 
+    // pitch ramp
+    float pitchRampProgress = 0;
+    float pitchRampStart    = Gyroscope_EulerData.pitch;
+
     //初始化云台PID
-    PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 2000, 0);   // 10
+    PID_Init(&PID_Cloud_YawAngle, 15, 0, 0, 2000, 0);   // 10
     PID_Init(&PID_Cloud_YawSpeed, 15, 0, 0, 2000, 0);   // 15
-    PID_Init(&PID_Cloud_PitchAngle, 20, 0, 0, 2000, 0); // 20
+    PID_Init(&PID_Cloud_PitchAngle, 15, 0, 0, 2000, 0); // 20
     PID_Init(&PID_Cloud_PitchSpeed, 15, 0, 0, 5000, 0); // 15
 
     while (1) {
@@ -316,24 +321,43 @@ void Task_Cloud(void *Parameters) {
         pitchFeedAngle        = Gyroscope_EulerData.pitch;
         yawFeedAngularSpeed   = -(float) (ImuData.gz / 16.4f);
         pitchFeedAngularSpeed = -(float) (ImuData.gx / 16.4f);
+        DebugData.debug1      = yawTargetAngle;
+        DebugData.debug2      = yawFeedAngle;
+        DebugData.debug3      = PID_Cloud_YawAngle.output;
+        DebugData.debug3      = pitchTargetAngle;
+        DebugData.debug4      = remoteData.ry;
+        DebugData.debug5      = PID_Cloud_YawSpeed.output;
+        DebugData.debug6      = LastWakeTime - lastLastWakeTime;
+        DebugData.debug7      = DebugData.debug7 % 100 + 1;
+        lastLastWakeTime      = LastWakeTime;
 
         //设定输入target
-        if (remoteData.rx <= 10 && remoteData.rx >= -10) {
-            yawDiff = 0;
-        } else {
-            yawDiff = remoteData.rx / 660.0f;
-        }
-        MIAO(yawDiff, -1, 1);
-        yawTargetAngle = yawTargetAngle + yawDiff;
+        // if (remoteData.rx <= 10 && remoteData.rx >= -10) {
+        //     yawDiff = 0;
+        // } else {
+        //     yawDiff = remoteData.rx / 660.0f;
+        // }
+        // MIAO(yawDiff, -1, 1);
+        // yawTargetAngle = yawTargetAngle + yawDiff;
 
-        if (remoteData.ry <= 30 && remoteData.ry >= -30) {
-            pitchDiff = 0;
-        } else {
-            pitchDiff = remoteData.ry / 2200.0f;
+        yawTargetAngle += (float) remoteData.rx / 660.0f * 29.5f / 30.0f;
+        // MIAO(yawTargetAngle, -29.5, 29.5);
+
+        pitchTargetAngle = (float) remoteData.ry / 660.0f * 55;
+        MIAO(pitchTargetAngle, -50, 5);
+        pitchTargetAngle = RAMP(pitchRampStart, pitchTargetAngle, pitchRampProgress);
+        if (pitchRampProgress < 1) {
+            pitchRampProgress += 0.005f;
         }
 
-        MIAO(pitchDiff, -0.3, 0.3);
-        pitchTargetAngle = pitchTargetAngle + pitchDiff;
+        // if (remoteData.ry <= 30 && remoteData.ry >= -30) {
+        //     pitchDiff = 0;
+        // } else {
+        //     pitchDiff = remoteData.ry / 2200.0f;
+        // }
+
+        // MIAO(pitchDiff, -0.3, 0.3);
+        // pitchTargetAngle = pitchTargetAngle + pitchDiff;
 
         PID_Calculate(&PID_Cloud_YawAngle, yawTargetAngle, yawFeedAngle);
         PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawFeedAngularSpeed);
@@ -341,6 +365,7 @@ void Task_Cloud(void *Parameters) {
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchFeedAngularSpeed);
 
         Can_Send(CAN1, 0x1FF, PID_Cloud_PitchSpeed.output, PID_Cloud_YawSpeed.output, 0, 0);
+        // Can_Send(CAN1, 0x1FF, PID_Cloud_PitchSpeed.output, 0, 0, 0);
         vTaskDelayUntil(&LastWakeTime, 5);
     }
     vTaskDelete(NULL);
@@ -361,6 +386,9 @@ void Task_Sys_Init(void *Parameters) {
     BSP_USER_Init();
 
     // 初始化陀螺仪
+    ImuData.gx_offset = -9;
+    ImuData.gy_offset = 15;
+    ImuData.gz_offset = 16;
     Gyroscope_Init(&Gyroscope_EulerData);
 
     // 调试任务
