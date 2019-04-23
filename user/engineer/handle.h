@@ -87,19 +87,23 @@ __HANDLE_EXT PsData_Type PsData;
 
 // 调试变量
 __HANDLE_EXT int DebugA, DebugB, DebugC, DebugD, DebugE, DebugF, DebugG, DebugH, DebugI;
-__HANDLE_EXT uint16_t DebugZ, DebugY;
+__HANDLE_EXT uint16_t DebugZ, DebugY, DebugW, DebugX;
 
 // 传感器返回值
 __HANDLE_EXT u8 re_buf_Data[8], receive_ok;
 
 // 传感器距离
-__HANDLE_EXT uint16_t distance1, distance2;
+__HANDLE_EXT uint16_t distance1, distance2, steady_distance1, steady_distance2;
 
 // 取弹状态
 __HANDLE_EXT int take_state;
 
 // 电推杆状态
 __HANDLE_EXT int pushrod_state;
+
+// 临时测试
+__HANDLE_EXT uint8_t DebugJ, DebugK;
+
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行

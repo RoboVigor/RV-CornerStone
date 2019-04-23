@@ -35,6 +35,7 @@ void Task_Landing_BANG(void *Parameters);       // 登岛气动控制
 void Task_Take(void *Parameters);                // 取弹装置
 void Task_Taking_Transmission(void *Parameters); // 传动装置
 void Task_Distance_Sensor(void *Parameters);     // 距离传感器
+void Task_Get_Distance(void *Parameters);         // 距离传感器
 void Task_Taking_Pushrod(void *Parameters);      // 电推杆
 // Supply
 void Task_Supply(void *Parameters);
