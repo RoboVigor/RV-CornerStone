@@ -11,5 +11,6 @@
 void Turn_Magazine(int State);
 void Turn_Camera_Screen(int State);
 void Turn_Camera_Rescue(int State);
+void Turn_Motor_Transimission_On(int State);
 
 #endif
