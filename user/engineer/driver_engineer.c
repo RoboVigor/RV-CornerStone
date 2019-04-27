@@ -57,6 +57,6 @@ void Turn_Motor_Upthrow_On(int State) {
         lastAngle         = Motor_Upthrow.angle;
         PID_Calculate(&PID_Upthrow_Angle, targetAngle, lastAngle);
         PID_Calculate(&PID_Upthrow_Speed, PID_Transmission_Angle.output, lastSpeed * rpm2rps);
-        Can_Send(CAN1, 0x1FF, 0, 0, PID_Upthrow_Speed.output, 0);
+        Can_Send(CAN1, 0x1FF, 0, 0, 0, PID_Upthrow_Speed.output);
     }
 }
