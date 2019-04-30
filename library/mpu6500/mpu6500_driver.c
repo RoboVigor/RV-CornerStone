@@ -1,6 +1,7 @@
 #define __DRIVER_MPU6500_GLOBALS
 
 #include "mpu6500_driver.h"
+#include "config.h"
 
 extern ImuData_Type ImuData;
 int16_t             IMU_id;
@@ -95,11 +96,8 @@ int     MPU6500_ReadData(void) {
     ImuData.ay   = (((int16_t) mpu_buf[2]) << 8) | mpu_buf[3];
     ImuData.az   = (((int16_t) mpu_buf[4]) << 8) | mpu_buf[5];
     ImuData.temp = (((int16_t) mpu_buf[6]) << 8) | mpu_buf[7];
-    ImuData.gx   = (((int16_t) mpu_buf[8]) << 8) | mpu_buf[9];
-    ImuData.gx += ImuData.gx_offset;
-    ImuData.gy = (((int16_t) mpu_buf[10]) << 8) | mpu_buf[11];
-    ImuData.gy += ImuData.gy_offset;
-    ImuData.gz = (((int16_t) mpu_buf[12]) << 8) | mpu_buf[13];
-    ImuData.gz += ImuData.gz_offset;
+    ImuData.gx   = ((((int16_t) mpu_buf[8]) << 8) | mpu_buf[9]) - IMU_GX_BIAS;
+    ImuData.gy   = ((((int16_t) mpu_buf[10]) << 8) | mpu_buf[11]) - IMU_GY_BIAS;
+    ImuData.gz   = ((((int16_t) mpu_buf[12]) << 8) | mpu_buf[13]) - IMU_GZ_BIAS;
     return 1;
 }

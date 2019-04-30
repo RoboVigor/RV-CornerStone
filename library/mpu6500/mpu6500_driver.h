@@ -6,13 +6,16 @@
 #include "stm32f4xx.h"
 
 typedef struct {
-    volatile int16_t ax;
-    volatile int16_t ay;
-    volatile int16_t az;
+    volatile int16_t ax; // m/s^2 [-8g,+8g] -> [-32768,32768] ideal:0
+    volatile int16_t ay; // m/s^2 [-8g,+8g] -> [-32768,32768] ideal:0
+    volatile int16_t az; // m/s^2 [-8g,+8g] -> [-32768,32768] ideal:4096
     volatile int16_t temp;
-    volatile int16_t gx;
-    volatile int16_t gy;
-    volatile int16_t gz;
+    volatile int16_t gx; // rad/s ideal:0
+    volatile int16_t gy; // rad/s ideal:0
+    volatile int16_t gz; // rad/s ideal:0
+    int16_t          ax_offset;
+    int16_t          ay_offset;
+    int16_t          az_offset;
     int16_t          gx_offset;
     int16_t          gy_offset;
     int16_t          gz_offset;
