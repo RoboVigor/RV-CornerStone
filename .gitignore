@@ -5,3 +5,4 @@ mdk/Objects/
 mdk/*.uvguix.*
 mdk/*.map
 mdk/*.lst
+user/.DS_Store
