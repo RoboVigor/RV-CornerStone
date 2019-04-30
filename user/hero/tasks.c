@@ -16,174 +16,130 @@ void Task_Safe_Mode(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_Cloud(void *Parameters) {
+void Task_Gimbal(void *Parameters) {
 
-    float rpm2dps = 360 / 60; // 转子的转速(round/min)换算成角速度(deg/s)
-    // 时钟
-    TickType_t LastWakeTime     = xTaskGetTickCount();
-    TickType_t lastLastWakeTime = 0;
+    // 任务
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.005;               // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    //初始化航向角target
-    float pitchTargetAngle = 0;
+    // 单位换算
+    float rpm2rps = 2 * 3.1415926f / 60.0f; // 转子的转速(RPM,RoundPerMinute)换算成角速度(RadPerSecond)
+    float dps2rps = 3.1415926f / 180.0f;    // degree per second to rad per second
+    float rps2dps = 180.0f / 3.1415926f;    // degree per second to rad per second
 
-    //初始化角速度反馈
-    float yawFeedAngularSpeed   = 0;
-    float pitchFeedAngularSpeed = 0;
+    // 反馈值
+    float motorAngle, motorSpeed, yawAngle, yawSpeed, pitchAngle, pitchSpeed;
 
-    //初始化角度反馈(陀螺仪反馈角度)
-    float yawFeedAngle   = 0;
-    float pitchFeedAngle = 0;
-
-    // yaw pitch 增量
-    float yawDiff   = 0;
-    float pitchDiff = 0;
+    // 目标值
+    float yawAngleTarget   = 0;
+    float pitchAngleTarget = 0;
 
     // pitch ramp
     float pitchRampProgress = 0;
     float pitchRampStart    = Gyroscope_EulerData.pitch;
 
-    //初始化云台PID
-    PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 2000, 0);   // 10
-    PID_Init(&PID_Cloud_YawSpeed, 20, 0, 0, 2000, 0);   // 15
-    PID_Init(&PID_Cloud_PitchAngle, 15, 0, 0, 2000, 0); // 20
-    PID_Init(&PID_Cloud_PitchSpeed, 15, 0, 0, 5000, 0); // 15
+    // 初始化云台PID
+    PID_Init(&PID_Cloud_YawAngle, 1, 0, 0, 16000, 0);
+    PID_Init(&PID_Cloud_YawSpeed, 1, 0, 0, 16000, 0);
+    PID_Init(&PID_Cloud_PitchAngle, 1, 0, 0, 16000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 1, 0, 0, 16000, 0);
 
     while (1) {
-        //将陀螺仪值赋予使用变量
-        yawFeedAngle          = -Gyroscope_EulerData.yaw;
-        pitchFeedAngle        = Gyroscope_EulerData.pitch;
-        yawFeedAngularSpeed   = -(float) (ImuData.gz / 16.4f);
-        pitchFeedAngularSpeed = -(float) (ImuData.gx / 16.4f);
-        lastLastWakeTime      = LastWakeTime;
+        // 设置反馈值
+        motorAngle = Motor_Yaw.angle;                                                  // 电机角度
+        motorSpeed = (PID_Follow_Angle.error - PID_Follow_Angle.lastError) / interval; // 电机角速度 todo:验证这样写行不行
+        yawAngle   = Gyroscope_EulerData.yaw;
+        yawSpeed   = ImuData.gz * rps2dps;
+        pitchAngle = Gyroscope_EulerData.pitch;
+        pitchSpeed = ImuData.gx * rps2dps;
 
-        //设定输入target
-        PID_Cloud_YawAngle.p = CHOOSE(60, 80, 100);
-        // MIAO(yawTargetAngle, -29.5, 29.5);
-
-        pitchTargetAngle = (float) remoteData.ry / 660.0f * 55;
-        MIAO(pitchTargetAngle, -50, 5);
-        pitchTargetAngle = RAMP(pitchRampStart, pitchTargetAngle, pitchRampProgress);
+        // 设置目标
+        yawAngleTarget += (float) remoteData.rx / 660.0f * 30 * interval;
+        pitchAngleTarget += (float) remoteData.ry / 660.0f * 10 * interval;
+        MIAO(yawAngleTarget, -30, 30);
+        MIAO(pitchAngleTarget, -50, 5);
+        pitchAngleTarget = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
         if (pitchRampProgress < 1) {
             pitchRampProgress += 0.005f;
         }
-        // yawTargetAngle   = 0;
-        // pitchTargetAngle = 0;
 
-        PID_Calculate(&PID_Cloud_YawAngle, 0, -1 * Motor_Pitch.angle);
-        // PID_Calculate(&PID_Cloud_YawSpeed, , Motor_Pitch.speed * rpm2dps);
-        // PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, Motor_Pitch.speed * rpm2dps);
-        PID_Calculate(&PID_Cloud_PitchAngle, pitchTargetAngle, pitchFeedAngle);
-        PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchFeedAngularSpeed);
+        // 计算PID
+        PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget, yawAngle);
+        PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output / interval, yawSpeed);
 
-        Can_Send(CAN1, 0x1FF, PID_Cloud_PitchSpeed.output, PID_Cloud_YawAngle.output, 0, 0);
-        vTaskDelayUntil(&LastWakeTime, 5);
+        PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTarget, pitchAngle);
+        PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output / interval, pitchSpeed);
+
+        // 输出电流
+        // Can_Send(CAN1, 0x1FF, PID_Cloud_PitchSpeed.output, PID_Cloud_YawAngle.output, 0, 0);
+
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+
+        // 调试信息
+        DebugData.debug1 = PID_Cloud_YawAngle.target;
+        DebugData.debug2 = PID_Cloud_YawAngle.feedback;
+        DebugData.debug3 = PID_Cloud_YawSpeed.target;
+        DebugData.debug4 = PID_Cloud_YawSpeed.feedback;
+        DebugData.debug5 = PID_Cloud_PitchAngle.target;
+        DebugData.debug6 = PID_Cloud_PitchAngle.feedback;
+        DebugData.debug7 = PID_Cloud_PitchSpeed.target;
+        DebugData.debug8 = PID_Cloud_PitchSpeed.feedback;
     }
     vTaskDelete(NULL);
 }
 
 void Task_Chassis(void *Parameters) {
+    // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    int        rotorSpeed[4];                      // 轮子转速
-    float      rpm2rps      = 3.14 / 60;           // 转子的转速(RPM,RoundPerMinute)换算成角速度(RadPerSecond)
-    float      followOutput = 0;                   // 输出底盘跟随
-    float      powerScale   = 1;
+    float      interval     = 0.005;               // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    // 遥控器输入限幅
-    float lx     = 0;
-    float ly     = 0;
-    float lxLast = 0;
-    float lyLast = 0;
-    float lxDiff = 0;
-    float lyDiff = 0;
+    // 单位换算
+    float rpm2rps = 2 * 3.1415926f / 60.0f; // 转子的转速(RPM,RoundPerMinute)换算成角速度(RadPerSecond)
+    float dps2rps = 3.1415926f / 180.0f;    // degree per second to rad per second
+    float rps2dps = 180.0f / 3.1415926f;    // degree per second to rad per second
 
-    // 初始化麦轮速度PID（步兵）
-    PID_Init(&PID_LFCM, 28, 0, 0, 3500, 1750); //  28, 0.5, 0, 3500, 1750
+    // 底盘运动
+    float vx = 0;
+    float vy = 0;
+    float vw = 0;
+    int   rotorSpeed[4];  // 转子转速
+    float powerScale = 1; // 功率系数
+
+    // 反馈值
+    float motorAngle, motorSpeed, yawAngle, yawSpeed;
+
+    // 底盘跟随PID
+    PID_Init(&PID_Follow_Angle, 1, 0, 0, 1000, 0);
+    PID_Init(&PID_Follow_Speed, 1, 0, 0, 1000, 0);
+
+    // 麦轮速度PID
+    PID_Init(&PID_LFCM, 28, 0, 0, 3500, 1750);
     PID_Init(&PID_LBCM, 28, 0, 0, 3500, 1750);
     PID_Init(&PID_RBCM, 28, 0, 0, 3500, 1750);
     PID_Init(&PID_RFCM, 28, 0, 0, 3500, 1750);
 
-    // 初始化底盘跟随PID(步兵)
-    PID_Init(&PID_Follow_Angle, 10, 0, 0, 1000, 0);  // 17
-    PID_Init(&PID_Follow_Speed, 2.5, 0, 0, 1000, 0); // 0.22
-
     //功率PID
-    PID_Init(&PID_Power, 0.5, 0.02, 0, 1000, 500); // 0.5 0.12  //0.2  0.05
-
-    int   mode           = 2;         // 底盘运动模式,1直线,2转弯
-    int   lastMode       = 2;         // 上一次的运动模式
-    float yawAngleTarget = 0;         // 目标值
-    float yawAngleFeed, yawSpeedFeed; // 反馈值
+    PID_Init(&PID_Power, 0.5, 0.02, 0, 1000, 500);
 
     while (1) {
-        DebugData.debug1 = PID_Follow_Angle.target;
-        DebugData.debug2 = PID_Follow_Angle.feedback;
-        DebugData.debug3 = PID_Follow_Angle.output;
-        DebugData.debug4 = PID_Follow_Speed.target;
-        DebugData.debug5 = PID_Follow_Speed.feedback;
-        DebugData.debug6 = PID_Follow_Speed.output;
-
-        yawAngleTarget += (float) remoteData.rx / 660.0f * 29.5f / 10.0f;
-
-        // 更新运动模式
-        mode = ABS(remoteData.rx) < 5 ? 1 : 2;
 
         // 设置反馈值
-        yawAngleFeed = Gyroscope_EulerData.yaw; // 航向角角度反馈
-        yawSpeedFeed = ImuData.gz / 16.4;       // 航向角角速度反馈
-
-        // 切换运动模式
-        if (mode != lastMode) {
-            PID_YawAngle.output_I = 0;            // 清空角度PID积分
-            PID_YawSpeed.output_I = 0;            // 清空角速度PID积分
-            yawAngleTarget        = yawAngleFeed; // 更新角度PID目标值
-            lastMode              = mode;         // 更新lastMode
-        }
+        motorAngle = Motor_Yaw.angle;                                                  // 电机角度
+        motorSpeed = (PID_Follow_Angle.error - PID_Follow_Angle.lastError) / interval; // 电机角速度 todo:验证这样写行不行
+        yawAngle   = Gyroscope_EulerData.yaw;
+        yawSpeed   = ImuData.gz * rps2dps;
 
         // 根据运动模式计算PID
-        if (0) {
-            PID_Calculate(&PID_Follow_Angle, yawAngleTarget, yawAngleFeed);      // 计算航向角角度PID
-            PID_Calculate(&PID_Follow_Speed, PID_YawAngle.output, yawSpeedFeed); // 计算航向角角速度PID
-        } else {
-            PID_Calculate(&PID_Follow_Speed, -remoteData.rx, yawSpeedFeed); // 计算航向角角速度PID
-        }
+        PID_Calculate(&PID_Follow_Angle, 0, motorAngle);                   // 计算航向角角度PID
+        PID_Calculate(&PID_Follow_Speed, PID_YawAngle.output, motorSpeed); // 计算航向角角速度PID
 
-        lx = remoteData.lx;
-        ly = remoteData.ly;
-
-        // todo:改掉这一段
-        if (ABS(lx) < 90) {
-            lxDiff = 0;
-        }
-        if (ABS(ly) < 120) {
-            lyDiff = 0;
-        }
-
-        if (lx >= 200 && lxLast < lx) { // 90
-            lx = 200 + lxDiff;
-            lxDiff++;
-            lxLast = lx;
-        } else if (lx <= -200 && lxLast > lx) {
-            lx = -200 - lxDiff;
-            lxDiff++;
-            lxLast = lx;
-        }
-        if (ly > 120 && lyLast < ly) {
-            ly = 120 + lyDiff;
-            lyDiff += 0.5;
-            lyLast = ly;
-        } else if (ly < -120 && lyLast > ly) {
-            ly = -120 - lyDiff;
-            lyDiff += 0.5;
-            lyLast = ly;
-        }
-
-        // 修正转向力
-        lx           = -lx / 660.0f;
-        ly           = ly / 660.0f * 3;
-        followOutput = (float) PID_Follow_Speed.output / 660.0f; // 12
         // 设置底盘总体移动速度
-        Chassis_Update(&ChassisData, lx, ly, followOutput);
-        // Chassis_Update(&ChassisData, lx, ly, 0);
+        vx = -remoteData.lx / 660.0f;
+        vy = remoteData.ly / 660.0f * 3;
+        vw = (float) PID_Follow_Speed.output * dps2rps;
+        Chassis_Update(&ChassisData, vx, vy, vw);
 
         // 麦轮解算&限幅,获得轮子转速
         Chassis_Get_Rotor_Speed(&ChassisData, rotorSpeed);
@@ -202,9 +158,20 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
 
         // 输出电流值到电调
-        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+
         // 底盘运动更新频率
-        vTaskDelayUntil(&LastWakeTime, 10);
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+
+        // 调试信息
+        // DebugData.debug1 = PID_Follow_Angle.target;
+        // DebugData.debug2 = PID_Follow_Angle.feedback;
+        // DebugData.debug3 = PID_Follow_Angle.output;
+        // DebugData.debug4 = PID_Follow_Speed.target;
+        // DebugData.debug5 = PID_Follow_Speed.feedback;
+        // DebugData.debug6 = PID_Follow_Speed.output;
+        // DebugData.debug7 = PID_Follow_Speed.output;
+        // DebugData.debug8 = PID_Follow_Speed.output;
     }
 
     vTaskDelete(NULL);
@@ -278,7 +245,7 @@ void Task_Fire(void *Parameters) {
 
         // 摩擦轮 PID 控制
         if (frictState == 0) {
-            // LASER_OFF;                                                                          // 关闭激光
+            LASER_OFF;                                                                              // 关闭激光
             PID_Increment_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps * r);   // 左摩擦轮停止
             PID_Increment_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps * r); // 右摩擦轮停止
             PID_LeftFrictSpeed.output  = PID_LeftFrictSpeed.output / 0.0595 * 60 / 3.14;
@@ -289,9 +256,6 @@ void Task_Fire(void *Parameters) {
             PID_Calculate(&PID_LeftFrictSpeed, frictSpeed, Motor_LeftFrict.speed * rpm2rps);    // 左摩擦轮转动
             PID_Calculate(&PID_RightFrictSpeed, -frictSpeed, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮转动
             Can_Send(CAN2, 0x200, PID_RightFrictSpeed.output, PID_LeftFrictSpeed.output, 0, 0);
-            // Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, 0, 0, 0);
-            // Can_Send(CAN2, 0x200, -1000, 1000, 0, 0);
-            // Can_Send(CAN2, 0x200, -500, 500, 0, 0);
         }
         if (remoteData.switchLeft == 1) {
             // TIM_SetCompare1(TIM4, 15);
@@ -343,9 +307,6 @@ void Task_Sys_Init(void *Parameters) {
     BSP_USER_Init();
 
     // 初始化陀螺仪
-    ImuData.gx_offset = -9;
-    ImuData.gy_offset = 15;
-    ImuData.gz_offset = 16;
     Gyroscope_Init(&Gyroscope_EulerData);
 
     // 调试任务
@@ -356,14 +317,11 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Debug_Gyroscope_Sampling, "Task_Debug_Gyroscope_Sampling", 400, NULL, 6, NULL);
 #endif
 
-    // 高频任务
-    xTaskCreate(Task_Cloud, "Task_Cloud", 1000, NULL, 5, NULL);
-
-    // 功能任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 3, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
