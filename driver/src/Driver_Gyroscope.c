@@ -15,13 +15,6 @@ static float xAcc;
 static float yAcc;
 static float zAcc;
 
-int debugA = 0;
-int debugB = 0;
-int debugC = 0;
-int debugD = 0;
-int debugE = 0;
-int debugF = 0;
-
 Filter_Type Filter_Yaw = {.count = 0, .thresholdLB = GYROSCOPE_YAW_FILTER_THRESHOLD};
 
 extern ImuData_Type       ImuData;
@@ -78,13 +71,6 @@ void Gyroscope_Update_Angle_Data(GyroscopeData_Type *GyroscopeData) {
 
     GyroscopeData->pitch = -pitchAngle;
     GyroscopeData->roll  = rollAngle;
-
-    debugA = GyroscopeData->yaw;
-    debugB = GyroscopeData->pitch;
-    debugC = GyroscopeData->roll;
-    debugD = ImuData.gx;
-    debugE = ImuData.gy;
-    debugF = ImuData.gz;
 
     // 输出欧拉角
 #if GYROSCOPE_START_UP_DELAY_ENABLED
