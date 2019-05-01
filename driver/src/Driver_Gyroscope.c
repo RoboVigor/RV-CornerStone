@@ -20,8 +20,6 @@ Filter_Type Filter_Yaw = {.count = 0, .thresholdLB = GYROSCOPE_YAW_FILTER_THRESH
 extern ImuData_Type       ImuData;
 extern GyroscopeData_Type Gyroscope_EulerData;
 
-int test = 0;
-
 void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
     GyroscopeData->startupCounter = 0;
     MPU6500_Initialize();
@@ -29,7 +27,6 @@ void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
 #if GYROSCOPE_START_UP_DELAY_ENABLED
     while (1) {
         if (Gyroscope_EulerData.startupCounter >= GYROSCOPE_START_UP_DELAY) break;
-        test = test % 1000 + 1;
     }
 #endif
 }

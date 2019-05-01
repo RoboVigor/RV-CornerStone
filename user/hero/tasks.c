@@ -56,7 +56,7 @@ void Task_Gimbal(void *Parameters) {
 
         // 设置目标
         yawAngleTarget += (float) remoteData.rx / 660.0f * 30 * interval;
-        pitchAngleTarget += (float) remoteData.ry / 660.0f * 10 * interval;
+        pitchAngleTarget += (float) remoteData.ry / 660.0f * 20 * interval;
         MIAO(yawAngleTarget, -30, 30);
         MIAO(pitchAngleTarget, -50, 5);
         pitchAngleTarget = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
@@ -77,8 +77,10 @@ void Task_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = PID_Cloud_YawAngle.target;
-        DebugData.debug2 = PID_Cloud_YawAngle.feedback;
+        DebugData.debug1 = ImuData.gx * rps2dps;
+        DebugData.debug2 = pitchSpeed;
+        // DebugData.debug1 = PID_Cloud_YawAngle.target;
+        // DebugData.debug2 = PID_Cloud_YawAngle.feedback;
         DebugData.debug3 = PID_Cloud_YawSpeed.target;
         DebugData.debug4 = PID_Cloud_YawSpeed.feedback;
         DebugData.debug5 = PID_Cloud_PitchAngle.target;
