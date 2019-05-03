@@ -8,15 +8,17 @@
 
 // clang-format off
 
-#define FORWARD 1
-#define BACKWARD -1
+// 单位换算
+#define RPM2RPS 0.10471975f // 2 * 3.1415926f / 60.0f, round/min->rad/s
+#define DPS2RPS 0.01745329f // 3.1415926f / 180.0f,    degree/s ->rad/s
+#define RPS2DPS 57.2957804f // 180.0f / 3.1415926f,    rad/s    ->degree/s
 
+// 数值运算
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
-
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
-
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
+// 偷懒
 #define LASER_ON GPIO_SetBits(GPIOG, GPIO_Pin_13) // 激光开启
 #define LASER_OFF GPIO_ResetBits(GPIOG, GPIO_Pin_13) // 激光关闭
 
