@@ -17,14 +17,11 @@
 #define GYROSCOPE_START_UP_DELAY_ENABLED 1    //开机解算延迟开关
 #define GYROSCOPE_START_UP_DELAY 1700         //开机解算延迟量
 #define GYROSCOPE_YAW_FILTER_THRESHOLD 0.003f // 零飘修正阈值
-#define IMU_GX_BIAS 2
-#define IMU_GY_BIAS 9
-#define IMU_GZ_BIAS -6
-#define GYROSCOPE_LSB 16.384f  // 2^16/4000
-#define ACCELERATE_LSB 4096.0f // 2^16/16
-#define RPM2RPS 0.10471975f    // 2 * 3.1415926f / 60.0f round per minute  to rad per second
-#define DPS2RPS 0.01745329f    // 3.1415926f / 180.0f    degree per second to rad per second
-#define RPS2DPS 57.2957804f    // 180.0f / 3.1415926f    rad per second    to degree per second
+#define IMU_GX_BIAS 2                         // GX静态误差,通过平放主控板采样得到
+#define IMU_GY_BIAS 9                         // GY静态误差
+#define IMU_GZ_BIAS -6                        // GZ静态误差
+#define GYROSCOPE_LSB 16.384f                 // 陀螺仪敏感度 2^16/4000
+#define ACCELERATE_LSB 4096.0f                // 加速度计敏感度 2^16/16
 
 // 底盘
 #define CHASSIS_MOTOR_REDUCTION_RATE 19.2f  //底盘电机减速比
