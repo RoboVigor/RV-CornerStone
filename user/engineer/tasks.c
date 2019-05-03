@@ -47,88 +47,6 @@ void Task_Monitor(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-// void Task_Chassis(void *Parameters) {
-//     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-//     int        rotorSpeed[4];                      // 轮子转速
-//     float      rpm2rps        = 0.104667f;         // 转子的转速(round/min)换算成角速度(rad/s) = 2 * 3.14 / 60
-//     int        mode           = 2;                 // 底盘运动模式,1直线,2转弯
-//     int        lastMode       = 2;                 // 上一次的运动模式
-//     float      yawAngleTarget = 0;                 // 目标值
-//     float      yawAngleFeed, yawSpeedFeed;         // 反馈值
-
-//     float debug_p = 30;
-//     float debug_i = 0;
-
-//     // TIM_SetCompare4(TIM4, 5);
-
-//     // 初始化麦轮角速度PID
-//     PID_Init(&PID_LFCM, debug_p, debug_i, 0, 4000, 2000); // 19 0.15
-//     PID_Init(&PID_LBCM, debug_p, debug_i, 0, 4000, 2000);
-//     PID_Init(&PID_RBCM, debug_p, debug_i, 0, 4000, 2000);
-//     PID_Init(&PID_RFCM, debug_p, debug_i, 0, 4000, 2000);
-
-//     // 初始化航向角角度PID和角速度PID
-//     PID_Init(&PID_YawAngle, 10, 0, 0, 1000, 1000);
-//     PID_Init(&PID_YawSpeed, 2, 0, 0, 4000, 1000);
-
-//     while (1) {
-
-//         // 更新运动模式
-//         mode = ABS(remoteData.rx) < 5 ? 1 : 2;
-
-//         // 设置反馈值
-//         yawAngleFeed = Gyroscope_EulerData.yaw; // 航向角角度反馈
-//         yawSpeedFeed = mpu6500_data.gz / 16.4;  // 航向角角速度反馈
-
-//         // 切换运动模式
-//         if (mode != lastMode) {
-//             PID_YawAngle.output_I = 0;            // 清空角度PID积分
-//             PID_YawSpeed.output_I = 0;            // 清空角速度PID积分
-//             yawAngleTarget        = yawAngleFeed; // 更新角度PID目标值
-//             lastMode              = mode;         // 更新lastMode
-//         }
-
-//         // 根据运动模式计算PID
-//         if (mode == 1) {
-//             PID_Calculate(&PID_YawAngle, yawAngleTarget,
-//                           yawAngleFeed); // 计算航向角角度PID
-//             PID_Calculate(&PID_YawSpeed, PID_YawAngle.output,
-//                           yawSpeedFeed); // 计算航向角角速度PID
-//         } else {
-//             PID_Calculate(&PID_YawSpeed, -remoteData.rx,
-//                           yawSpeedFeed); // 计算航向角角速度PID
-//         }
-
-//         // 设置底盘总体移动速度
-//         // Chassis_Update(&ChassisData, -(float) remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, (float) PID_YawSpeed.output / 1320.0f);
-//         Chassis_Update(&ChassisData, -(float) remoteData.lx / 330.0f, (float) remoteData.ly / 330.0f, (float) PID_YawSpeed.output / 660.0f);
-//         // Chassis_Update(&ChassisData, -(float) remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, 0);
-
-//         // 麦轮解算&限幅,获得轮子转速
-//         Chassis_Get_Rotor_Speed(&ChassisData, rotorSpeed);
-
-//         // 计算输出电流PID
-//         PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * rpm2rps);
-//         PID_Calculate(&PID_LBCM, rotorSpeed[1], Motor_LB.speed * rpm2rps);
-//         PID_Calculate(&PID_RBCM, rotorSpeed[2], Motor_RB.speed * rpm2rps);
-//         PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
-
-//         // 输出电流值到电调(安全起见默认注释此行)
-//         Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
-//         // Can_Send(CAN1, 0x200, 2000, 2000, 2000, 2000);
-
-//         DebugA = Motor_LF.speed;
-//         DebugB = Motor_LB.speed;
-//         DebugC = Motor_RB.speed;
-//         DebugD = Motor_RF.speed;
-
-//         // 底盘运动更新频率
-//         vTaskDelayUntil(&LastWakeTime, 10);
-//     }
-
-//     vTaskDelete(NULL);
-// }
-
 void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     int        rotorSpeed[4];                      // 轮子转速
@@ -137,18 +55,15 @@ void Task_Chassis(void *Parameters) {
     int        lastMode       = 2;                 // 上一次的运动模式
     float      yawAngleTarget = 0;                 // 目标值
     float      yawAngleFeed, yawSpeedFeed;         // 反馈值
-    float      x_moving = 0;                       // 键盘x轴方向移动
-    float      y_moving = 0;                       // 键盘y轴方向移动
-    // float      mouse_rotating = 0;                 // 鼠标x轴控制旋转
 
     float debug_p = 30;
-    float debug_i = 0;
+    float debug_i = 0.15;
 
     // 初始化麦轮角速度PID
-    PID_Init(&PID_LFCM, debug_p, debug_i, 0, 4000, 2000); // 19 0.15
-    PID_Init(&PID_LBCM, debug_p, debug_i, 0, 4000, 2000);
-    PID_Init(&PID_RBCM, debug_p, debug_i, 0, 4000, 2000);
-    PID_Init(&PID_RFCM, debug_p, debug_i, 0, 4000, 2000);
+    PID_Init(&PID_LFCM, debug_p, debug_i, 0, 10000, 4000); // 19 0.15
+    PID_Init(&PID_LBCM, debug_p, debug_i, 0, 10000, 4000);
+    PID_Init(&PID_RBCM, debug_p, debug_i, 0, 10000, 4000);
+    PID_Init(&PID_RFCM, debug_p, debug_i, 0, 10000, 4000);
 
     // 初始化航向角角度PID和角速度PID
     PID_Init(&PID_YawAngle, 10, 0, 0, 1000, 1000);
@@ -157,7 +72,7 @@ void Task_Chassis(void *Parameters) {
     while (1) {
 
         // 更新运动模式
-        mode = remoteData.mouse.x < 5 ? 1 : 2;
+        mode = ABS(remoteData.rx) < 5 ? 1 : 2;
 
         // 设置反馈值
         yawAngleFeed = Gyroscope_EulerData.yaw; // 航向角角度反馈
@@ -178,30 +93,13 @@ void Task_Chassis(void *Parameters) {
             PID_Calculate(&PID_YawSpeed, PID_YawAngle.output,
                           yawSpeedFeed); // 计算航向角角速度PID
         } else {
-            PID_Calculate(&PID_YawSpeed, remoteData.mouse.x,
+            PID_Calculate(&PID_YawSpeed, -remoteData.rx,
                           yawSpeedFeed); // 计算航向角角速度PID
-        }
-
-
-        if (remoteData.keyBoard.keyCode == KEY_A) {
-            x_moving = 1;
-        } else if (remoteData.keyBoard.keyCode == KEY_D) {
-            x_moving = -1;
-        } else {
-            x_moving = 0;
-        }
-
-        if (remoteData.keyBoard.keyCode == KEY_W) {
-            y_moving = 1;
-        } else if (remoteData.keyBoard.keyCode == KEY_S) {
-            y_moving = -1;
-        } else {
-            y_moving = 0;
         }
 
         // 设置底盘总体移动速度
         // Chassis_Update(&ChassisData, -(float) remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, (float) PID_YawSpeed.output / 1320.0f);
-        Chassis_Update(&ChassisData, -(float) x_moving * 2, (float) y_moving * 2, (float) PID_YawSpeed.output / 220.0f);
+        Chassis_Update(&ChassisData, -(float) remoteData.lx / 330.0f, (float) remoteData.ly / 330.0f, (float) PID_YawSpeed.output / 660.0f);
         // Chassis_Update(&ChassisData, -(float) remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, 0);
 
         // 麦轮解算&限幅,获得轮子转速
@@ -228,6 +126,105 @@ void Task_Chassis(void *Parameters) {
 
     vTaskDelete(NULL);
 }
+
+// void Task_Chassis(void *Parameters) {
+//     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+//     int        rotorSpeed[4];                      // 轮子转速
+//     float      rpm2rps        = 0.104667f;         // 转子的转速(round/min)换算成角速度(rad/s) = 2 * 3.14 / 60
+//     int        mode           = 2;                 // 底盘运动模式,1直线,2转弯
+//     int        lastMode       = 2;                 // 上一次的运动模式
+//     float      yawAngleTarget = 0;                 // 目标值
+//     float      yawAngleFeed, yawSpeedFeed;         // 反馈值
+//     float      x_moving = 0;                       // 键盘x轴方向移动
+//     float      y_moving = 0;                       // 键盘y轴方向移动
+//     // float      mouse_rotating = 0;                 // 鼠标x轴控制旋转
+
+//     float debug_p = 30;
+//     float debug_i = 0;
+
+//     // 初始化麦轮角速度PID
+//     PID_Init(&PID_LFCM, debug_p, debug_i, 0, 4000, 2000); // 19 0.15
+//     PID_Init(&PID_LBCM, debug_p, debug_i, 0, 4000, 2000);
+//     PID_Init(&PID_RBCM, debug_p, debug_i, 0, 4000, 2000);
+//     PID_Init(&PID_RFCM, debug_p, debug_i, 0, 4000, 2000);
+
+//     // 初始化航向角角度PID和角速度PID
+//     PID_Init(&PID_YawAngle, 10, 0, 0, 1000, 1000);
+//     PID_Init(&PID_YawSpeed, 2, 0, 0, 4000, 1000);
+
+//     while (1) {
+
+//         // 更新运动模式
+//         mode = remoteData.mouse.x < 5 ? 1 : 2;
+
+//         // 设置反馈值
+//         yawAngleFeed = Gyroscope_EulerData.yaw; // 航向角角度反馈
+//         yawSpeedFeed = mpu6500_data.gz / 16.4;  // 航向角角速度反馈
+
+//         // 切换运动模式
+//         if (mode != lastMode) {
+//             PID_YawAngle.output_I = 0;            // 清空角度PID积分
+//             PID_YawSpeed.output_I = 0;            // 清空角速度PID积分
+//             yawAngleTarget        = yawAngleFeed; // 更新角度PID目标值
+//             lastMode              = mode;         // 更新lastMode
+//         }
+
+//         // 根据运动模式计算PID
+//         if (mode == 1) {
+//             PID_Calculate(&PID_YawAngle, yawAngleTarget,
+//                           yawAngleFeed); // 计算航向角角度PID
+//             PID_Calculate(&PID_YawSpeed, PID_YawAngle.output,
+//                           yawSpeedFeed); // 计算航向角角速度PID
+//         } else {
+//             PID_Calculate(&PID_YawSpeed, remoteData.mouse.x,
+//                           yawSpeedFeed); // 计算航向角角速度PID
+//         }
+
+//         if (remoteData.keyBoard.keyCode == KEY_A) {
+//             x_moving = 1;
+//         } else if (remoteData.keyBoard.keyCode == KEY_D) {
+//             x_moving = -1;
+//         } else {
+//             x_moving = 0;
+//         }
+
+//         if (remoteData.keyBoard.keyCode == KEY_W) {
+//             y_moving = 1;
+//         } else if (remoteData.keyBoard.keyCode == KEY_S) {
+//             y_moving = -1;
+//         } else {
+//             y_moving = 0;
+//         }
+
+//         // 设置底盘总体移动速度
+//         // Chassis_Update(&ChassisData, -(float) remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, (float) PID_YawSpeed.output / 1320.0f);
+//         Chassis_Update(&ChassisData, -(float) x_moving * 2, (float) y_moving * 2, (float) PID_YawSpeed.output / 220.0f);
+//         // Chassis_Update(&ChassisData, -(float) remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, 0);
+
+//         // 麦轮解算&限幅,获得轮子转速
+//         Chassis_Get_Rotor_Speed(&ChassisData, rotorSpeed);
+
+//         // 计算输出电流PID
+//         PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * rpm2rps);
+//         PID_Calculate(&PID_LBCM, rotorSpeed[1], Motor_LB.speed * rpm2rps);
+//         PID_Calculate(&PID_RBCM, rotorSpeed[2], Motor_RB.speed * rpm2rps);
+//         PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
+
+//         // 输出电流值到电调(安全起见默认注释此行)
+//         Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+//         // Can_Send(CAN1, 0x200, 2000, 2000, 2000, 2000);
+
+//         DebugA = Motor_LF.speed;
+//         DebugB = Motor_LB.speed;
+//         DebugC = Motor_RB.speed;
+//         DebugD = Motor_RF.speed;
+
+//         // 底盘运动更新频率
+//         vTaskDelayUntil(&LastWakeTime, 10);
+//     }
+
+//     vTaskDelete(NULL);
+// }
 
 void Task_Take(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
@@ -561,9 +558,9 @@ void Task_Distance_Sensor(void *Parameter) {
     extern u32 TIM2CH_CAPTURE_VAL[2]; //输入捕获值
     extern u8  TIM5CH1_CAPTURE_STA;   //输入捕获状态
     extern u32 TIM5CH1_CAPTURE_VAL;
-    uint16_t   temp      = 0;
-    distance1 = 0;
-    distance2 = 0;
+    uint16_t   temp = 0;
+    distance1       = 0;
+    distance2       = 0;
 
     while (1) {
         // CH1成功捕获到了一次高电平
@@ -680,8 +677,8 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Take, "Task_Take", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Taking_Transmission, "Task_Taking_Transmission", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Taking_Pushrod, "Task_Taking_Pushrod", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Distance_Sensor, "Task_Distance_Sensor", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Get_Distance, "Task_Get_Distance", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Distance_Sensor, "Task_Distance_Sensor", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Get_Distance, "Task_Get_Distance", 400, NULL, 3, NULL);
     // Supply
     // xTaskCreate(Task_Supply, "Task_Supply", 400, NULL, 3, NULL);
     // Rescue
@@ -709,12 +706,12 @@ void Task_Blink(void *Parameters) {
 void Task_Get_Distance(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    int i = 0;
-    int j = 0;
-    uint16_t   compare_distance1 = 0;
-    uint16_t   compare_distance2 = 0;
-    uint16_t   steady_distance1  = 0;
-    uint16_t   steady_distance2  = 0;
+    int      i                 = 0;
+    int      j                 = 0;
+    uint16_t compare_distance1 = 0;
+    uint16_t compare_distance2 = 0;
+    uint16_t steady_distance1  = 0;
+    uint16_t steady_distance2  = 0;
 
     while (1) {
         // if (i <= 80) {
@@ -747,41 +744,9 @@ void Task_Get_Distance(void *Parameters) {
 
         DebugA = remoteData.mouse.x;
         DebugB = remoteData.mouse.y;
-        
+
         vTaskDelayUntil(&LastWakeTime, 10);
     }
 
     vTaskDelete(NULL);
 }
-
-// void Task_Auto_Take (void *Parameters) {
-//     TickType_t LastWakeTime = xTaskGetTickCount();
-
-//     int auto_take_state = -1;
-
-//     while (1) {
-        
-//         if (remoteData.keyBoard.keyCode == KEY_C) {
-//             // ...
-//             auto_take_state = 0;
-//         }
-
-//         switch (auto_take_state) {
-//             case -1:
-//             if (remoteData.keyBoard.keyCode == KEY_Z) {
-//                 Pushrod_Move(1);
-//                 auto_take_state = 0;
-//             }
-            
-//             case 0:
-//             if () {
-
-//             }
-
-//         }
-        
-//         vTaskDelayUntil(&LastWakeTime, 10);
-//     }
-
-//     vTaskDelete(NULL);
-// }
