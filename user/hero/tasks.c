@@ -24,7 +24,7 @@ void Task_Gimbal(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     // 反馈值
-    float motorAngle, motorSpeed, yawAngle, yawSpeed, pitchAngle, pitchSpeed;
+    float yawAngle, yawSpeed, pitchAngle, pitchSpeed;
 
     // 目标值
     float yawAngleTarget   = 0;
@@ -39,30 +39,27 @@ void Task_Gimbal(void *Parameters) {
     PID_Init(&PID_Cloud_YawSpeed, 60, 0, 0, 4000, 0);
     PID_Init(&PID_Cloud_PitchAngle, 20, 0, 0, 16000, 0);
     PID_Init(&PID_Cloud_PitchSpeed, 40, 0, 0, 2000, 0);
-    PID_Init(&PID_debug, 0, 0, 1, 16000, 0);
 
     while (1) {
-        // 设置反馈值
-        motorAngle = Motor_Yaw.angle;                                                  // 电机角度
-        motorSpeed = (PID_Follow_Angle.error - PID_Follow_Angle.lastError) / interval; // 电机角速度 todo:验证这样写行不行
-        yawAngle   = Gyroscope_EulerData.yaw;                                          // 逆时针为正
-        yawSpeed   = ImuData.gz / GYROSCOPE_LSB;                                       // 逆时针为正
-        pitchAngle = Gyroscope_EulerData.pitch;                                        // 逆时针为正
-        pitchSpeed = -1 * ImuData.gx / GYROSCOPE_LSB;                                  // 逆时针为正
+        // 设置反馈
+        yawAngle   = Gyroscope_EulerData.yaw;         // 逆时针为正
+        yawSpeed   = ImuData.gz / GYROSCOPE_LSB;      // 逆时针为正
+        pitchAngle = Gyroscope_EulerData.pitch;       // 逆时针为正
+        pitchSpeed = -1 * ImuData.gx / GYROSCOPE_LSB; // 逆时针为正
 
         // 设置目标
         if (ABS(remoteData.rx) > 20) yawAngleTarget -= remoteData.rx / 660.0f * 180 * interval;
         if (ABS(remoteData.ry) > 20) pitchAngleTarget -= remoteData.ry / 660.0f * 150 * interval;
         // MIAO(yawAngleTarget, -30, 30);
         MIAO(pitchAngleTarget, -50, 5);
+
+        // 开机时pitch轴匀速抬起
         pitchAngleTarget = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
         if (pitchRampProgress < 1) {
             pitchRampProgress += 0.005f;
         }
 
         // 计算PID
-        PID_Calculate(&PID_debug, yawAngle, 0);
-
         PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget, yawAngle);
         PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawSpeed);
 
@@ -101,11 +98,12 @@ void Task_Chassis(void *Parameters) {
     float powerScale = 1; // 功率系数
 
     // 反馈值
-    float motorAngle, motorSpeed, yawAngle, yawSpeed;
+    float motorAngle, motorSpeed;
     float filter[6] = {0, 0, 0, 0, 0, 0};
     int   filterp   = 0;
     float motorSpeedStable;
 
+    // 小陀螺
     float swingProgress  = 0;
     float swingDuration  = 400;
     int   swingDirection = 1;
@@ -131,34 +129,27 @@ void Task_Chassis(void *Parameters) {
         // 设置反馈值
         motorAngle = Motor_Yaw.angle;                                  // 电机角度
         motorSpeed = (motorAngle + PID_Follow_Angle.error) / interval; // 电机角速度
-        yawAngle   = Gyroscope_EulerData.yaw;
-        yawSpeed   = ImuData.gz / GYROSCOPE_LSB;
 
+        // 对电机角速度进行平均值滤波
         filter[filterp] = motorAngle;
         filterp         = filterp == 5 ? 0 : filterp + 1;
-
         int i;
         for (i = 0; i < 6; i++) {
             motorSpeedStable += filter[i];
         }
         motorSpeedStable = motorSpeedStable / 6.0f;
 
-        // PID_Follow_Speed.p = CHOOSE(1, 7, 20);
-
-        // Swing
+        // 小陀螺
         if (ABS(swingProgress) > 0.5) {
             swingDirection *= -1;
         }
-
         swingProgress += swingStep * swingDirection;
-        swingAngle = swingProgress * swingAmplitude;
-        // swingAngle = CHOOSE(swingAngle, 0, 0);
-        // swingAngle = CHOOSE(-10, 0, 10);
+        swingAmplitude = CHOOSE(0, 60, 100);
+        swingAngle     = swingProgress * swingAmplitude;
 
         // 根据运动模式计算PID
-
-        PID_Calculate(&PID_Follow_Angle, swingProgress * CHOOSE(0, 60, 100), motorAngle); // 计算航向角角度PID
-        PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeedStable);      // 计算航向角角速度PID
+        PID_Calculate(&PID_Follow_Angle, swingAngle, motorAngle);                    // 计算航向角角度PID
+        PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeedStable); // 计算航向角角速度PID
 
         // 设置底盘总体移动速度
         vx = -remoteData.lx / 660.0f;
@@ -170,7 +161,7 @@ void Task_Chassis(void *Parameters) {
         Chassis_Get_Rotor_Speed(&ChassisData, rotorSpeed);
 
         // 根据功率限幅
-        // powerScale    = Chassis_Power_Control(lx, ly);
+        // powerScale    = Chassis_Power_Control(lx, ly); // todo: 重新编写功率闭环
         rotorSpeed[0] = rotorSpeed[0] * powerScale;
         rotorSpeed[1] = rotorSpeed[1] * powerScale;
         rotorSpeed[2] = rotorSpeed[2] * powerScale;
@@ -188,8 +179,6 @@ void Task_Chassis(void *Parameters) {
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
-        DebugData.debug1 = swingProgress * 100;
-        // DebugData.debug2 = swingProgress * 100;
         // 调试信息
         // DebugData.debug1 = PID_Follow_Angle.target;
         // DebugData.debug2 = PID_Follow_Angle.feedback;
@@ -197,7 +186,6 @@ void Task_Chassis(void *Parameters) {
         // DebugData.debug4 = PID_Follow_Speed.target;
         // DebugData.debug5 = -1 * PID_Follow_Speed.feedback;
         // DebugData.debug6 = PID_Follow_Speed.output;
-        // DebugData.debug7 = yawAngle;
         // DebugData.debug8 = PID_Follow_Speed.output;
     }
 
@@ -205,7 +193,6 @@ void Task_Chassis(void *Parameters) {
 }
 
 float Chassis_Power_Control(float VX, float VY) {
-
     powerfeed = Judge.powerHeatData.chassisPower;
     if (powerfeed >= 60) {
         PID_Calculate(&PID_Power, 700, powerfeed * 10);
