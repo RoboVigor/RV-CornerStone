@@ -51,6 +51,7 @@ __HANDLE_EXT DebugData_Type DebugData;
 // 底盘
 __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed, PID_Power;
+__HANDLE_EXT PID_Type PID_debug;
 
 //裁判系统
 __HANDLE_EXT Judge_Type Judge;
