@@ -75,7 +75,7 @@ void Task_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = PID_Cloud_YawAngle.output;
+        // DebugData.debug1 = PID_Cloud_YawAngle.output;
         // DebugData.debug2 = PID_Cloud_YawAngle.feedback;
         // DebugData.debug3 = PID_Cloud_YawSpeed.target;
         // DebugData.debug4 = PID_Cloud_YawSpeed.feedback;
@@ -105,6 +105,13 @@ void Task_Chassis(void *Parameters) {
     float filter[6] = {0, 0, 0, 0, 0, 0};
     int   filterp   = 0;
     float motorSpeedStable;
+
+    float swingProgress  = 0;
+    float swingDuration  = 400;
+    int   swingDirection = 1;
+    float swingStep      = intervalms / swingDuration;
+    float swingAmplitude = 20;
+    float swingAngle     = 0;
 
     // 底盘跟随PID
     PID_Init(&PID_Follow_Angle, 1, 0, 0, 1000, 0);
@@ -138,15 +145,25 @@ void Task_Chassis(void *Parameters) {
 
         // PID_Follow_Speed.p = CHOOSE(1, 7, 20);
 
+        // Swing
+        if (ABS(swingProgress) > 0.5) {
+            swingDirection *= -1;
+        }
+
+        swingProgress += swingStep * swingDirection;
+        swingAngle = swingProgress * swingAmplitude;
+        // swingAngle = CHOOSE(swingAngle, 0, 0);
+        // swingAngle = CHOOSE(-10, 0, 10);
+
         // 根据运动模式计算PID
 
-        PID_Calculate(&PID_Follow_Angle, 0, motorAngle);                             // 计算航向角角度PID
-        PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeedStable); // 计算航向角角速度PID
+        PID_Calculate(&PID_Follow_Angle, swingProgress * CHOOSE(0, 60, 100), motorAngle); // 计算航向角角度PID
+        PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeedStable);      // 计算航向角角速度PID
 
         // 设置底盘总体移动速度
         vx = -remoteData.lx / 660.0f;
         vy = remoteData.ly / 660.0f * 3;
-        vw = ABS(motorAngle) < 3 ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
+        vw = ABS(PID_Follow_Angle.error) < 3 ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
         Chassis_Update(&ChassisData, vx, vy, vw);
 
         // 麦轮解算&限幅,获得轮子转速
@@ -171,8 +188,8 @@ void Task_Chassis(void *Parameters) {
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
-        // DebugData.debug1 = motorSpeed;
-        // DebugData.debug2 = motorSpeedStable;
+        DebugData.debug1 = swingProgress * 100;
+        // DebugData.debug2 = swingProgress * 100;
         // 调试信息
         // DebugData.debug1 = PID_Follow_Angle.target;
         // DebugData.debug2 = PID_Follow_Angle.feedback;
