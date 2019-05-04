@@ -24,6 +24,9 @@
 #define __HANDLE_EXT extern
 #endif
 
+// Constant
+#define RPM2RPS ((float) 0.104667)
+
 // GPIO
 #define BANG_ON GPIO_SetBits(GPIOA, GPIO_Pin_2);
 #define BANG_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_2);
