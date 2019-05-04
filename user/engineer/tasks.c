@@ -230,6 +230,16 @@ void Task_Debug_Magic_Send(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_Blink(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    while (1) {
+        GREEN_LIGHT_TOGGLE;
+        vTaskDelayUntil(&LastWakeTime, 250);
+    }
+
+    vTaskDelete(NULL);
+}
+
 void Task_Sys_Init(void *Parameters) {
     // 进入临界区
     taskENTER_CRITICAL();
@@ -247,15 +257,10 @@ void Task_Sys_Init(void *Parameters) {
     BSP_USER_Init();
 
     // 初始化陀螺仪
-    MPU6500_Initialize();
-    MPU6500_EnableInt();
-
-    // 遥控器数据初始化
-    DBUS_Init(&remoteData);
+    Gyroscope_Init(&Gyroscope_EulerData);
 
     // 调试任务
 #if DEBUG_ENABLED
-    Magic_Init_Handle(&magic, 0); // 初始化调试数据的默认值
     xTaskCreate(Task_Debug_Magic_Receive, "Task_Debug_Magic_Receive", 500, NULL, 6, NULL);
     xTaskCreate(Task_Debug_Magic_Send, "Task_Debug_Magic_Send", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Debug_RTOS_State, "Task_Debug_RTOS_State", 500, NULL, 6, NULL);
@@ -273,17 +278,5 @@ void Task_Sys_Init(void *Parameters) {
 
     // 完成使命
     vTaskDelete(NULL);
-
-    // 退出临界区
     taskEXIT_CRITICAL();
-}
-
-void Task_Blink(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount();
-    while (1) {
-        GREEN_LIGHT_TOGGLE;
-        vTaskDelayUntil(&LastWakeTime, 250);
-    }
-
-    vTaskDelete(NULL);
 }
