@@ -89,6 +89,7 @@ __HANDLE_EXT PsData_Type PsData;
 // 调试变量
 __HANDLE_EXT int DebugA, DebugB, DebugC, DebugD, DebugE, DebugF, DebugG, DebugH, DebugI;
 __HANDLE_EXT uint16_t DebugZ, DebugY, DebugW, DebugX;
+__HANDLE_EXT int16_t Debug16_A, Debug16_B, Debug16_C, Debug16_D;
 
 // 传感器返回值
 __HANDLE_EXT u8 re_buf_Data[8], receive_ok;

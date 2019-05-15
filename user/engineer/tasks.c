@@ -100,7 +100,6 @@ void Task_Chassis(void *Parameters) {
         // 设置底盘总体移动速度
         // Chassis_Update(&ChassisData, -(float) remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, (float) PID_YawSpeed.output / 1320.0f);
         Chassis_Update(&ChassisData, -(float) remoteData.lx / 330.0f, (float) remoteData.ly / 330.0f, (float) PID_YawSpeed.output / 660.0f);
-        // Chassis_Update(&ChassisData, -(float) remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, 0);
 
         // 麦轮解算&限幅,获得轮子转速
         Chassis_Get_Rotor_Speed(&ChassisData, rotorSpeed);
@@ -114,11 +113,6 @@ void Task_Chassis(void *Parameters) {
         // 输出电流值到电调(安全起见默认注释此行)
         Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
         // Can_Send(CAN1, 0x200, 2000, 2000, 2000, 2000);
-
-        DebugA = Motor_LF.speed;
-        DebugB = Motor_LB.speed;
-        DebugC = Motor_RB.speed;
-        DebugD = Motor_RF.speed;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, 10);
@@ -383,7 +377,12 @@ void Task_Landing_GuideWheel(void *Parameters) {
         PID_Increment_Calculate(&PID_RGW, -remoteData.ry, Motor_RGW.speed * rpm2rps);
 
         // 发送数据至电调
-        // Can_Send(CAN2, 0x200, PID_LGW.output, PID_RGW.output, 0, 0);
+        Can_Send(CAN2, 0x200, PID_LGW.output, PID_RGW.output, 0, 0);
+
+        Debug16_A = remoteData.lx;
+        Debug16_B = remoteData.ly;
+        Debug16_C = remoteData.rx;
+        Debug16_D = remoteData.ry;
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -671,8 +670,8 @@ void Task_Sys_Init(void *Parameters) {
     // Chassis
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
     // Landing
-    // xTaskCreate(Task_Landing_GuideWheel, "Task_Landing_GuideWheel", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Landing_BANG, "Task_Landing_BANG", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Landing_GuideWheel, "Task_Landing_GuideWheel", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Landing_BANG, "Task_Landing_BANG", 400, NULL, 3, NULL);
     // Take
     // xTaskCreate(Task_Take, "Task_Take", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Taking_Transmission, "Task_Taking_Transmission", 400, NULL, 3, NULL);
