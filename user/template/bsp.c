@@ -10,6 +10,7 @@
 void BSP_Init(void) {
     BSP_CAN_Init();
     BSP_DBUS_Init(remoteBuffer);
+    BSP_IMU_Init();
     BSP_TIM2_Init();
     BSP_USART6_Init(115200);
 }
