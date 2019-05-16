@@ -1,5 +1,5 @@
 /**
- * @brief  中断服务函数根据地
+ * @brief    中断服务函数根据地
  */
 
 #include "interrupt.h"
@@ -74,28 +74,18 @@ void USART3_IRQHandler(void) {
 void USART6_IRQHandler(void) {
     u8 res;
 
-    if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
-        res = USART_ReceiveData(USART6);                     // 读取数据
-        RED_LIGHT_TOGGLE;
-    }
+    // 读取数据
+    res = USART_ReceiveData(USART6);
+    RED_LIGHT_TOGGLE;
 
-    if ((magic.sta & 0x8000) == 0) { // 接收未完成
-        if (magic.sta & 0x4000) {    // 接收到 0x0d
-            if (res != 0x0a)         // 接收错误，重新开始
-                magic.sta = 0;
-            else // 接收完成
-                magic.sta |= 0x8000;
-        } else { // 未接收到 0x0d
-            if (res == 0x0d) {
-                magic.sta |= 0x4000;
-            } else {
-                magic.buf[magic.sta & 0X3FFF] = res;
-                magic.sta++;
-                // USART6->DR = res;
-                if (magic.sta > (MAGIC_MAX_LENGTH - 1)) magic.sta = 0; // 接收数据错误，重新开始接收
-            }
-        }
-    }
+    //#1
+    PsData.result[0] = res;
+    PsData.id++;
+    printf("[%d]", res);
+    USART6->DR = res;
+
+    //#2
+    // Ps_Update(&PsData, res);
 }
 
 // CAN1数据接收中断服务函数
@@ -112,19 +102,19 @@ void CAN1_RX0_IRQHandler(void) {
     // 安排数据
     switch (CanRxData.StdId) {
     case 0x201:
-        Motor_Update(&Motor_LF, position, speed);
+        Motor_Update(&Motor_Chassis_Left, position, speed);
         break;
 
     case 0x202:
-        Motor_Update(&Motor_LB, position, speed);
+        Motor_Update(&Motor_Chassis_Right, position, speed);
         break;
 
     case 0x203:
-        Motor_Update(&Motor_RB, position, speed);
+        Motor_Update(&Motor_Stabilizer_Yaw, position, speed);
         break;
 
     case 0x204:
-        Motor_Update(&Motor_RF, position, speed);
+        Motor_Update(&Motor_Stabilizer_Pitch, position, speed);
         break;
 
     default:
@@ -151,11 +141,11 @@ void CAN2_RX0_IRQHandler(void) {
     // 安排数据
     // switch (CanRxData.StdId) {
     // case 0x201:
-    //     Motor_Update(&Motor_LF, position, speed);
+    //     Motor_Update(&Motor_Chassis_Left, position, speed);
     //     break;
 
     // case 0x202:
-    //     Motor_Update(&Motor_LB, position, speed);
+    //     Motor_Update(&Motor_Chassis_Right, position, speed);
     //     break;
 
     // case 0x203:
@@ -168,7 +158,7 @@ void CAN2_RX0_IRQHandler(void) {
 
     // default:
     //     break;
-    // }
+    //}
 }
 
 // TIM2 高频计数器
@@ -183,8 +173,8 @@ void TIM2_IRQHandler(void) {
 }
 
 /**
- * @brief  This function handles NMI exception.
- * @param  None
+ * @brief    This function handles NMI exception.
+ * @param    None
  * @return None
  */
 
@@ -193,8 +183,8 @@ void NMI_Handler(void) {
 }
 
 /**
- * @brief  This function handles Hard Fault exception.
- * @param  None
+ * @brief    This function handles Hard Fault exception.
+ * @param    None
  * @return None
  */
 void HardFault_Handler(void) {
@@ -202,8 +192,8 @@ void HardFault_Handler(void) {
 }
 
 /**
- * @brief  This function handles Memory Manage exception.
- * @param  None
+ * @brief    This function handles Memory Manage exception.
+ * @param    None
  * @return None
  */
 void MemManage_Handler(void) {
@@ -211,8 +201,8 @@ void MemManage_Handler(void) {
 }
 
 /**
- * @brief  This function handles Bus Fault exception.
- * @param  None
+ * @brief    This function handles Bus Fault exception.
+ * @param    None
  * @return None
  */
 void BusFault_Handler(void) {
@@ -220,8 +210,8 @@ void BusFault_Handler(void) {
 }
 
 /**
- * @brief  This function handles Usage Fault exception.
- * @param  None
+ * @brief    This function handles Usage Fault exception.
+ * @param    None
  * @return None
  */
 void UsageFault_Handler(void) {
@@ -229,8 +219,8 @@ void UsageFault_Handler(void) {
 }
 
 /**
- * @brief  This function handles Debug Monitor exception.
- * @param  None
+ * @brief    This function handles Debug Monitor exception.
+ * @param    None
  * @return None
  */
 void DebugMon_Handler(void) {
@@ -238,28 +228,28 @@ void DebugMon_Handler(void) {
 }
 
 // /**
-//  * @brief  This function handles SVCall exception.
-//  * @param  None
-//  * @return None
-//  */
+//    * @brief    This function handles SVCall exception.
+//    * @param    None
+//    * @return None
+//    */
 // void SVC_Handler(void) {
-//     //printf("SVC_Handler");
+//         //printf("SVC_Handler");
 // }
 
 // /**
-//  * @brief  This function handles PendSVC exception.
-//  * @param  None
-//  * @return None
-//  */
+//    * @brief    This function handles PendSVC exception.
+//    * @param    None
+//    * @return None
+//    */
 // void PendSV_Handler(void) {
-//     //printf("PendSV_Handler");
+//         //printf("PendSV_Handler");
 // }
 
 // /**
-//  * @brief  This function handles SysTick Handler.
-//  * @param  None
-//  * @return None
-//  */
+//    * @brief    This function handles SysTick Handler.
+//    * @param    None
+//    * @return None
+//    */
 // void SysTick_Handler(void) {
-//     //printf("SysTick_Handler");
+//         //printf("SysTick_Handler");
 // }

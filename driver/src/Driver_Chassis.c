@@ -6,9 +6,9 @@
  * @brief 配置小车整体 XYW 三个轴的速度
  * @detail
  *
- * @param XSpeed **前后**
- * @param YSpeed **左右**
- * @param WSpeed
+ * @param XSpeed 前后 m/s
+ * @param YSpeed 左右 m/s
+ * @param WSpeed 旋转 rad/s 逆时针为正
  */
 void Chassis_Update(ChassisData_Type *ChassisData, float XSpeed, float YSpeed, float WSpeed) {
     ChassisData->TargetVX = XSpeed;

@@ -335,7 +335,7 @@
               <MiscControls>--gnu</MiscControls>
               <Define>STM32F427_437xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\user\hero</IncludePath>
+              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\user\template;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -614,11 +614,6 @@
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Ps.c</FilePath>
             </File>
-            <File>
-              <FileName>Driver_Judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\Driver_Judge.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -642,62 +637,62 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_hero</GroupName>
+          <GroupName>user_guard</GroupName>
           <Files>
             <File>
               <FileName>bsp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\hero\bsp.c</FilePath>
+              <FilePath>..\user\guard\bsp.c</FilePath>
             </File>
             <File>
               <FileName>handle.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\hero\handle.c</FilePath>
+              <FilePath>..\user\guard\handle.c</FilePath>
             </File>
             <File>
               <FileName>interrupt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\hero\interrupt.c</FilePath>
+              <FilePath>..\user\guard\interrupt.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\hero\main.c</FilePath>
+              <FilePath>..\user\guard\main.c</FilePath>
             </File>
             <File>
               <FileName>task_debug.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\hero\task_debug.c</FilePath>
+              <FilePath>..\user\guard\task_debug.c</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\hero\tasks.c</FilePath>
-            </File>
-            <File>
-              <FileName>tasks.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\hero\tasks.h</FilePath>
-            </File>
-            <File>
-              <FileName>rtos.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\hero\rtos.h</FilePath>
-            </File>
-            <File>
-              <FileName>main.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\hero\main.h</FilePath>
-            </File>
-            <File>
-              <FileName>handle.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\hero\handle.h</FilePath>
+              <FilePath>..\user\guard\tasks.c</FilePath>
             </File>
             <File>
               <FileName>config.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\user\hero\config.h</FilePath>
+              <FilePath>..\user\guard\config.h</FilePath>
+            </File>
+            <File>
+              <FileName>handle.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\guard\handle.h</FilePath>
+            </File>
+            <File>
+              <FileName>main.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\guard\main.h</FilePath>
+            </File>
+            <File>
+              <FileName>rtos.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\guard\rtos.h</FilePath>
+            </File>
+            <File>
+              <FileName>tasks.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\guard\tasks.h</FilePath>
             </File>
           </Files>
         </Group>

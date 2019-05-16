@@ -4,6 +4,7 @@
 
 #include "main.h"
 #include "interrupt.h"
+#include "mpu6500_driver.h"
 
 // DMA Handle function
 void DMA2_Stream1_IRQHandler(void) {
@@ -24,29 +25,13 @@ void DMA2_Stream1_IRQHandler(void) {
 }
 
 // EXTI9_5 陀螺仪中断
-void EXTI9_5_IRQHandler(void) //中断频率1KHz
-{
+void EXTI9_5_IRQHandler(void) {
+    uint8_t suc;
     if (EXTI_GetITStatus(EXTI_Line8) != RESET) {
         EXTI_ClearFlag(EXTI_Line8);
         EXTI_ClearITPendingBit(EXTI_Line8);
-        MPU6500_ReadData(MPU_IIC_ADDR, MPU6500_ACCEL_XOUT_H, mpu_buf, 14);
-        mpu6500_data.ax   = (((int16_t) mpu_buf[0]) << 8) | mpu_buf[1];
-        mpu6500_data.ay   = (((int16_t) mpu_buf[2]) << 8) | mpu_buf[3];
-        mpu6500_data.az   = (((int16_t) mpu_buf[4]) << 8) | mpu_buf[5];
-        mpu6500_data.temp = (((int16_t) mpu_buf[6]) << 8) | mpu_buf[7];
-        mpu6500_data.gx   = (((int16_t) mpu_buf[8]) << 8) | mpu_buf[9];
-        mpu6500_data.gx += mpu6500_data.gx_offset;
-        mpu6500_data.gy = (((int16_t) mpu_buf[10]) << 8) | mpu_buf[11];
-        mpu6500_data.gy += mpu6500_data.gy_offset;
-        mpu6500_data.gz = (((int16_t) mpu_buf[12]) << 8) | mpu_buf[13];
-        mpu6500_data.gz += mpu6500_data.gz_offset;
-
-#if GYROSCOPE_YAW_START_UP_DELAY_ENABLED == 1
-        if (Gyroscope_EulerData.downcounter <= GYROSCOPE_START_UP_DELAY) {
-            Gyroscope_EulerData.downcounter = Gyroscope_EulerData.downcounter + 1;
-        }
-#endif
-        Gyroscope_Update_Angle_Data(&Gyroscope_EulerData);
+        suc = MPU6500_ReadData();
+        if (suc) Gyroscope_Update_Angle_Data(&Gyroscope_EulerData);
     }
 }
 
@@ -162,11 +147,11 @@ void CAN1_RX0_IRQHandler(void) {
         break;
 
     case 0x205:
-        Motor_Update(&Motor_Yaw, position, 0);
+        Motor_Update(&Motor_Pitch, position, 0);
         break;
 
     case 0x206:
-        Motor_Update(&Motor_Pitch, position, 0);
+        Motor_Update(&Motor_Yaw, position, 0);
         break;
 
     default:
@@ -192,12 +177,12 @@ void CAN2_RX0_IRQHandler(void) {
 
     //安排数据
     switch (CanRxData.StdId) {
-    case 0x202:
-        Motor_Update(&Motor_LeftFrict, position, speed);
-        break;
-
     case 0x201:
         Motor_Update(&Motor_RightFrict, position, speed);
+        break;
+
+    case 0x202:
+        Motor_Update(&Motor_LeftFrict, position, speed);
         break;
 
     case 0x207:

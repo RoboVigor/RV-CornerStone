@@ -1,7 +1,9 @@
 #include "Driver_Magic.h"
+#include "math.h"
 #include "string.h"
 #include "sys.h"
-#include "math.h"
+
+#define Magic_Init_Handle Magic_Init
 
 //标准库需要的支持函数
 struct __FILE {
@@ -12,13 +14,17 @@ FILE __stdout;
 
 //重定义fputc函数
 int fputc(int ch, FILE *f) {
-    while ((USART2->SR & 0X40) == 0)
-        ; //循环发送,直到发送完毕
-    USART2->DR = (u8) ch;
+#ifndef SERIAL_DEBUG_PORT
+#define SERIAL_DEBUG_PORT USART6
+#endif
+    //循环发送,直到发送完毕
+    while ((SERIAL_DEBUG_PORT->SR & 0X40) == 0) {
+    }
+    SERIAL_DEBUG_PORT->DR = (u8) ch;
     return ch;
 }
 
-void Magic_Init_Handle(MagicHandle_Type *magic, int defaultValue) {
+void Magic_Init(MagicHandle_Type *magic, int defaultValue) {
     magic->defaultValue = defaultValue;
 }
 
