@@ -6,7 +6,7 @@
 #include "bsp.h"
 #include "handle.h"
 
-void BSP_USER_Init(void) {
+void BSP_Init(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
     //	Judge

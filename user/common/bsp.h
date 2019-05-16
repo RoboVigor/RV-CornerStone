@@ -3,6 +3,6 @@
 
 #include "stm32f4xx.h"
 
-void BSP_USER_Init(void);
+void BSP_Init(void);
 
 #endif
