@@ -97,14 +97,8 @@ void Task_Sys_Init(void *Parameters) {
     // 初始化全局变量
     Handle_Init();
 
-    // BSP们
-    BSP_GPIO_Init();
-    BSP_CAN_Init();
-    BSP_UART_Init();
-    BSP_DMA_Init();
-    BSP_TIM_Init();
-    BSP_NVIC_Init();
-    BSP_USER_Init();
+    // 初始化硬件
+    BSP_Init();
 
     // 初始化陀螺仪
     Gyroscope_Init(&Gyroscope_EulerData);
