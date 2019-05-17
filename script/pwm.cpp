@@ -64,46 +64,50 @@ using namespace std;
 #define GPIO_AF_TIM5          ((uint8_t)0x02)  /* TIM5 Alternate Function mapping */
 #define GPIO_AF_TIM8          ((uint8_t)0x03)  /* TIM8 Alternate Function mapping */
 
-#define PWM_PD12 0x4028008c
+#define PWM_PD12 0x4021008c
 
 int main(){
     /*
      * RCC_APB1Periph_TIM4 4
-     * TIM4(1) 4
+     * TIM4 4
      * GPIO_AF_TIMx 4
-     * TIM4(2) 4
+     * CCRx 4
      * ADHI 12
      * 1234 4
      */
     
-    printf("#define PWM_PD12 0x%08x\n",((RCC_APB1Periph_TIM4&0x0F)<<28)+(((TIM4_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM4<<20)+((RCC_AHB1Periph_GPIOD&0x0FFF)<<4)+(GPIO_PinSource12&0x0F));
-    printf("#define PWM_PD13 0x%08x\n",((RCC_APB1Periph_TIM4&0x0F)<<28)+(((TIM4_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM4<<20)+((RCC_AHB1Periph_GPIOD&0x0FFF)<<4)+(GPIO_PinSource13&0x0F));
-    printf("#define PWM_PD14 0x%08x\n",((RCC_APB1Periph_TIM4&0x0F)<<28)+(((TIM4_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM4<<20)+((RCC_AHB1Periph_GPIOD&0x0FFF)<<4)+(GPIO_PinSource14&0x0F));
-    printf("#define PWM_PD15 0x%08x\n",((RCC_APB1Periph_TIM4&0x0F)<<28)+(((TIM4_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM4<<20)+((RCC_AHB1Periph_GPIOD&0x0FFF)<<4)+(GPIO_PinSource15&0x0F));
-    printf("#define PWM_PH10 0x%08x\n",((RCC_APB1Periph_TIM5&0x0F)<<28)+(((TIM5_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM5<<20)+((RCC_AHB1Periph_GPIOH&0x0FFF)<<4)+(GPIO_PinSource10&0x0F));
-    printf("#define PWM_PH11 0x%08x\n",((RCC_APB1Periph_TIM5&0x0F)<<28)+(((TIM5_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM5<<20)+((RCC_AHB1Periph_GPIOH&0x0FFF)<<4)+(GPIO_PinSource11&0x0F));
-    printf("#define PWM_PH12 0x%08x\n",((RCC_APB1Periph_TIM5&0x0F)<<28)+(((TIM5_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM5<<20)+((RCC_AHB1Periph_GPIOH&0x0FFF)<<4)+(GPIO_PinSource12&0x0F));
-    printf("#define PWM_PI0 0x%08x\n", ((RCC_APB1Periph_TIM5&0x0F)<<28)+(((TIM5_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM5<<20)+((RCC_AHB1Periph_GPIOI&0x0FFF)<<4)+(GPIO_PinSource0&0x0F));
+    printf("#define PWM_PD12 0x%08x\n",((RCC_APB1Periph_TIM4&0x0F)<<28)+(((TIM4_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM4<<20)+(1<<16)+((RCC_AHB1Periph_GPIOD&0x0FFF)<<4)+(GPIO_PinSource12&0x0F));
+    printf("#define PWM_PD13 0x%08x\n",((RCC_APB1Periph_TIM4&0x0F)<<28)+(((TIM4_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM4<<20)+(2<<16)+((RCC_AHB1Periph_GPIOD&0x0FFF)<<4)+(GPIO_PinSource13&0x0F));
+    printf("#define PWM_PD14 0x%08x\n",((RCC_APB1Periph_TIM4&0x0F)<<28)+(((TIM4_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM4<<20)+(3<<16)+((RCC_AHB1Periph_GPIOD&0x0FFF)<<4)+(GPIO_PinSource14&0x0F));
+    printf("#define PWM_PD15 0x%08x\n",((RCC_APB1Periph_TIM4&0x0F)<<28)+(((TIM4_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM4<<20)+(4<<16)+((RCC_AHB1Periph_GPIOD&0x0FFF)<<4)+(GPIO_PinSource15&0x0F));
+    printf("#define PWM_PH10 0x%08x\n",((RCC_APB1Periph_TIM5&0x0F)<<28)+(((TIM5_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM5<<20)+(1<<16)+((RCC_AHB1Periph_GPIOH&0x0FFF)<<4)+(GPIO_PinSource10&0x0F));
+    printf("#define PWM_PH11 0x%08x\n",((RCC_APB1Periph_TIM5&0x0F)<<28)+(((TIM5_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM5<<20)+(2<<16)+((RCC_AHB1Periph_GPIOH&0x0FFF)<<4)+(GPIO_PinSource11&0x0F));
+    printf("#define PWM_PH12 0x%08x\n",((RCC_APB1Periph_TIM5&0x0F)<<28)+(((TIM5_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM5<<20)+(3<<16)+((RCC_AHB1Periph_GPIOH&0x0FFF)<<4)+(GPIO_PinSource12&0x0F));
+    printf("#define PWM_PI0 0x%08x\n", ((RCC_APB1Periph_TIM5&0x0F)<<28)+(((TIM5_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM5<<20)+(4<<16)+((RCC_AHB1Periph_GPIOI&0x0FFF)<<4)+(GPIO_PinSource0&0x0F));
     
-    printf("#define PWM_PA0 0x%08x\n",((RCC_APB1Periph_TIM2&0x0F)<<28)+(((TIM2_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM2<<20)+((RCC_AHB1Periph_GPIOA&0x0FFF)<<4)+(GPIO_PinSource0&0x0F));
-    printf("#define PWM_PA1 0x%08x\n",((RCC_APB1Periph_TIM2&0x0F)<<28)+(((TIM2_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM2<<20)+((RCC_AHB1Periph_GPIOA&0x0FFF)<<4)+(GPIO_PinSource1&0x0F));
-    printf("#define PWM_PA2 0x%08x\n",((RCC_APB1Periph_TIM2&0x0F)<<28)+(((TIM2_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM2<<20)+((RCC_AHB1Periph_GPIOA&0x0FFF)<<4)+(GPIO_PinSource2&0x0F));
-    printf("#define PWM_PA3 0x%08x\n",((RCC_APB1Periph_TIM2&0x0F)<<28)+(((TIM2_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM2<<20)+((RCC_AHB1Periph_GPIOA&0x0FFF)<<4)+(GPIO_PinSource3&0x0F));
-    printf("#define PWM_PI5 0x%08x\n",((RCC_APB2Periph_TIM8&0x0F)<<28)+(((TIM8_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM8<<20)+((RCC_AHB1Periph_GPIOI&0x0FFF)<<4)+(GPIO_PinSource5&0x0F));
-    printf("#define PWM_PI6 0x%08x\n",((RCC_APB2Periph_TIM8&0x0F)<<28)+(((TIM8_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM8<<20)+((RCC_AHB1Periph_GPIOI&0x0FFF)<<4)+(GPIO_PinSource6&0x0F));
-    printf("#define PWM_PI7 0x%08x\n",((RCC_APB2Periph_TIM8&0x0F)<<28)+(((TIM8_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM8<<20)+((RCC_AHB1Periph_GPIOI&0x0FFF)<<4)+(GPIO_PinSource7&0x0F));
-    printf("#define PWM_PI2 0x%08x\n",((RCC_APB2Periph_TIM8&0x0F)<<28)+(((TIM8_BASE>>8)&0x0FFF)<<16)+(GPIO_AF_TIM8<<20)+((RCC_AHB1Periph_GPIOI&0x0FFF)<<4)+(GPIO_PinSource2&0x0F));
+    printf("#define PWM_PA0 0x%08x\n",((RCC_APB1Periph_TIM2&0x0F)<<28)+(((TIM2_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM2<<20)+(1<<16)+((RCC_AHB1Periph_GPIOA&0x0FFF)<<4)+(GPIO_PinSource0&0x0F));
+    printf("#define PWM_PA1 0x%08x\n",((RCC_APB1Periph_TIM2&0x0F)<<28)+(((TIM2_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM2<<20)+(2<<16)+((RCC_AHB1Periph_GPIOA&0x0FFF)<<4)+(GPIO_PinSource1&0x0F));
+    printf("#define PWM_PA2 0x%08x\n",((RCC_APB1Periph_TIM2&0x0F)<<28)+(((TIM2_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM2<<20)+(3<<16)+((RCC_AHB1Periph_GPIOA&0x0FFF)<<4)+(GPIO_PinSource2&0x0F));
+    printf("#define PWM_PA3 0x%08x\n",((RCC_APB1Periph_TIM2&0x0F)<<28)+(((TIM2_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM2<<20)+(4<<16)+((RCC_AHB1Periph_GPIOA&0x0FFF)<<4)+(GPIO_PinSource3&0x0F));
+    printf("#define PWM_PI5 0x%08x\n",((RCC_APB2Periph_TIM8&0x0F)<<28)+(((TIM8_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM8<<20)+(1<<16)+((RCC_AHB1Periph_GPIOI&0x0FFF)<<4)+(GPIO_PinSource5&0x0F));
+    printf("#define PWM_PI6 0x%08x\n",((RCC_APB2Periph_TIM8&0x0F)<<28)+(((TIM8_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM8<<20)+(2<<16)+((RCC_AHB1Periph_GPIOI&0x0FFF)<<4)+(GPIO_PinSource6&0x0F));
+    printf("#define PWM_PI7 0x%08x\n",((RCC_APB2Periph_TIM8&0x0F)<<28)+(((TIM8_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM8<<20)+(3<<16)+((RCC_AHB1Periph_GPIOI&0x0FFF)<<4)+(GPIO_PinSource7&0x0F));
+    printf("#define PWM_PI2 0x%08x\n",((RCC_APB2Periph_TIM8&0x0F)<<28)+(((TIM8_BASE>>16)&0x0F)<<24)+(GPIO_AF_TIM8<<20)+(4<<16)+((RCC_AHB1Periph_GPIOI&0x0FFF)<<4)+(GPIO_PinSource2&0x0F));
 
     printf("\nrestore PWM_PD12:\n");
     uint32_t     RCC_APBxPeriph_TIMx  = PWM_PD12 >> 28;
-    uint32_t     TIMx_BASE            = ((PWM_PD12 >> 16 & 0x0F0F) << 8) + PERIPH_BASE;
+    uint32_t     x                    = RCC_APBxPeriph_TIMx;
+    uint32_t     TIMx_BASE            = ((PWM_PD12 >> 24 & 0x0F) << 24) + ((x==4?8:(x==8?0xc:(x==1?0:4)))<<8) + PERIPH_BASE;
     uint8_t      GPIO_AF_TIMx         = PWM_PD12 >> 20 & 0xF;
+    uint8_t      y[4]                 = {0x34,0x38,0x3C,0x40};
+    uint8_t      CCRx                 = y[(PWM_PD12 >> 16 & 0xF)-1];
     uint32_t     RCC_AHB1Periph_GPIOx = PWM_PD12 >> 4 & 0x0FFF;
     uint32_t     GPIO_PinSourcex      = PWM_PD12 & 0x0F;
     uint16_t     GPIO_Pin_x           = 1 << (PWM_PD12 & 0x0F);
     printf("RCC_APBxPeriph_TIMx:0x%08x/0x%08x\n", RCC_APBxPeriph_TIMx, RCC_APB1Periph_TIM4);
-    printf("TIMx_BASE:0x%04x/0x%04x\n", TIMx_BASE, TIM4_BASE);
+    printf("TIMx_BASE:0x%08x/0x%08x\n", TIMx_BASE, TIM4_BASE);
     printf("GPIO_AF_TIM2:0x%02x/0x%02x\n", GPIO_AF_TIMx, GPIO_AF_TIM4);
+    printf("CCRx:0x%02x/0x%02x\n", CCRx, 0x34);
     printf("RCC_AHB1Periph_GPIOx:0x%08x/0x%08x\n", RCC_AHB1Periph_GPIOx, RCC_AHB1Periph_GPIOD);
     printf("GPIO_PinSourcex:0x%08x/0x%08x\n", GPIO_PinSourcex, GPIO_PinSource12);
     printf("GPIO_Pin_x:0x%04x/0x%04x\n", GPIO_Pin_x, GPIO_Pin_12);

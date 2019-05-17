@@ -399,15 +399,16 @@ void BSP_TIM2_Init(void) {
     TIM_ClearFlag(TIM2, TIM_FLAG_Update);
 }
 
-void BSP_PWM_Init(uint32_t PWM_Px， uint16_t prescaler, uint32_t period) {
+void BSP_PWM_Init(uint32_t PWM_Px, uint16_t prescaler, uint32_t period) {
     // Restore Address
     uint32_t     RCC_APBxPeriph_TIMx  = PWM_Px >> 28;
-    uint32_t     TIMx_BASE            = ((PWM_Px >> 16 & 0x0F0F) << 8) + PERIPH_BASE;
+    uint32_t     x                    = RCC_APBxPeriph_TIMx;
+    uint32_t     TIMx_BASE            = ((PWM_Px >> 24 & 0x0F) << 24) + ((x == 4 ? 8 : (x == 8 ? 0xc : (x == 1 ? 0 : 4))) << 8) + PERIPH_BASE;
+    TIM_TypeDef *TIMx                 = TIMx_BASE;
+    uint8_t      GPIO_AF_TIMx         = PWM_Px >> 20 & 0xF;
     uint32_t     RCC_AHB1Periph_GPIOx = PWM_Px >> 4 & 0x0FFF;
     uint32_t     GPIO_PinSourcex      = PWM_Px & 0x0F;
     uint16_t     GPIO_Pin_x           = 1 << (PWM_Px & 0x0F);
-    uint8_t      GPIO_AF_TIMx         = PWM_Px >> 20 & 0xF;
-    TIM_TypeDef *TIMx                 = TIMx_BASE;
 
     // InitStructure
     TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure; // TIM 频率
@@ -441,6 +442,18 @@ void BSP_PWM_Init(uint32_t PWM_Px， uint16_t prescaler, uint32_t period) {
     TIM_OC1PreloadConfig(TIMx, TIM_OCPreload_Enable);             // 使能TIM在CCR1上的预装载寄存器
     TIM_ARRPreloadConfig(TIMx, ENABLE);                           // ARPE使能
     TIM_Cmd(TIMx, ENABLE);                                        // 使能TIM
+}
+
+void PWM_Set_Compare(uint32_t PWM_Px, uint32_t compare) {
+    // Restore Address
+    uint32_t     RCC_APBxPeriph_TIMx = PWM_Px >> 28;
+    uint32_t     x                   = RCC_APBxPeriph_TIMx;
+    uint32_t     TIMx_BASE           = ((PWM_Px >> 24 & 0x0F) << 24) + ((x == 4 ? 8 : (x == 8 ? 0xc : (x == 1 ? 0 : 4))) << 8) + PERIPH_BASE;
+    TIM_TypeDef *TIMx                = TIMx_BASE;
+    uint8_t      y[4]                = {0x34, 0x38, 0x3C, 0x40};
+    uint8_t      CCRx                = y[(PWM_Px >> 16 & 0xF) - 1];
+    // set
+    *(&TIMx + CCRx) = compare;
 }
 
 void BSP_DMA2_Init(void) {
