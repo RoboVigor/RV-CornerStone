@@ -9,7 +9,7 @@
 #include "stm32f4xx.h"
 
 void BSP_CAN_Init(void);
-void BSP_DBUS_Init(uint8_t remoteBuffer);
+void BSP_DBUS_Init(uint8_t *remoteBuffer);
 void BSP_IMU_Init(void);
 void BSP_TIM2_Init(void);
 void BSP_USART3_Init(uint32_t baudRate);
