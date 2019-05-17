@@ -17,4 +17,5 @@ void BSP_Init(void) {
     BSP_UART7_Init(9600);
     BSP_UART8_Init(9600);
     BSP_Laser_Init();
+    BSP_PWM_Init(PWM_PD12, 9000, 200);
 }

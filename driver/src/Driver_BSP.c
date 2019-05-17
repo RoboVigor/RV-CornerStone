@@ -1,11 +1,6 @@
 #include "Driver_BSP.h"
 #include "Driver_DBUS.h"
 
-/**
- * @brief  CAN初始化
- * @param  void
- * @return void
- */
 void BSP_CAN_Init(void) {
     // GPIO
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -374,7 +369,6 @@ void BSP_IMU_Init(void) {
 }
 
 void BSP_TIM2_Init(void) {
-    // TIM2到底干嘛用的啊？RTOS的内部高频计数器用的也是TIM2，PWM也用的TIM2，晚点整理下
     // GPIO
     GPIO_InitTypeDef GPIO_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -405,38 +399,48 @@ void BSP_TIM2_Init(void) {
     TIM_ClearFlag(TIM2, TIM_FLAG_Update);
 }
 
-void BSP_PWM_Init(uint32_t channel) {
-    //占坑
+void BSP_PWM_Init(uint32_t PWM_Px， uint16_t prescaler, uint32_t period) {
+    // Restore Address
+    uint32_t     RCC_APBxPeriph_TIMx  = PWM_Px >> 28;
+    uint32_t     TIMx_BASE            = ((PWM_Px >> 16 & 0x0F0F) << 8) + PERIPH_BASE;
+    uint32_t     RCC_AHB1Periph_GPIOx = PWM_Px >> 4 & 0x0FFF;
+    uint32_t     GPIO_PinSourcex      = PWM_Px & 0x0F;
+    uint16_t     GPIO_Pin_x           = 1 << (PWM_Px & 0x0F);
+    uint8_t      GPIO_AF_TIMx         = PWM_Px >> 20 & 0xF;
+    TIM_TypeDef *TIMx                 = TIMx_BASE;
 
+    // InitStructure
     TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure; // TIM 频率
     GPIO_InitTypeDef        GPIO_InitStructure;        // TIM4_PWM GPIO口设置
     TIM_OCInitTypeDef       TIM_OCInitStructure;       // TIM4_PWM PWM模式
 
-    // TIM4_PWM
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);              // TIM4时钟使能
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);             //使能PORTD时钟
-    GPIO_PinAFConfig(GPIOD, GPIO_PinSource12, GPIO_AF_TIM4);          // GPIOD12复用为定时器4
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_12;                      // GPIOD12
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;                     //复用功能
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;                //速度100MHz
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;                    //推挽复用输出
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;                     //上拉
-    GPIO_Init(GPIOD, &GPIO_InitStructure);                            //初始化
-    TIM_TimeBaseInitStructure.TIM_Prescaler     = 9000 - 1;           //定时器分频
-    TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up; //向上计数模式
-    TIM_TimeBaseInitStructure.TIM_Period        = 200 - 1;            //自动重装载值
-    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-    TIM_TimeBaseInit(TIM4, &TIM_TimeBaseInitStructure); //初始化定时器4
+    // GPIO
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOx, ENABLE);   // 使能时钟
+    GPIO_PinAFConfig(GPIOD, GPIO_PinSourcex, GPIO_AF_TIM4); // GPIO复用为定时器
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_x;             // GPIO
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;           // 复用功能
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;      // 速度100MHz
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;          // 推挽复用输出
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;           // 上拉
+    GPIO_Init(GPIOD, &GPIO_InitStructure);                  // 初始化
 
-    //初始化TIM4 Channel1 PWM模式
-    TIM_OCInitStructure.TIM_OCMode      = TIM_OCMode_PWM2;        //选择定时器模式:TIM脉冲宽度调制模式2
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
-    TIM_OCInitStructure.TIM_OCPolarity  = TIM_OCPolarity_Low;     //输出极性:TIM输出比较极性低
-    TIM_OCInitStructure.TIM_Pulse       = 5;
-    TIM_OC1Init(TIM4, &TIM_OCInitStructure);          //根据指定的参数初始化外设TIM1 4OC1
-    TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable); //使能TIM12在CCR1上的预装载寄存器
-    TIM_ARRPreloadConfig(TIM4, ENABLE);               // ARPE使能
-    TIM_Cmd(TIM4, ENABLE);                            //使能TIM4
+    // TIM
+    RCC_APB1PeriphClockCmd(RCC_APBxPeriph_TIMx, ENABLE);              // 时钟使能
+    TIM_TimeBaseInitStructure.TIM_Prescaler     = prescaler - 1;      // 定时器分频
+    TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up; // 向上计数模式
+    TIM_TimeBaseInitStructure.TIM_Period        = period - 1;         // 自动重装载值
+    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;       // ClockDivision
+    TIM_TimeBaseInit(TIMx, &TIM_TimeBaseInitStructure);               // 初始化定时器
+
+    // TIM_OC
+    TIM_OCInitStructure.TIM_OCMode      = TIM_OCMode_PWM2;        // 选择定时器模式:TIM脉冲宽度调制模式2
+    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; // 比较输出使能
+    TIM_OCInitStructure.TIM_OCPolarity  = TIM_OCPolarity_Low;     // 输出极性:TIM输出比较极性低
+    TIM_OCInitStructure.TIM_Pulse       = 5;                      // Pulse
+    TIM_OC1Init(TIMx, &TIM_OCInitStructure);                      // 根据指定的参数初始化外设
+    TIM_OC1PreloadConfig(TIMx, TIM_OCPreload_Enable);             // 使能TIM在CCR1上的预装载寄存器
+    TIM_ARRPreloadConfig(TIMx, ENABLE);                           // ARPE使能
+    TIM_Cmd(TIMx, ENABLE);                                        // 使能TIM
 }
 
 void BSP_DMA2_Init(void) {
