@@ -7,6 +7,7 @@
 #include "beep.h"
 #include "key.h"
 #include "rtos.h"
+#include "Driver_BSP.h"
 #include "Driver_Filter.h"
 #include "Driver_Magic.h"
 #include "Driver_PID.h"

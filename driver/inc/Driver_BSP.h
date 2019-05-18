@@ -34,6 +34,7 @@ typedef struct {
     uint32_t      GPIO_PinSourcex;
     uint16_t      GPIO_Pin_x;
     uint8_t       CCRx;
+    uint8_t       Channel;
 } PWM_Type;
 
 void BSP_CAN_Init(void);
