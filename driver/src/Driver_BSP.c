@@ -411,8 +411,9 @@ void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px) {
     PWMx->GPIOx                = (GPIO_TypeDef *) GPIOx_Base;
     PWMx->GPIO_PinSourcex      = PWM_Px & 0x0F;
     PWMx->GPIO_Pin_x           = 1 << (PWM_Px & 0x0F);
+    PWMx->Channel              = PWM_Px >> 16 & 0xF;
     uint8_t y[4]               = {0x34, 0x38, 0x3C, 0x40};
-    PWMx->CCRx                 = y[(PWM_Px >> 16 & 0xF) - 1];
+    PWMx->CCRx                 = y[PWMx->Channel - 1];
 }
 
 void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t polarity) {
@@ -444,15 +445,25 @@ void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t 
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; // 比较输出使能
     TIM_OCInitStructure.TIM_OCPolarity  = polarity;               // 输出极性:TIM输出比较极性低
     TIM_OCInitStructure.TIM_Pulse       = 5;                      // Pulse
-    TIM_OC1Init(PWMx->TIMx, &TIM_OCInitStructure);                // 根据指定的参数初始化外设
-    TIM_OC1PreloadConfig(PWMx->TIMx, TIM_OCPreload_Enable);       // 使能TIM在CCR1上的预装载寄存器
-    TIM_ARRPreloadConfig(PWMx->TIMx, ENABLE);                     // ARPE使能
-    TIM_Cmd(PWMx->TIMx, ENABLE);                                  // 使能TIM
+    if (PWMx->Channel == 1) {
+        TIM_OC1Init(PWMx->TIMx, &TIM_OCInitStructure);          // 根据指定的参数初始化外设
+        TIM_OC1PreloadConfig(PWMx->TIMx, TIM_OCPreload_Enable); // 使能TIM在CCR1上的预装载寄存器
+    } else if (PWMx->Channel == 2) {
+        TIM_OC2Init(PWMx->TIMx, &TIM_OCInitStructure);          // 根据指定的参数初始化外设
+        TIM_OC2PreloadConfig(PWMx->TIMx, TIM_OCPreload_Enable); // 使能TIM在CCR1上的预装载寄存器
+    } else if (PWMx->Channel == 3) {
+        TIM_OC3Init(PWMx->TIMx, &TIM_OCInitStructure);          // 根据指定的参数初始化外设
+        TIM_OC3PreloadConfig(PWMx->TIMx, TIM_OCPreload_Enable); // 使能TIM在CCR1上的预装载寄存器
+    } else if (PWMx->Channel == 4) {
+        TIM_OC4Init(PWMx->TIMx, &TIM_OCInitStructure);          // 根据指定的参数初始化外设
+        TIM_OC4PreloadConfig(PWMx->TIMx, TIM_OCPreload_Enable); // 使能TIM在CCR1上的预装载寄存器
+    }
+    TIM_ARRPreloadConfig(PWMx->TIMx, ENABLE); // ARPE使能
+    TIM_Cmd(PWMx->TIMx, ENABLE);              // 使能TIM
 }
 
 void PWM_Set_Compare(PWM_Type *PWMx, uint32_t compare) {
-    // 有问题,待更新
-    *(&(PWMx->TIMx) + PWMx->CCRx) = compare;
+    *((uint32_t *) (((uint8_t *) PWMx->TIMx) + PWMx->CCRx)) = compare;
 }
 
 void BSP_DMA2_Init(void) {

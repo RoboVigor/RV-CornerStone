@@ -145,12 +145,13 @@ int main(){
     printf("GPIO_Pin_x:0x%04x/0x%04x\n", GPIO_Pin_x, GPIO_Pin_12);
     
     PWM_Test.RCC_APBxPeriph_TIMx = 0x4321;
-    PWM_Test.TIMx = 0x1234;
-    //*(((int*)&PWM_Test)+32) = 0xFFFF;
-    //*(unsigned int *)
-    printf("mmm:%d\n", &PWM_Test);
-    printf("mmm:%d\n", &PWM_Test+1);
+    //*(unsigned int *)   
+    *((uint32_t *) (((uint8_t *)&PWM_Test)+4)) = 0x2244;
+    printf("mmm:0x%08x\n", &PWM_Test);
+    printf("mmm:0x%08x\n", ((uint8_t *)&PWM_Test)+4);
+    printf("mmm:0x%08x\n", &PWM_Test.TIMx);
     printf("mmm:0x%08x\n", ((int*)&(PWM_Test.TIMx)));
+    printf("mmm:0x%08x\n", PWM_Test.TIMx);
     printf("Set compare test:0x%08x/0x%08x\n", PWM_Test.TIMx, 0x1234);
     
 
