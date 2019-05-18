@@ -451,6 +451,7 @@ void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t 
 }
 
 void PWM_Set_Compare(PWM_Type *PWMx, uint32_t compare) {
+    // 有问题,待更新
     *(&(PWMx->TIMx) + PWMx->CCRx) = compare;
 }
 

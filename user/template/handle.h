@@ -34,7 +34,7 @@ __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type remoteData;
 
 // 陀螺仪
-__HANDLE_EXT volatile ImuData_Type ImuData;
+__HANDLE_EXT volatile ImuData_Type       ImuData;
 __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 无线串口调试
@@ -46,6 +46,9 @@ __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_
 
 // 视觉数据
 __HANDLE_EXT PsData_Type PsData;
+
+// PWM
+__HANDLE_EXT PWM_Type PWM_Test;
 
 /**
  * @brief 初始化结构体

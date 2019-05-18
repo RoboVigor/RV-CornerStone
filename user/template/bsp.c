@@ -18,7 +18,6 @@ void BSP_Init(void) {
     BSP_UART8_Init(9600);
     BSP_Laser_Init();
 
-    PWM_Type PWM_PD12;
-    BSP_PWM_Set_Port(&PWM_PD12, PWM_PORT_PD12);
-    BSP_PWM_Init(&PWM_PD12, 9000, 200, TIM_OCPolarity_Low);
+    BSP_PWM_Set_Port(&PWM_Test, PWM_PORT_PD12);
+    BSP_PWM_Init(&PWM_Test, 9000, 200, TIM_OCPolarity_Low);
 }

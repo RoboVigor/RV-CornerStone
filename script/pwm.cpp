@@ -81,6 +81,21 @@ using namespace std;
 
 #define PWM_PD12 0x4021008c
 
+
+
+typedef struct {
+    uint32_t      RCC_APBxPeriph_TIMx;
+    uint32_t      TIMx;
+    uint8_t       GPIO_AF_TIMx;
+    uint32_t      RCC_AHB1Periph_GPIOx;
+    uint32_t      GPIOx;
+    uint32_t      GPIO_PinSourcex;
+    uint16_t      GPIO_Pin_x;
+    uint8_t       CCRx;
+} PWM_Type;
+
+PWM_Type PWM_Test;
+
 int main(){
     /*
      * RCC_APB1Periph_TIM4 4
@@ -128,6 +143,16 @@ int main(){
     printf("GPIOx:0x%08x/0x%08x\n", GPIOx, GPIOD_BASE);
     printf("GPIO_PinSourcex:0x%08x/0x%08x\n", GPIO_PinSourcex, GPIO_PinSource12);
     printf("GPIO_Pin_x:0x%04x/0x%04x\n", GPIO_Pin_x, GPIO_Pin_12);
+    
+    PWM_Test.RCC_APBxPeriph_TIMx = 0x4321;
+    PWM_Test.TIMx = 0x1234;
+    //*(((int*)&PWM_Test)+32) = 0xFFFF;
+    //*(unsigned int *)
+    printf("mmm:%d\n", &PWM_Test);
+    printf("mmm:%d\n", &PWM_Test+1);
+    printf("mmm:0x%08x\n", ((int*)&(PWM_Test.TIMx)));
+    printf("Set compare test:0x%08x/0x%08x\n", PWM_Test.TIMx, 0x1234);
+    
 
      return 0;
 }
