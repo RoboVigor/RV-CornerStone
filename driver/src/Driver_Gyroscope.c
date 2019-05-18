@@ -26,6 +26,7 @@ void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
     MPU6500_EnableInt();
 #if GYROSCOPE_START_UP_DELAY_ENABLED
     while (1) {
+        LED_Set_Progress(Gyroscope_EulerData.startupCounter / (GYROSCOPE_START_UP_DELAY / 7) + 1);
         if (Gyroscope_EulerData.startupCounter >= GYROSCOPE_START_UP_DELAY) break;
     }
 #endif

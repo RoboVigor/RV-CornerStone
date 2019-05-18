@@ -47,12 +47,19 @@ void BSP_UART7_Init(uint32_t baudRate);
 void BSP_UART8_Init(uint32_t baudRate);
 void BSP_Laser_Init(void);
 void BSP_User_Power_Init(void);
+void BSP_I2C2_Init(void);
+void BSP_Button_Init(void);
+void BSP_Beep_Init(void);
+void BSP_DMA2_Init(uint32_t DMA_PeripheralBaseAddr, uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
+
 void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_PORT_Px);
 void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t polarity);
 void PWM_Set_Compare(PWM_Type *PWMx, uint32_t compare);
-void BSP_DMA2_Init(void);
-void BSP_I2C2_Init(void);
+
 void BSP_LED_Init(void);
-void BSP_Button_Init(void);
-void BSP_Beep_Init(void);
+void LED_Set_Row(uint16_t row);
+void LED_Set_Progress(uint16_t progress);
+void LED_Run_Horse();
+void LED_Run_Horse_XP();
+
 #endif

@@ -1,6 +1,7 @@
 #include "Driver_BSP.h"
 #include "Driver_DBUS.h"
 #include "math.h"
+#include "macro.h"
 
 void BSP_CAN_Init(void) {
     // GPIO
@@ -281,8 +282,8 @@ void BSP_UART8_Init(uint32_t baudRate) {
 }
 
 void BSP_Laser_Init(void) {
-    GPIO_InitTypeDef GPIO_InitStructure;
     // Laser
+    GPIO_InitTypeDef GPIO_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -293,8 +294,8 @@ void BSP_Laser_Init(void) {
 }
 
 void BSP_User_Power_Init(void) {
+    // 24V User Power
     GPIO_InitTypeDef GPIO_InitStructure;
-    // User Power
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -400,6 +401,47 @@ void BSP_TIM2_Init(void) {
     TIM_ClearFlag(TIM2, TIM_FLAG_Update);
 }
 
+/**
+ * @brief DMA2驱动
+ *
+ * @param DMA_PeripheralBaseAddr 从哪里
+ * @param DMA_Memory0BaseAddr    复制到哪里
+ * @param DMA_BufferSize         还有长度
+ */
+void BSP_DMA2_Init(uint32_t DMA_PeripheralBaseAddr, uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA2_Stream1_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+    DMA_ITConfig(DMA2_Stream1, DMA_IT_TC, ENABLE);
+    DMA_InitTypeDef DMA_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+    DMA_InitStructure.DMA_Channel            = DMA_Channel_5;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = DMA_PeripheralBaseAddr;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
+    DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
+    DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Disable;
+    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOThreshold_Full;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA2_Stream1, &DMA_InitStructure);
+    DMA_Cmd(DMA2_Stream1, ENABLE);
+}
+
+/**
+ * @brief 设置PWM所使用的端口
+ * @param PWMx   PWM结构体
+ * @param PWM_Px 使用的端口,如PWM_PORT_PD12
+ */
 void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px) {
     PWMx->RCC_APBxPeriph_TIMx  = PWM_Px >> 28;
     uint32_t x                 = PWMx->RCC_APBxPeriph_TIMx;
@@ -416,6 +458,14 @@ void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px) {
     PWMx->CCRx                 = y[PWMx->Channel - 1];
 }
 
+/**
+ * @brief 初始化PWM
+ * @note  PI5,PI6,PI7,PI2对应时钟频率为180MHz,其余为90MHz
+ * @param PWMx      PWM结构体
+ * @param prescaler 预分频器. PWM频率   = TIM/prescaler
+ * @param period    计数上限. PWM占空比 = compare/period
+ * @param polarity  输出极性. TIM_OCPolarity_Low/TIM_OCPolarity_High
+ */
 void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t polarity) {
     // InitStructure
     TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure; // TIM 频率
@@ -462,29 +512,75 @@ void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t 
     TIM_Cmd(PWMx->TIMx, ENABLE);              // 使能TIM
 }
 
+/**
+ * @brief 设置占空比
+ * @param PWMx    PWM结构体
+ * @param compare 比较值. PWM占空比 = compare/period
+ */
 void PWM_Set_Compare(PWM_Type *PWMx, uint32_t compare) {
     *((uint32_t *) (((uint8_t *) PWMx->TIMx) + PWMx->CCRx)) = compare;
 }
 
-void BSP_DMA2_Init(void) {
-    //占坑
-}
-
-void BSP_I2C2_Init(void) {
-    //占坑
-}
-
 void BSP_LED_Init(void) {
-    GPIO_InitTypeDef GPIO_InitStructure;
     // 用户自定义LED*8
-    GPIO_InitStructure.GPIO_Pin   = (uint16_t) 0x01FE; // GPIO_Pin_1-GPIO_Pin_8
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;     //普通输出模式
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;     //推挽输出
+    GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitStructure.GPIO_Pin   = 0x01FE;            // GPIO_Pin_1-GPIO_Pin_8
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;     // 普通输出模式
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;     // 推挽输出
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz; // 100MHz
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;      //上拉
-    GPIO_Init(GPIOG, &GPIO_InitStructure);             //初始化
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;      // 上拉
+    GPIO_Init(GPIOG, &GPIO_InitStructure);             // 初始化
+    GPIO_SetBits(GPIOG, 0x01FE);                       // GPIOG1-8设置高,灯灭
+}
 
-    GPIO_SetBits(GPIOG, (uint16_t) 0x01FE); // GPIOG1-8设置高,灯灭
+/**
+ * @brief 设置LED亮暗
+ * @param row 共8位表示8个灯,1为亮,0为暗
+ */
+void LED_Set_Row(uint16_t row) {
+    GPIO_SetBits(GPIOG, ~(row << 1));
+    GPIO_ResetBits(GPIOG, row << 1);
+}
+
+/**
+ * @brief 设置LED亮起数量
+ * @param progress 0-8
+ */
+void LED_Set_Progress(uint16_t progress) {
+    // 设置
+    MIAO(progress, 0, 8);
+    LED_Set_Row((1 << progress) - 1);
+}
+
+/**
+ * @brief 炫酷跑马灯
+ * @note  每次调用本函数会更新LED状态,但没有延时
+ */
+uint16_t LEDHorseRow   = 0;
+uint16_t LEDHorseState = 0;
+void     LED_Run_Horse() {
+    LEDHorseState = (LEDHorseState % 16) + 1;
+    if (LEDHorseState <= 8)
+        LEDHorseRow = (LEDHorseRow << 1) + 1;
+    else
+        LEDHorseRow = LEDHorseRow - (1 << LEDHorseState - 9);
+    LED_Set_Row(LEDHorseState);
+}
+
+/**
+ * @brief Windows XP开机动画跑马灯
+ */
+uint16_t LEDXPRow   = 0;
+uint16_t LEDXPState = 0;
+void     LED_Run_Horse_XP() {
+    LEDXPState = (LEDXPState % 11) + 1;
+    if (LEDXPState <= 3)
+        LEDXPRow = (LEDXPRow << 1) + 1;
+    else if (LEDXPState >= 4 && LEDXPState <= 8)
+        LEDXPRow = LEDXPRow << 1;
+    else
+        LEDXPRow = LEDXPRow - (1 << LEDXPState - 4);
+    LED_Set_Row(LEDXPRow);
 }
 
 void BSP_Button_Init(void) {
@@ -492,5 +588,9 @@ void BSP_Button_Init(void) {
 }
 
 void BSP_Beep_Init(void) {
+    //占坑
+}
+
+void BSP_I2C2_Init(void) {
     //占坑
 }
