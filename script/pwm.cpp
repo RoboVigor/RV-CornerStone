@@ -1,4 +1,5 @@
 #include <iostream>
+#include <math.h>
 
 using namespace std;
 
@@ -10,6 +11,9 @@ using namespace std;
 #define PERIPH_BASE           ((uint32_t)0x40000000)
 #define APB1PERIPH_BASE       PERIPH_BASE
 #define APB2PERIPH_BASE       (PERIPH_BASE + 0x00010000)
+#define AHB1PERIPH_BASE       (PERIPH_BASE + 0x00020000)
+#define AHB2PERIPH_BASE       (PERIPH_BASE + 0x10000000)
+
 #define TIM2_BASE             (APB1PERIPH_BASE + 0x0000)
 #define TIM4_BASE             (APB1PERIPH_BASE + 0x0800)
 #define TIM5_BASE             (APB1PERIPH_BASE + 0x0C00)
@@ -59,6 +63,17 @@ using namespace std;
 #define GPIO_Pin_All               ((uint16_t)0xFFFF)  /* All pins selected */
 
 
+#define GPIOA_BASE            (AHB1PERIPH_BASE + 0x0000)
+#define GPIOB_BASE            (AHB1PERIPH_BASE + 0x0400)
+#define GPIOC_BASE            (AHB1PERIPH_BASE + 0x0800)
+#define GPIOD_BASE            (AHB1PERIPH_BASE + 0x0C00)
+#define GPIOE_BASE            (AHB1PERIPH_BASE + 0x1000)
+#define GPIOF_BASE            (AHB1PERIPH_BASE + 0x1400)
+#define GPIOG_BASE            (AHB1PERIPH_BASE + 0x1800)
+#define GPIOH_BASE            (AHB1PERIPH_BASE + 0x1C00)
+#define GPIOI_BASE            (AHB1PERIPH_BASE + 0x2000)
+
+
 #define GPIO_AF_TIM2          ((uint8_t)0x01)  /* TIM2 Alternate Function mapping */
 #define GPIO_AF_TIM4          ((uint8_t)0x02)  /* TIM4 Alternate Function mapping */
 #define GPIO_AF_TIM5          ((uint8_t)0x02)  /* TIM5 Alternate Function mapping */
@@ -97,18 +112,20 @@ int main(){
     printf("\nrestore PWM_PD12:\n");
     uint32_t     RCC_APBxPeriph_TIMx  = PWM_PD12 >> 28;
     uint32_t     x                    = RCC_APBxPeriph_TIMx;
-    uint32_t     TIMx_BASE            = ((PWM_PD12 >> 24 & 0x0F) << 24) + ((x==4?8:(x==8?0xc:(x==1?0:4)))<<8) + PERIPH_BASE;
+    uint32_t     TIMx            = ((PWM_PD12 >> 24 & 0x0F) << 24) + ((x==4?8:(x==8?0xc:(x==1?0:4)))<<8) + PERIPH_BASE;
     uint8_t      GPIO_AF_TIMx         = PWM_PD12 >> 20 & 0xF;
     uint8_t      y[4]                 = {0x34,0x38,0x3C,0x40};
     uint8_t      CCRx                 = y[(PWM_PD12 >> 16 & 0xF)-1];
     uint32_t     RCC_AHB1Periph_GPIOx = PWM_PD12 >> 4 & 0x0FFF;
+    uint32_t     GPIOx                = AHB1PERIPH_BASE+log(RCC_AHB1Periph_GPIOx)/log(2)*0x400;
     uint32_t     GPIO_PinSourcex      = PWM_PD12 & 0x0F;
     uint16_t     GPIO_Pin_x           = 1 << (PWM_PD12 & 0x0F);
     printf("RCC_APBxPeriph_TIMx:0x%08x/0x%08x\n", RCC_APBxPeriph_TIMx, RCC_APB1Periph_TIM4);
-    printf("TIMx_BASE:0x%08x/0x%08x\n", TIMx_BASE, TIM4_BASE);
+    printf("TIMx_BASE:0x%08x/0x%08x\n", TIMx, TIM4_BASE);
     printf("GPIO_AF_TIM2:0x%02x/0x%02x\n", GPIO_AF_TIMx, GPIO_AF_TIM4);
     printf("CCRx:0x%02x/0x%02x\n", CCRx, 0x34);
     printf("RCC_AHB1Periph_GPIOx:0x%08x/0x%08x\n", RCC_AHB1Periph_GPIOx, RCC_AHB1Periph_GPIOD);
+    printf("GPIOx:0x%08x/0x%08x\n", GPIOx, GPIOD_BASE);
     printf("GPIO_PinSourcex:0x%08x/0x%08x\n", GPIO_PinSourcex, GPIO_PinSource12);
     printf("GPIO_Pin_x:0x%04x/0x%04x\n", GPIO_Pin_x, GPIO_Pin_12);
 

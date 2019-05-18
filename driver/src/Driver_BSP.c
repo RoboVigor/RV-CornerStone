@@ -1,5 +1,6 @@
 #include "Driver_BSP.h"
 #include "Driver_DBUS.h"
+#include "math.h"
 
 void BSP_CAN_Init(void) {
     // GPIO
@@ -399,61 +400,58 @@ void BSP_TIM2_Init(void) {
     TIM_ClearFlag(TIM2, TIM_FLAG_Update);
 }
 
-void BSP_PWM_Init(uint32_t PWM_Px, uint16_t prescaler, uint32_t period) {
-    // Restore Address
-    uint32_t     RCC_APBxPeriph_TIMx  = PWM_Px >> 28;
-    uint32_t     x                    = RCC_APBxPeriph_TIMx;
-    uint32_t     TIMx_BASE            = ((PWM_Px >> 24 & 0x0F) << 24) + ((x == 4 ? 8 : (x == 8 ? 0xc : (x == 1 ? 0 : 4))) << 8) + PERIPH_BASE;
-    TIM_TypeDef *TIMx                 = TIMx_BASE;
-    uint8_t      GPIO_AF_TIMx         = PWM_Px >> 20 & 0xF;
-    uint32_t     RCC_AHB1Periph_GPIOx = PWM_Px >> 4 & 0x0FFF;
-    uint32_t     GPIO_PinSourcex      = PWM_Px & 0x0F;
-    uint16_t     GPIO_Pin_x           = 1 << (PWM_Px & 0x0F);
+void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px) {
+    PWMx->RCC_APBxPeriph_TIMx  = PWM_Px >> 28;
+    uint32_t x                 = PWMx->RCC_APBxPeriph_TIMx;
+    uint32_t TIMx_Base         = ((PWM_Px >> 24 & 0x0F) << 24) + ((x == 4 ? 8 : (x == 8 ? 0xc : (x == 1 ? 0 : 4))) << 8) + PERIPH_BASE;
+    PWMx->TIMx                 = (TIM_TypeDef *) TIMx_Base;
+    PWMx->GPIO_AF_TIMx         = PWM_Px >> 20 & 0xF;
+    PWMx->RCC_AHB1Periph_GPIOx = PWM_Px >> 4 & 0x0FFF;
+    uint32_t GPIOx_Base        = (AHB1PERIPH_BASE + log(PWMx->RCC_AHB1Periph_GPIOx) / log(2) * 0x400);
+    PWMx->GPIOx                = (GPIO_TypeDef *) GPIOx_Base;
+    PWMx->GPIO_PinSourcex      = PWM_Px & 0x0F;
+    PWMx->GPIO_Pin_x           = 1 << (PWM_Px & 0x0F);
+    uint8_t y[4]               = {0x34, 0x38, 0x3C, 0x40};
+    PWMx->CCRx                 = y[(PWM_Px >> 16 & 0xF) - 1];
+}
 
+void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t polarity) {
     // InitStructure
     TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure; // TIM 频率
     GPIO_InitTypeDef        GPIO_InitStructure;        // TIM4_PWM GPIO口设置
     TIM_OCInitTypeDef       TIM_OCInitStructure;       // TIM4_PWM PWM模式
 
     // GPIO
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOx, ENABLE);   // 使能时钟
-    GPIO_PinAFConfig(GPIOD, GPIO_PinSourcex, GPIO_AF_TIM4); // GPIO复用为定时器
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_x;             // GPIO
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;           // 复用功能
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;      // 速度100MHz
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;          // 推挽复用输出
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;           // 上拉
-    GPIO_Init(GPIOD, &GPIO_InitStructure);                  // 初始化
+    RCC_AHB1PeriphClockCmd(PWMx->RCC_AHB1Periph_GPIOx, ENABLE);               // 使能时钟
+    GPIO_PinAFConfig(PWMx->GPIOx, PWMx->GPIO_PinSourcex, PWMx->GPIO_AF_TIMx); // GPIO复用为定时器
+    GPIO_InitStructure.GPIO_Pin   = PWMx->GPIO_Pin_x;                         // GPIO
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;                             // 复用功能
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;                        // 速度100MHz
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;                            // 推挽复用输出
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;                             // 上拉
+    GPIO_Init(PWMx->GPIOx, &GPIO_InitStructure);                              // 初始化
 
     // TIM
-    RCC_APB1PeriphClockCmd(RCC_APBxPeriph_TIMx, ENABLE);              // 时钟使能
+    RCC_APB1PeriphClockCmd(PWMx->RCC_APBxPeriph_TIMx, ENABLE);        // 时钟使能
     TIM_TimeBaseInitStructure.TIM_Prescaler     = prescaler - 1;      // 定时器分频
     TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up; // 向上计数模式
     TIM_TimeBaseInitStructure.TIM_Period        = period - 1;         // 自动重装载值
     TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;       // ClockDivision
-    TIM_TimeBaseInit(TIMx, &TIM_TimeBaseInitStructure);               // 初始化定时器
+    TIM_TimeBaseInit(PWMx->TIMx, &TIM_TimeBaseInitStructure);         // 初始化定时器
 
     // TIM_OC
     TIM_OCInitStructure.TIM_OCMode      = TIM_OCMode_PWM2;        // 选择定时器模式:TIM脉冲宽度调制模式2
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; // 比较输出使能
-    TIM_OCInitStructure.TIM_OCPolarity  = TIM_OCPolarity_Low;     // 输出极性:TIM输出比较极性低
+    TIM_OCInitStructure.TIM_OCPolarity  = polarity;               // 输出极性:TIM输出比较极性低
     TIM_OCInitStructure.TIM_Pulse       = 5;                      // Pulse
-    TIM_OC1Init(TIMx, &TIM_OCInitStructure);                      // 根据指定的参数初始化外设
-    TIM_OC1PreloadConfig(TIMx, TIM_OCPreload_Enable);             // 使能TIM在CCR1上的预装载寄存器
-    TIM_ARRPreloadConfig(TIMx, ENABLE);                           // ARPE使能
-    TIM_Cmd(TIMx, ENABLE);                                        // 使能TIM
+    TIM_OC1Init(PWMx->TIMx, &TIM_OCInitStructure);                // 根据指定的参数初始化外设
+    TIM_OC1PreloadConfig(PWMx->TIMx, TIM_OCPreload_Enable);       // 使能TIM在CCR1上的预装载寄存器
+    TIM_ARRPreloadConfig(PWMx->TIMx, ENABLE);                     // ARPE使能
+    TIM_Cmd(PWMx->TIMx, ENABLE);                                  // 使能TIM
 }
 
-void PWM_Set_Compare(uint32_t PWM_Px, uint32_t compare) {
-    // Restore Address
-    uint32_t     RCC_APBxPeriph_TIMx = PWM_Px >> 28;
-    uint32_t     x                   = RCC_APBxPeriph_TIMx;
-    uint32_t     TIMx_BASE           = ((PWM_Px >> 24 & 0x0F) << 24) + ((x == 4 ? 8 : (x == 8 ? 0xc : (x == 1 ? 0 : 4))) << 8) + PERIPH_BASE;
-    TIM_TypeDef *TIMx                = TIMx_BASE;
-    uint8_t      y[4]                = {0x34, 0x38, 0x3C, 0x40};
-    uint8_t      CCRx                = y[(PWM_Px >> 16 & 0xF) - 1];
-    // set
-    *(&TIMx + CCRx) = compare;
+void PWM_Set_Compare(PWM_Type *PWMx, uint32_t compare) {
+    *(&(PWMx->TIMx) + PWMx->CCRx) = compare;
 }
 
 void BSP_DMA2_Init(void) {
