@@ -1,13 +1,6 @@
 #ifndef __TASK_SYSTEMINIT_H
 #define __TASK_SYSTEMINIT_H
 
-#include "BSP_GPIO.h"
-#include "BSP_NVIC.h"
-#include "BSP_UART.h"
-#include "BSP_DMA.h"
-#include "BSP_CAN.h"
-#include "BSP_TIM.h"
-
 #if DEBUG_ENABLED
 void Task_Debug_Magic_Send(void *Parameters);         // 无线串口调试输出
 void Task_Debug_Magic_Receive(void *Parameters);      // 无线串口调试接收

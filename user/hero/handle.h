@@ -7,6 +7,7 @@
 #include "beep.h"
 #include "key.h"
 #include "rtos.h"
+#include "Driver_BSP.h"
 #include "Driver_Filter.h"
 #include "Driver_Magic.h"
 #include "Driver_PID.h"
@@ -31,7 +32,7 @@ __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
 
-//云台
+// 云台
 __HANDLE_EXT Motor_Type Motor_Yaw, Motor_Pitch;
 __HANDLE_EXT PID_Type PID_Cloud_YawAngle, PID_Cloud_YawSpeed, PID_Cloud_PitchAngle, PID_Cloud_PitchSpeed;
 __HANDLE_EXT PID_Type PID_Follow_Angle, PID_Follow_Speed;
@@ -60,6 +61,9 @@ __HANDLE_EXT float powerfeed;
 
 // 视觉数据
 __HANDLE_EXT PsData_Type PsData;
+
+// 弹舱盖舵机
+__HANDLE_EXT PWM_Type PWM_Magazine_Servo;
 
 //发射机构
 __HANDLE_EXT Motor_Type Motor_LeftFrict, Motor_RightFrict, Motor_Stir; // 左/右 摩擦轮 拨弹轮 电机

@@ -271,14 +271,14 @@ void Task_Fire(void *Parameters) {
             Can_Send(CAN2, 0x200, PID_RightFrictSpeed.output, PID_LeftFrictSpeed.output, 0, 0);
         }
         if (remoteData.switchLeft == 1) {
-            // TIM_SetCompare1(TIM4, 15);
+            PWM_Set_Compare(&PWM_Magazine_Servo, 15);
         }
         if (remoteData.switchLeft == 2) {
             stirState = 2;
         } else if (remoteData.switchLeft == 3) {
             // lastSwitch = 3;
             stirState = 0;
-            // TIM_SetCompare1(TIM4, 7);
+            PWM_Set_Compare(&PWM_Magazine_Servo, 7);
         }
 
         //拨弹轮 PID 控制
@@ -298,8 +298,8 @@ void Task_Fire(void *Parameters) {
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        GREEN_LIGHT_TOGGLE;
-        vTaskDelayUntil(&LastWakeTime, 250);
+        LED_Run_Horse_XP();
+        vTaskDelayUntil(&LastWakeTime, 150);
     }
 
     vTaskDelete(NULL);

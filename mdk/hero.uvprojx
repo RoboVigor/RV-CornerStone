@@ -377,41 +377,6 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>bsp</GroupName>
-          <Files>
-            <File>
-              <FileName>BSP_CAN.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\BSP_CAN.c</FilePath>
-            </File>
-            <File>
-              <FileName>BSP_DMA.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\BSP_DMA.c</FilePath>
-            </File>
-            <File>
-              <FileName>BSP_GPIO.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\BSP_GPIO.c</FilePath>
-            </File>
-            <File>
-              <FileName>BSP_NVIC.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\BSP_NVIC.c</FilePath>
-            </File>
-            <File>
-              <FileName>BSP_TIM.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\BSP_TIM.c</FilePath>
-            </File>
-            <File>
-              <FileName>BSP_UART.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\BSP_UART.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>core</GroupName>
           <Files>
             <File>
@@ -618,6 +583,11 @@
               <FileName>Driver_Judge.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Judge.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_BSP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_BSP.c</FilePath>
             </File>
           </Files>
         </Group>
