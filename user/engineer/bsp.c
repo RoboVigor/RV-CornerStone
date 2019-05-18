@@ -177,7 +177,6 @@ void BSP_USER_Init(void) {
     TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable); //使能TIM4在CCR1上的预装载寄存器
     TIM_ARRPreloadConfig(TIM4, ENABLE);               // ARPE使能
     TIM_Cmd(TIM4, ENABLE);                            //使能TIM4
-    // TIM_SetCompare3(TIM4, 25);                        //设置占空比
 
     /**** TAKING ****/
 
@@ -220,66 +219,6 @@ void BSP_USER_Init(void) {
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-    // Distance_Sensor1 - PA0 - TIM2 Channel 1 - PWM INPUT CAPTURE
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN; // 下拉
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource0, GPIO_AF_TIM2); // PA0 复用位定时器 2
-
-    TIM_TimeBaseInitStructure.TIM_Period        = 0xFFFFFFFF; // 设置ARR
-    TIM_TimeBaseInitStructure.TIM_Prescaler     = 84 - 1;     // 设置分频
-    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-    TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up; // 向上计数
-    TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStructure);
-
-    TIM2_ICInitStructure.TIM_Channel     = TIM_Channel_1;            // TIM2通道1
-    TIM2_ICInitStructure.TIM_ICPolarity  = TIM_ICPolarity_Rising;    // 上升沿捕获
-    TIM2_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI; // 映射到TI1
-    TIM2_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
-    TIM2_ICInitStructure.TIM_ICFilter    = 0x00; // 不滤波
-    TIM_ICInit(TIM2, &TIM2_ICInitStructure);
-    TIM_ITConfig(TIM2, TIM_IT_Update | TIM_IT_CC1, ENABLE);
-    TIM_Cmd(TIM2, ENABLE);
-
-    NVIC_InitStructure.NVIC_IRQChannel                   = TIM2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-
-    // Sensor2 - PH10 - TIM5 Channel 1 - INPUTCAPTURE
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_10;
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
-    GPIO_Init(GPIOH, &GPIO_InitStructure);                   //初始化
-    GPIO_PinAFConfig(GPIOH, GPIO_PinSource10, GPIO_AF_TIM5); // GPIOH10复用为定时器5
-
-    TIM_TimeBaseInitStructure.TIM_Prescaler     = 84 - 1;             //定时器分频
-    TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up; //向上计数模式
-    TIM_TimeBaseInitStructure.TIM_Period        = 0xFFFFFFFF;         //自动重装载值
-    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-    TIM_TimeBaseInit(TIM5, &TIM_TimeBaseInitStructure); //初始化定时器5
-
-    TIM5_ICInitStructure.TIM_Channel     = TIM_Channel_1;            // TIM5通道1
-    TIM5_ICInitStructure.TIM_ICPolarity  = TIM_ICPolarity_Rising;    // 上升沿捕获
-    TIM5_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI; // 映射到TI1
-    TIM5_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
-    TIM5_ICInitStructure.TIM_ICFilter    = 0x00; // 不滤波
-    TIM_ICInit(TIM5, &TIM5_ICInitStructure);
-    TIM_ITConfig(TIM5, TIM_IT_Update | TIM_IT_CC1, ENABLE);
-    TIM_Cmd(TIM5, ENABLE);
-
-    NVIC_InitStructure.NVIC_IRQChannel                   = TIM5_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
 }
 
 /**** Distance_Sensor ****/

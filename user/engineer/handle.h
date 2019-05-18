@@ -52,9 +52,6 @@
 #define RESCUE_HOOK_DOWN GPIO_SetBits(GPIOI, GPIO_Pin_0);
 #define RESCUE_HOOK_UP GPIO_ResetBits(GPIOI, GPIO_Pin_0);
 
-// #define POSITIVE_SUPPLY GPIO_ResetBits(GPIOI, GPIO_Pin_5 | GPIO_Pin_6);
-// #define NEGATIVE_SUPPLY GPIO_SetBits(GPIOI, GPIO_Pin_5 | GPIO_Pin_6);
-
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
@@ -98,7 +95,7 @@ __HANDLE_EXT u8 re_buf_Data[8], receive_ok;
 __HANDLE_EXT uint16_t distance1, distance2, steady_distance1, steady_distance2;
 
 // 取弹状态
-__HANDLE_EXT int take_state;
+__HANDLE_EXT int take_state, takeMode;
 
 // 电推杆状态
 __HANDLE_EXT int pushrod_state;
