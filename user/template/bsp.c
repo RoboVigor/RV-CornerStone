@@ -17,6 +17,8 @@ void BSP_Init(void) {
     BSP_UART7_Init(9600);
     BSP_UART8_Init(9600);
     BSP_Laser_Init();
+    BSP_Beep_Init();
+    BSP_LED_Init();
 
     BSP_PWM_Set_Port(&PWM_Test, PWM_PORT_PD12);
     BSP_PWM_Init(&PWM_Test, 9000, 200, TIM_OCPolarity_Low);

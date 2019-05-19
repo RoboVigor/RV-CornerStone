@@ -92,6 +92,19 @@ void Task_Debug_Magic_Send(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_Beep(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    uint32_t   index        = 0;
+    while (1) {
+        BEEP_ON;
+        Sing_Startup_music(index % Startup_Success_music_len_XP);
+        index++;
+        vTaskDelayUntil(&LastWakeTime, 250);
+    }
+
+    vTaskDelete(NULL);
+}
+
 void Task_Sys_Init(void *Parameters) {
 
     // 初始化全局变量
@@ -115,6 +128,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Beep, "Task_Beep", 500, NULL, 7, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
@@ -123,8 +137,8 @@ void Task_Sys_Init(void *Parameters) {
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        LED_Run_Horse();
-        vTaskDelayUntil(&LastWakeTime, 20);
+        LED_Run_Horse_XP();
+        vTaskDelayUntil(&LastWakeTime, 200);
     }
 
     vTaskDelete(NULL);
