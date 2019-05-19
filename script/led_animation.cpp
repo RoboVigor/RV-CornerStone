@@ -20,11 +20,11 @@ void     LED_Run_Horse_XP() {
 uint16_t LEDHorseRow   = 0;
 uint16_t LEDHorseState = 0;
 void     LED_Run_Horse() {
-    LEDHorseState = (LEDHorseState % 16) + 1;
+    LEDHorseState = (LEDHorseState % 26) + 1;
     if (LEDHorseState <= 8)
         LEDHorseRow = (LEDHorseRow << 1) + 1;
-    else
-        LEDHorseRow = LEDHorseRow - (1 << LEDHorseState - 9);
+    else if (LEDHorseState >= 14 && LEDHorseState <= 21)
+        LEDHorseRow = LEDHorseRow - (1 << LEDHorseState - 14);
     char s[8];
     itoa(LEDHorseRow, s, 2);
     printf("%2d.%8s",LEDHorseState,s);

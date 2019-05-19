@@ -555,20 +555,23 @@ void LED_Set_Progress(uint16_t progress) {
 /**
  * @brief 炫酷跑马灯
  * @note  每次调用本函数会更新LED状态,但没有延时
+ *        建议每次调用后设置20ms延时
  */
 uint16_t LEDHorseRow   = 0;
 uint16_t LEDHorseState = 0;
 void     LED_Run_Horse() {
-    LEDHorseState = (LEDHorseState % 16) + 1;
+    LEDHorseState = (LEDHorseState % 26) + 1;
     if (LEDHorseState <= 8)
         LEDHorseRow = (LEDHorseRow << 1) + 1;
-    else
-        LEDHorseRow = LEDHorseRow - (1 << LEDHorseState - 9);
-    LED_Set_Row(LEDHorseState);
+    else if (LEDHorseState >= 14 && LEDHorseState <= 21)
+        LEDHorseRow = LEDHorseRow - (1 << LEDHorseState - 14);
+    LED_Set_Row(LEDHorseRow);
 }
 
 /**
  * @brief Windows XP开机动画跑马灯
+ * @note  每次调用本函数会更新LED状态,但没有延时
+ *        建议每次调用后设置200ms延时
  */
 uint16_t LEDXPRow   = 0;
 uint16_t LEDXPState = 0;

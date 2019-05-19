@@ -299,7 +299,7 @@ void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
         LED_Run_Horse_XP();
-        vTaskDelayUntil(&LastWakeTime, 150);
+        vTaskDelayUntil(&LastWakeTime, 200);
     }
 
     vTaskDelete(NULL);
