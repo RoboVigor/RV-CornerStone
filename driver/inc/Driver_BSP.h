@@ -37,6 +37,9 @@ typedef struct {
     uint8_t       Channel;
 } PWM_Type;
 
+#define BEEP_XP_LENGTH 17
+uint16_t BeepXPScore[] = {1244, 1244, 622, 932, 932, 932, 830, 830, 830, 1244, 1244, 932, 932, 932, 932, 932, 932};
+
 void BSP_CAN_Init(void);
 void BSP_DBUS_Init(uint8_t *remoteBuffer);
 void BSP_IMU_Init(void);

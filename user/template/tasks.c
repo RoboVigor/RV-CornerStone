@@ -105,6 +105,28 @@ void Task_Beep(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_Blink(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    while (1) {
+        LED_Run_Horse_XP(); // XP开机动画,建议延时200ms
+        // LED_Run_Horse(); // 跑马灯,建议延时20ms
+        vTaskDelayUntil(&LastWakeTime, 200);
+    }
+
+    vTaskDelete(NULL);
+}
+
+void Task_Startup_Music(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    while (1) {
+        if (Beep_Sing_XP()) break; // XP开机音乐
+        // if (Beep_Sing_Sky()) break;  // 天空之城
+        vTaskDelayUntil(&LastWakeTime, 150);
+    }
+
+    vTaskDelete(NULL);
+}
+
 void Task_Sys_Init(void *Parameters) {
 
     // 初始化全局变量
@@ -126,20 +148,10 @@ void Task_Sys_Init(void *Parameters) {
 
     // 功能任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Beep, "Task_Beep", 500, NULL, 7, NULL);
+    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Beep, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 完成使命
-    vTaskDelete(NULL);
-}
-
-void Task_Blink(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount();
-    while (1) {
-        LED_Run_Horse_XP();
-        vTaskDelayUntil(&LastWakeTime, 200);
-    }
-
     vTaskDelete(NULL);
 }

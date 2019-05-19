@@ -627,6 +627,41 @@ void BSP_Beep_Init(void) {
     TIM_Cmd(TIM12, ENABLE); //使能TIM3
 }
 
+/**
+ * @brief 播放XP开机音乐
+ * @note  如果播放完成返回1,任务应退出循环并自杀
+ */
+uint16_t BeepXPState = 0;
+void     Beep_Sing_XP(void) {
+    if (BeepXPState == BEEP_XP_LENGTH) {
+        BEEP_CH     = 0;
+        BeepXPState = 0;
+        return 1;
+    } else {
+        BEEP_ARR = BeepXPScore[BeepXPState];
+        BEEP_CH  = BeepXPScore[BeepXPState] / 2;
+        BeepXPState++;
+        return 0;
+    }
+}
+
+/**
+ * @brief 播放天空之城
+ * @note  如果播放完成返回1,任务应退出循环并自杀
+ */
+uint16_t BeepSkyState = 0;
+void     Beep_Sing_Sky(void) {
+    if (BeepSkyState == Startup_Success_music_len_sky) {
+        BEEP_CH      = 0;
+        BeepSkyState = 0;
+        return 1;
+    } else {
+        Sing(Mavic_Startup_music_XP[BeepSkyState]);
+        BeepXPState++;
+        return 0;
+    }
+}
+
 void BSP_I2C2_Init(void) {
     //占坑
 }
