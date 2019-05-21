@@ -1,17 +1,15 @@
 #define __DRIVER_JUDGE_GLOBALS
 
 #include "Driver_Judge.h"
+#include <iostream>
+
+using namespace std;
+
+uint8_t data[29] = {0};
 
 void Judge_Init(Judge_Type *Judge) {
     Judge->index = 0;
     Judge->step  = STEP_HEADER_SOF;
-}
-
-void Judge_Update(Judge_Type *Judge) {
-    int i = 0;
-    for (i = 0; i < JudgeBufferLength; i++) {
-        Judge_Decode(Judge, Judge->buf[i]);
-    }
 }
 
 void Judge_Decode(Judge_Type *Judge, uint8_t byte) {
@@ -66,7 +64,7 @@ void Judge_Decode(Judge_Type *Judge, uint8_t byte) {
             Judge->index                  = 0;
             Judge->step                   = STEP_HEADER_SOF;
             if (Verify_CRC16_Check_Sum(Judge->packet, REF_HEADER_CRC_CMDID_LEN + Judge->dataLength)) {
-                Judge_Load(&Judge);
+                Judge_Load(Judge);
             }
         }
     } break;
@@ -79,11 +77,13 @@ void Judge_Decode(Judge_Type *Judge, uint8_t byte) {
 }
 
 void Judge_Load(Judge_Type *Judge) {
-    int      i;
+    int      i, j;
     uint8_t *begin_p;
+    uint8_t *member_length_p;
+    uint8_t  member_length_sum = 0;
 
     // id
-    Judge->id = (Judge->packet[REF_PROTOCOL_HEADER_SIZE] << 8) + Judge->packet[REF_PROTOCOL_HEADER_SIZE + 1];
+    Judge->id = Judge->packet[REF_PROTOCOL_HEADER_SIZE] << 8 + Judge->packet[REF_PROTOCOL_HEADER_SIZE + 1];
 
     // choose struct
     switch (Judge->id) {
@@ -91,14 +91,20 @@ void Judge_Load(Judge_Type *Judge) {
         begin_p = Judge->robotState.data;
     } break;
     case 0x0202: {
-        begin_p = Judge->heatData.data;
+        begin_p         = Judge->heatData.data;
+        member_length_p = ext_power_heat_data_member_length;
     } break;
 
     default: { return; } break;
     }
     // load
     for (i = 0; i < Judge->dataLength; i++) {
-        *(begin_p + i) = Judge->packet[REF_HEADER_CMDID_LEN + i];
+        if (i < member_length_sum) continue;
+        for (j = 0; j < *member_length_p; j++) {
+            printf("%d / %d\n", i + (*member_length_p) - 1 - j, i + j);
+            *(begin_p + i + (*member_length_p) - 1 - j) = Judge->packet[REF_HEADER_CMDID_LEN + i + j];
+            member_length_sum += *member_length_p;
+        }
     }
 }
 

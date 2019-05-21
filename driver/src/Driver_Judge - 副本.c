@@ -1,104 +1,144 @@
 #define __DRIVER_JUDGE_GLOBALS
 
 #include "Driver_Judge.h"
+#include "macro.h"
+
+uint8_t data[29] = {0};
 
 void Judge_Init(Judge_Type *Judge) {
-    Judge->index = 0;
-    Judge->step  = STEP_HEADER_SOF;
+    Judge->robotState.gameProcess     = 0;
+    Judge->robotState.maxHP           = 0;
+    Judge->robotState.remainHP        = 0;
+    Judge->robotState.robotLevel      = 1;
+    Judge->robotState.stageRemainTime = 0;
+
+    Judge->shootData.bulletFreq  = 0;
+    Judge->shootData.bulletSpeed = 0;
+    Judge->shootData.bulletType  = 1;
+
+    Judge->powerHeatData.chassisCurrent     = 0;
+    Judge->powerHeatData.chassisPower       = 0;
+    Judge->powerHeatData.chassisPowerBuffer = 0;
+    Judge->powerHeatData.chassisVolt        = 24;
+    Judge->powerHeatData.shooterHeat0       = 0;
+    Judge->powerHeatData.shooterHeat1       = 0;
 }
 
-void Judge_Update(Judge_Type *Judge) {
-    int i = 0;
-    for (i = 0; i < JudgeBufferLength; i++) {
-        Judge_Decode(Judge, Judge->buf[i]);
-    }
-}
+void Judge_Decode(Judge_Type *Judge) {
+    uint8_t     count = 0;
+    uint8_t     sign  = 0;
+    uint8_t     i     = 0;
+    FormatTrans FT;
 
-void Judge_Decode(Judge_Type *Judge, uint8_t byte) {
-    switch (Judge->step) {
-    case STEP_HEADER_SOF: {
-        if (byte == REF_PROTOCOL_HEADER) {
-            Judge->packet[Judge->index++] = byte;
-            Judge->step                   = STEP_LENGTH_LOW;
-        } else {
-            Judge->index = 0;
-        }
-    } break;
+    while ((sign == 0) && count < 18) {
+        if (Judge->buf[count] == JudgeFrameHeader) {
+            if ((count < 4) && (Judge->buf[count + 5] == 4)) {
+                for (i = 0; i < JudgePackLength_4; i++)
+                    data[i] = Judge->buf[count + i];
 
-    case STEP_LENGTH_LOW: {
-        Judge->dataLength             = byte;
-        Judge->packet[Judge->index++] = byte;
-        Judge->step                   = STEP_LENGTH_HIGH;
-    } break;
+                if (Verify_CRC16_Check_Sum(data, JudgePackLength_4) == 1) {
+                    FT.U[3]                          = data[10];
+                    FT.U[2]                          = data[9];
+                    FT.U[1]                          = data[8];
+                    FT.U[0]                          = data[7];
+                    Judge->powerHeatData.chassisVolt = FT.F;
 
-    case STEP_LENGTH_HIGH: {
-        Judge->dataLength |= byte << 8;
-        Judge->packet[Judge->index++] = byte;
-        if (Judge->dataLength < 114) {
-            Judge->step = STEP_FRAME_SEQ;
-        } else {
-            Judge->step  = STEP_HEADER_SOF;
-            Judge->index = 0;
-        }
-    } break;
+                    FT.U[3]                             = data[14];
+                    FT.U[2]                             = data[13];
+                    FT.U[1]                             = data[12];
+                    FT.U[0]                             = data[11];
+                    Judge->powerHeatData.chassisCurrent = FT.F;
+                    Judge->powerHeatData.Current_int    = (uint16_t) Judge->powerHeatData.chassisCurrent;
 
-    case STEP_FRAME_SEQ: {
-        Judge->packet[Judge->index++] = byte;
-        Judge->step                   = STEP_HEADER_CRC8;
-    } break;
+                    FT.U[3]                           = data[18];
+                    FT.U[2]                           = data[17];
+                    FT.U[1]                           = data[16];
+                    FT.U[0]                           = data[15];
+                    Judge->powerHeatData.chassisPower = FT.F;
+                    Judge->powerHeatData.Power_int    = (uint16_t) Judge->powerHeatData.chassisPower;
 
-    case STEP_HEADER_CRC8: {
-        Judge->packet[Judge->index++] = byte;
-        if (Verify_CRC8_Check_Sum(Judge->packet, REF_PROTOCOL_HEADER_SIZE)) {
-            Judge->step = STEP_DATA_CRC16;
-        } else {
-            Judge->index = 0;
-            Judge->step  = STEP_HEADER_SOF;
-        }
-    } break;
+                    FT.U[3]                                 = data[22];
+                    FT.U[2]                                 = data[21];
+                    FT.U[1]                                 = data[20];
+                    FT.U[0]                                 = data[19];
+                    Judge->powerHeatData.chassisPowerBuffer = FT.F;
+                    Judge->powerHeatData.PowerBuffer_int    = (uint16_t) Judge->powerHeatData.chassisPowerBuffer;
 
-    case STEP_DATA_CRC16: {
-        if (Judge->index < (REF_HEADER_CRC_CMDID_LEN + Judge->dataLength)) {
-            Judge->packet[Judge->index++] = byte;
-        }
-        if (Judge->index >= (REF_HEADER_CRC_CMDID_LEN + Judge->dataLength)) {
-            Judge->packet[Judge->index++] = byte;
-            Judge->index                  = 0;
-            Judge->step                   = STEP_HEADER_SOF;
-            if (Verify_CRC16_Check_Sum(Judge->packet, REF_HEADER_CRC_CMDID_LEN + Judge->dataLength)) {
-                Judge_Load(&Judge);
+                    Judge->powerHeatData.shooterHeat0 = ((uint16_t) data[24] << 8) | data[23];
+                    //			Judge->powerHeatData.shooterHeat1=((uint16_t)data[26]<<8)|data[25];
+                    sign = 4;
+                }
+            }
+
+            if (Judge->buf[count + 5] == 3) {
+                for (i = 0; i < JudgePackLength_3; i++)
+                    data[i] = Judge->buf[count + i];
+
+                if (Verify_CRC16_Check_Sum(data, JudgePackLength_3) == 1) {
+                    Judge->shootData.bulletType = data[7];
+                    Judge->shootData.bulletFreq = data[8];
+
+                    FT.U[3]                      = data[12];
+                    FT.U[2]                      = data[11];
+                    FT.U[1]                      = data[10];
+                    FT.U[0]                      = data[9];
+                    Judge->shootData.bulletSpeed = FT.F;
+                    Judge->shootData.bullet_int  = Judge->shootData.bulletSpeed;
+                    sign                         = 3;
+                }
+            }
+
+            if (Judge->buf[count + 5] == 1) {
+                for (i = 0; i < JudgePackLength_1; i++)
+                    data[i] = Judge->buf[count + i];
+
+                if (Verify_CRC16_Check_Sum(data, JudgePackLength_1) == 1) {
+                    Judge->robotState.stageRemainTime = ((uint16_t) data[8] << 8) | data[7];
+                    Judge->robotState.gameProcess     = data[9];
+                    Judge->robotState.robotLevel      = data[10];
+                    Judge->robotState.remainHP        = ((uint16_t) data[12] << 8) | data[11];
+                    Judge->robotState.maxHP           = ((uint16_t) data[14] << 8) | data[13];
+                    sign                              = 1;
+                }
             }
         }
-    } break;
-
-    default: {
-        Judge->step  = STEP_HEADER_SOF;
-        Judge->index = 0;
-    } break;
+        count++;
     }
-}
 
-void Judge_Load(Judge_Type *Judge) {
-    int      i;
-    uint8_t *begin_p;
+    if (count == 1) {
+        if (sign == 1) {
+            count += JudgePackLength_1;
 
-    // id
-    Judge->id = (Judge->packet[REF_PROTOCOL_HEADER_SIZE] << 8) + Judge->packet[REF_PROTOCOL_HEADER_SIZE + 1];
+            if (Judge->buf[count] == JudgeFrameHeader && Judge->buf[count + 5] == 3) {
+                for (i = 0; i < JudgePackLength_3; i++)
+                    data[i] = Judge->buf[count + i];
 
-    // choose struct
-    switch (Judge->id) {
-    case 0x0201: {
-        begin_p = Judge->robotState.data;
-    } break;
-    case 0x0202: {
-        begin_p = Judge->heatData.data;
-    } break;
+                if (Verify_CRC16_Check_Sum(data, JudgePackLength_3) == 1) {
+                    Judge->shootData.bulletType = data[7];
+                    Judge->shootData.bulletFreq = data[8];
 
-    default: { return; } break;
-    }
-    // load
-    for (i = 0; i < Judge->dataLength; i++) {
-        *(begin_p + i) = Judge->packet[REF_HEADER_CMDID_LEN + i];
+                    FT.U[3]                      = data[12];
+                    FT.U[2]                      = data[11];
+                    FT.U[1]                      = data[10];
+                    FT.U[0]                      = data[9];
+                    Judge->shootData.bulletSpeed = FT.F;
+                }
+            }
+        } else if (sign == 3) {
+            count += JudgePackLength_3;
+            if (Judge->buf[count] == JudgeFrameHeader && Judge->buf[count + 5] == 1) {
+                for (i = 0; i < JudgePackLength_1; i++)
+                    data[i] = Judge->buf[count + i];
+
+                if (Verify_CRC16_Check_Sum(data, JudgePackLength_1) == 1) {
+                    Judge->robotState.stageRemainTime = ((uint16_t) data[8] << 8) | data[7];
+                    Judge->robotState.gameProcess     = data[9];
+                    Judge->robotState.robotLevel      = data[10];
+                    Judge->robotState.remainHP        = ((uint16_t) data[12] << 8) | data[11];
+                    Judge->robotState.maxHP           = ((uint16_t) data[14] << 8) | data[13];
+                }
+            }
+        }
     }
 }
 
@@ -209,7 +249,7 @@ void Append_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength) {
     if ((pchMessage == 0) || (dwLength <= 2)) {
         return;
     }
-    wCRC                     = Get_CRC16_Check_Sum((uint8_t *) pchMessage, dwLength - 2, CRC_INIT);
-    pchMessage[dwLength - 2] = (uint8_t)(wCRC & 0x00ff);
-    pchMessage[dwLength - 1] = (uint8_t)((wCRC >> 8) & 0x00ff);
+    wCRC                     = Get_CRC16_Check_Sum((u8 *) pchMessage, dwLength - 2, CRC_INIT);
+    pchMessage[dwLength - 2] = (u8)(wCRC & 0x00ff);
+    pchMessage[dwLength - 1] = (u8)((wCRC >> 8) & 0x00ff);
 }

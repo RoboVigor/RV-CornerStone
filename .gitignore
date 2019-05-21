@@ -7,3 +7,4 @@ mdk/*.map
 mdk/*.lst
 user/.DS_Store
 *.exe
+script/.vscode/*

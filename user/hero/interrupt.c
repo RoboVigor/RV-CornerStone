@@ -8,14 +8,10 @@
 
 // DMA Handle function
 void DMA2_Stream1_IRQHandler(void) {
-    uint8_t UARTtemp;
-
-    UARTtemp = USART6->DR;
-    UARTtemp = USART6->SR;
 
     DMA_Cmd(DMA2_Stream1, DISABLE);
     if (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != RESET) {
-        Judge_Decode(&Judge);
+        Judge_Update(&Judge);
     }
     DMA_ClearFlag(DMA2_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
     while (DMA_GetCmdStatus(DMA2_Stream1) != DISABLE)

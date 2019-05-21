@@ -1,9 +1,7 @@
 #ifndef __DRIVER_JUDGESYS_H
 #define __DRIVER_JUDGESYS_H
 
-#include "stm32f4xx.h"
-
-#define JudgeBufferLength 32
+#include <stdint.h>
 
 #define JudgePackLength_0001 3
 #define JudgePackLength_0002 1
@@ -41,7 +39,6 @@ typedef struct {
             uint8_t  robot_level;
             uint16_t remain_HP;
             uint16_t max_HP;
-            uint8_t  buf[JudgeBufferLength];
             uint16_t shooter_heat0_cooling_rate;
             uint16_t shooter_heat0_cooling_limit;
             uint16_t shooter_heat1_cooling_rate;
@@ -71,6 +68,7 @@ typedef struct {
         };
     };
 } ext_power_heat_data_t;
+uint8_t ext_power_heat_data_member_length[] = {2, 2, 4, 2, 2, 2};
 
 typedef struct {
     uint8_t  sof;
@@ -89,7 +87,6 @@ typedef enum {
 } unpack_step_e;
 
 typedef struct {
-    uint8_t                buf[128];
     uint8_t                packet[128];
     unpack_step_e          step;
     uint16_t               index;
@@ -108,7 +105,6 @@ uint32_t      Verify_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
 void          Append_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
 
 void Judge_Init(Judge_Type *Judge);
-void Judge_Update(Judge_Type *Judge);
 void Judge_Decode(Judge_Type *Judge, uint8_t byte);
 void Judge_Load(Judge_Type *Judge);
 #endif

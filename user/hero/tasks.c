@@ -67,12 +67,12 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
 
         // 输出电流
-        Can_Send(CAN1, 0x1FF, PID_Cloud_PitchSpeed.output, -1 * PID_Cloud_YawSpeed.output, 0, 0);
+        // Can_Send(CAN1, 0x1FF, PID_Cloud_PitchSpeed.output, -1 * PID_Cloud_YawSpeed.output, 0, 0);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = PID_Cloud_YawAngle.output;
+        DebugData.debug1 = Judge.heatData.chassis_power;
         // DebugData.debug2 = PID_Cloud_YawAngle.feedback;
         // DebugData.debug3 = PID_Cloud_YawSpeed.target;
         // DebugData.debug4 = PID_Cloud_YawSpeed.feedback;
@@ -193,7 +193,7 @@ void Task_Chassis(void *Parameters) {
 }
 
 float Chassis_Power_Control(float VX, float VY) {
-    powerfeed = Judge.powerHeatData.chassisPower;
+    // powerfeed = Judge.powerHeatData.chassisPower;
     if (powerfeed >= 60) {
         PID_Calculate(&PID_Power, 700, powerfeed * 10);
 
@@ -341,7 +341,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Beep, "Task_Startup_Music", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
