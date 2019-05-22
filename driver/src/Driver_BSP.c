@@ -210,6 +210,7 @@ void BSP_USART6_Init(uint32_t baudRate, uint8_t NVICEnabled) {
     USART_Init(USART6, &USART_InitStructure);                                       //初始化串口
     USART_Cmd(USART6, ENABLE);                                                      //使能串口
     USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);                                  //开启相关中断
+    USART_DMACmd(USART6, USART_DMAReq_Rx, ENABLE);
     // NVIC
     if (NVICEnabled) {
         NVIC_InitTypeDef NVIC_InitStructure;
@@ -363,7 +364,7 @@ void BSP_IMU_Init(void) {
     // NVIC
     NVIC_InitTypeDef NVIC_InitStructure;
     NVIC_InitStructure.NVIC_IRQChannel                   = EXTI9_5_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
