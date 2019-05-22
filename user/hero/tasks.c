@@ -174,7 +174,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -287,7 +287,7 @@ void Task_Fire(void *Parameters) {
         } else if (stirState == 2) { // 连发模式
             PID_Increment_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * RPM2RPS);
         }
-        Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+        // Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }

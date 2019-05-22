@@ -151,7 +151,7 @@ void BSP_DBUS_Init(uint8_t *remoteBuffer) {
     USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
 }
 
-void BSP_USART3_Init(uint32_t baudRate) {
+void BSP_USART3_Init(uint32_t baudRate, uint8_t NVICEnabled) {
     // GPIO
     GPIO_InitTypeDef GPIO_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
@@ -176,15 +176,17 @@ void BSP_USART3_Init(uint32_t baudRate) {
     USART_Cmd(USART3, ENABLE);                                                      //使能串口
     USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);                                  //开启相关中断
     // NVIC
-    NVIC_InitTypeDef NVIC_InitStructure;
-    NVIC_InitStructure.NVIC_IRQChannel                   = USART3_IRQn; //串口3中断通道
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;           //抢占优先级3
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;           //子优先级3
-    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;      // IRQ通道使能
-    NVIC_Init(&NVIC_InitStructure);                                     //根据指定的参数初始化VIC寄存器
+    if (NVICEnabled) {
+        NVIC_InitTypeDef NVIC_InitStructure;
+        NVIC_InitStructure.NVIC_IRQChannel                   = USART3_IRQn; //串口3中断通道
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;           //抢占优先级3
+        NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;           //子优先级3
+        NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;      // IRQ通道使能
+        NVIC_Init(&NVIC_InitStructure);                                     //根据指定的参数初始化VIC寄存器
+    }
 }
 
-void BSP_USART6_Init(uint32_t baudRate) {
+void BSP_USART6_Init(uint32_t baudRate, uint8_t NVICEnabled) {
     // GPIO
     GPIO_InitTypeDef GPIO_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
@@ -209,15 +211,17 @@ void BSP_USART6_Init(uint32_t baudRate) {
     USART_Cmd(USART6, ENABLE);                                                      //使能串口
     USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);                                  //开启相关中断
     // NVIC
-    NVIC_InitTypeDef NVIC_InitStructure;
-    NVIC_InitStructure.NVIC_IRQChannel                   = USART6_IRQn; //串口3中断通道
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;           //抢占优先级3
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;           //子优先级3
-    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;      // IRQ通道使能
-    NVIC_Init(&NVIC_InitStructure);                                     //根据指定的参数初始化VIC寄存器
+    if (NVICEnabled) {
+        NVIC_InitTypeDef NVIC_InitStructure;
+        NVIC_InitStructure.NVIC_IRQChannel                   = USART6_IRQn; //串口3中断通道
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;           //抢占优先级3
+        NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;           //子优先级3
+        NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;      // IRQ通道使能
+        NVIC_Init(&NVIC_InitStructure);                                     //根据指定的参数初始化VIC寄存器
+    }
 }
 
-void BSP_UART7_Init(uint32_t baudRate) {
+void BSP_UART7_Init(uint32_t baudRate, uint8_t NVICEnabled) {
     // GPIO
     GPIO_InitTypeDef GPIO_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
@@ -242,14 +246,16 @@ void BSP_UART7_Init(uint32_t baudRate) {
     USART_Cmd(UART7, ENABLE);                                                       //使能串口
     USART_ITConfig(UART7, USART_IT_RXNE, ENABLE);                                   //开启相关中断
     // NVIC
-    NVIC_InitTypeDef NVIC_InitStructure;
-    NVIC_InitStructure.NVIC_IRQChannel            = UART7_IRQn; //串口7中断通道
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;          //子优先级
-    NVIC_InitStructure.NVIC_IRQChannelCmd         = ENABLE;     // IRQ通道使能
-    NVIC_Init(&NVIC_InitStructure);                             //根据指定的参数初始化VIC寄存器
+    if (NVICEnabled) {
+        NVIC_InitTypeDef NVIC_InitStructure;
+        NVIC_InitStructure.NVIC_IRQChannel            = UART7_IRQn; //串口7中断通道
+        NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;          //子优先级
+        NVIC_InitStructure.NVIC_IRQChannelCmd         = ENABLE;     // IRQ通道使能
+        NVIC_Init(&NVIC_InitStructure);                             //根据指定的参数初始化VIC寄存器
+    }
 }
 
-void BSP_UART8_Init(uint32_t baudRate) {
+void BSP_UART8_Init(uint32_t baudRate, uint8_t NVICEnabled) {
     // GPIO
     GPIO_InitTypeDef GPIO_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
@@ -274,11 +280,13 @@ void BSP_UART8_Init(uint32_t baudRate) {
     USART_Cmd(UART8, ENABLE);                                                       //使能串口
     USART_ITConfig(UART8, USART_IT_RXNE, ENABLE);                                   //开启相关中断
     // NVIC
-    NVIC_InitTypeDef NVIC_InitStructure;
-    NVIC_InitStructure.NVIC_IRQChannel            = UART8_IRQn; //串口8中断通道
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;          //子优先级
-    NVIC_InitStructure.NVIC_IRQChannelCmd         = ENABLE;     // IRQ通道使能
-    NVIC_Init(&NVIC_InitStructure);                             //根据指定的参数初始化VIC寄存器
+    if (NVICEnabled) {
+        NVIC_InitTypeDef NVIC_InitStructure;
+        NVIC_InitStructure.NVIC_IRQChannel            = UART8_IRQn; //串口8中断通道
+        NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;          //子优先级
+        NVIC_InitStructure.NVIC_IRQChannelCmd         = ENABLE;     // IRQ通道使能
+        NVIC_Init(&NVIC_InitStructure);                             //根据指定的参数初始化VIC寄存器
+    }
 }
 
 void BSP_Laser_Init(void) {

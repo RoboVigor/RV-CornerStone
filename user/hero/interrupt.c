@@ -2,15 +2,15 @@
  * @brief  中断服务函数根据地
  */
 
-#include "main.h"
 #include "interrupt.h"
-#include "mpu6500_driver.h"
+#include "main.h"
 
 // DMA Handle function
 void DMA2_Stream1_IRQHandler(void) {
 
     DMA_Cmd(DMA2_Stream1, DISABLE);
     if (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != RESET) {
+        GREEN_LIGHT_TOGGLE;
         Judge_Update(&Judge);
     }
     DMA_ClearFlag(DMA2_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
@@ -61,55 +61,47 @@ void USART3_IRQHandler(void) {
 
     if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
         res = USART_ReceiveData(USART3);                     // 读取数据
+        // USART3->DR = res + 1;                                // 输出数据
         RED_LIGHT_TOGGLE;
-    }
-
-    if ((magic.sta & 0x8000) == 0) { // 接收未完成
-        if (magic.sta & 0x4000) {    // 接收到 0x0d
-            if (res != 0x0a)         // 接收错误，重新开始
-                magic.sta = 0;
-            else // 接收完成
-                magic.sta |= 0x8000;
-        } else { // 未接收到 0x0d
-            if (res == 0x0d) {
-                magic.sta |= 0x4000;
-            } else {
-                magic.buf[magic.sta & 0X3FFF] = res;
-                magic.sta++;
-                // USART3->DR = res;
-                if (magic.sta > (MAGIC_MAX_LENGTH - 1)) magic.sta = 0; // 接收数据错误，重新开始接收
-            }
-        }
     }
 }
 
 /**
- * @brief USART2 串口中断
+ * @brief USART6 串口中断
  */
-void USART2_IRQHandler(void) {
+// void USART6_IRQHandler(void) {
+//     u8 res;
+
+//     if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
+//         res = USART_ReceiveData(USART6);                     // 读取数据
+//         // USART6->DR = res + 1;                                // 输出数据
+//         RED_LIGHT_TOGGLE;
+//     }
+// }
+
+/**
+ * @brief UART7 串口中断
+ */
+void UART7_IRQHandler(void) {
     u8 res;
 
-    if (USART_GetITStatus(USART2, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
-        res = USART_ReceiveData(USART2);                     // 读取数据
+    if (USART_GetITStatus(UART7, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
+        res       = USART_ReceiveData(UART7);               // 读取数据
+        UART7->DR = res;                                    // 输出数据
         RED_LIGHT_TOGGLE;
     }
+}
 
-    if ((magic.sta & 0x8000) == 0) { // 接收未完成
-        if (magic.sta & 0x4000) {    // 接收到 0x0d
-            if (res != 0x0a)         // 接收错误，重新开始
-                magic.sta = 0;
-            else // 接收完成
-                magic.sta |= 0x8000;
-        } else { // 未接收到 0x0d
-            if (res == 0x0d) {
-                magic.sta |= 0x4000;
-            } else {
-                magic.buf[magic.sta & 0X3FFF] = res;
-                magic.sta++;
-                // USART6->DR = res;
-                if (magic.sta > (MAGIC_MAX_LENGTH - 1)) magic.sta = 0; // 接收数据错误，重新开始接收
-            }
-        }
+/**
+ * @brief UART8 串口中断
+ */
+void UART8_IRQHandler(void) {
+    u8 res;
+
+    if (USART_GetITStatus(UART8, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
+        res       = USART_ReceiveData(UART8);               // 读取数据
+        UART8->DR = res;                                    // 输出数据
+        RED_LIGHT_TOGGLE;
     }
 }
 
@@ -142,14 +134,6 @@ void CAN1_RX0_IRQHandler(void) {
         Motor_Update(&Motor_RF, position, speed);
         break;
 
-    case 0x205:
-        Motor_Update(&Motor_Pitch, position, 0);
-        break;
-
-    case 0x206:
-        Motor_Update(&Motor_Yaw, position, 0);
-        break;
-
     default:
         break;
     }
@@ -171,21 +155,27 @@ void CAN2_RX0_IRQHandler(void) {
     position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
     speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
-    //安排数据
-    switch (CanRxData.StdId) {
-    case 0x201:
-        Motor_Update(&Motor_RightFrict, position, speed);
-        break;
+    // 安排数据
+    // switch (CanRxData.StdId) {
+    // case 0x201:
+    //     Motor_Update(&Motor_LF, position, speed);
+    //     break;
 
-    case 0x202:
-        Motor_Update(&Motor_LeftFrict, position, speed);
-        break;
+    // case 0x202:
+    //     Motor_Update(&Motor_LB, position, speed);
+    //     break;
 
-    case 0x207:
-        Motor_Update(&Motor_Stir, position, speed);
-    default:
-        break;
-    }
+    // case 0x203:
+    //     Motor_Update(&Motor_RB, position, speed);
+    //     break;
+
+    // case 0x204:
+    //     Motor_Update(&Motor_RF, position, speed);
+    //     break;
+
+    // default:
+    //     break;
+    // }
 }
 
 // TIM2 高频计数器
