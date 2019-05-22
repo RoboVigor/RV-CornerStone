@@ -634,14 +634,14 @@ void BSP_Beep_Init(void) {
 
     TIM_Cmd(TIM12, ENABLE); //使能TIM3
 }
-uint16_t BeepXPState   = 0;
-uint16_t BeepXPScore[] = {1244, 1244, 622, 932, 932, 932, 830, 830, 830, 1244, 1244, 932, 932, 932, 932, 932, 932};
+static uint16_t BeepXPState   = 0;
+static uint16_t BeepXPScore[] = {804, 804, 1607, 1073, 1073, 1073, 1204, 1204, 1204, 804, 804, 1073, 1073, 1073, 1073, 1073, 1073};
 
 /**
  * @brief 播放XP开机音乐
  * @note  如果播放完成返回1,任务应退出循环并自杀
  */
-void Beep_Sing_XP(void) {
+uint8_t Beep_Sing_XP(void) {
     if (BeepXPState == BEEP_XP_LENGTH) {
         TIM12->CCR1 = 0;
         BeepXPState = 0;
@@ -653,12 +653,12 @@ void Beep_Sing_XP(void) {
         return 0;
     }
 }
-uint16_t BeepSkyState = 0;
+static uint16_t BeepSkyState = 0;
 /**
  * @brief 播放天空之城
  * @note  如果播放完成返回1,任务应退出循环并自杀
  */
-void Beep_Sing_Sky(void) {
+uint8_t Beep_Sing_Sky(void) {
     if (BeepSkyState == 241) {
         TIM12->CCR1  = 0;
         BeepSkyState = 0;

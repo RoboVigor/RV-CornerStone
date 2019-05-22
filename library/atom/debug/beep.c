@@ -78,5 +78,5 @@ void Sing(Sound_Tone_Type tone) {
 
 // play the start up music
 void Sing_Startup_music(uint32_t index) {
-    if (index < Startup_Success_music_len_XP) Sing(Mavic_Startup_music_XP[index]);
+    if (index < Startup_Success_music_len_sky) Sing(Mavic_Startup_music_sky[index]);
 }

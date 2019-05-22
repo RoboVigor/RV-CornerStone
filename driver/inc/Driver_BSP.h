@@ -51,7 +51,6 @@ void BSP_Laser_Init(void);
 void BSP_User_Power_Init(void);
 void BSP_I2C2_Init(void);
 void BSP_Button_Init(void);
-void BSP_Beep_Init(void);
 void BSP_DMA2_Init(uint32_t DMA_PeripheralBaseAddr, uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
 
 void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_PORT_Px);
@@ -63,5 +62,9 @@ void LED_Set_Row(uint16_t row);
 void LED_Set_Progress(uint16_t progress);
 void LED_Run_Horse();
 void LED_Run_Horse_XP();
+
+void    BSP_Beep_Init(void);
+uint8_t Beep_Sing_XP(void);
+uint8_t Beep_Sing_Sky(void);
 
 #endif

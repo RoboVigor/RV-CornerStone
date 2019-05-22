@@ -310,7 +310,7 @@ void Task_Startup_Music(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
         if (Beep_Sing_XP()) break; // XP开机音乐
-        // if (Beep_Sing_Sky()) break;  // 天空之城
+        // if (Beep_Sing_Sky()) break; // 天空之城
         vTaskDelayUntil(&LastWakeTime, 150);
     }
 
