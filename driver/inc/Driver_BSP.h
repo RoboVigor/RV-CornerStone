@@ -56,10 +56,10 @@ void BSP_TIM2_Init(void);
 
 // USART
 void BSP_USART_Init(USART_TypeDef *, uint32_t, uint8_t, uint8_t, uint8_t, uint16_t, GPIO_TypeDef *, uint32_t, uint16_t, uint16_t, uint16_t, uint32_t, uint16_t);
-void BSP_USART3_Init(uint32_t baudRate, uint8_t NVICEnabled);
-void BSP_USART6_Init(uint32_t baudRate, uint8_t NVICEnabled);
-void BSP_UART7_Init(uint32_t baudRate, uint8_t NVICEnabled);
-void BSP_UART8_Init(uint32_t baudRate, uint8_t NVICEnabled);
+void BSP_USART3_Init(uint32_t baudRate, uint16_t interruptFlag);
+void BSP_USART6_Init(uint32_t baudRate, uint16_t interruptFlag);
+void BSP_UART7_Init(uint32_t baudRate, uint16_t interruptFlag);
+void BSP_UART8_Init(uint32_t baudRate, uint16_t interruptFlag);
 
 // PWM
 void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_PORT_Px);
