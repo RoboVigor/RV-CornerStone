@@ -558,10 +558,10 @@ void LED_Set_Progress(uint16_t progress) {
  * @note  每次调用本函数会更新LED状态,但没有延时
  *        建议每次调用后设置20ms延时
  */
-uint16_t LEDHorseRow   = 0;
-uint16_t LEDHorseState = 0;
-void     LED_Run_Horse() {
-    LEDHorseState = (LEDHorseState % 26) + 1;
+void LED_Run_Horse() {
+    static uint16_t LEDHorseRow   = 0;
+    static uint16_t LEDHorseState = 0;
+    LEDHorseState                 = (LEDHorseState % 26) + 1;
     if (LEDHorseState <= 8)
         LEDHorseRow = (LEDHorseRow << 1) + 1;
     else if (LEDHorseState >= 14 && LEDHorseState <= 21)
@@ -574,10 +574,10 @@ void     LED_Run_Horse() {
  * @note  每次调用本函数会更新LED状态,但没有延时
  *        建议每次调用后设置200ms延时
  */
-uint16_t LEDXPRow   = 0;
-uint16_t LEDXPState = 0;
-void     LED_Run_Horse_XP() {
-    LEDXPState = (LEDXPState % 11) + 1;
+void LED_Run_Horse_XP() {
+    static uint16_t LEDXPRow   = 0;
+    static uint16_t LEDXPState = 0;
+    LEDXPState                 = (LEDXPState % 11) + 1;
     if (LEDXPState <= 3)
         LEDXPRow = (LEDXPRow << 1) + 1;
     else if (LEDXPState >= 4 && LEDXPState <= 8)
@@ -623,14 +623,14 @@ void BSP_Beep_Init(void) {
 
     TIM_Cmd(TIM12, ENABLE); //使能TIM3
 }
-static uint16_t BeepXPState   = 0;
-static uint16_t BeepXPScore[] = {804, 804, 1607, 1073, 1073, 1073, 1204, 1204, 1204, 804, 804, 1073, 1073, 1073, 1073, 1073, 1073};
 
 /**
  * @brief 播放XP开机音乐
  * @note  如果播放完成返回1,任务应退出循环并自杀
  */
 uint8_t Beep_Sing_XP(void) {
+    static uint16_t BeepXPState   = 0;
+    static uint16_t BeepXPScore[] = {804, 804, 1607, 1073, 1073, 1073, 1204, 1204, 1204, 804, 804, 1073, 1073, 1073, 1073, 1073, 1073};
     if (BeepXPState == BEEP_XP_LENGTH) {
         TIM12->CCR1 = 0;
         BeepXPState = 0;
@@ -642,12 +642,12 @@ uint8_t Beep_Sing_XP(void) {
         return 0;
     }
 }
-static uint16_t BeepSkyState = 0;
 /**
  * @brief 播放天空之城
  * @note  如果播放完成返回1,任务应退出循环并自杀
  */
 uint8_t Beep_Sing_Sky(void) {
+    static uint16_t BeepSkyState = 0;
     if (BeepSkyState == 241) {
         TIM12->CCR1  = 0;
         BeepSkyState = 0;
