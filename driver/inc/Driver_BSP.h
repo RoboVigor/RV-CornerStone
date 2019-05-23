@@ -39,30 +39,41 @@ typedef struct {
 
 #define BEEP_XP_LENGTH 17
 
+// SERVICE
 void BSP_CAN_Init(void);
 void BSP_DBUS_Init(uint8_t *remoteBuffer);
 void BSP_IMU_Init(void);
+void BSP_Laser_Init(void);
+void BSP_User_Power_Init(void);
+
+// NOT IMPLEMENTED
+void BSP_I2C2_Init(void);
+void BSP_Button_Init(void);
+
+// TEMPORARY USE
+void BSP_DMA2_Init(uint32_t, uint32_t, uint32_t);
 void BSP_TIM2_Init(void);
+
+// USART
+void BSP_USART_Init(USART_TypeDef *, uint32_t, uint8_t, uint8_t, uint8_t, uint16_t, GPIO_TypeDef *, uint32_t, uint16_t, uint16_t, uint16_t, uint32_t, uint16_t);
 void BSP_USART3_Init(uint32_t baudRate, uint8_t NVICEnabled);
 void BSP_USART6_Init(uint32_t baudRate, uint8_t NVICEnabled);
 void BSP_UART7_Init(uint32_t baudRate, uint8_t NVICEnabled);
 void BSP_UART8_Init(uint32_t baudRate, uint8_t NVICEnabled);
-void BSP_Laser_Init(void);
-void BSP_User_Power_Init(void);
-void BSP_I2C2_Init(void);
-void BSP_Button_Init(void);
-void BSP_DMA2_Init(uint32_t DMA_PeripheralBaseAddr, uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
 
+// PWM
 void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_PORT_Px);
 void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t polarity);
 void PWM_Set_Compare(PWM_Type *PWMx, uint32_t compare);
 
+// LED
 void BSP_LED_Init(void);
 void LED_Set_Row(uint16_t row);
 void LED_Set_Progress(uint16_t progress);
 void LED_Run_Horse();
 void LED_Run_Horse_XP();
 
+// BEEP
 void    BSP_Beep_Init(void);
 uint8_t Beep_Sing_XP(void);
 uint8_t Beep_Sing_Sky(void);

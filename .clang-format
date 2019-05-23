@@ -42,8 +42,10 @@ BreakConstructorInitializersBeforeComma: true
 AllowAllParametersOfDeclarationOnNextLine: true
 #代码长度
 ColumnLimit: 160
-#函数调用时的参数要么是全部占同一行,要么一个参数占一行
+#如果为假,函数调用的参数要么是在同一行上，要么将在同一行上有一行
 BinPackArguments: false
+#如果为假,函数声明或函数定义的参数将都在同一行上，或各有一行
+BinPackParameters: false
 #括号后添加空格
 SpaceAfterCStyleCast: true
 #tab键盘的宽度
