@@ -41,7 +41,6 @@ typedef struct {
             uint8_t  robot_level;
             uint16_t remain_HP;
             uint16_t max_HP;
-            uint8_t  buf[JudgeBufferLength];
             uint16_t shooter_heat0_cooling_rate;
             uint16_t shooter_heat0_cooling_limit;
             uint16_t shooter_heat1_cooling_rate;
@@ -89,8 +88,8 @@ typedef enum {
 } unpack_step_e;
 
 typedef struct {
-    uint8_t                buf[128];
-    uint8_t                packet[128];
+    uint8_t                buf[JudgeBufferLength];
+    uint8_t                packet[JudgeBufferLength];
     unpack_step_e          step;
     uint16_t               index;
     uint16_t               dataLength;

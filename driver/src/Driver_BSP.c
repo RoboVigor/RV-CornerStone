@@ -417,6 +417,7 @@ void BSP_TIM2_Init(void) {
  * @param DMA_BufferSize         还有长度
  */
 void BSP_DMA2_Init(uint32_t DMA_PeripheralBaseAddr, uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+    // NVIC
     NVIC_InitTypeDef NVIC_InitStructure;
     NVIC_InitStructure.NVIC_IRQChannel                   = DMA2_Stream1_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
@@ -424,6 +425,7 @@ void BSP_DMA2_Init(uint32_t DMA_PeripheralBaseAddr, uint32_t DMA_Memory0BaseAddr
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
     DMA_ITConfig(DMA2_Stream1, DMA_IT_TC, ENABLE);
+    // DMA
     DMA_InitTypeDef DMA_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
     DMA_InitStructure.DMA_Channel            = DMA_Channel_5;
