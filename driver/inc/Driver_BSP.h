@@ -8,6 +8,9 @@
 
 #include "stm32f4xx.h"
 
+#define RCC_APB1 1
+#define RCC_APB2 2
+
 #define PWM_PORT_PD12 0x4021008c
 #define PWM_PORT_PD13 0x4022008d
 #define PWM_PORT_PD14 0x4023008e
@@ -55,7 +58,8 @@ void BSP_DMA2_Init(uint32_t, uint32_t, uint32_t);
 void BSP_TIM2_Init(void);
 
 // USART
-void BSP_USART_Init(USART_TypeDef *, uint32_t, uint8_t, uint8_t, uint8_t, uint16_t, GPIO_TypeDef *, uint32_t, uint16_t, uint16_t, uint16_t, uint32_t, uint16_t);
+void BSP_USART_Init(
+    USART_TypeDef *, uint32_t, uint8_t, uint8_t, uint8_t, uint16_t, GPIO_TypeDef *, uint16_t, uint32_t, uint16_t, uint16_t, uint16_t, uint32_t, uint16_t);
 void BSP_USART3_Init(uint32_t baudRate, uint16_t interruptFlag);
 void BSP_USART6_Init(uint32_t baudRate, uint16_t interruptFlag);
 void BSP_UART7_Init(uint32_t baudRate, uint16_t interruptFlag);

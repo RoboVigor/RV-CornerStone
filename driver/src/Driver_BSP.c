@@ -98,6 +98,57 @@ void BSP_CAN_Init(void) {
     CAN_ITConfig(CAN2, CAN_IT_FMP0, ENABLE);
 }
 
+void BSP_USART_Init(USART_TypeDef *USARTx,
+                    uint32_t       RCC_AHBxPeriph_GPIOx,
+                    uint8_t        GPIO_AF_USARTx,
+                    uint8_t        GPIO_PinSourcex,
+                    uint8_t        GPIO_PinSourcey,
+                    uint16_t       GPIO_Pin,
+                    GPIO_TypeDef * GPIOx,
+                    uint16_t       RCC_APBx,
+                    uint32_t       RCC_APBxPeriph_USARTx,
+                    uint16_t       USART_Mode,
+                    uint16_t       USARTx_IRQn,
+                    uint16_t       priority,
+                    uint32_t       baudRate,
+                    uint16_t       interruptFlag) {
+    // GPIO
+    GPIO_InitTypeDef GPIO_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHBxPeriph_GPIOx, ENABLE);
+    GPIO_PinAFConfig(GPIOx, GPIO_PinSourcex, GPIO_AF_USARTx); // GPIO复用
+    GPIO_PinAFConfig(GPIOx, GPIO_PinSourcey, GPIO_AF_USARTx); // GPIO复用
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin;                 // GPIO复用
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;             // 复用功能
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;         // 速度50MHz todo:测试2MHz
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;            // 推挽复用输出
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;             // 上拉
+    GPIO_Init(GPIOx, &GPIO_InitStructure);                    // 初始化
+    // USART
+    if (RCC_APBx == RCC_APB1)
+        RCC_APB1PeriphClockCmd(RCC_APBxPeriph_USARTx, ENABLE); // 使能时钟
+    else if (RCC_APBx == RCC_APB2)
+        RCC_APB2PeriphClockCmd(RCC_APBxPeriph_USARTx, ENABLE); // 使能时钟
+    USART_InitTypeDef USART_InitStructure;
+    USART_InitStructure.USART_BaudRate            = baudRate;                       // 波特率设置
+    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None; // 无硬件数据流控制
+    USART_InitStructure.USART_Mode                = USART_Mode;                     // 收发模式
+    USART_InitStructure.USART_WordLength          = USART_WordLength_8b;            // 字长为8位数据格式
+    USART_InitStructure.USART_StopBits            = USART_StopBits_1;               // 一个停止位
+    USART_InitStructure.USART_Parity              = USART_Parity_No;                // 无奇偶校验位
+    USART_Init(USARTx, &USART_InitStructure);                                       // 初始化串口
+    USART_Cmd(USARTx, ENABLE);                                                      // 使能串口
+    // NVIC
+    if (interruptFlag != 0) {
+        NVIC_InitTypeDef NVIC_InitStructure;
+        NVIC_InitStructure.NVIC_IRQChannel                   = USARTx_IRQn; // 串口中断通道
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = priority;    // 抢占优先级
+        NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;           // 子优先级
+        NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;      // IRQ通道使能
+        NVIC_Init(&NVIC_InitStructure);                                     // 根据指定的参数初始化VIC寄存器
+        USART_ITConfig(USARTx, interruptFlag, ENABLE);                      // 开启相关中断
+    }
+}
+
 void BSP_DBUS_Init(uint8_t *remoteBuffer) {
     // USART
     BSP_USART_Init(USART1,
@@ -107,6 +158,7 @@ void BSP_DBUS_Init(uint8_t *remoteBuffer) {
                    GPIO_PinSource7,
                    GPIO_Pin_7,
                    GPIOB,
+                   RCC_APB2,
                    RCC_APB2Periph_USART1,
                    USART_Mode_Rx,
                    USART1_IRQn,
@@ -136,53 +188,6 @@ void BSP_DBUS_Init(uint8_t *remoteBuffer) {
     DMA_Cmd(DMA2_Stream2, ENABLE);
 }
 
-void BSP_USART_Init(USART_TypeDef *USARTx,
-                    uint32_t       RCC_AHBxPeriph_GPIOx,
-                    uint8_t        GPIO_AF_USARTx,
-                    uint8_t        GPIO_PinSourcex,
-                    uint8_t        GPIO_PinSourcey,
-                    uint16_t       GPIO_Pin,
-                    GPIO_TypeDef * GPIOx,
-                    uint32_t       RCC_APBxPeriph_USARTx,
-                    uint16_t       USART_Mode,
-                    uint16_t       USARTx_IRQn,
-                    uint16_t       priority,
-                    uint32_t       baudRate,
-                    uint16_t       interruptFlag) {
-    // GPIO
-    GPIO_InitTypeDef GPIO_InitStructure;
-    RCC_AHB1PeriphClockCmd(RCC_AHBxPeriph_GPIOx, ENABLE);
-    GPIO_PinAFConfig(GPIOx, GPIO_PinSourcex, GPIO_AF_USARTx); // GPIO复用
-    GPIO_PinAFConfig(GPIOx, GPIO_PinSourcey, GPIO_AF_USARTx); // GPIO复用
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin;                 // GPIO复用
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;             // 复用功能
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;         // 速度50MHz todo:测试2MHz
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;            // 推挽复用输出
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;             // 上拉
-    GPIO_Init(GPIOx, &GPIO_InitStructure);                    // 初始化
-    // USART
-    USART_InitTypeDef USART_InitStructure;
-    RCC_APB2PeriphClockCmd(RCC_APBxPeriph_USARTx, ENABLE);                          // 使能时钟
-    USART_InitStructure.USART_BaudRate            = baudRate;                       // 波特率设置
-    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None; // 无硬件数据流控制
-    USART_InitStructure.USART_Mode                = USART_Mode;                     // 收发模式
-    USART_InitStructure.USART_WordLength          = USART_WordLength_8b;            // 字长为8位数据格式
-    USART_InitStructure.USART_StopBits            = USART_StopBits_1;               // 一个停止位
-    USART_InitStructure.USART_Parity              = USART_Parity_No;                // 无奇偶校验位
-    USART_Init(USARTx, &USART_InitStructure);                                       // 初始化串口
-    USART_Cmd(USARTx, ENABLE);                                                      // 使能串口
-    // NVIC
-    if (interruptFlag != 0) {
-        NVIC_InitTypeDef NVIC_InitStructure;
-        NVIC_InitStructure.NVIC_IRQChannel                   = USARTx_IRQn; // 串口中断通道
-        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = priority;    // 抢占优先级
-        NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;           // 子优先级
-        NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;      // IRQ通道使能
-        NVIC_Init(&NVIC_InitStructure);                                     // 根据指定的参数初始化VIC寄存器
-        USART_ITConfig(USARTx, interruptFlag, ENABLE);                      // 开启相关中断
-    }
-}
-
 /**
  * @brief USART初始化
  *
@@ -199,6 +204,7 @@ void BSP_USART3_Init(uint32_t baudRate, uint16_t interruptFlag) {
                    GPIO_PinSource9,
                    GPIO_Pin_8 | GPIO_Pin_9,
                    GPIOD,
+                   RCC_APB1,
                    RCC_APB1Periph_USART3,
                    USART_Mode_Tx | USART_Mode_Rx,
                    USART3_IRQn,
@@ -223,6 +229,7 @@ void BSP_USART6_Init(uint32_t baudRate, uint16_t interruptFlag) {
                    GPIO_PinSource14,
                    GPIO_Pin_9 | GPIO_Pin_14,
                    GPIOG,
+                   RCC_APB2,
                    RCC_APB2Periph_USART6,
                    USART_Mode_Tx | USART_Mode_Rx,
                    USART6_IRQn,
@@ -247,6 +254,7 @@ void BSP_UART7_Init(uint32_t baudRate, uint16_t interruptFlag) {
                    GPIO_PinSource8,
                    GPIO_Pin_7 | GPIO_Pin_8,
                    GPIOE,
+                   RCC_APB1,
                    RCC_APB1Periph_UART7,
                    USART_Mode_Tx | USART_Mode_Rx,
                    UART7_IRQn,
@@ -271,6 +279,7 @@ void BSP_UART8_Init(uint32_t baudRate, uint16_t interruptFlag) {
                    GPIO_PinSource1,
                    GPIO_Pin_0 | GPIO_Pin_1,
                    GPIOE,
+                   RCC_APB1,
                    RCC_APB1Periph_UART8,
                    USART_Mode_Tx | USART_Mode_Rx,
                    UART8_IRQn,
