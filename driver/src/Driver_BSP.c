@@ -102,7 +102,7 @@ void BSP_DBUS_Init(uint8_t *remoteBuffer) {
     // USART
     BSP_USART_Init(USART1,
                    RCC_AHB1Periph_GPIOB,
-                   GPIO_AF_USART3,
+                   GPIO_AF_USART1,
                    GPIO_PinSource7,
                    GPIO_PinSource7,
                    GPIO_Pin_7,
@@ -162,7 +162,7 @@ void BSP_USART_Init(USART_TypeDef *USARTx,
     GPIO_Init(GPIOx, &GPIO_InitStructure);                    // 初始化
     // USART
     USART_InitTypeDef USART_InitStructure;
-    RCC_APB1PeriphClockCmd(RCC_APBxPeriph_USARTx, ENABLE);                          // 使能时钟
+    RCC_APB2PeriphClockCmd(RCC_APBxPeriph_USARTx, ENABLE);                          // 使能时钟
     USART_InitStructure.USART_BaudRate            = baudRate;                       // 波特率设置
     USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None; // 无硬件数据流控制
     USART_InitStructure.USART_Mode                = USART_Mode;                     // 收发模式

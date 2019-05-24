@@ -35,6 +35,7 @@ void EXTI9_5_IRQHandler(void) {
 
 // DBus空闲中断(USART1)
 void USART1_IRQHandler(void) {
+    DebugData.debug6 = (DebugData.debug6 % 1000) + 1;
     uint8_t UARTtemp;
 
     UARTtemp = USART1->DR;
