@@ -2,6 +2,7 @@
 #include "math.h"
 #include "string.h"
 #include "sys.h"
+#include "config.h"
 
 #define Magic_Init_Handle Magic_Init
 

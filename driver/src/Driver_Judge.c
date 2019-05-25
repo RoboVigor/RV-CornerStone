@@ -66,7 +66,7 @@ void Judge_Decode(Judge_Type *Judge, uint8_t byte) {
             Judge->index                  = 0;
             Judge->step                   = STEP_HEADER_SOF;
             if (Verify_CRC16_Check_Sum(Judge->packet, REF_HEADER_CRC_CMDID_LEN + Judge->dataLength)) {
-                Judge_Load(&Judge);
+                Judge_Load(Judge);
             }
         }
     } break;
@@ -83,7 +83,7 @@ void Judge_Load(Judge_Type *Judge) {
     uint8_t *begin_p;
 
     // id
-    Judge->id = (Judge->packet[REF_PROTOCOL_HEADER_SIZE] << 8) + Judge->packet[REF_PROTOCOL_HEADER_SIZE + 1];
+    Judge->id = (Judge->packet[REF_PROTOCOL_HEADER_SIZE + 1] << 8) + Judge->packet[REF_PROTOCOL_HEADER_SIZE];
 
     // choose struct
     switch (Judge->id) {

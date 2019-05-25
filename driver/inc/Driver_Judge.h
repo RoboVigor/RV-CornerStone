@@ -3,7 +3,7 @@
 
 #include "stm32f4xx.h"
 
-#define JudgeBufferLength 32
+#define JudgeBufferLength 128
 
 #define JudgePackLength_0001 3
 #define JudgePackLength_0002 1
