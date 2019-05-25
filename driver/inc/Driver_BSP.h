@@ -54,7 +54,7 @@ void BSP_I2C2_Init(void);
 void BSP_Button_Init(void);
 
 // TEMPORARY USE
-void BSP_DMA2_Init(uint32_t, uint32_t, uint32_t);
+void BSP_DMA2_Init(USART_TypeDef *, uint32_t, uint32_t, uint32_t);
 void BSP_TIM2_Init(void);
 
 // USART
@@ -81,5 +81,6 @@ void LED_Run_Horse_XP();
 void    BSP_Beep_Init(void);
 uint8_t Beep_Sing_XP(void);
 uint8_t Beep_Sing_Sky(void);
+uint8_t Beep_Sing_Earth(void);
 
 #endif

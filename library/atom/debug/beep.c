@@ -50,6 +50,23 @@ const uint16_t tone_tab[] = {
 //   So5L, So5L, So5L, So5L, La6L, La6L, La6L, La6L, Mi3M, Mi3M, Mi3M, Mi3M, Mi3M, Silent,
 // };
 
+const Sound_Tone_Type Mavic_Startup_music_earth[Startup_Success_music_len_earth] = {
+    Silent, Silent, Silent, Silent, Silent, Silent, Silent, Silent, Silent, Silent, Silent, Silent, Mi3M,   Mi3M,   So5M,   So5M, La6M, La6M,   Silent,
+    Silent, Silent, Silent, So5M,   So5M,   La6M,   La6M,   Silent, Silent, Silent, Silent, So5M,   So5M,   La6M,   La6M,   Do1H, Do1H, So5M,   So5M,
+    La6M,   La6M,   Mi3M,   Mi3M,   Silent, Silent, Mi3M,   Mi3M,   So5M,   So5M,   La6M,   La6M,   Mi3H,   Mi3H,   Do1H,   Do1H, Re2H, Re2H,   La6M,
+    La6M,   Silent, Silent, Mi3M,   Mi3M,   So5M,   So5M,   La6M,   La6M,   Silent, Silent, Silent, Silent, So5M,   So5M,   La6M, La6M, Silent, Silent,
+    Silent, Silent, So5M,   So5M,   La6M,   La6M,   Do1H,   Do1H,   So5M,   So5M,   La6M,   La6M,   Mi3M,   Mi3M,   So5M,   So5M, Do1M, Do1M,   Re2M,
+    Re2M,   Mi3M,   Mi3M,   Mi3M,   Mi3M,   Do1H,   Do1H,   Do1H,   Do1H,   La6M,   La6M,   La6M,   La6M,   Mi3H,   Mi3H,   Mi3H, Mi3H, Re2H,   Re2H,
+    Mi3H,   Re2H,   Do1H,   Do1H,   Re2H,   Re2H,   La6M,   La6M,   La6M,   La6M,   Silent, Silent, Silent, Silent, La6M,   La6M, La6M, La6M,   Silent,
+    La6M,   La6M,   La6M,   La6M,   Silent, La6M,   La6M,   La6M,   La6M,   Silent, La6M,   Do1H,   Re2H,   Mi3M,   La6M,   La6M, La6M, La6M,   Silent,
+    La6M,   La6M,   La6M,   La6M,   Silent, La6M,   La6M,   So5M,   So5M,   Silent, So5M,   So5M,   La6M,   La6M,   La6M,   La6M, La6M, La6M,   Silent,
+    La6M,   La6M,   La6M,   La6M,   Silent, La6M,   La6M,   La6M,   La6M,   Silent, La6M,   Do1H,   Re2H,   Mi3M,   La6M,   La6M, La6M, La6M,   Silent,
+    La6M,   La6M,   La6M,   La6M,   Silent, La6M,   La6M,   Fa4H,   Fa4H,   Silent, Fa4H,   Fa4H,   Mi3H,   Mi3H,   La6M,   La6M, La6M, La6M,   Silent,
+    La6M,   La6M,   La6M,   La6M,   Silent, La6M,   La6M,   La6M,   La6M,   Silent, La6M,   Do1H,   Re2H,   Mi3M,   La6M,   La6M, La6M, La6M,   Silent,
+    La6M,   La6M,   La6M,   La6M,   Silent, La6M,   La6M,   So5M,   So5M,   Silent, So5M,   So5M,   La6M,   La6M,   Silent, La6M, La6M, La6M,   La6M,
+    Silent, La6M,   La6M,   La6M,   La6M,   Silent, La6M,   La6M,   La6M,   La6M,   Silent, La6M,   Do1H,   Re2H,   Mi3M,   La6H, La6H, La6H,   La6H,
+    La6H,   La6H,   So5M,   So5M,   Silent, So5M,   So5M,   La6M,   La6M,   Silent, La6M,   La6M,   La6M,   La6M};
+
 const Sound_Tone_Type Mavic_Startup_music_sky[Startup_Success_music_len_sky] = {
     La6M, Si7M,   Do1H,   Do1H, Do1H,   Si7M,   Do1H,   Do1H,   Mi3H, Mi3H,   Si7M,   Si7M,   Si7M,  Si7M, Silent, Mi3M,   Mi3M,   La6M,   La6M,
     La6M, So5M,   La6M,   La6M, Do1H,   Do1H,   So5M,   So5M,   So5M, So5M,   Silent, Mi3M,   Mi3M,  Fa4M, Fa4M,   Fa4M,   Mi3M,   Fa4M,   Fa4M,
@@ -78,5 +95,6 @@ void Sing(Sound_Tone_Type tone) {
 
 // play the start up music
 void Sing_Startup_music(uint32_t index) {
-    if (index < Startup_Success_music_len_sky) Sing(Mavic_Startup_music_sky[index]);
+    // if (index < Startup_Success_music_len_sky) Sing(Mavic_Startup_music_sky[index]);
+    if (index < Startup_Success_music_len_earth) Sing(Mavic_Startup_music_earth[index]);
 }

@@ -362,7 +362,7 @@ void BSP_IMU_Init(void) {
     // NVIC
     NVIC_InitTypeDef NVIC_InitStructure;
     NVIC_InitStructure.NVIC_IRQChannel                   = EXTI9_5_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
@@ -415,17 +415,17 @@ void BSP_TIM2_Init(void) {
  * @param DMA_Memory0BaseAddr    复制到哪里
  * @param DMA_BufferSize         还有长度
  */
-void BSP_DMA2_Init(uint32_t DMA_PeripheralBaseAddr, uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+void BSP_DMA2_Init(USART_TypeDef *USARTx, uint32_t DMA_PeripheralBaseAddr, uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
     // NVIC
     NVIC_InitTypeDef NVIC_InitStructure;
     NVIC_InitStructure.NVIC_IRQChannel                   = DMA2_Stream1_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
     DMA_ITConfig(DMA2_Stream1, DMA_IT_TC, ENABLE);
     // DMA
-    USART_DMACmd(USART6, USART_DMAReq_Rx, ENABLE);
+    USART_DMACmd(USARTx, USART_DMAReq_Rx, ENABLE);
     DMA_InitTypeDef DMA_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
     DMA_InitStructure.DMA_Channel            = DMA_Channel_5;
@@ -651,6 +651,7 @@ uint8_t Beep_Sing_XP(void) {
         return 0;
     }
 }
+
 /**
  * @brief 播放天空之城
  * @note  如果播放完成返回1,任务应退出循环并自杀
@@ -668,6 +669,22 @@ uint8_t Beep_Sing_Sky(void) {
     }
 }
 
+/**
+ * @brief 播放极乐净土
+ * @note  如果播放完成返回1,任务应退出循环并自杀
+ */
+uint8_t Beep_Sing_Earth(void) {
+    static uint16_t BeepEarthState = 0;
+    if (BeepEarthState == 241) {
+        TIM12->CCR1    = 0;
+        BeepEarthState = 0;
+        return 1;
+    } else {
+        Sing_Startup_music(BeepEarthState);
+        BeepEarthState++;
+        return 0;
+    }
+}
 void BSP_I2C2_Init(void) {
     //占坑
 }

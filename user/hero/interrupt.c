@@ -7,13 +7,18 @@
 
 // DMA Handle function
 void DMA2_Stream1_IRQHandler(void) {
+    int i;
+
     DebugData.debug2 = (DebugData.debug2 % 1000) + 1;
     DMA_Cmd(DMA2_Stream1, DISABLE);
     if (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != RESET) {
-        GREEN_LIGHT_TOGGLE;
-        // Judge_Update(&Judge);
-        DebugData.debug3 = (DebugData.debug3 % 1000) + 1;
+        RED_LIGHT_TOGGLE;
+        for (i = 0; i < JudgeBufferLength; i++) {
+            USART3->DR = Judge.buf[i];
+        }
+        memset(Judge.buf, 0, JudgeBufferLength);
     }
+    DebugData.debug3 = (DebugData.debug3 % 1000) + 1;
     DMA_ClearFlag(DMA2_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
     while (DMA_GetCmdStatus(DMA2_Stream1) != DISABLE)
         ;

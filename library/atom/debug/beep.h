@@ -2,6 +2,7 @@
 #define __BEEP_H
 #include "sys.h"
 
+#define Startup_Success_music_len_earth 280
 #define Startup_Success_music_len_sky 241
 #define Startup_Success_music_len_XP 27
 

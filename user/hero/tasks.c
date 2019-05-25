@@ -309,9 +309,10 @@ void Task_Blink(void *Parameters) {
 void Task_Startup_Music(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        if (Beep_Sing_XP()) break; // XP开机音乐
-        // if (Beep_Sing_Sky()) break; // 天空之城
-        vTaskDelayUntil(&LastWakeTime, 150);
+        // if (Beep_Sing_XP()) break; // XP开机音乐,建议延时150ms
+        // if (Beep_Sing_Sky()) break; // 天空之城,建议延时350ms
+        if (Beep_Sing_Earth()) break; // 极乐净土,建议延时120ms
+        vTaskDelayUntil(&LastWakeTime, 120);
     }
 
     vTaskDelete(NULL);
