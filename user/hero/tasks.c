@@ -84,6 +84,14 @@ void Task_Gimbal(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+float Chassis_Power_Control() {
+    float power = Judge.heatData.chassis_power;
+    float scale;
+    PID_Calculate(&PID_Power, 30, power); // 临时将功率上限设置30方便调试
+    scale = (power + PID_Power.output) / power;
+    return WANG(scale, 0, 1);
+}
+
 void Task_Chassis(void *Parameters) {
     // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -123,7 +131,7 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_RFCM, 28, 0, 0, 8000, 1750);
 
     //功率PID
-    PID_Init(&PID_Power, 0.5, 0.02, 0, 1000, 500);
+    PID_Init(&PID_Power, 1, 0, 0, 1000, 500);
 
     while (1) {
 
@@ -163,7 +171,7 @@ void Task_Chassis(void *Parameters) {
         Chassis_Get_Rotor_Speed(&ChassisData, rotorSpeed);
 
         // 根据功率限幅
-        // powerScale    = Chassis_Power_Control(lx, ly); // todo: 重新编写功率闭环
+        powerScale    = Chassis_Power_Control(); // todo: 测试功率闭环
         rotorSpeed[0] = rotorSpeed[0] * powerScale;
         rotorSpeed[1] = rotorSpeed[1] * powerScale;
         rotorSpeed[2] = rotorSpeed[2] * powerScale;
@@ -192,21 +200,6 @@ void Task_Chassis(void *Parameters) {
     }
 
     vTaskDelete(NULL);
-}
-
-float Chassis_Power_Control(float VX, float VY) {
-    powerfeed = Judge.heatData.chassis_power;
-    if (powerfeed >= 60) {
-        PID_Calculate(&PID_Power, 700, powerfeed * 10);
-
-        return (float) (PID_Power.output + 1000) / 1000.0;
-    } else {
-        if (VX == 0 && VY == 0) {
-            PID_Power.output_I = 0;
-            PID_Power.output   = 0;
-        }
-        return 1.0f;
-    }
 }
 
 void Task_Debug_Magic_Send(void *Parameters) {

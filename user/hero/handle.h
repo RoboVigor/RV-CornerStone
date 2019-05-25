@@ -56,9 +56,6 @@ __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_
 //裁判系统
 __HANDLE_EXT Judge_Type Judge;
 
-//功率
-__HANDLE_EXT float powerfeed;
-
 // 视觉数据
 __HANDLE_EXT PsData_Type PsData;
 
