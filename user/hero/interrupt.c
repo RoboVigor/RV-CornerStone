@@ -24,8 +24,7 @@ void EXTI9_5_IRQHandler(void) {
     if (EXTI_GetITStatus(EXTI_Line8) != RESET) {
         EXTI_ClearFlag(EXTI_Line8);
         EXTI_ClearITPendingBit(EXTI_Line8);
-        suc = MPU6500_ReadData();
-        if (suc) Gyroscope_Update_Angle_Data(&Gyroscope_EulerData);
+        Gyroscope_Update(&Gyroscope_EulerData);
     }
 }
 

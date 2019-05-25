@@ -19,6 +19,21 @@
 #define ACC_LSB 4096.0f
 
 typedef struct {
+    volatile int16_t ax; // m/s^2 [-8g,+8g] -> [-32768,32768] ideal:0
+    volatile int16_t ay; // m/s^2 [-8g,+8g] -> [-32768,32768] ideal:0
+    volatile int16_t az; // m/s^2 [-8g,+8g] -> [-32768,32768] ideal:4096
+    volatile int16_t temp;
+    volatile int16_t gx; // rad/s ideal:0
+    volatile int16_t gy; // rad/s ideal:0
+    volatile int16_t gz; // rad/s ideal:0
+    int16_t          ax_offset;
+    int16_t          ay_offset;
+    int16_t          az_offset;
+    int16_t          gx_offset;
+    int16_t          gy_offset;
+    int16_t          gz_offset;
+} ImuData_Type;
+typedef struct {
     float yaw;
     float pitch;
     float roll;
@@ -32,9 +47,15 @@ typedef struct {
 void Gyroscope_Init(GyroscopeData_Type *GyroscopeData);
 
 /**
- * @brief 欧拉角解算
+ * @brief 陀螺仪更新
  */
-void Gyroscope_Update_Angle_Data(GyroscopeData_Type *GyroscopeData);
+Gyroscope_Update(GyroscopeData_Type *GyroscopeData);
+
+/**
+ * @brief 欧拉角解算
+ * @note  由Gyroscope_Update()调用,不需要在中断中使用
+ */
+void Gyroscope_Solve(GyroscopeData_Type *GyroscopeData);
 
 /**
  * @brief 获得滤波器diff

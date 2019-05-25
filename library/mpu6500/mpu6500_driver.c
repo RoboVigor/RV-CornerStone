@@ -1,6 +1,7 @@
 #define __DRIVER_MPU6500_GLOBALS
 
 #include "mpu6500_driver.h"
+#include "Driver_Gyroscope.h"
 #include "config.h"
 
 extern ImuData_Type ImuData;
@@ -83,21 +84,4 @@ void MPU6500_Initialize(void) {
     while (MPU6500_Init() == 0xff) {
         delay_ms(5);
     }
-}
-
-// MPU6500数据读取,成功返回1  失败返回0
-uint8_t mpu_buf[20];
-int     MPU6500_ReadData(void) {
-    //尝试读取数据
-    if (IIC_ReadData(MPU_IIC_ADDR, MPU6500_ACCEL_XOUT_H, mpu_buf, 14) == 0xff) return 0;
-
-    //成功的话进行赋值
-    ImuData.ax   = (((int16_t) mpu_buf[0]) << 8) | mpu_buf[1];
-    ImuData.ay   = (((int16_t) mpu_buf[2]) << 8) | mpu_buf[3];
-    ImuData.az   = (((int16_t) mpu_buf[4]) << 8) | mpu_buf[5];
-    ImuData.temp = (((int16_t) mpu_buf[6]) << 8) | mpu_buf[7];
-    ImuData.gx   = ((((int16_t) mpu_buf[8]) << 8) | mpu_buf[9]) - IMU_GX_BIAS;
-    ImuData.gy   = ((((int16_t) mpu_buf[10]) << 8) | mpu_buf[11]) - IMU_GY_BIAS;
-    ImuData.gz   = ((((int16_t) mpu_buf[12]) << 8) | mpu_buf[13]) - IMU_GZ_BIAS;
-    return 1;
 }
