@@ -42,19 +42,19 @@ void Task_Gimbal(void *Parameters) {
 
     while (1) {
         // 设置反馈
-        yawAngle   = Gyroscope_EulerData.yaw;         // 逆时针为正
-        yawSpeed   = ImuData.gz / GYROSCOPE_LSB;      // 逆时针为正
-        pitchAngle = Gyroscope_EulerData.pitch;       // 逆时针为正
-        pitchSpeed = -1 * ImuData.gx / GYROSCOPE_LSB; // 逆时针为正
+        yawAngle   = -1 * Gyroscope_EulerData.yaw;    // 逆时针为正
+        yawSpeed   = -1 * ImuData.gz / GYROSCOPE_LSB; // 逆时针为正
+        pitchAngle = -1 * Gyroscope_EulerData.pitch;  // 逆时针为正
+        pitchSpeed = ImuData.gx / GYROSCOPE_LSB;      // 逆时针为正
 
         // 设置目标
-        if (ABS(remoteData.rx) > 20) yawAngleTarget -= remoteData.rx / 660.0f * 180 * interval;
-        if (ABS(remoteData.ry) > 20) pitchAngleTarget -= remoteData.ry / 660.0f * 150 * interval;
+        if (ABS(remoteData.rx) > 20) yawAngleTarget -= -1 * remoteData.rx / 660.0f * 180 * interval;
+        if (ABS(remoteData.ry) > 20) pitchAngleTarget -= -1 * remoteData.ry / 660.0f * 150 * interval;
         // MIAO(yawAngleTarget, -30, 30);
-        MIAO(pitchAngleTarget, -50, 5);
+        MIAO(pitchAngleTarget, -20, 50);
 
         // 开机时pitch轴匀速抬起
-        pitchAngleTarget = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
+        // pitchAngleTarget = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
         if (pitchRampProgress < 1) {
             pitchRampProgress += 0.005f;
         }
@@ -67,19 +67,19 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
 
         // 输出电流
-        // Can_Send(CAN1, 0x1FF, PID_Cloud_PitchSpeed.output, -1 * PID_Cloud_YawSpeed.output, 0, 0);
+        // Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, -1 * PID_Cloud_PitchSpeed.output, 0, 0);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = Judge.heatData.chassis_power;
-        // DebugData.debug2 = PID_Cloud_YawAngle.feedback;
-        // DebugData.debug3 = PID_Cloud_YawSpeed.target;
-        // DebugData.debug4 = PID_Cloud_YawSpeed.feedback;
-        // DebugData.debug5 = PID_Cloud_YawSpeed.feedback;
-        // DebugData.debug6 = ImuData.gx * 1000;
-        // DebugData.debug7 = ImuData.gy * 1000;
-        // DebugData.debug8 = ImuData.gz * 1000;
+        // DebugData.debug1 = yawAngle;
+        // DebugData.debug2 = yawSpeed;
+        // DebugData.debug3 = pitchAngle;
+        // DebugData.debug4 = pitchSpeed;
+        // DebugData.debug5 = yawAngleTarget;
+        // DebugData.debug6 = yawAngle;
+        // DebugData.debug7 = pitchAngleTarget;
+        // DebugData.debug8 = pitchAngle;
     }
     vTaskDelete(NULL);
 }
@@ -99,8 +99,9 @@ void Task_Chassis(void *Parameters) {
 
     // 反馈值
     float motorAngle, motorSpeed;
-    float filter[6] = {0, 0, 0, 0, 0, 0};
-    int   filterp   = 0;
+    float lastMotorAngle = Motor_Yaw.angle;
+    float filter[6]      = {0, 0, 0, 0, 0, 0};
+    int   filterp        = 0;
     float motorSpeedStable;
 
     // 小陀螺
@@ -127,8 +128,9 @@ void Task_Chassis(void *Parameters) {
     while (1) {
 
         // 设置反馈值
-        motorAngle = Motor_Yaw.angle;                                  // 电机角度
-        motorSpeed = (motorAngle + PID_Follow_Angle.error) / interval; // 电机角速度
+        motorAngle     = Motor_Yaw.angle;                          // 电机角度
+        motorSpeed     = (motorAngle - lastMotorAngle) / interval; // 电机角速度
+        lastMotorAngle = motorAngle;                               // 保存为上一次的电机角度
 
         // 对电机角速度进行平均值滤波
         filter[filterp] = motorAngle;
@@ -144,7 +146,7 @@ void Task_Chassis(void *Parameters) {
             swingDirection *= -1;
         }
         swingProgress += swingStep * swingDirection;
-        swingAmplitude = CHOOSE(0, 60, 100);
+        swingAmplitude = 0; // CHOOSE(0, 60, 120);
         swingAngle     = swingProgress * swingAmplitude;
 
         // 根据运动模式计算PID
@@ -180,11 +182,11 @@ void Task_Chassis(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = PID_Follow_Angle.target;
-        // DebugData.debug2 = PID_Follow_Angle.feedback;
-        // DebugData.debug3 = PID_Follow_Angle.output;
-        // DebugData.debug4 = PID_Follow_Speed.target;
-        // DebugData.debug5 = -1 * PID_Follow_Speed.feedback;
+        // DebugData.debug1 = vx;
+        // DebugData.debug2 = vy;
+        // DebugData.debug3 = vw;
+        // DebugData.debug4 = Motor_Yaw.angle;
+        // DebugData.debug5 = Motor_Yaw.position;
         // DebugData.debug6 = PID_Follow_Speed.output;
         // DebugData.debug8 = PID_Follow_Speed.output;
     }
@@ -193,7 +195,7 @@ void Task_Chassis(void *Parameters) {
 }
 
 float Chassis_Power_Control(float VX, float VY) {
-    // powerfeed = Judge.powerHeatData.chassisPower;
+    powerfeed = Judge.heatData.chassis_power;
     if (powerfeed >= 60) {
         PID_Calculate(&PID_Power, 700, powerfeed * 10);
 
@@ -263,12 +265,12 @@ void Task_Fire(void *Parameters) {
             PID_Increment_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * RPM2RPS * r); // 右摩擦轮停止
             PID_LeftFrictSpeed.output  = PID_LeftFrictSpeed.output / 0.0595 * 60 / 3.14;
             PID_RightFrictSpeed.output = PID_RightFrictSpeed.output / 0.0595 * 60 / 3.14;
-            Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
+            // Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
         } else {
             LASER_ON;                                                                           // 开启激光
             PID_Calculate(&PID_LeftFrictSpeed, frictSpeed, Motor_LeftFrict.speed * RPM2RPS);    // 左摩擦轮转动
             PID_Calculate(&PID_RightFrictSpeed, -frictSpeed, Motor_RightFrict.speed * RPM2RPS); // 右摩擦轮转动
-            Can_Send(CAN2, 0x200, PID_RightFrictSpeed.output, PID_LeftFrictSpeed.output, 0, 0);
+            // Can_Send(CAN2, 0x200, PID_RightFrictSpeed.output, PID_LeftFrictSpeed.output, 0, 0);
         }
         if (remoteData.switchLeft == 1) {
             PWM_Set_Compare(&PWM_Magazine_Servo, 15);
@@ -309,7 +311,7 @@ void Task_Blink(void *Parameters) {
 void Task_Startup_Music(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        // if (Beep_Sing_XP()) break; // XP开机音乐,建议延时150ms
+        // if (Beep_Sing_XP()) break;  // XP开机音乐,建议延时150ms
         // if (Beep_Sing_Sky()) break; // 天空之城,建议延时350ms
         if (Beep_Sing_Earth()) break; // 极乐净土,建议延时120ms
         vTaskDelayUntil(&LastWakeTime, 120);

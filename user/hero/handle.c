@@ -18,9 +18,10 @@ void Handle_Init(void) {
     Motor_Init(&Motor_Stir, 36, 1);
 
     // 云台电机
-    Motor_Pitch.positionBias = 1300;
     Motor_Init(&Motor_Yaw, 1.0, 1);   // 顺时针为正电流
     Motor_Init(&Motor_Pitch, 1.0, 1); // 逆时针为正电流
+    Motor_Pitch.positionBias = 2236;
+    Motor_Pitch.position     = 2236;
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData);
