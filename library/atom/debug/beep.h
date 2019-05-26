@@ -4,7 +4,7 @@
 
 #define Startup_Success_music_len_earth 280
 #define Startup_Success_music_len_sky 241
-#define Startup_Success_music_len_soul 24
+#define Startup_Success_music_len_soul 116
 
 #define BEEP_ON (TIM12->CCR1 = 599)
 #define BEEP_OFF (TIM12->CCR1 = 0)

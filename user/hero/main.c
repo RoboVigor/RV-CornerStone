@@ -10,7 +10,6 @@ int main(void) {
     Delay_Init(180); // 初始化延时
     LED_Init();      // 初始化LED
     Beep_Init();     // 初始化蜂鸣器
-    Judge_Init(&Judge);
 
     //创建系统初始化任务
     xTaskCreate(Task_Sys_Init, "Task_Sys_Init", 400, NULL, 1, NULL);

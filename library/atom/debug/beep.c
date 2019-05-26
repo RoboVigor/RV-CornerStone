@@ -83,8 +83,11 @@ const Sound_Tone_Type Mavic_Startup_music_sky[Startup_Success_music_len_sky] = {
     Re2H, Re2H,   Do1H,   Re2H, Re2H,   Re2H,   Si7M,   Si7M,   La6M, La6M,   La6M,   La6M,   Silent};
 
 const Sound_Tone_Type Mavic_Startup_music_soul[Startup_Success_music_len_soul] = {
-    Silent, Silent, Silent, Silent, Silent, Silent, Mi3M, So5M, La6M, La6M, Mi3M, Mi3M, Re2M, Do1M, Re2M, Mi3M, So5M, So5M, Mi3M, Mi3M, Re2M, Do1M, Re2M, Mi3M,
-};
+    Mi3M, Mi3M, Mi3M, Mi3M, So5M,   So5M, So5M, So5M,   La6M, La6M, La6M, La6M, La6M, La6M,   La6M, La6M, Mi3M, Mi3M, Mi3M, Mi3M, Mi3M, Mi3M, Mi3M,   Mi3M,
+    Re2M, Re2M, Re2M, Re2M, Do1M,   Do1M, Do1M, Do1M,   Re2M, Re2M, Re2M, Re2M, Mi3M, Mi3M,   Mi3M, Mi3M, So5M, So5M, So5M, So5M, So5M, So5M, So5M,   So5M,
+    Mi3M, Mi3M, Mi3M, Mi3M, Mi3M,   Mi3M, Mi3M, Mi3M,   Re2M, Re2M, Re2M, Re2M, Do1M, Do1M,   Do1M, Do1M, Re2M, Re2M, Re2M, Re2M, Mi3M, Mi3M, Mi3M,   Mi3M,
+    Do1M, Do1M, Do1M, Do1M, Silent, Do1M, Do1M, Do1M,   Do1M, Mi3M, Mi3M, Mi3M, Mi3M, Silent, Mi3M, Mi3M, Mi3M, Mi3M, Do1M, Do1M, Do1M, Do1M, Silent, Do1M,
+    Do1M, Do1M, Do1M, Mi3M, Mi3M,   Mi3M, Mi3M, Silent, Mi3M, Mi3M, Mi3M, Mi3M, Do1M, Do1M,   Do1M, Do1M, Do1M, Do1M, Do1M, Do1M};
 
 void Sing(Sound_Tone_Type tone) {
     if (Silent == tone)
