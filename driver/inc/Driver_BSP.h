@@ -7,6 +7,7 @@
 #define __DRIVER_BSP_H
 
 #include "stm32f4xx.h"
+#include "beep.h"
 
 #define RCC_APB1 1
 #define RCC_APB2 2
@@ -82,5 +83,6 @@ void    BSP_Beep_Init(void);
 uint8_t Beep_Sing_XP(void);
 uint8_t Beep_Sing_Sky(void);
 uint8_t Beep_Sing_Earth(void);
+uint8_t Beep_Sing_Soul(void);
 
 #endif

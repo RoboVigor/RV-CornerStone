@@ -658,12 +658,12 @@ uint8_t Beep_Sing_XP(void) {
  */
 uint8_t Beep_Sing_Sky(void) {
     static uint16_t BeepSkyState = 0;
-    if (BeepSkyState == 241) {
+    if (BeepSkyState == Startup_Success_music_len_sky) {
         TIM12->CCR1  = 0;
         BeepSkyState = 0;
         return 1;
     } else {
-        Sing_Startup_music(BeepSkyState);
+        Sing_Startup_music(Sky, BeepSkyState);
         BeepSkyState++;
         return 0;
     }
@@ -675,16 +675,34 @@ uint8_t Beep_Sing_Sky(void) {
  */
 uint8_t Beep_Sing_Earth(void) {
     static uint16_t BeepEarthState = 0;
-    if (BeepEarthState == 241) {
+    if (BeepEarthState == Startup_Success_music_len_earth) {
         TIM12->CCR1    = 0;
         BeepEarthState = 0;
         return 1;
     } else {
-        Sing_Startup_music(BeepEarthState);
+        Sing_Startup_music(Earth, BeepEarthState);
         BeepEarthState++;
         return 0;
     }
 }
+
+/**
+ * @brief 播放New Soul
+ * @note  如果播放完成返回1,任务应退出循环并自杀
+ */
+uint8_t Beep_Sing_Soul(void) {
+    static uint16_t BeepSoulState = 0;
+    if (BeepSoulState == Startup_Success_music_len_soul) {
+        TIM12->CCR1   = 0;
+        BeepSoulState = 0;
+        return 1;
+    } else {
+        Sing_Startup_music(Soul, BeepSoulState);
+        BeepSoulState++;
+        return 0;
+    }
+}
+
 void BSP_I2C2_Init(void) {
     //占坑
 }

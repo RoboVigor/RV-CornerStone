@@ -306,8 +306,9 @@ void Task_Startup_Music(void *Parameters) {
     while (1) {
         // if (Beep_Sing_XP()) break;  // XP开机音乐,建议延时150ms
         // if (Beep_Sing_Sky()) break; // 天空之城,建议延时350ms
-        if (Beep_Sing_Earth()) break; // 极乐净土,建议延时120ms
-        vTaskDelayUntil(&LastWakeTime, 120);
+        // if (Beep_Sing_Earth()) break; // 极乐净土,建议延时120ms
+        if (Beep_Sing_Soul()) break; // New Soul,建议延时350ms
+        vTaskDelayUntil(&LastWakeTime, 350);
     }
 
     vTaskDelete(NULL);

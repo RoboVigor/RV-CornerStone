@@ -35,7 +35,6 @@ void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
 // MPU6500数据读取,成功返回1  失败返回0
 int Gyroscope_Update(GyroscopeData_Type *GyroscopeData) {
     static uint8_t mpu_buf[20];
-    uint8_t        changeData;
 
     //尝试读取数据
     if (IIC_ReadData(MPU_IIC_ADDR, MPU6500_ACCEL_XOUT_H, mpu_buf, 14) == 0xff) return 0;

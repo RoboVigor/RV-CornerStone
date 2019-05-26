@@ -15,14 +15,16 @@ FILE __stdout;
 
 //重定义fputc函数
 int fputc(int ch, FILE *f) {
-#ifndef SERIAL_DEBUG_PORT
-#define SERIAL_DEBUG_PORT USART6
-#endif
-    //循环发送,直到发送完毕
-    while ((SERIAL_DEBUG_PORT->SR & 0X40) == 0) {
-    }
-    SERIAL_DEBUG_PORT->DR = (u8) ch;
-    return ch;
+
+    return ITM_SendChar(ch);
+}
+
+//重定义fgetc函数
+volatile int32_t ITM_RxBuffer;
+int              fgetc(FILE *f) {
+    while (ITM_CheckChar() != 1)
+        __NOP();
+    return ITM_ReceiveChar();
 }
 
 void Magic_Init(MagicHandle_Type *magic, int defaultValue) {
