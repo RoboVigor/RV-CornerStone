@@ -15,9 +15,6 @@ FILE __stdout;
 
 //重定义fputc函数
 int fputc(int ch, FILE *f) {
-#ifndef SERIAL_DEBUG_PORT
-#define SERIAL_DEBUG_PORT USART6
-#endif
     //循环发送,直到发送完毕
     while ((SERIAL_DEBUG_PORT->SR & 0X40) == 0) {
     }

@@ -578,14 +578,14 @@
               <FilePath>..\driver\src\Driver_Gyroscope.c</FilePath>
             </File>
             <File>
-              <FileName>Driver_Ps.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\Driver_Ps.c</FilePath>
-            </File>
-            <File>
               <FileName>Driver_BSP.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_BSP.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_Protocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Protocol.c</FilePath>
             </File>
           </Files>
         </Group>
