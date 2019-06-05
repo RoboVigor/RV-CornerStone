@@ -196,6 +196,31 @@ void BSP_DBUS_Init(uint8_t *remoteBuffer) {
  *                      接收中断 USART_IT_RXNE
  *                      空闲中断 USART_IT_RXNE
  */
+void BSP_USART2_Init(uint32_t baudRate, uint16_t interruptFlag) {
+    BSP_USART_Init(USART2,
+                   RCC_AHB1Periph_GPIOD,
+                   GPIO_AF_USART2,
+                   GPIO_PinSource5,
+                   GPIO_PinSource6,
+                   GPIO_Pin_5 | GPIO_Pin_6,
+                   GPIOD,
+                   RCC_APB1,
+                   RCC_APB1Periph_USART2,
+                   USART_Mode_Tx | USART_Mode_Rx,
+                   USART2_IRQn,
+                   7,
+                   baudRate,
+                   interruptFlag);
+}
+
+/**
+ * @brief USART初始化
+ *
+ * @param baudRate      波特率
+ * @param interruptFlag 无中断   0
+ *                      接收中断 USART_IT_RXNE
+ *                      空闲中断 USART_IT_RXNE
+ */
 void BSP_USART3_Init(uint32_t baudRate, uint16_t interruptFlag) {
     BSP_USART_Init(USART3,
                    RCC_AHB1Periph_GPIOD,
@@ -409,27 +434,64 @@ void BSP_TIM2_Init(void) {
 }
 
 /**
- * @brief DMA2驱动
+ * @brief USART3_RX的DMA初始化
  *
- * @param DMA_PeripheralBaseAddr 从哪里
  * @param DMA_Memory0BaseAddr    复制到哪里
- * @param DMA_BufferSize         还有长度
+ * @param DMA_BufferSize         长度
  */
-void BSP_DMA2_Init(USART_TypeDef *USARTx, uint32_t DMA_PeripheralBaseAddr, uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+void BSP_DMA_USART3_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+    // NVIC
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA1_Stream1_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+    DMA_ITConfig(DMA1_Stream1, DMA_IT_TC, ENABLE);
+    // DMA
+    USART_DMACmd(USART3, USART_DMAReq_Rx, ENABLE);
+    DMA_InitTypeDef DMA_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+    DMA_InitStructure.DMA_Channel            = DMA_Channel_4;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &USART3->DR;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
+    DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
+    DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Disable;
+    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOThreshold_Full;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA1_Stream1, &DMA_InitStructure);
+    DMA_Cmd(DMA1_Stream1, ENABLE);
+}
+
+/**
+ * @brief USART6_RX的DMA初始化
+ *
+ * @param DMA_Memory0BaseAddr    复制到哪里
+ * @param DMA_BufferSize         长度
+ */
+void BSP_DMA_USART6_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
     // NVIC
     NVIC_InitTypeDef NVIC_InitStructure;
     NVIC_InitStructure.NVIC_IRQChannel                   = DMA2_Stream1_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
     DMA_ITConfig(DMA2_Stream1, DMA_IT_TC, ENABLE);
     // DMA
-    USART_DMACmd(USARTx, USART_DMAReq_Rx, ENABLE);
+    USART_DMACmd(USART6, USART_DMAReq_Rx, ENABLE);
     DMA_InitTypeDef DMA_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
     DMA_InitStructure.DMA_Channel            = DMA_Channel_5;
-    DMA_InitStructure.DMA_PeripheralBaseAddr = DMA_PeripheralBaseAddr;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &USART6->DR;
     DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
     DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
     DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;

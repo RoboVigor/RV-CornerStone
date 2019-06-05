@@ -54,12 +54,16 @@ void BSP_I2C2_Init(void);
 void BSP_Button_Init(void);
 
 // TEMPORARY USE
-void BSP_DMA2_Init(USART_TypeDef *, uint32_t, uint32_t, uint32_t);
 void BSP_TIM2_Init(void);
+
+// DMA
+void BSP_DMA_USART3_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
+void BSP_DMA_USART6_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
 
 // USART
 void BSP_USART_Init(
     USART_TypeDef *, uint32_t, uint8_t, uint8_t, uint8_t, uint16_t, GPIO_TypeDef *, uint16_t, uint32_t, uint16_t, uint16_t, uint16_t, uint32_t, uint16_t);
+void BSP_USART2_Init(uint32_t baudRate, uint16_t interruptFlag);
 void BSP_USART3_Init(uint32_t baudRate, uint16_t interruptFlag);
 void BSP_USART6_Init(uint32_t baudRate, uint16_t interruptFlag);
 void BSP_UART7_Init(uint32_t baudRate, uint16_t interruptFlag);
