@@ -5,16 +5,29 @@
 #include "interrupt.h"
 #include "main.h"
 
-// DMA Handle function
+// DMA (USART3_RX)
+void DMA1_Stream1_IRQHandler(void) {
+    DMA_Cmd(DMA1_Stream1, DISABLE);
+    if (DMA_GetFlagStatus(DMA1_Stream1, DMA_IT_TCIF1) != RESET) {
+        Protocol_Update(&Ps); // 解包
+    }
+    DMA_ClearFlag(DMA1_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
+    while (DMA_GetCmdStatus(DMA1_Stream1) != DISABLE)
+        ;
+    DMA_SetCurrDataCounter(DMA1_Stream1, ProtocolBufferLength);
+    DMA_Cmd(DMA1_Stream1, ENABLE);
+}
+
+// DMA (USART6_RX)
 void DMA2_Stream1_IRQHandler(void) {
     DMA_Cmd(DMA2_Stream1, DISABLE);
     if (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != RESET) {
-        Judge_Update(&Judge);
+        Protocol_Update(&Judge); // 解包
     }
     DMA_ClearFlag(DMA2_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
     while (DMA_GetCmdStatus(DMA2_Stream1) != DISABLE)
         ;
-    DMA_SetCurrDataCounter(DMA2_Stream1, JudgeBufferLength);
+    DMA_SetCurrDataCounter(DMA2_Stream1, ProtocolBufferLength);
     DMA_Cmd(DMA2_Stream1, ENABLE);
 }
 

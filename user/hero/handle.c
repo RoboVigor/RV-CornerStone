@@ -28,4 +28,8 @@ void Handle_Init(void) {
 
     // 初始化串口调试数据
     Magic_Init(&magic, 0);
+
+    // 通讯协议初始化
+    Protocol_Init(&Judge);
+    Protocol_Init(&Ps);
 }

@@ -16,7 +16,7 @@
 #include "Driver_Motor.h"
 #include "Driver_Chassis.h"
 #include "Driver_Gyroscope.h"
-#include "Driver_Ps.h"
+#include "Driver_Protocol.h"
 
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT
@@ -45,8 +45,8 @@ __HANDLE_EXT MagicHandle_Type magic;
 __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
-// 视觉数据
-__HANDLE_EXT PsData_Type PsData;
+// 通讯协议
+__HANDLE_EXT Protocol_Type Judge, Ps;
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test;
