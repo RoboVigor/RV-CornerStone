@@ -4,7 +4,7 @@
 
 #define Startup_Success_music_len_earth 280
 #define Startup_Success_music_len_sky 241
-#define Startup_Success_music_len_XP 27
+#define Startup_Success_music_len_soul 116
 
 #define BEEP_ON (TIM12->CCR1 = 599)
 #define BEEP_OFF (TIM12->CCR1 = 0)
@@ -41,8 +41,10 @@ typedef enum {
     Silent,
 } Sound_Tone_Type;
 
+typedef enum { Sky, Earth, Soul } Song_Type;
+
 void Beep_Init(void); //初始化
 
 void Sing(Sound_Tone_Type tone);
-void Sing_Startup_music(uint32_t index);
+void Sing_Startup_music(Song_Type Song, uint32_t index);
 #endif

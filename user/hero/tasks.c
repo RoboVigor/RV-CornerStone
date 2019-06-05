@@ -67,7 +67,7 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
 
         // 输出电流
-        // Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, -1 * PID_Cloud_PitchSpeed.output, 0, 0);
+        Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, -1 * PID_Cloud_PitchSpeed.output, 0, 0);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
@@ -184,14 +184,15 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = vx;
-        // DebugData.debug2 = vy;
+        // DebugData.debug1 = PID_Power.feedback * 1000;
+        // DebugData.debug2 = powerScale * 1000;
+        // printf("%d\n\r", powerScale);
         // DebugData.debug3 = vw;
         // DebugData.debug4 = Motor_Yaw.angle;
         // DebugData.debug5 = Motor_Yaw.position;
@@ -306,8 +307,9 @@ void Task_Startup_Music(void *Parameters) {
     while (1) {
         // if (Beep_Sing_XP()) break;  // XP开机音乐,建议延时150ms
         // if (Beep_Sing_Sky()) break; // 天空之城,建议延时350ms
-        if (Beep_Sing_Earth()) break; // 极乐净土,建议延时120ms
-        vTaskDelayUntil(&LastWakeTime, 120);
+        // if (Beep_Sing_Earth()) break; // 极乐净土,建议延时120ms
+        if (Beep_Sing_Soul()) break; // New Soul,建议延时60ms
+        vTaskDelayUntil(&LastWakeTime, 60);
     }
 
     vTaskDelete(NULL);

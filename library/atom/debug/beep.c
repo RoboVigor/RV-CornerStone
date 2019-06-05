@@ -82,8 +82,13 @@ const Sound_Tone_Type Mavic_Startup_music_sky[Startup_Success_music_len_sky] = {
     Mi3H, Mi3H,   Silent, Mi3H, Mi3H,   La6H,   La6H,   La6H,   So5H, So5H,   So5H,   Mi3H,   Re2H,  Do1H, Do1H,   Do1H,   Silent, Silent, Do1H,
     Re2H, Re2H,   Do1H,   Re2H, Re2H,   Re2H,   Si7M,   Si7M,   La6M, La6M,   La6M,   La6M,   Silent};
 
-const Sound_Tone_Type Mavic_Startup_music_XP[Startup_Success_music_len_XP] = {9, 9, 6, 9, 10, 9, 6, 9, 9, 9};
-//
+const Sound_Tone_Type Mavic_Startup_music_soul[Startup_Success_music_len_soul] = {
+    Mi3M, Mi3M, Mi3M, Mi3M, So5M,   So5M, So5M, So5M,   La6M, La6M, La6M, La6M, La6M, La6M,   La6M, La6M, Mi3M, Mi3M, Mi3M, Mi3M, Mi3M, Mi3M, Mi3M,   Mi3M,
+    Re2M, Re2M, Re2M, Re2M, Do1M,   Do1M, Do1M, Do1M,   Re2M, Re2M, Re2M, Re2M, Mi3M, Mi3M,   Mi3M, Mi3M, So5M, So5M, So5M, So5M, So5M, So5M, So5M,   So5M,
+    Mi3M, Mi3M, Mi3M, Mi3M, Mi3M,   Mi3M, Mi3M, Mi3M,   Re2M, Re2M, Re2M, Re2M, Do1M, Do1M,   Do1M, Do1M, Re2M, Re2M, Re2M, Re2M, Mi3M, Mi3M, Mi3M,   Mi3M,
+    Do1M, Do1M, Do1M, Do1M, Silent, Do1M, Do1M, Do1M,   Do1M, Mi3M, Mi3M, Mi3M, Mi3M, Silent, Mi3M, Mi3M, Mi3M, Mi3M, Do1M, Do1M, Do1M, Do1M, Silent, Do1M,
+    Do1M, Do1M, Do1M, Mi3M, Mi3M,   Mi3M, Mi3M, Silent, Mi3M, Mi3M, Mi3M, Mi3M, Do1M, Do1M,   Do1M, Do1M, Do1M, Do1M, Do1M, Do1M};
+
 void Sing(Sound_Tone_Type tone) {
     if (Silent == tone)
         BEEP_CH = 0;
@@ -94,7 +99,11 @@ void Sing(Sound_Tone_Type tone) {
 }
 
 // play the start up music
-void Sing_Startup_music(uint32_t index) {
-    // if (index < Startup_Success_music_len_sky) Sing(Mavic_Startup_music_sky[index]);
-    if (index < Startup_Success_music_len_earth) Sing(Mavic_Startup_music_earth[index]);
+void Sing_Startup_music(Song_Type Song, uint32_t index) {
+    if (Song == Sky)
+        if (index < Startup_Success_music_len_sky) Sing(Mavic_Startup_music_sky[index]);
+    if (Song == Earth)
+        if (index < Startup_Success_music_len_earth) Sing(Mavic_Startup_music_earth[index]);
+    if (Song == Soul)
+        if (index < Startup_Success_music_len_soul) Sing(Mavic_Startup_music_soul[index]);
 }

@@ -14,13 +14,27 @@ struct __FILE {
 FILE __stdout;
 
 //重定义fputc函数
+#ifdef SERIAL_DEBUG_PORT
 int fputc(int ch, FILE *f) {
     //循环发送,直到发送完毕
-    while ((SERIAL_DEBUG_PORT->SR & 0X40) == 0) {
+    while ((SERIAL_DEBUG_PORT->SR) & 0X40 == 0) {
     }
     SERIAL_DEBUG_PORT->DR = (u8) ch;
     return ch;
 }
+#else
+int fputc(int ch, FILE *f) {
+    return ITM_SendChar(ch);
+}
+
+//重定义fgetc函数
+volatile int32_t ITM_RxBuffer;
+int              fgetc(FILE *f) {
+    while (ITM_CheckChar() != 1)
+        __NOP();
+    return ITM_ReceiveChar();
+}
+#endif
 
 void Magic_Init(MagicHandle_Type *magic, int defaultValue) {
     magic->defaultValue = defaultValue;
