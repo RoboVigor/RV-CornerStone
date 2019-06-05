@@ -1,158 +1,130 @@
 #include <iostream>
-#include "lib/Driver_Judge.h"
+#include "lib/protocal.h"
 
 using namespace std;
 
-void Judge_Decode(Judge_Type *Judge, uint8_t byte) {
+void Protocol_Decode(Protocol_Type *Protocol, uint8_t byte) {
     // cout << "byte:" << byte << "\n";
     // printf("byte:%2x \n", byte);
-    switch (Judge->step) {
+    switch (Protocol->step) {
     case STEP_HEADER_SOF: {
-        if (byte == REF_PROTOCOL_HEADER) {
-            Judge->packet[Judge->index++] = byte;
-            Judge->step                   = STEP_LENGTH_LOW;
+        if (byte == PROTOCOL_HEADER) {
+            Protocol->packet[Protocol->index++] = byte;
+            Protocol->step                      = STEP_LENGTH_LOW;
         } else {
-            Judge->index = 0;
+            Protocol->index = 0;
         }
     } break;
 
     case STEP_LENGTH_LOW: {
-        Judge->dataLength             = byte;
-        Judge->packet[Judge->index++] = byte;
-        Judge->step                   = STEP_LENGTH_HIGH;
+        Protocol->dataLength                = byte;
+        Protocol->packet[Protocol->index++] = byte;
+        Protocol->step                      = STEP_LENGTH_HIGH;
     } break;
 
     case STEP_LENGTH_HIGH: {
-        Judge->dataLength |= byte << 8;
-        Judge->packet[Judge->index++] = byte;
-        if (Judge->dataLength < 114) {
-            Judge->step = STEP_FRAME_SEQ;
+        Protocol->dataLength |= byte << 8;
+        Protocol->packet[Protocol->index++] = byte;
+        if (Protocol->dataLength < 114) {
+            Protocol->step = STEP_FRAME_SEQ;
         } else {
-            Judge->step  = STEP_HEADER_SOF;
-            Judge->index = 0;
+            Protocol->step  = STEP_HEADER_SOF;
+            Protocol->index = 0;
         }
     } break;
 
     case STEP_FRAME_SEQ: {
-        Judge->packet[Judge->index++] = byte;
-        Judge->step                   = STEP_HEADER_CRC8;
+        Protocol->packet[Protocol->index++] = byte;
+        Protocol->step                      = STEP_HEADER_CRC8;
     } break;
 
     case STEP_HEADER_CRC8: {
-        Judge->packet[Judge->index++] = byte;
-        if (Verify_CRC8_Check_Sum(Judge->packet, REF_PROTOCOL_HEADER_SIZE)) {
-            Judge->step = STEP_DATA_CRC16;
+        Protocol->packet[Protocol->index++] = byte;
+        if (Verify_CRC8_Check_Sum(Protocol->packet, PROTOCOL_HEADER_SIZE)) {
+            Protocol->step = STEP_DATA_CRC16;
         } else {
-            Judge->index = 0;
-            Judge->step  = STEP_HEADER_SOF;
+            Protocol->index = 0;
+            Protocol->step  = STEP_HEADER_SOF;
         }
     } break;
 
     case STEP_DATA_CRC16: {
-        if (Judge->index < (REF_HEADER_CRC_CMDID_LEN + Judge->dataLength)) {
-            Judge->packet[Judge->index++] = byte;
+        if (Protocol->index < (PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
+            Protocol->packet[Protocol->index++] = byte;
         }
-        cout << "CRC16 " << Judge->index << " / " << REF_HEADER_CRC_CMDID_LEN + Judge->dataLength << "\n";
-        if (Judge->index >= (REF_HEADER_CRC_CMDID_LEN + Judge->dataLength)) {
-            Judge->packet[Judge->index++] = byte;
-            Judge->index                  = 0;
-            Judge->step                   = STEP_HEADER_SOF;
-            if (Verify_CRC16_Check_Sum(Judge->packet, REF_HEADER_CRC_CMDID_LEN + Judge->dataLength)) {
-                Judge_Load(Judge);
+        // cout << "CRC16 " << Protocol->index << " / " << PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol->dataLength + "\n";
+        if (Protocol->index >= (PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
+            Protocol->packet[Protocol->index++] = byte;
+            Protocol->index                     = 0;
+            Protocol->step                      = STEP_HEADER_SOF;
+            if (Verify_CRC16_Check_Sum(Protocol->packet, PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
+                Protocol_Load(Protocol);
             }
         }
     } break;
 
     default: {
-        Judge->step  = STEP_HEADER_SOF;
-        Judge->index = 0;
+        Protocol->step  = STEP_HEADER_SOF;
+        Protocol->index = 0;
     } break;
     }
 }
 
-void Judge_Load(Judge_Type *Judge) {
+void Protocol_Load(Protocol_Type *Protocol) {
     int      i;
     uint8_t *begin_p;
 
     // id
-    Judge->id = (Judge->packet[REF_PROTOCOL_HEADER_SIZE] << 8) + Judge->packet[REF_PROTOCOL_HEADER_SIZE + 1];
+    Protocol->id = (Protocol->packet[PROTOCOL_HEADER_SIZE + 1] << 8) + Protocol->packet[PROTOCOL_HEADER_SIZE];
+    // cout << "id: " << Protocol->id << "\n";
 
     // choose struct
-    switch (Judge->id) {
+    switch (Protocol->id) {
     case 0x0201: {
-        begin_p = Judge->robotState.data;
+        begin_p = Protocol->robotState.data;
     } break;
+
     case 0x0202: {
-        begin_p = Judge->heatData.data;
+        begin_p = Protocol->powerHeatData.data;
+    } break;
+
+    case 0x0401: {
+        begin_p = Protocol->gimbalAimData.data;
     } break;
 
     default: { return; } break;
     }
     // load
-    for (i = 0; i < Judge->dataLength; i++) {
-        *(begin_p + i) = Judge->packet[REF_HEADER_CMDID_LEN + i];
+    for (i = 0; i < Protocol->dataLength; i++) {
+        *(begin_p + i) = Protocol->packet[PROTOCOL_HEADER_CMDID_LEN + i];
     }
 }
-// void Judge_Load(Judge_Type *Judge) {
-//     int      i, j;
-//     uint8_t *begin_p;
-//     uint8_t *member_length_p;
-//     uint8_t  member_length_sum = 0;
-
-//     // id
-//     Judge->id = (Judge->packet[REF_PROTOCOL_HEADER_SIZE] << 8) + Judge->packet[REF_PROTOCOL_HEADER_SIZE + 1];
-
-//     // printf("id: %4x \n", Judge->id);
-
-//     // choose struct
-//     switch (Judge->id) {
-//     case 0x0201: {
-//         begin_p = Judge->robotState.data;
-//     } break;
-//     case 0x0202: {
-//         begin_p         = Judge->heatData.data;
-//         member_length_p = ext_power_heat_data_member_length;
-//     } break;
-
-//     default: { return; } break;
-//     }
-//     // load
-//     for (i = 0; i < Judge->dataLength; i++) {
-//         if (i < member_length_sum) continue;
-//         for (j = 0; j < *member_length_p; j++) {
-//             printf("i:%d, j:%d, s:%d, %d / %d, %2x\n",
-//                    i,
-//                    j,
-//                    member_length_sum,
-//                    i + (*member_length_p) - 1 - j,
-//                    i + j,
-//                    Judge->packet[REF_HEADER_CMDID_LEN + i + j]);
-//             *(begin_p + i + (*member_length_p) - 1 - j) = Judge->packet[REF_HEADER_CMDID_LEN + i + j];
-//         }
-//         member_length_sum += *(member_length_p++);
-//     }
-// }
 
 int main() {
-    int        input;
-    uint8_t    data[23] = {0xA5, 0x0E, 0x00, 0x40, 0x71, 0x02, 0x02, 0x33, 0x56, 0xCA, 0x00, 0xFC,
-                        0xA7, 0x8E, 0x40, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x6F, 0xD7};
-    Judge_Type Judge;
-    Judge_Init(&Judge);
+    // unpack
+    int           input;
+    uint8_t       data1[23] = {0xA5, 0x0E, 0x00, 0x40, 0x71, 0x02, 0x02, 0x33, 0x56, 0xCA, 0x00, 0xFC,
+                         0xA7, 0x8E, 0x40, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x6F, 0xD7};
+    uint8_t       data2[17] = {0xA5, 0x08, 0x00, 0x00, 0xE6, 0x01, 0x04, 0x00, 0x00, 0x40, 0x40, 0x48, 0xE1, 0x78, 0xC1, 0x6F, 0xEF};
+    Protocol_Type Judge;
+    Protocol_Init(&Judge);
     for (int i = 0; i < 23; i++) {
-        Judge_Decode(&Judge, data[i]);
+        Protocol_Decode(&Judge, data1[i]);
     }
-    // Judge.heatData.data[0] = 0;
-    // Judge.heatData.data[1] = 12;
-    // cout << (unsigned long) (&Judge.heatData) << "\n";
-    // cout << (unsigned long) ((&Judge.heatData) + 1) << "\n";
-    // cout << &Judge.heatData - &Judge.heatData << "\n";
-    cout << Judge.heatData.chassis_volt << "\n";
-    cout << Judge.heatData.chassis_power << "\n";
-    while (1) {
-        cin >> hex >> input;
+    for (int i = 0; i < 17; i++) {
+        Protocol_Decode(&Judge, data2[i]);
     }
+    cout << "chassis_volt: " << Judge.powerHeatData.chassis_volt << "\n";
+    cout << "chassis_power: " << Judge.powerHeatData.chassis_power << "\n";
+    cout << "yaw_angle_diff: " << Judge.gimbalAimData.yaw_angle_diff << "\n";
+    cout << "pitch_angle_diff: " << Judge.gimbalAimData.pitch_angle_diff << "\n";
 
+    // crc
+    uint8_t crcdata[] = {0x54, 0x57};
+    cout << "CRC8: {0x54, 0x57} -> " << (uint16_t) Get_CRC8_Check_Sum(crcdata, 2, 0xff) << "\n";
+    cout << "CRC16: {0x54, 0x57} -> " << (uint16_t) Get_CRC16_Check_Sum(crcdata, 2, 0xff) << "\n";
+
+    cin >> input;
     return 0;
 }
 
@@ -268,7 +240,7 @@ void Append_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength) {
     pchMessage[dwLength - 1] = (uint8_t)((wCRC >> 8) & 0x00ff);
 }
 
-void Judge_Init(Judge_Type *Judge) {
-    Judge->index = 0;
-    Judge->step  = STEP_HEADER_SOF;
+void Protocol_Init(Protocol_Type *Protocol) {
+    Protocol->index = 0;
+    Protocol->step  = STEP_HEADER_SOF;
 }

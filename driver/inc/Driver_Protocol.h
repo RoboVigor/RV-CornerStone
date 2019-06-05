@@ -3,30 +3,31 @@
 
 #include "stm32f4xx.h"
 
-#define ProtocolBufferLength 128
+#define Protocol_Buffer_Length 128
 
-#define ProtocolPackLength_0001 3
-#define ProtocolPackLength_0002 1
-#define ProtocolPackLength_0003 2
-#define ProtocolPackLength_0101 4
-#define ProtocolPackLength_0102 3
-#define ProtocolPackLength_0103 2
-#define ProtocolPackLength_0201 15
-#define ProtocolPackLength_0202 14
-#define ProtocolPackLength_0203 16
-#define ProtocolPackLength_0204 1
-#define ProtocolPackLength_0205 3
-#define ProtocolPackLength_0206 1
-#define ProtocolPackLength_0207 6
-#define ProtocolPackLength_0301 10
+#define Protocol_Pack_Length_0001 3
+#define Protocol_Pack_Length_0002 1
+#define Protocol_Pack_Length_0003 2
+#define Protocol_Pack_Length_0101 4
+#define Protocol_Pack_Length_0102 3
+#define Protocol_Pack_Length_0103 2
+#define Protocol_Pack_Length_0201 15
+#define Protocol_Pack_Length_0202 14
+#define Protocol_Pack_Length_0203 16
+#define Protocol_Pack_Length_0204 1
+#define Protocol_Pack_Length_0205 3
+#define Protocol_Pack_Length_0206 1
+#define Protocol_Pack_Length_0207 6
+#define Protocol_Pack_Length_0301 10
+#define Protocol_Pack_Length_0401 8
 
-#define REF_PROTOCOL_HEADER 0xA5
-#define REF_PROTOCOL_HEADER_SIZE 5
-#define REF_PROTOCOL_CMD_SIZE 2
-#define REF_PROTOCOL_CRC16_SIZE 2
-#define REF_HEADER_CRC_LEN (REF_PROTOCOL_HEADER_SIZE + REF_PROTOCOL_CRC16_SIZE)
-#define REF_HEADER_CRC_CMDID_LEN (REF_PROTOCOL_HEADER_SIZE + REF_PROTOCOL_CRC16_SIZE + sizeof(uint16_t))
-#define REF_HEADER_CMDID_LEN (REF_PROTOCOL_HEADER_SIZE + sizeof(uint16_t))
+#define PROTOCOL_HEADER 0xA5
+#define PROTOCOL_HEADER_SIZE 5
+#define PROTOCOL_CMD_SIZE 2
+#define PROTOCOL_CRC16_SIZE 2
+#define PROTOCOL_HEADER_CRC_LEN (PROTOCOL_HEADER_SIZE + PROTOCOL_CRC16_SIZE)
+#define PROTOCOL_HEADER_CRC_CMDID_LEN (PROTOCOL_HEADER_SIZE + PROTOCOL_CRC16_SIZE + sizeof(uint16_t))
+#define PROTOCOL_HEADER_CMDID_LEN (PROTOCOL_HEADER_SIZE + sizeof(uint16_t))
 
 typedef union {
     uint8_t U[4];
@@ -50,7 +51,7 @@ typedef struct {
             uint8_t  mains_power_shooter_output : 1;
         };
         struct {
-            uint8_t data[ProtocolPackLength_0201];
+            uint8_t data[Protocol_Pack_Length_0201];
         };
     };
 } ext_game_robot_state_t;
@@ -66,10 +67,22 @@ typedef struct {
             uint16_t shooter_heat1;
         };
         struct {
-            uint8_t data[ProtocolPackLength_0202];
+            uint8_t data[Protocol_Pack_Length_0202];
         };
     };
 } ext_power_heat_data_t;
+
+typedef struct {
+    union {
+        struct {
+            float yaw_angle_diff;
+            float pitch_angle_diff;
+        };
+        struct {
+            uint8_t data[Protocol_Pack_Length_0401];
+        };
+    };
+} ext_gimal_aim_data_t;
 
 typedef struct {
     uint8_t  sof;
@@ -88,15 +101,16 @@ typedef enum {
 } unpack_step_e;
 
 typedef struct {
-    uint8_t                buf[ProtocolBufferLength];
-    uint8_t                packet[ProtocolBufferLength];
+    uint8_t                buf[Protocol_Buffer_Length];
+    uint8_t                packet[Protocol_Buffer_Length];
     unpack_step_e          step;
     uint16_t               index;
     uint16_t               dataLength;
     uint16_t               seq;
     uint16_t               id;
     ext_game_robot_state_t robotState;
-    ext_power_heat_data_t  heatData;
+    ext_power_heat_data_t  powerHeatData;
+    ext_gimal_aim_data_t   gimbalAimData;
 } Protocol_Type;
 
 unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength, unsigned char ucCRC8);

@@ -7,7 +7,7 @@ void Protocol_Init(Protocol_Type *Protocol) {
 
 void Protocol_Update(Protocol_Type *Protocol) {
     int i = 0;
-    for (i = 0; i < ProtocolBufferLength; i++) {
+    for (i = 0; i < Protocol_Buffer_Length; i++) {
         Protocol_Decode(Protocol, Protocol->buf[i]);
     }
 }
@@ -15,7 +15,7 @@ void Protocol_Update(Protocol_Type *Protocol) {
 void Protocol_Decode(Protocol_Type *Protocol, uint8_t byte) {
     switch (Protocol->step) {
     case STEP_HEADER_SOF: {
-        if (byte == REF_PROTOCOL_HEADER) {
+        if (byte == PROTOCOL_HEADER) {
             Protocol->packet[Protocol->index++] = byte;
             Protocol->step                      = STEP_LENGTH_LOW;
         } else {
@@ -47,7 +47,7 @@ void Protocol_Decode(Protocol_Type *Protocol, uint8_t byte) {
 
     case STEP_HEADER_CRC8: {
         Protocol->packet[Protocol->index++] = byte;
-        if (Verify_CRC8_Check_Sum(Protocol->packet, REF_PROTOCOL_HEADER_SIZE)) {
+        if (Verify_CRC8_Check_Sum(Protocol->packet, PROTOCOL_HEADER_SIZE)) {
             Protocol->step = STEP_DATA_CRC16;
         } else {
             Protocol->index = 0;
@@ -56,14 +56,14 @@ void Protocol_Decode(Protocol_Type *Protocol, uint8_t byte) {
     } break;
 
     case STEP_DATA_CRC16: {
-        if (Protocol->index < (REF_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
+        if (Protocol->index < (PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
             Protocol->packet[Protocol->index++] = byte;
         }
-        if (Protocol->index >= (REF_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
+        if (Protocol->index >= (PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
             Protocol->packet[Protocol->index++] = byte;
             Protocol->index                     = 0;
             Protocol->step                      = STEP_HEADER_SOF;
-            if (Verify_CRC16_Check_Sum(Protocol->packet, REF_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
+            if (Verify_CRC16_Check_Sum(Protocol->packet, PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
                 Protocol_Load(Protocol);
             }
         }
@@ -81,22 +81,27 @@ void Protocol_Load(Protocol_Type *Protocol) {
     uint8_t *begin_p;
 
     // id
-    Protocol->id = (Protocol->packet[REF_PROTOCOL_HEADER_SIZE + 1] << 8) + Protocol->packet[REF_PROTOCOL_HEADER_SIZE];
+    Protocol->id = (Protocol->packet[PROTOCOL_HEADER_SIZE + 1] << 8) + Protocol->packet[PROTOCOL_HEADER_SIZE];
 
     // choose struct
     switch (Protocol->id) {
     case 0x0201: {
         begin_p = Protocol->robotState.data;
     } break;
+
     case 0x0202: {
-        begin_p = Protocol->heatData.data;
+        begin_p = Protocol->powerHeatData.data;
+    } break;
+
+    case 0x0401: {
+        begin_p = Protocol->gimbalAimData.data;
     } break;
 
     default: { return; } break;
     }
     // load
     for (i = 0; i < Protocol->dataLength; i++) {
-        *(begin_p + i) = Protocol->packet[REF_HEADER_CMDID_LEN + i];
+        *(begin_p + i) = Protocol->packet[PROTOCOL_HEADER_CMDID_LEN + i];
     }
 }
 

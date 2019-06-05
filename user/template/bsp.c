@@ -20,11 +20,11 @@ void BSP_Init(void) {
 
     // Judge (USART6)
     // BSP_USART6_Init(115200, 0);
-    // BSP_DMA_USART6_RX_Init(Judge.buf, ProtocolBufferLength);
+    // BSP_DMA_USART6_RX_Init(Judge.buf, Protocol_Buffer_Length);
 
     // Ps (USART3)
     // BSP_USART3_Init(115200, 0);
-    // BSP_DMA_USART3_RX_Init(Ps.buf, ProtocolBufferLength);
+    // BSP_DMA_USART3_RX_Init(Ps.buf, Protocol_Buffer_Length);
 
     // PWM
     // BSP_PWM_Set_Port(&PWM_Test, PWM_PORT_PD12);

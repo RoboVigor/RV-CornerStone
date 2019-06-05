@@ -85,7 +85,7 @@ void Task_Gimbal(void *Parameters) {
 }
 
 float Chassis_Power_Control() {
-    float power = Judge.heatData.chassis_power;
+    float power = Judge.powerHeatData.chassis_power;
     float scale;
     PID_Calculate(&PID_Power, 30, power); // 临时将功率上限设置30方便调试
     scale = (power + PID_Power.output) / power;

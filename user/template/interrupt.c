@@ -14,7 +14,7 @@ void DMA1_Stream1_IRQHandler(void) {
     DMA_ClearFlag(DMA1_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
     while (DMA_GetCmdStatus(DMA1_Stream1) != DISABLE)
         ;
-    DMA_SetCurrDataCounter(DMA1_Stream1, ProtocolBufferLength);
+    DMA_SetCurrDataCounter(DMA1_Stream1, Protocol_Buffer_Length);
     DMA_Cmd(DMA1_Stream1, ENABLE);
 }
 
@@ -27,7 +27,7 @@ void DMA2_Stream1_IRQHandler(void) {
     DMA_ClearFlag(DMA2_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
     while (DMA_GetCmdStatus(DMA2_Stream1) != DISABLE)
         ;
-    DMA_SetCurrDataCounter(DMA2_Stream1, ProtocolBufferLength);
+    DMA_SetCurrDataCounter(DMA2_Stream1, Protocol_Buffer_Length);
     DMA_Cmd(DMA2_Stream1, ENABLE);
 }
 
