@@ -1,24 +1,24 @@
-#ifndef __DRIVER_JUDGESYS_H
-#define __DRIVER_JUDGESYS_H
+#ifndef __DRIVER_PROTOCOL_H
+#define __DRIVER_PROTOCOL_H
 
 #include "stm32f4xx.h"
 
-#define JudgeBufferLength 128
+#define ProtocolBufferLength 128
 
-#define JudgePackLength_0001 3
-#define JudgePackLength_0002 1
-#define JudgePackLength_0003 2
-#define JudgePackLength_0101 4
-#define JudgePackLength_0102 3
-#define JudgePackLength_0103 2
-#define JudgePackLength_0201 15
-#define JudgePackLength_0202 14
-#define JudgePackLength_0203 16
-#define JudgePackLength_0204 1
-#define JudgePackLength_0205 3
-#define JudgePackLength_0206 1
-#define JudgePackLength_0207 6
-#define JudgePackLength_0301 10
+#define ProtocolPackLength_0001 3
+#define ProtocolPackLength_0002 1
+#define ProtocolPackLength_0003 2
+#define ProtocolPackLength_0101 4
+#define ProtocolPackLength_0102 3
+#define ProtocolPackLength_0103 2
+#define ProtocolPackLength_0201 15
+#define ProtocolPackLength_0202 14
+#define ProtocolPackLength_0203 16
+#define ProtocolPackLength_0204 1
+#define ProtocolPackLength_0205 3
+#define ProtocolPackLength_0206 1
+#define ProtocolPackLength_0207 6
+#define ProtocolPackLength_0301 10
 
 #define REF_PROTOCOL_HEADER 0xA5
 #define REF_PROTOCOL_HEADER_SIZE 5
@@ -50,7 +50,7 @@ typedef struct {
             uint8_t  mains_power_shooter_output : 1;
         };
         struct {
-            uint8_t data[JudgePackLength_0201];
+            uint8_t data[ProtocolPackLength_0201];
         };
     };
 } ext_game_robot_state_t;
@@ -66,7 +66,7 @@ typedef struct {
             uint16_t shooter_heat1;
         };
         struct {
-            uint8_t data[JudgePackLength_0202];
+            uint8_t data[ProtocolPackLength_0202];
         };
     };
 } ext_power_heat_data_t;
@@ -88,8 +88,8 @@ typedef enum {
 } unpack_step_e;
 
 typedef struct {
-    uint8_t                buf[JudgeBufferLength];
-    uint8_t                packet[JudgeBufferLength];
+    uint8_t                buf[ProtocolBufferLength];
+    uint8_t                packet[ProtocolBufferLength];
     unpack_step_e          step;
     uint16_t               index;
     uint16_t               dataLength;
@@ -97,7 +97,7 @@ typedef struct {
     uint16_t               id;
     ext_game_robot_state_t robotState;
     ext_power_heat_data_t  heatData;
-} Judge_Type;
+} Protocol_Type;
 
 unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength, unsigned char ucCRC8);
 unsigned int  Verify_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength);
@@ -106,8 +106,8 @@ uint16_t      Get_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength, uint16
 uint32_t      Verify_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
 void          Append_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
 
-void Judge_Init(Judge_Type *Judge);
-void Judge_Update(Judge_Type *Judge);
-void Judge_Decode(Judge_Type *Judge, uint8_t byte);
-void Judge_Load(Judge_Type *Judge);
+void Protocol_Init(Protocol_Type *Protocol);
+void Protocol_Update(Protocol_Type *Protocol);
+void Protocol_Decode(Protocol_Type *Protocol, uint8_t byte);
+void Protocol_Load(Protocol_Type *Protocol);
 #endif

@@ -1,104 +1,102 @@
-#define __DRIVER_JUDGE_GLOBALS
+#include "Driver_Protocol.h"
 
-#include "Driver_Judge.h"
-
-void Judge_Init(Judge_Type *Judge) {
-    Judge->index = 0;
-    Judge->step  = STEP_HEADER_SOF;
+void Protocol_Init(Protocol_Type *Protocol) {
+    Protocol->index = 0;
+    Protocol->step  = STEP_HEADER_SOF;
 }
 
-void Judge_Update(Judge_Type *Judge) {
+void Protocol_Update(Protocol_Type *Protocol) {
     int i = 0;
-    for (i = 0; i < JudgeBufferLength; i++) {
-        Judge_Decode(Judge, Judge->buf[i]);
+    for (i = 0; i < ProtocolBufferLength; i++) {
+        Protocol_Decode(Protocol, Protocol->buf[i]);
     }
 }
 
-void Judge_Decode(Judge_Type *Judge, uint8_t byte) {
-    switch (Judge->step) {
+void Protocol_Decode(Protocol_Type *Protocol, uint8_t byte) {
+    switch (Protocol->step) {
     case STEP_HEADER_SOF: {
         if (byte == REF_PROTOCOL_HEADER) {
-            Judge->packet[Judge->index++] = byte;
-            Judge->step                   = STEP_LENGTH_LOW;
+            Protocol->packet[Protocol->index++] = byte;
+            Protocol->step                      = STEP_LENGTH_LOW;
         } else {
-            Judge->index = 0;
+            Protocol->index = 0;
         }
     } break;
 
     case STEP_LENGTH_LOW: {
-        Judge->dataLength             = byte;
-        Judge->packet[Judge->index++] = byte;
-        Judge->step                   = STEP_LENGTH_HIGH;
+        Protocol->dataLength                = byte;
+        Protocol->packet[Protocol->index++] = byte;
+        Protocol->step                      = STEP_LENGTH_HIGH;
     } break;
 
     case STEP_LENGTH_HIGH: {
-        Judge->dataLength |= byte << 8;
-        Judge->packet[Judge->index++] = byte;
-        if (Judge->dataLength < 114) {
-            Judge->step = STEP_FRAME_SEQ;
+        Protocol->dataLength |= byte << 8;
+        Protocol->packet[Protocol->index++] = byte;
+        if (Protocol->dataLength < 114) {
+            Protocol->step = STEP_FRAME_SEQ;
         } else {
-            Judge->step  = STEP_HEADER_SOF;
-            Judge->index = 0;
+            Protocol->step  = STEP_HEADER_SOF;
+            Protocol->index = 0;
         }
     } break;
 
     case STEP_FRAME_SEQ: {
-        Judge->packet[Judge->index++] = byte;
-        Judge->step                   = STEP_HEADER_CRC8;
+        Protocol->packet[Protocol->index++] = byte;
+        Protocol->step                      = STEP_HEADER_CRC8;
     } break;
 
     case STEP_HEADER_CRC8: {
-        Judge->packet[Judge->index++] = byte;
-        if (Verify_CRC8_Check_Sum(Judge->packet, REF_PROTOCOL_HEADER_SIZE)) {
-            Judge->step = STEP_DATA_CRC16;
+        Protocol->packet[Protocol->index++] = byte;
+        if (Verify_CRC8_Check_Sum(Protocol->packet, REF_PROTOCOL_HEADER_SIZE)) {
+            Protocol->step = STEP_DATA_CRC16;
         } else {
-            Judge->index = 0;
-            Judge->step  = STEP_HEADER_SOF;
+            Protocol->index = 0;
+            Protocol->step  = STEP_HEADER_SOF;
         }
     } break;
 
     case STEP_DATA_CRC16: {
-        if (Judge->index < (REF_HEADER_CRC_CMDID_LEN + Judge->dataLength)) {
-            Judge->packet[Judge->index++] = byte;
+        if (Protocol->index < (REF_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
+            Protocol->packet[Protocol->index++] = byte;
         }
-        if (Judge->index >= (REF_HEADER_CRC_CMDID_LEN + Judge->dataLength)) {
-            Judge->packet[Judge->index++] = byte;
-            Judge->index                  = 0;
-            Judge->step                   = STEP_HEADER_SOF;
-            if (Verify_CRC16_Check_Sum(Judge->packet, REF_HEADER_CRC_CMDID_LEN + Judge->dataLength)) {
-                Judge_Load(Judge);
+        if (Protocol->index >= (REF_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
+            Protocol->packet[Protocol->index++] = byte;
+            Protocol->index                     = 0;
+            Protocol->step                      = STEP_HEADER_SOF;
+            if (Verify_CRC16_Check_Sum(Protocol->packet, REF_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
+                Protocol_Load(Protocol);
             }
         }
     } break;
 
     default: {
-        Judge->step  = STEP_HEADER_SOF;
-        Judge->index = 0;
+        Protocol->step  = STEP_HEADER_SOF;
+        Protocol->index = 0;
     } break;
     }
 }
 
-void Judge_Load(Judge_Type *Judge) {
+void Protocol_Load(Protocol_Type *Protocol) {
     int      i;
     uint8_t *begin_p;
 
     // id
-    Judge->id = (Judge->packet[REF_PROTOCOL_HEADER_SIZE + 1] << 8) + Judge->packet[REF_PROTOCOL_HEADER_SIZE];
+    Protocol->id = (Protocol->packet[REF_PROTOCOL_HEADER_SIZE + 1] << 8) + Protocol->packet[REF_PROTOCOL_HEADER_SIZE];
 
     // choose struct
-    switch (Judge->id) {
+    switch (Protocol->id) {
     case 0x0201: {
-        begin_p = Judge->robotState.data;
+        begin_p = Protocol->robotState.data;
     } break;
     case 0x0202: {
-        begin_p = Judge->heatData.data;
+        begin_p = Protocol->heatData.data;
     } break;
 
     default: { return; } break;
     }
     // load
-    for (i = 0; i < Judge->dataLength; i++) {
-        *(begin_p + i) = Judge->packet[REF_HEADER_CMDID_LEN + i];
+    for (i = 0; i < Protocol->dataLength; i++) {
+        *(begin_p + i) = Protocol->packet[REF_HEADER_CMDID_LEN + i];
     }
 }
 
