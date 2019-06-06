@@ -41,6 +41,7 @@ void Protocol_Decode(Protocol_Type *Protocol, uint8_t byte) {
     } break;
 
     case STEP_FRAME_SEQ: {
+        Protocol->seq                       = byte;
         Protocol->packet[Protocol->index++] = byte;
         Protocol->step                      = STEP_HEADER_CRC8;
     } break;

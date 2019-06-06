@@ -87,7 +87,8 @@ void Task_Gimbal(void *Parameters) {
 float Chassis_Power_Control() {
     float power = Judge.powerHeatData.chassis_power;
     float scale;
-    PID_Calculate(&PID_Power, 30, power); // 临时将功率上限设置30方便调试
+    PID_Power.p = CHOOSE(0.1, 0.5, 3);
+    PID_Calculate(&PID_Power, 40, power); // 临时将功率上限设置30方便调试
     scale = (power + PID_Power.output) / power;
     return WANG(scale, 0, 1);
 }
@@ -131,7 +132,7 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_RFCM, 28, 0, 0, 8000, 1750);
 
     //功率PID
-    PID_Init(&PID_Power, 1, 0, 0, 1000, 500);
+    PID_Init(&PID_Power, 1, 0, 0, 1000, 500); // d = 3
 
     while (1) {
 
@@ -190,8 +191,9 @@ void Task_Chassis(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = PID_Power.feedback * 1000;
-        // DebugData.debug2 = powerScale * 1000;
+        DebugData.debug1 = Ps.gimbalAimData.yaw_angle_diff * 1000;
+        DebugData.debug2 = powerScale * 1000;
+        DebugData.debug3 = Judge.powerHeatData.chassis_power * 1000;
         // printf("%d\n\r", powerScale);
         // DebugData.debug3 = vw;
         // DebugData.debug4 = Motor_Yaw.angle;
@@ -202,7 +204,25 @@ void Task_Chassis(void *Parameters) {
 
     vTaskDelete(NULL);
 }
+void Task_W(void *Parameters) {
+    // 任务
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.1;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
+    float W  = 60;
+    float Pi = 40;
+
+    while (1) {
+        W -= (Judge.powerHeatData.chassis_power - Pi) * interval;
+        MIAO(W, 0, 60);
+        // 调试信息
+        // DebugData.debug4 = W;
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+
+    vTaskDelete(NULL);
+}
 void Task_Debug_Magic_Send(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
@@ -325,7 +345,7 @@ void Task_Sys_Init(void *Parameters) {
 
     // 初始化陀螺仪
     Gyroscope_Init(&Gyroscope_EulerData);
-
+    // DMA_ITConfig(DMA1_Stream1, DMA_IT_TC, ENABLE);
     // 调试任务
 #if DEBUG_ENABLED
     // xTaskCreate(Task_Debug_Magic_Receive, "Task_Debug_Magic_Receive", 500, NULL, 6, NULL);
@@ -336,6 +356,7 @@ void Task_Sys_Init(void *Parameters) {
 
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    xTaskCreate(Task_W, "Task_W", 400, NULL, 5, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);

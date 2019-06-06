@@ -7,6 +7,7 @@
 
 // DMA (USART3_RX)
 void DMA1_Stream1_IRQHandler(void) {
+    DebugData.debug4 = (DebugData.debug4 % 1000) + 1;
     DMA_Cmd(DMA1_Stream1, DISABLE);
     if (DMA_GetFlagStatus(DMA1_Stream1, DMA_IT_TCIF1) != RESET) {
         Protocol_Update(&Ps); // 解包

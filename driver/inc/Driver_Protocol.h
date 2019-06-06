@@ -3,7 +3,7 @@
 
 #include "stm32f4xx.h"
 
-#define Protocol_Buffer_Length 128
+#define Protocol_Buffer_Length 24
 
 #define Protocol_Pack_Length_0001 3
 #define Protocol_Pack_Length_0002 1
