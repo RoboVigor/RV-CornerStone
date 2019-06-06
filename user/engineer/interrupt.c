@@ -11,8 +11,7 @@ void EXTI9_5_IRQHandler(void) {
     if (EXTI_GetITStatus(EXTI_Line8) != RESET) {
         EXTI_ClearFlag(EXTI_Line8);
         EXTI_ClearITPendingBit(EXTI_Line8);
-        suc = MPU6500_ReadData();
-        if (suc) Gyroscope_Update_Angle_Data(&Gyroscope_EulerData);
+        Gyroscope_Update(&Gyroscope_EulerData);
     }
 }
 
@@ -183,15 +182,58 @@ void CAN2_RX0_IRQHandler(void) {
     }
 }
 
-// TIM2 高频计数器
-extern volatile uint32_t ulHighFrequencyTimerTicks;
+// // TIM2 高频计数器
+// extern volatile uint32_t ulHighFrequencyTimerTicks;
+
+// void TIM2_IRQHandler(void) {
+//     if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) {
+//         ulHighFrequencyTimerTicks++;
+//         TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+//         TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+//     }
+// }
+
+u8  TIM2CH1_CAPTURE_STA = 0; //输入捕获状态
 
 void TIM2_IRQHandler(void) {
     if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) {
-        ulHighFrequencyTimerTicks++;
-        TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-        TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+        if (TIM2CH1_CAPTURE_STA == 1) {
+                TIM2CH1_CAPTURE_STA = 0;
+                //获取当前的捕获值
+                TIM2CH1_CAPTURE_VAL = TIM2->CCR1;
+                //设置上升沿捕获
+                TIM_OC1PolarityConfig(TIM2, TIM_ICPolarity_Rising);
+            } else {
+                TIM2CH1_CAPTURE_STA = 1;
+                TIM_SetCounter(TIM2, 0);                             //计数器清空
+                TIM_OC1PolarityConfig(TIM2, TIM_ICPolarity_Falling); //设置下降沿捕获
+            }
     }
+}
+
+// TIM5 输入捕获初始化
+u8  TIM5CH1_CAPTURE_STA = 0; //输入捕获状态
+
+// TIM5 输入捕获
+void TIM5_IRQHandler(void) {
+    // 单通道输入捕获
+        // 捕获 1 发生捕获事件
+        if (TIM_GetITStatus(TIM5, TIM_IT_CC1) != RESET) {
+            // 捕获到一个下降沿
+            if (TIM5CH1_CAPTURE_STA == 1) {
+                TIM5CH1_CAPTURE_STA = 0;
+                //获取当前的捕获值
+                TIM5CH1_CAPTURE_VAL = TIM5->CCR1;
+                //设置上升沿捕获
+                TIM_OC1PolarityConfig(TIM5, TIM_ICPolarity_Rising);
+            } else {
+                TIM5CH1_CAPTURE_STA = 1;
+                TIM_SetCounter(TIM5, 0);                             //计数器清空
+                TIM_OC1PolarityConfig(TIM5, TIM_ICPolarity_Falling); //设置下降沿捕获
+            }
+        }
+
+    TIM_ClearITPendingBit(TIM5, TIM_IT_CC1 | TIM_IT_Update); //清除中断标志位
 }
 
 /**

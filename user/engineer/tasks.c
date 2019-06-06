@@ -28,7 +28,6 @@ void Task_Cloud(void *Parameters) {
 void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     int        rotorSpeed[4];                      // 轮子转速
-    float      rpm2rps        = 0.104667f;         // 转子的转速(round/min)换算成角速度(rad/s) = 2 * 3.14 / 60
     int        mode           = 2;                 // 底盘运动模式,1直线,2转弯
     int        lastMode       = 2;                 // 上一次的运动模式
     float      yawAngleTarget = 0;                 // 目标值
@@ -50,10 +49,10 @@ void Task_Chassis(void *Parameters) {
     int yawSpeed_maxOutput_I = 1000;
 
     // 初始化麦轮角速度PID
-    PID_Init(&PID_LFCM, speed_P, speed_I, speed_D, speed_maxoutput, speed_maxOutput_I);
-    PID_Init(&PID_LBCM, speed_P, speed_I, speed_D, speed_maxoutput, speed_maxOutput_I);
-    PID_Init(&PID_RBCM, speed_P, speed_I, speed_D, speed_maxoutput, speed_maxOutput_I);
-    PID_Init(&PID_RFCM, speed_P, speed_I, speed_D, speed_maxoutput, speed_maxOutput_I);
+    PID_Init(&PID_LFCM, speed_P, speed_I, speed_D, speed_maxOutput, speed_maxOutput_I);
+    PID_Init(&PID_LBCM, speed_P, speed_I, speed_D, speed_maxOutput, speed_maxOutput_I);
+    PID_Init(&PID_RBCM, speed_P, speed_I, speed_D, speed_maxOutput, speed_maxOutput_I);
+    PID_Init(&PID_RFCM, speed_P, speed_I, speed_D, speed_maxOutput, speed_maxOutput_I);
 
     // 初始化航向角角度PID和角速度PID
     PID_Init(&PID_YawAngle, yawAngle_P, 0, 0, yawAngle_maxOutput, yawAngle_maxOutput_I);
@@ -85,16 +84,16 @@ void Task_Chassis(void *Parameters) {
         }
 
         // 设置底盘总体移动速度
-        Chassis_Update(&ChassisData, (float) -remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, (float) PID_YawSpeed.output / 1320.0f);
+        Chassis_Update(&ChassisData, (float) -remoteData.lx / 330.0f, (float) remoteData.ly / 330.0f, (float) PID_YawSpeed.output / 660.0f);
 
         // 麦轮解算&限幅,获得轮子转速
         Chassis_Get_Rotor_Speed(&ChassisData, rotorSpeed);
 
         // 计算输出电流PID
-        PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * rpm2rps);
-        PID_Calculate(&PID_LBCM, rotorSpeed[1], Motor_LB.speed * rpm2rps);
-        PID_Calculate(&PID_RBCM, rotorSpeed[2], Motor_RB.speed * rpm2rps);
-        PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
+        PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * RPM2RPS);
+        PID_Calculate(&PID_LBCM, rotorSpeed[1], Motor_LB.speed * RPM2RPS);
+        PID_Calculate(&PID_RBCM, rotorSpeed[2], Motor_RB.speed * RPM2RPS);
+        PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调(安全起见默认注释此行)
         Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
@@ -111,81 +110,32 @@ void Task_Take(void *Parameters) {
 
     while (1) {
 
-        /* 手动代码 */
+        if (remoteData.switchLeft == 1) {
 
-        // Monitor
-        // if (remoteData.switchLeft == 3) {
-        //     takeMode = 0;
-        // } else if (remoteData.switchLeft == 1 && modeMode == 0) {
-        //     takeMode = 1;
-        // }
-
-        // 手动代码
-        // if (remoteData.switchRight == 1 && remoteData.switchLeft == 3) {
-        //     TAKE_OFF;
-        //     ROTATE_OFF;
-        // } else if (remoteData.switchRight == 3 && remoteData.switchRight != 1) {
-        //     TAKE_ON;
-        // } else if (remoteData.switchRight == 2 && remoteData.switchRight != 1) {
-        //     TAKE_OFF;
-        // }
-
-        // if (remoteData.switchLeft == 3 && remoteData.switchRight != 1) {
-        //     ROTATE_ON;
-        // } else if (remoteData.switchLeft == 2 && remoteData.switchRight != 1) {
-        //     ROTATE_OFF;
-        // }
-
-        // // Controller
-        // if (takeMode == 0) {
-        //     TAKE_OFF;
-        //     ROTATE_OFF;
-        //     // 电推杆下降至固定位置
-        // } else if (takeMode = 1) {
-        //     // 电推杆抬升
-        //     TAKE_ON;
-        //     vTaskDelay(1000);
-        //     ROTATE_ON;
-        //     vTaskDelay(2000);
-        //     TAKE_OFF;
-        //     vTaskDelay(1000);
-        //     // 电推杆抬升
-        //     ROTATE_OFF;
-        //     vTaskDelay(2000);
-        //     ROTATE_ON;
-        //     vTaskDelay(2000);
-        //     TAKE_ON;
-        //     // 电推杆下降
-        //     // 电推杆下降
-        // }
-
-        /* 自动代码 */
-
-        if (remoteData.switchRight == 3 && remoteData.switchLeft == 3) {
-            if (modeMode != 0) {
-                vTaskDelayUntil(&LastWakeTime, 50);
-                continue;
-            }
-            TAKING_ROD_POWER_OFF;
-            TAKE_ON;
-            vTaskDelay(1000);
-            ROTATE_ON;
-            vTaskDelay(2000);
-            TAKE_OFF;
-            vTaskDelay(1000);
             TAKING_ROD_POWER_ON;
             TAKING_ROD_PUSH;
-            vTaskDelay(1000);
+            vTaskDelay(800);
+            TAKING_ROD_POWER_OFF;
+            takeMode = 0;        // 传动伸出
+            ROTATE_ON;
+            vTaskDelay(500);
+            TAKE_ON;
+            vTaskDelay(800);
+            TAKING_ROD_POWER_ON;
+            vTaskDelay(1500);
             TAKING_ROD_POWER_OFF;
             ROTATE_OFF;
-            vTaskDelay(1000);
-            ROTATE_ON;
-            vTaskDelay(1000);
-            TAKE_ON;
-            vTaskDelay(1000);
-            TAKE_OFF;
             vTaskDelay(500);
+            ROTATE_ON;
+            vTaskDelay(500);
+            TAKE_OFF;
             ROTATE_OFF;
+            vTaskDelay(500);
+            takeMode = 1;    // 传动返回
+            TAKING_ROD_POWER_ON;
+            TAKING_ROD_PULL;
+            vTaskDelay(4000);
+            
         }
 
         vTaskDelayUntil(&LastWakeTime, 10);
@@ -202,53 +152,64 @@ void Task_Take(void *Parameters) {
 
 void Task_Transmission(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
-    float      rpm2rps      = 3.14 / 60; // 转子的转速(RPM,RoundPerMinute)换算成角速度(RadPerSecond)
-    float      target       = -30000;
-    float      targetAngle  = target;
-    float      lastAngle    = 0;
-    int        rotateMode   = 1; // 0: ，1:
 
-    PID_Init(&PID_Transmission_Speed, 10, 0, 0, 4000, 2000);
-    PID_Init(&PID_Transmission_Angle, 1, 0, 0, 4000, 2000);
+    int   targetAngle = 0;
+    int   lastSpeed   = 0;
+    int   lastAngle   = 0;
+
+    PID_Init(&PID_Transmission_Speed, 85, 0, 0, 4000, 2000);
+    PID_Init(&PID_Transmission_Angle, 5, 0, 0, 4000, 2000);
 
     while (1) {
+        lastSpeed         = Motor_Transmission.speed;
+        lastAngle         = Motor_Transmission.angle;
 
-        lastAngle = Motor_Transmission.angle;
-
-        if (remoteData.switchRight == 3) {
+        if (takeMode == 0) {
+            targetAngle = 300;
+        } else if (takeMode == 1) {
             targetAngle = 0;
-            if (lastAngle > -20000 && Motor_Transmission.speed == 0) {
-                Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
-            } else {
-                Can_Send(CAN1, 0x1FF, 0, 0, 2000, 0);
-            }
-        } else if (remoteData.switchRight == 1) {
-            targetAngle = target;
-            if (lastAngle < -20000 && Motor_Transmission.speed == 0) {
-                Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
-            } else {
-                Can_Send(CAN1, 0x1FF, 0, 0, -2000, 0);
-            }
-        }
+        } 
+
+        PID_Calculate(&PID_Transmission_Angle, targetAngle, lastAngle);
+        PID_Calculate(&PID_Transmission_Speed, PID_Transmission_Angle.output, lastSpeed * RPM2RPS);
+        Can_Send(CAN1, 0x1FF, 0, 0, PID_Transmission_Speed.output, 0);
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
+
+    
     vTaskDelete(NULL);
 }
 
-void Task_GuideWheel(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      rpm2rps      = 3.14 / 60;           // 转子的转速(RPM,RoundPerMinute)换算成角速度(RadPerSecond)
+void Task_Landing(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    uint8_t    bangMode     = 0; // 上岛传感器切换， 0 前端， 1 后端
+    uint8_t    powerMode    = 0; // 电源
 
     // PID 初始化
     PID_Init(&PID_LGW, 5, 0, 0, 4000, 2000);
     PID_Init(&PID_RGW, 5, 0, 0, 4000, 2000);
 
     while (1) {
+    
+         if (remoteData.switchLeft == 3) {
+            LANDING_SWITCH_FRONT;
+            LANDING_SWITCH_FRONT2;
+        } else if (remoteData.switchLeft == 1) {
+            LANDING_SWITCH_BEHIND;
+            LANDING_SWITCH_BEHIND2;
+        }
+
+        // Power Control
+        if (remoteData.switchRight == 1) {
+            LANDING_POWER_ON;
+        } else {
+            LANDING_POWER_OFF;
+        }
 
         // PID 计算
-        PID_Increment_Calculate(&PID_LGW, remoteData.ry, Motor_LGW.speed * rpm2rps);
-        PID_Increment_Calculate(&PID_RGW, -remoteData.ry, Motor_RGW.speed * rpm2rps);
+        PID_Increment_Calculate(&PID_LGW, remoteData.ry, Motor_LGW.speed * RPM2RPS);
+        PID_Increment_Calculate(&PID_RGW, -remoteData.ry, Motor_RGW.speed * RPM2RPS);
 
         // 发送数据至电调
         Can_Send(CAN2, 0x200, PID_LGW.output, PID_RGW.output, 0, 0);
@@ -258,124 +219,18 @@ void Task_GuideWheel(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_BANG(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount();
-    uint8_t    bangMode     = 0; // 上岛传感器切换， 0 前端， 1 后端
-    uint8_t    powerMode    = 0; // 电源
-
-    while (1) {
-
-        // Monitor
-        if (remoteData.switchLeft == 3) {
-            bangMode = 0;
-        } else if (remoteData.switchLeft == 1) {
-            bangMode = 1;
-        }
-        if (remoteData.switchRight == 3) {
-            powerMode = 0;
-        } else if (remoteData.switchRight == 1) {
-            powerMode = 1;
-        }
-
-        // Switch Control
-        if (bangMode == 0) {
-            LANDING_SWITCH_FRONT;
-            LANDING_SWITCH_FRONT2;
-        } else if (bangMode == 1) {
-            LANDING_SWITCH_BEHIND;
-            LANDING_SWITCH_BEHIND2;
-        }
-
-        // Power Control
-        if (powerMode == 0) {
-            LANDING_POWER_OFF;
-        } else if (powerMode == 1) {
-            LANDING_POWER_ON;
-        }
-
-        vTaskDelayUntil(&LastWakeTime, 10);
-    }
-    vTaskDelete(NULL);
-}
-
-void Task_Taking_Pushrod(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount();
-    TickType_t Interval     = 0;
-
-    uint8_t rodMode  = 0; // 0 初始状态 1 上升一定高度 2 下降一定高度
-    uint8_t modeMode = 0; // 防止重复运行
-
-    while (1) {
-
-        // Monitor
-        // if (remoteData.switchLeft == 3 && modeMode == 0) {
-        //     rodMode = 0;
-        // } else if (remoteData.switchLeft == 1 && modeMode == 0) {
-        //     rodMode  = 1;
-        //     Interval = 500;
-        // } else if (remoteData.switchLeft == 2 && modeMode == 0) {
-        //     rodMode  = 2;
-        //     Interval = 500;
-        // }
-
-        // if (remoteData.switchRight == 1) {
-        //     modeMode = 0;
-        //     rodMode  = 4;
-        // }
-
-        // // Controller
-        // if (rodMode = 0) {
-        //     TAKING_ROD_POWER_ON;
-        //     TAKING_ROD_PULL;
-        // } else if (rodMode = 1) {
-        //     TAKING_ROD_POWER_ON;
-        //     TAKING_ROD_PUSH;
-        //     vTaskDelayUntil(&LastWakeTime, Interval);
-        //     TAKING_ROD_POWER_OFF;
-        // } else if (rodMode = 2) {
-        //     TAKING_ROD_POWER_ON;
-        //     TAKING_ROD_PULL;
-        //     vTaskDelayUntil(&LastWakeTime, Interval);
-        //     TAKING_ROD_POWER_OFF;
-        // }
-        // modeMode++;
-
-        if (remoteData.switchLeft == 3 && remoteData.switchRight == 1) {
-            TAKING_ROD_POWER_OFF;
-        } else if (remoteData.switchLeft == 1 && remoteData.switchRight == 1) {
-            TAKING_ROD_POWER_ON;
-            TAKING_ROD_PUSH;
-        } else if (remoteData.switchLeft == 2 && remoteData.switchRight == 1) {
-            TAKING_ROD_POWER_ON;
-            TAKING_ROD_PULL;
-        }
-
-        // TAKING_ROD_POWER_ON;
-        // TAKING_ROD_PULL;
-        // TAKING_ROD_PUSH;
-
-        vTaskDelayUntil(&LastWakeTime, 50);
-    }
-    vTaskDelete(NULL);
-}
-
 void Task_Supply(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    uint8_t gateMode = 0; // 0 关闭仓门 1 打开仓门
-
     while (1) {
-
-        // Monitor
-
         // Controller
-        // if (remoteData.switchLeft == 1) {
-        // TIM_SetCompare4(TIM4, 5);
-        // TIM_SetCompare3(TIM3, 15);
-        // } else if (remoteData.switchLeft == 2) {
-        //     TIM_SetCompare2(TIM3, 15);
-        //     TIM_SetCompare3(TIM3, 15);
-        // }
+        if (remoteData.switchLeft == 1) {
+            PWM_Set_Compare(&PWM_Supply1, 15);
+            PWM_Set_Compare(&PWM_Supply2, 15);
+        } else {
+            PWM_Set_Compare(&PWM_Supply1, 5);
+            PWM_Set_Compare(&PWM_Supply2, 25);
+        }
 
         vTaskDelayUntil(&LastWakeTime, 50);
     }
@@ -389,12 +244,9 @@ void Task_Rescue(void *Parameters) {
 
     while (1) {
 
-        // Monitor
-
-        // Controller
-        if (rescueMode = 0) {
+        if (remoteData.switchRight = 1) {
             RESCUE_HOOK_UP;
-        } else if (rescueMode = 1) {
+        } else {
             RESCUE_HOOK_DOWN;
         }
 
@@ -408,44 +260,24 @@ void Task_Distance_Sensor(void *Parameter) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
     // 通过PWM波读取距离信息
-    extern u8  TIM2CH_CAPTURE_STA[2]; //输入捕获状态
-    extern u32 TIM2CH_CAPTURE_VAL[2]; //输入捕获值
-    extern u8  TIM5CH1_CAPTURE_STA;   //输入捕获状态
-    extern u32 TIM5CH1_CAPTURE_VAL;
-    uint16_t   temp = 0;
-    distance1       = 0;
-    distance2       = 0;
+    uint16_t   temp1 = 0;
+    uint16_t   temp2 = 0;
+    Distance1       = 0;
+    Distance2       = 0;
 
     while (1) {
-        // CH1成功捕获到了一次高电平
-        if (TIM2CH_CAPTURE_STA[0] & 0X80) {
-            // temp=TIM2CH_CAPTURE_STA[0]&0X3F;
-            // temp*=0XFFFFFFFF; //溢出时间总和
-            temp = TIM2CH_CAPTURE_VAL[0]; //得到总的高电平时间
+            temp1 = TIM2CH1_CAPTURE_VAL; //得到总的高电平时间
 
-            if (temp < 40000 && temp > 500) {
-                distance1 = temp / 100; // cm us
+            if (temp1 < 40000 && temp1 > 500) {
+                Distance1 = temp1 / 100; // cm us
             }
 
-            DebugZ = distance1;
 
-            TIM2CH_CAPTURE_STA[0] = 0; // 开启下一次捕获
-        }
+            temp2 = TIM5CH1_CAPTURE_VAL; //得到总的高电平时间
 
-        // CH2成功捕获到了一次高电平
-        if (TIM5CH1_CAPTURE_STA & 0X80) {
-            temp = TIM5CH1_CAPTURE_VAL & 0X3F;
-            // temp*=0XFFFFFFFF; //溢出时间总和
-            temp += TIM5CH1_CAPTURE_VAL; //得到总的高电平时间
-
-            if (temp < 40000 && temp > 500) {
-                distance2 = temp / 100; // cm us
+            if (temp2 < 40000 && temp2 > 500) {
+                Distance2 = temp2 / 100; // cm us
             }
-
-            DebugY = distance2;
-
-            TIM5CH1_CAPTURE_STA = 0; // 开启下一次捕获
-        }
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -468,8 +300,22 @@ void Task_Debug_Magic_Send(void *Parameters) {
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        GREEN_LIGHT_TOGGLE;
-        vTaskDelayUntil(&LastWakeTime, 250);
+        LED_Run_Horse_XP(); // XP开机动画,建议延时200ms
+        // LED_Run_Horse(); // 跑马灯,建议延时20ms
+        vTaskDelayUntil(&LastWakeTime, 200);
+    }
+
+    vTaskDelete(NULL);
+}
+
+void Task_Startup_Music(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    while (1) {
+        // if (Beep_Sing_XP()) break;  // XP开机音乐,建议延时150ms
+        // if (Beep_Sing_Sky()) break; // 天空之城,建议延时350ms
+        // if (Beep_Sing_Earth()) break; // 极乐净土,建议延时120ms
+        if (Beep_Sing_Soul()) break; // New Soul,建议延时60ms
+        vTaskDelayUntil(&LastWakeTime, 60);
     }
 
     vTaskDelete(NULL);
@@ -477,19 +323,11 @@ void Task_Blink(void *Parameters) {
 
 void Task_Sys_Init(void *Parameters) {
 
-    taskENTER_CRITICAL();
-
     /* Init */
 
     Handle_Init();
 
-    BSP_GPIO_Init();
-    BSP_CAN_Init();
-    BSP_UART_Init();
-    BSP_DMA_Init();
-    BSP_TIM_Init();
-    BSP_NVIC_Init();
-    BSP_USER_Init();
+    BSP_Init();
 
     Gyroscope_Init(&Gyroscope_EulerData);
 
@@ -505,34 +343,20 @@ void Task_Sys_Init(void *Parameters) {
     // Base
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-
-    // Cloud
-    xTaskCreate(Task_Cloud, "Task_Cloud", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // Structure
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
     xTaskCreate(Task_Transmission, "Task_Transmission", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Taking_Pushrod, "Task_Taking_Pushrod", 400, NULL, 3, NULL);
-
-    // Sensor
     xTaskCreate(Task_Distance_Sensor, "Task_Distance_Sensor", 400, NULL, 3, NULL);
-
-    // Take
     xTaskCreate(Task_Take, "Task_Take", 400, NULL, 3, NULL);
-
-    // Landing
-    xTaskCreate(Task_GuideWheel, "Task_GuideWheel", 400, NULL, 3, NULL);
-    xTaskCreate(Task_BANG, "Task_BANG", 400, NULL, 3, NULL);
-
-    // Supply
+    xTaskCreate(Task_Landing, "Task_Landing", 400, NULL, 3, NULL);
     xTaskCreate(Task_Supply, "Task_Supply", 400, NULL, 3, NULL);
-
-    // Rescue
     xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 3, NULL);
-
+    
     /* End */
 
+    // 完成使命
     vTaskDelete(NULL);
-
-    taskEXIT_CRITICAL();
+    vTaskDelay(10);
 }
