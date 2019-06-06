@@ -15,16 +15,6 @@ void Task_Safe_Mode(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_Cloud(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount();
-
-    while (1) {
-
-        vTaskDelayUntil(&LastWakeTime, 10);
-    }
-    vTaskDelete(NULL);
-}
-
 void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     int        rotorSpeed[4];                      // 轮子转速

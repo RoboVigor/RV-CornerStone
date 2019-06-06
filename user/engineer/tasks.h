@@ -12,7 +12,7 @@ void Task_Debug_Gyroscope_Sampling(void *Parameters); // 采样任务
 void Task_Sys_Init(void *Parameters);  // 硬件初始化和任务初始化
 void Task_Blink(void *Parameters);     // 确认存活
 void Task_Safe_Mode(void *Parameters); // 安全模式
-// void Task_Startup_Music(void *Parameters); // 开机音乐
+void Task_Startup_Music(void *Parameters); // 开机音乐
 
 // Sturcture
 void Task_Chassis(void *Parameters);

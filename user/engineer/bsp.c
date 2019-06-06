@@ -164,12 +164,12 @@ void BSP_TIM2CH1_Init(void) {
 void BSP_Init(void) {
     BSP_CAN_Init();
     BSP_DBUS_Init(remoteBuffer);
-    BSP_TIM2_Init();
+    // BSP_TIM2_Init();
     BSP_IMU_Init();
-    // BSP_USART3_Init(9600, 0);
+    BSP_USART3_Init(9600, 0);
     BSP_USART6_Init(9600, 0);
-    // BSP_UART7_Init(9600, 0);
-    // BSP_UART8_Init(9600, 0);
+    BSP_UART7_Init(9600, 0);
+    BSP_UART8_Init(9600, 0);
     BSP_Laser_Init();
     BSP_Beep_Init();
     BSP_LED_Init();
@@ -192,9 +192,9 @@ void BSP_Init(void) {
     // BSP_PWM_Set_Port(&PWM_Image_Pitch, PWM_PORT_PB1);
     // BSP_PWM_Init(&PWM_Image_Pitch, 9000, 200, TIM_OCPolarity_Low);
 
-    // 救援摄像头舵机输出
-    BSP_PWM_Set_Port(&PWM_Rescue, PWM_PORT_PI6);
-    BSP_PWM_Init(&PWM_Rescue, 9000, 200, TIM_OCPolarity_Low);
+    // // 救援摄像头舵机输出
+    // BSP_PWM_Set_Port(&PWM_Rescue, PWM_PORT_PI6);
+    // BSP_PWM_Init(&PWM_Rescue, 9000, 200, TIM_OCPolarity_Low);
 
     // 输入捕获
     BSP_TIM5CH1_Init(); // PH10

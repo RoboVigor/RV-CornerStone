@@ -43,8 +43,8 @@ void USART1_IRQHandler(void) {
 void USART3_IRQHandler(void) {
     u8 res;
 
-    if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
-        res = USART_ReceiveData(USART6);                     // 读取数据
+    if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
+        res = USART_ReceiveData(USART3);                     // 读取数据
         RED_LIGHT_TOGGLE;
     }
 
@@ -60,7 +60,7 @@ void USART3_IRQHandler(void) {
             } else {
                 magic.buf[magic.sta & 0X3FFF] = res;
                 magic.sta++;
-                // USART6->DR = res;
+                // USART3->DR = res;
                 if (magic.sta > (MAGIC_MAX_LENGTH - 1)) magic.sta = 0; // 接收数据错误，重新开始接收
             }
         }
@@ -193,6 +193,7 @@ void CAN2_RX0_IRQHandler(void) {
 //     }
 // }
 
+// TIM2 输入捕获初始化
 u8  TIM2CH1_CAPTURE_STA = 0; //输入捕获状态
 
 void TIM2_IRQHandler(void) {
@@ -209,6 +210,8 @@ void TIM2_IRQHandler(void) {
                 TIM_OC1PolarityConfig(TIM2, TIM_ICPolarity_Falling); //设置下降沿捕获
             }
     }
+
+    TIM_ClearITPendingBit(TIM2, TIM_IT_CC1 | TIM_IT_Update); //清除中断标志位
 }
 
 // TIM5 输入捕获初始化
