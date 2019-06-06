@@ -461,7 +461,7 @@ void BSP_DMA_USART3_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSiz
     DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
     DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
     DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
-    DMA_InitStructure.DMA_Priority           = DMA_Priority_VeryHigh;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
     DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Disable;
     DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOThreshold_Full;
     DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
@@ -505,7 +505,7 @@ void BSP_DMA_USART6_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSiz
     DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
     DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
     DMA_Init(DMA2_Stream1, &DMA_InitStructure);
-    DMA_ITConfig(DMA2_Stream1, DMA_IT_TC, ENABLE);
+    // DMA_ITConfig(DMA2_Stream1, DMA_IT_TC, ENABLE);
     DMA_Cmd(DMA2_Stream1, ENABLE);
 }
 

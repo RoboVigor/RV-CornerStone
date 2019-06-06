@@ -3,7 +3,7 @@
 
 #include "stm32f4xx.h"
 
-#define Protocol_Buffer_Length 24
+#define Protocol_Buffer_Length 1000
 
 #define Protocol_Pack_Length_0001 3
 #define Protocol_Pack_Length_0002 1
@@ -108,6 +108,8 @@ typedef struct {
     uint16_t               dataLength;
     uint16_t               seq;
     uint16_t               id;
+    uint64_t               lost;
+    uint64_t               received;
     ext_game_robot_state_t robotState;
     ext_power_heat_data_t  powerHeatData;
     ext_gimal_aim_data_t   gimbalAimData;

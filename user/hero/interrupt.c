@@ -7,7 +7,6 @@
 
 // DMA (USART3_RX)
 void DMA1_Stream1_IRQHandler(void) {
-    DebugData.debug4 = (DebugData.debug4 % 1000) + 1;
     DMA_Cmd(DMA1_Stream1, DISABLE);
     if (DMA_GetFlagStatus(DMA1_Stream1, DMA_IT_TCIF1) != RESET) {
         Protocol_Update(&Ps); // 解包
@@ -80,15 +79,34 @@ void USART3_IRQHandler(void) {
 /**
  * @brief USART6 串口中断
  */
-// void USART6_IRQHandler(void) {
-//     u8 res;
+void USART6_IRQHandler(void) {
+    uint8_t  tmp;
+    uint16_t len;
 
-//     if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
-//         res = USART_ReceiveData(USART6);                     // 读取数据
-//         // USART6->DR = res + 1;                                // 输出数据
-//         RED_LIGHT_TOGGLE;
-//     }
-// }
+    // clear IDLE flag
+    tmp = USART6->DR;
+    tmp = USART6->SR;
+
+    // disable DMA and decode
+    DMA_Cmd(DMA2_Stream1, DISABLE);
+    if (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != RESET) {
+        len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Channel5);
+        for (i = 0; i < len; i++) {
+            Protocol_Decode(&Ps, Ps.buf[i]);
+        }
+    }
+
+    // debug
+    DebugData.debug4 = (DebugData.debug4 % 1000) + 1; // to see whether the interrupt works fine
+    DebugData.debug5 = Ps.buf[0];                     // to see whether SOF is captured
+
+    // enable DMA
+    DMA_ClearFlag(DMA2_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
+    while (DMA_GetCmdStatus(DMA2_Stream1) != DISABLE) {
+    }
+    DMA_SetCurrDataCounter(DMA2_Stream1, Protocol_Buffer_Length);
+    DMA_Cmd(DMA2_Stream1, ENABLE);
+}
 
 /**
  * @brief UART7 串口中断
