@@ -89,11 +89,10 @@ void USART6_IRQHandler(void) {
 
     // disable DMA and decode
     DMA_Cmd(DMA2_Stream1, DISABLE);
-    if (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != RESET) {
-        len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Channel5);
-        for (i = 0; i < len; i++) {
-            Protocol_Decode(&Ps, Ps.buf[i]);
-        }
+    while(DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != SET){}
+    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Channel5);
+    for (i = 0; i < len; i++) {
+        Protocol_Decode(&Ps, Ps.buf[i]);
     }
 
     // debug
