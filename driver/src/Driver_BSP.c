@@ -194,7 +194,7 @@ void BSP_DBUS_Init(uint8_t *remoteBuffer) {
  * @param baudRate      波特率
  * @param interruptFlag 无中断   0
  *                      接收中断 USART_IT_RXNE
- *                      空闲中断 USART_IT_RXNE
+ *                      空闲中断 USART_IT_IDLE
  */
 void BSP_USART2_Init(uint32_t baudRate, uint16_t interruptFlag) {
     BSP_USART_Init(USART2,
@@ -219,7 +219,7 @@ void BSP_USART2_Init(uint32_t baudRate, uint16_t interruptFlag) {
  * @param baudRate      波特率
  * @param interruptFlag 无中断   0
  *                      接收中断 USART_IT_RXNE
- *                      空闲中断 USART_IT_RXNE
+ *                      空闲中断 USART_IT_IDLE
  */
 void BSP_USART3_Init(uint32_t baudRate, uint16_t interruptFlag) {
     BSP_USART_Init(USART3,
@@ -244,7 +244,7 @@ void BSP_USART3_Init(uint32_t baudRate, uint16_t interruptFlag) {
  * @param baudRate      波特率
  * @param interruptFlag 无中断   0
  *                      接收中断 USART_IT_RXNE
- *                      空闲中断 USART_IT_RXNE
+ *                      空闲中断 USART_IT_IDLE
  */
 void BSP_USART6_Init(uint32_t baudRate, uint16_t interruptFlag) {
     BSP_USART_Init(USART6,
@@ -269,7 +269,7 @@ void BSP_USART6_Init(uint32_t baudRate, uint16_t interruptFlag) {
  * @param baudRate      波特率
  * @param interruptFlag 无中断   0
  *                      接收中断 USART_IT_RXNE
- *                      空闲中断 USART_IT_RXNE
+ *                      空闲中断 USART_IT_IDLE
  */
 void BSP_UART7_Init(uint32_t baudRate, uint16_t interruptFlag) {
     BSP_USART_Init(UART7,
@@ -294,7 +294,7 @@ void BSP_UART7_Init(uint32_t baudRate, uint16_t interruptFlag) {
  * @param baudRate      波特率
  * @param interruptFlag 无中断   0
  *                      接收中断 USART_IT_RXNE
- *                      空闲中断 USART_IT_RXNE
+ *                      空闲中断 USART_IT_IDLE
  */
 void BSP_UART8_Init(uint32_t baudRate, uint16_t interruptFlag) {
     BSP_USART_Init(UART8,
