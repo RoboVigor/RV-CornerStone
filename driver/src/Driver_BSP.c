@@ -582,6 +582,11 @@ void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t 
     }
     TIM_ARRPreloadConfig(PWMx->TIMx, ENABLE); // ARPE使能
     TIM_Cmd(PWMx->TIMx, ENABLE);              // 使能TIM
+
+    // 高级定时器需要使能MOE位
+    if (PWMx->TIMx == TIM8) {
+        TIM_CtrlPWMOutputs(PWMx->TIMx, ENABLE);
+    }
 }
 
 /**
