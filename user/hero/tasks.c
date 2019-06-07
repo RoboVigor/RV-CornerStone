@@ -1,6 +1,6 @@
 /**
- * @brief 甩锅小车
- * @version 0.8.0
+ * @brief 步兵/英雄
+ * @version 1.2.0
  */
 #include "main.h"
 
