@@ -1,6 +1,6 @@
 /**
- * @brief 甩锅小车
- * @version 0.8.0
+ * @brief 步兵/英雄
+ * @version 1.2.0
  */
 #include "main.h"
 
@@ -30,9 +30,15 @@ void Task_Gimbal(void *Parameters) {
     float yawAngleTarget   = 0;
     float pitchAngleTarget = 0;
 
-    // pitch ramp
-    float pitchRampProgress = 0;
-    float pitchRampStart    = Gyroscope_EulerData.pitch;
+    // Pitch轴斜坡参数
+    float pitchRampProgress    = 0;
+    float pitchRampStart       = -1 * Gyroscope_EulerData.pitch;
+    float pitchAngleTargetRamp = 0;
+
+    // 视觉系统
+    int   lastSeq            = 0;
+    float psYawAngleTarget   = 0;
+    float psPitchAngleTarget = 0;
 
     // 初始化云台PID
     PID_Init(&PID_Cloud_YawAngle, 20, 0, 0, 16000, 0);
@@ -47,14 +53,26 @@ void Task_Gimbal(void *Parameters) {
         pitchAngle = -1 * Gyroscope_EulerData.pitch;  // 逆时针为正
         pitchSpeed = ImuData.gx / GYROSCOPE_LSB;      // 逆时针为正
 
-        // 设置目标
+        // 视觉系统
+        if (lastSeq != Ps.seq) {
+            lastSeq          = Ps.seq;
+            psYawAngleTarget = Ps.gimbalAimData.yaw_angle_diff;
+            psPitchAngleTarget += Ps.gimbalAimData.pitch_angle_diff;
+        } else {
+            psYawAngleTarget   = 0;
+            psPitchAngleTarget = 0;
+        }
+
+        // 设置角度目标
         if (ABS(remoteData.rx) > 20) yawAngleTarget -= -1 * remoteData.rx / 660.0f * 180 * interval;
         if (ABS(remoteData.ry) > 20) pitchAngleTarget -= -1 * remoteData.ry / 660.0f * 150 * interval;
-        // MIAO(yawAngleTarget, -30, 30);
+        yawAngleTarget += psYawAngleTarget;
+        pitchAngleTarget += psPitchAngleTarget;
+        MIAO(yawAngleTarget, -50, 50); //+-20
         MIAO(pitchAngleTarget, -20, 50);
 
         // 开机时pitch轴匀速抬起
-        // pitchAngleTarget = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
+        pitchAngleTargetRamp = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
         if (pitchRampProgress < 1) {
             pitchRampProgress += 0.005f;
         }
@@ -63,7 +81,7 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget, yawAngle);
         PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawSpeed);
 
-        PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTarget, pitchAngle);
+        PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTargetRamp, pitchAngle);
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
 
         // 输出电流
@@ -72,11 +90,11 @@ void Task_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = yawAngle;
-        // DebugData.debug2 = yawSpeed;
-        // DebugData.debug3 = pitchAngle;
-        // DebugData.debug4 = pitchSpeed;
-        // DebugData.debug5 = yawAngleTarget;
+        DebugData.debug1 = Ps.seq;
+        DebugData.debug2 = Ps.gimbalAimData.yaw_angle_diff;
+        DebugData.debug3 = pitchAngleTargetRamp;
+        DebugData.debug4 = psYawAngleTarget;
+        DebugData.debug5 = yawAngleTarget;
         // DebugData.debug6 = yawAngle;
         // DebugData.debug7 = pitchAngleTarget;
         // DebugData.debug8 = pitchAngle;
@@ -191,9 +209,9 @@ void Task_Chassis(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = Ps.gimbalAimData.yaw_angle_diff * 1000;
-        DebugData.debug2 = powerScale * 1000;
-        DebugData.debug3 = Judge.powerHeatData.chassis_power * 1000;
+        // DebugData.debug1 = Ps.gimbalAimData.yaw_angle_diff * 1000;
+        // DebugData.debug2 = powerScale * 1000;
+        // DebugData.debug3 = Judge.powerHeatData.chassis_power * 1000;
         // printf("%d\n\r", powerScale);
         // DebugData.debug3 = vw;
         // DebugData.debug4 = Motor_Yaw.angle;
