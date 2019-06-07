@@ -3,6 +3,7 @@
 void Protocol_Init(Protocol_Type *Protocol) {
     Protocol->index = 0;
     Protocol->step  = STEP_HEADER_SOF;
+    Protocol->seq   = 0;
 }
 
 void Protocol_Update(Protocol_Type *Protocol) {
