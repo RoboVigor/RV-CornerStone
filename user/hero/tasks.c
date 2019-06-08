@@ -58,6 +58,8 @@ void Task_Gimbal(void *Parameters) {
             lastSeq          = Ps.seq;
             psYawAngleTarget = Ps.gimbalAimData.yaw_angle_diff;
             psPitchAngleTarget += Ps.gimbalAimData.pitch_angle_diff;
+            MIAO(psYawAngleTarget, -5, 5);
+            MIAO(psPitchAngleTarget, -5, 5);
         } else {
             psYawAngleTarget   = 0;
             psPitchAngleTarget = 0;
@@ -95,9 +97,9 @@ void Task_Gimbal(void *Parameters) {
         DebugData.debug3 = pitchAngleTargetRamp;
         DebugData.debug4 = psYawAngleTarget;
         DebugData.debug5 = yawAngleTarget;
-        // DebugData.debug6 = yawAngle;
-        // DebugData.debug7 = pitchAngleTarget;
-        // DebugData.debug8 = pitchAngle;
+        // DebugData.debug6 = ImuData.gx;
+        // DebugData.debug7 = ImuData.gy;
+        // DebugData.debug8 = ImuData.gz;
     }
     vTaskDelete(NULL);
 }
@@ -203,7 +205,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -363,7 +365,6 @@ void Task_Sys_Init(void *Parameters) {
 
     // 初始化陀螺仪
     Gyroscope_Init(&Gyroscope_EulerData);
-    // DMA_ITConfig(DMA1_Stream1, DMA_IT_TC, ENABLE);
     // 调试任务
 #if DEBUG_ENABLED
     // xTaskCreate(Task_Debug_Magic_Receive, "Task_Debug_Magic_Receive", 500, NULL, 6, NULL);
