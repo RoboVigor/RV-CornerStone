@@ -702,74 +702,45 @@ void BSP_Beep_Init(void) {
     TIM_Cmd(TIM12, ENABLE); //使能TIM3
 }
 
+extern Sound_Tone_Type Music_Scope_XP[];
+extern Sound_Tone_Type Music_Scope_Earth[];
+extern Sound_Tone_Type Music_Scope_Sky[];
+extern Sound_Tone_Type Music_Scope_Soul[];
 /**
- * @brief 播放XP开机音乐
- * @note  如果播放完成返回1,任务应退出循环并自杀
+ * @brief 音乐点播~
+ * @note  1. 如果播放完成返回1,任务应退出循环并自杀
+ *        2. 谱子在beep.c里
+ *
+ * @song  名称            歌曲        推荐延时(ms)
+ *        Music_Sky       天空之城    350
+ *        Music_Len_Earth 极乐净土    120
+ *        Music_Len_Soul  New Soul   60
+ *        Music_Len_XP    XP开机音乐  150
  */
-uint8_t Beep_Sing_XP(void) {
-    static uint16_t BeepXPState   = 0;
-    static uint16_t BeepXPScore[] = {804, 804, 1607, 1073, 1073, 1073, 1204, 1204, 1204, 804, 804, 1073, 1073, 1073, 1073, 1073, 1073};
-    if (BeepXPState == BEEP_XP_LENGTH) {
-        TIM12->CCR1 = 0;
-        BeepXPState = 0;
-        return 1;
-    } else {
-        TIM12->ARR  = BeepXPScore[BeepXPState];
-        TIM12->CCR1 = BeepXPScore[BeepXPState] / 2;
-        BeepXPState++;
-        return 0;
+uint8_t KTV_Play(Song_Type song) {
+    static uint32_t index = 0;
+    switch (song) {
+    case Music_Sky:
+        if (index >= Music_Len_Sky) return 1;
+        Sing(Music_Scope_Sky[index]);
+        break;
+    case Music_Earth:
+        if (index >= Music_Len_Earth) return 1;
+        Sing(Music_Scope_Earth[index]);
+        break;
+    case Music_Soul:
+        if (index >= Music_Len_Soul) return 1;
+        Sing(Music_Scope_Soul[index]);
+        break;
+    case Music_XP:
+        if (index >= Music_Len_XP) return 1;
+        Sing(Music_Scope_XP[index]);
+        break;
+    default:
+        break;
     }
-}
-
-/**
- * @brief 播放天空之城
- * @note  如果播放完成返回1,任务应退出循环并自杀
- */
-uint8_t Beep_Sing_Sky(void) {
-    static uint16_t BeepSkyState = 0;
-    if (BeepSkyState == Startup_Success_music_len_sky) {
-        TIM12->CCR1  = 0;
-        BeepSkyState = 0;
-        return 1;
-    } else {
-        Sing_Startup_music(Sky, BeepSkyState);
-        BeepSkyState++;
-        return 0;
-    }
-}
-
-/**
- * @brief 播放极乐净土
- * @note  如果播放完成返回1,任务应退出循环并自杀
- */
-uint8_t Beep_Sing_Earth(void) {
-    static uint16_t BeepEarthState = 0;
-    if (BeepEarthState == Startup_Success_music_len_earth) {
-        TIM12->CCR1    = 0;
-        BeepEarthState = 0;
-        return 1;
-    } else {
-        Sing_Startup_music(Earth, BeepEarthState);
-        BeepEarthState++;
-        return 0;
-    }
-}
-
-/**
- * @brief 播放New Soul
- * @note  如果播放完成返回1,任务应退出循环并自杀
- */
-uint8_t Beep_Sing_Soul(void) {
-    static uint16_t BeepSoulState = 0;
-    if (BeepSoulState == Startup_Success_music_len_soul) {
-        TIM12->CCR1   = 0;
-        BeepSoulState = 0;
-        return 1;
-    } else {
-        Sing_Startup_music(Soul, BeepSoulState);
-        BeepSoulState++;
-        return 0;
-    }
+    index++;
+    return 0;
 }
 
 void BSP_I2C2_Init(void) {

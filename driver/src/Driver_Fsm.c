@@ -6,7 +6,7 @@ void Fsm_Init(Fsm_t *pFsm, FsmTable_t *pTable) {
 
 void Fsm_Update(Fsm_t *pFsm, int event) {
     FsmTable_t *pActTable = pFsm->pFsmTable;
-    void (*eventActFun)() = NULL; //函数指针初始化为空
+    void (*eventActFun)() = 0; //函数指针初始化为空
     int nextState;
     int currentState = pFsm->curState;
     int tableSize    = pFsm->size;

@@ -1,6 +1,6 @@
 /**
  * @file Driver_BSP.h
- * @brief BSP通用驱动
+ * @brief BSP初始化
  */
 
 #ifndef __DRIVER_BSP_H
@@ -40,8 +40,6 @@ typedef struct {
     uint8_t       CCRx;
     uint8_t       Channel;
 } PWM_Type;
-
-#define BEEP_XP_LENGTH 17
 
 // SERVICE
 void BSP_CAN_Init(void);
@@ -84,9 +82,6 @@ void LED_Run_Horse_XP();
 
 // BEEP
 void    BSP_Beep_Init(void);
-uint8_t Beep_Sing_XP(void);
-uint8_t Beep_Sing_Sky(void);
-uint8_t Beep_Sing_Earth(void);
-uint8_t Beep_Sing_Soul(void);
+uint8_t KTV_Play(Song_Type song);
 
 #endif

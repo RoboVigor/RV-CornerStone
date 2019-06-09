@@ -2,9 +2,10 @@
 #define __BEEP_H
 #include "sys.h"
 
-#define Startup_Success_music_len_earth 280
-#define Startup_Success_music_len_sky 241
-#define Startup_Success_music_len_soul 116
+#define Music_Len_Earth 280
+#define Music_Len_Sky 241
+#define Music_Len_Soul 116
+#define Music_Len_XP 17
 
 #define BEEP_ON (TIM12->CCR1 = 599)
 #define BEEP_OFF (TIM12->CCR1 = 0)
@@ -41,10 +42,9 @@ typedef enum {
     Silent,
 } Sound_Tone_Type;
 
-typedef enum { Sky, Earth, Soul } Song_Type;
+typedef enum { Music_Sky, Music_Earth, Music_Soul, Music_XP } Song_Type;
 
 void Beep_Init(void); //初始化
 
 void Sing(Sound_Tone_Type tone);
-void Sing_Startup_music(Song_Type Song, uint32_t index);
 #endif
