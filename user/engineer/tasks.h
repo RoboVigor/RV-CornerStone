@@ -22,6 +22,7 @@ void Task_Take(void *Parameters);
 void Task_Landing(void *Parameters);
 void Task_Supply(void *Parameters);
 void Task_Rescue(void *Parameters);
+void Task_Test_Input(void);
 
 
 #endif

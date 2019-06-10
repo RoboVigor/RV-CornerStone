@@ -88,7 +88,7 @@ __HANDLE_EXT Protocol_Type Judge, Ps;
 __HANDLE_EXT int DebugA, DebugB, DebugC, DebugD, DebugE, DebugF, DebugG, DebugH, DebugI;
 
 // 取弹状态
-__HANDLE_EXT int takeMode;
+__HANDLE_EXT int takeMode, State;
 
 // 距离传感器获得距离
 __HANDLE_EXT uint16_t Distance1, Distance2;

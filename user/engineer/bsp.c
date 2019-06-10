@@ -70,17 +70,17 @@ void BSP_Take_Init(void) {
 
 void BSP_Pushrod_Init(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
     // Common
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_12;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_11;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOD, &GPIO_InitStructure);
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_13;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_12;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOD, &GPIO_InitStructure);
@@ -161,6 +161,17 @@ void BSP_TIM2CH1_Init(void) {
     NVIC_Init(&NVIC_InitStructure);
 }
 
+void BSP_TEST_INPUT(void) {
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOI, ENABLE);
+    // 激光
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_7;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOI, &GPIO_InitStructure);
+}
+
 void BSP_Init(void) {
     BSP_CAN_Init();
     BSP_DBUS_Init(remoteBuffer);
@@ -178,7 +189,8 @@ void BSP_Init(void) {
     BSP_Landing_Init(); // front: PH11 behind: PI2 power: PH12
     BSP_Rescue_Init();  // PI0
     BSP_Take_Init();    // Take: PA3 Rotate: PA2
-    BSP_Pushrod_Init(); // power: PA1 common: PD12 PD13
+    BSP_Pushrod_Init(); // power: PA1 common: PH12 PH11
+    BSP_TEST_INPUT();   // PI7
 
     // 补给舵机输出 
     BSP_PWM_Set_Port(&PWM_Supply1, PWM_PORT_PD14);
@@ -186,15 +198,13 @@ void BSP_Init(void) {
     BSP_PWM_Set_Port(&PWM_Supply2, PWM_PORT_PD15);
     BSP_PWM_Init(&PWM_Supply2, 9000, 200, TIM_OCPolarity_Low);
 
-    // // 图传舵机输出
-    // BSP_PWM_Set_Port(&PWM_Image_Yaw, PWM_PORT_PB0);
-    // BSP_PWM_Init(&PWM_Image_Yaw, 9000, 200, TIM_OCPolarity_Low);
-    // BSP_PWM_Set_Port(&PWM_Image_Pitch, PWM_PORT_PB1);
-    // BSP_PWM_Init(&PWM_Image_Pitch, 9000, 200, TIM_OCPolarity_Low);
+    // 图传舵机输出
+    BSP_PWM_Set_Port(&PWM_Image_Yaw, PWM_PORT_PD13);
+    BSP_PWM_Init(&PWM_Image_Yaw, 9000, 200, TIM_OCPolarity_Low);
 
-    // // 救援摄像头舵机输出
-    // BSP_PWM_Set_Port(&PWM_Rescue, PWM_PORT_PI6);
-    // BSP_PWM_Init(&PWM_Rescue, 9000, 200, TIM_OCPolarity_Low);
+    // 救援摄像头舵机输出
+    BSP_PWM_Set_Port(&PWM_Rescue, PWM_PORT_PD12);
+    BSP_PWM_Init(&PWM_Rescue, 9000, 200, TIM_OCPolarity_Low);
 
     // 输入捕获
     BSP_TIM5CH1_Init(); // PH10

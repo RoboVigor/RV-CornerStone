@@ -27,7 +27,7 @@ void Handle_Init(void) {
     DBUS_Init(&remoteData);
 
     // 裁判系统初始化
-    Judge_Init(&Judge);
+    Protocol_Init(&Judge);
 
     // 初始化串口调试数据
     Magic_Init(&magic, 0);

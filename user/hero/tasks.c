@@ -54,7 +54,7 @@ void Task_Gimbal(void *Parameters) {
         MIAO(pitchAngleTarget, -20, 50);
 
         // 开机时pitch轴匀速抬起
-        // pitchAngleTarget = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
+        pitchAngleTarget = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
         if (pitchRampProgress < 1) {
             pitchRampProgress += 0.005f;
         }

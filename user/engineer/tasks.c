@@ -88,6 +88,7 @@ void Task_Chassis(void *Parameters) {
         // 输出电流值到电调(安全起见默认注释此行)
         Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
+
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -252,6 +253,8 @@ void Task_Distance_Sensor(void *Parameter) {
     // 通过PWM波读取距离信息
     uint16_t   temp1 = 0;
     uint16_t   temp2 = 0;
+    uint16_t   last_distance = 0;
+    int        i = 0;
     Distance1       = 0;
     Distance2       = 0;
 
@@ -265,10 +268,28 @@ void Task_Distance_Sensor(void *Parameter) {
 
             temp2 = TIM5CH1_CAPTURE_VAL; //得到总的高电平时间
 
-            if (temp2 < 40000 && temp2 > 500) {
+            if (Distance2 == 0) {     // 第一次
                 Distance2 = temp2 / 100; // cm us
             }
 
+            if (ABS((temp2/100)-Distance2) > 30) {
+                i++;
+            } else {
+                Distance2 = temp2 / 100; // cm us
+                i = 1;
+            }
+
+        vTaskDelayUntil(&LastWakeTime, 10);
+    }
+
+    vTaskDelete(NULL);
+}
+
+void Task_Test_Input(void) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+
+    while(1) {
+        State = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_7);1
         vTaskDelayUntil(&LastWakeTime, 10);
     }
 
@@ -343,6 +364,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Landing, "Task_Landing", 400, NULL, 3, NULL);
     xTaskCreate(Task_Supply, "Task_Supply", 400, NULL, 3, NULL);
     xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Test_Input, "Task_Test_Input", 400, NULL, 3, NULL);
     
     /* End */
 

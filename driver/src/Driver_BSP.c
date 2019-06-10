@@ -555,7 +555,11 @@ void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t 
     GPIO_Init(PWMx->GPIOx, &GPIO_InitStructure);                              // 初始化
 
     // TIM
-    RCC_APB1PeriphClockCmd(PWMx->RCC_APBxPeriph_TIMx, ENABLE);        // 时钟使能
+    if (PWMx->RCC_APBxPeriph_TIMx == RCC_APB2Periph_TIM8) {
+        RCC_APB2PeriphClockCmd(PWMx->RCC_APBxPeriph_TIMx, ENABLE);
+    } else {
+        RCC_APB1PeriphClockCmd(PWMx->RCC_APBxPeriph_TIMx, ENABLE);        // 时钟使能
+    }
     TIM_TimeBaseInitStructure.TIM_Prescaler     = prescaler - 1;      // 定时器分频
     TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up; // 向上计数模式
     TIM_TimeBaseInitStructure.TIM_Period        = period - 1;         // 自动重装载值
@@ -582,6 +586,10 @@ void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t 
     }
     TIM_ARRPreloadConfig(PWMx->TIMx, ENABLE); // ARPE使能
     TIM_Cmd(PWMx->TIMx, ENABLE);              // 使能TIM
+
+    if (PWMx->TIMx == TIM8) {
+        TIM_CtrlPWMOutputs(TIM8, ENABLE); 
+    }
 }
 
 /**
