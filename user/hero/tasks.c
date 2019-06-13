@@ -105,13 +105,32 @@ void Task_Gimbal(void *Parameters) {
 }
 
 float Chassis_Power_Control() {
-    float power = Judge.powerHeatData.chassis_power;
-    float scale;
+    static float    lastPower = 0;
+    static float    scale;
+    static uint32_t counter;
+    static float    power;
+
+    // 更新功率
+    power = Judge.powerHeatData.chassis_power;
+
+    // 功率拟合
+    if (power != lastPower) {
+        counter   = 0;
+        lastPower = power;
+    } else {
+        counter++;
+        if (counter % 5 == 0) {
+            power = (scale * power) + (power - (scale * power)) * power(2.71828, -1 * counter * 5.0 / 35.0);
+        }
+    }
+
+    // PID
     PID_Power.p = CHOOSE(0, 0.3, 0.5);
     PID_Power.i = 0;
     PID_Calculate(&PID_Power, 50, power); // 临时将功率上限设置30方便调试
     scale = (power + PID_Power.output) / power;
-    return WANG(scale, 0, 1);
+    MIAO(scale, 0, 1);
+    return scale;
 }
 
 void Task_Chassis(void *Parameters) {
