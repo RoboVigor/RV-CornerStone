@@ -44,7 +44,7 @@ void Task_Gimbal(void *Parameters) {
     PID_Init(&PID_Cloud_YawAngle, 20, 0, 0, 16000, 0);
     PID_Init(&PID_Cloud_YawSpeed, 60, 0, 0, 4000, 0);
     PID_Init(&PID_Cloud_PitchAngle, 20, 0, 0, 16000, 0);
-    PID_Init(&PID_Cloud_PitchSpeed, 40, 0, 0, 2000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 40, 0, 0, 4000, 0);
 
     while (1) {
         // 设置反馈
@@ -92,11 +92,11 @@ void Task_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = Ps.seq;
-        DebugData.debug2 = Ps.gimbalAimData.yaw_angle_diff;
-        DebugData.debug3 = pitchAngleTargetRamp;
-        DebugData.debug4 = psYawAngleTarget;
-        DebugData.debug5 = yawAngleTarget;
+        // DebugData.debug1 = Ps.seq;
+        // DebugData.debug2 = Ps.gimbalAimData.yaw_angle_diff;
+        // DebugData.debug3 = pitchAngleTargetRamp;
+        // DebugData.debug4 = psYawAngleTarget;
+        // DebugData.debug5 = yawAngleTarget;
         // DebugData.debug6 = ImuData.gx;
         // DebugData.debug7 = ImuData.gy;
         // DebugData.debug8 = ImuData.gz;
@@ -107,8 +107,9 @@ void Task_Gimbal(void *Parameters) {
 float Chassis_Power_Control() {
     float power = Judge.powerHeatData.chassis_power;
     float scale;
-    PID_Power.p = CHOOSE(0.1, 0.5, 3);
-    PID_Calculate(&PID_Power, 40, power); // 临时将功率上限设置30方便调试
+    PID_Power.p = CHOOSE(0, 0.3, 0.5);
+    PID_Power.i = 0;
+    PID_Calculate(&PID_Power, 50, power); // 临时将功率上限设置30方便调试
     scale = (power + PID_Power.output) / power;
     return WANG(scale, 0, 1);
 }
@@ -146,13 +147,13 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_Follow_Speed, 7, 0, 0, 1000, 0);
 
     // 麦轮速度PID
-    PID_Init(&PID_LFCM, 28, 0, 0, 8000, 1750);
-    PID_Init(&PID_LBCM, 28, 0, 0, 8000, 1750);
-    PID_Init(&PID_RBCM, 28, 0, 0, 8000, 1750);
-    PID_Init(&PID_RFCM, 28, 0, 0, 8000, 1750);
+    PID_Init(&PID_LFCM, 28, 0, 0, 15000, 7500);
+    PID_Init(&PID_LBCM, 28, 0, 0, 15000, 7500);
+    PID_Init(&PID_RBCM, 28, 0, 0, 15000, 7500);
+    PID_Init(&PID_RFCM, 28, 0, 0, 15000, 7500);
 
     //功率PID
-    PID_Init(&PID_Power, 1, 0, 0, 1000, 500); // d = 3
+    PID_Init(&PID_Power, 0.1, 0, 0, 1000, 500); // d = 3
 
     while (1) {
 
@@ -183,8 +184,8 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeedStable); // 计算航向角角速度PID
 
         // 设置底盘总体移动速度
-        vx = -remoteData.lx / 660.0f;
-        vy = remoteData.ly / 660.0f * 3;
+        vx = -remoteData.lx / 660.0f * 4;
+        vy = remoteData.ly / 660.0f * 12;
         vw = ABS(PID_Follow_Angle.error) < 3 ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
         Chassis_Update(&ChassisData, vx, vy, vw);
 
@@ -205,21 +206,22 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = Ps.gimbalAimData.yaw_angle_diff * 1000;
-        // DebugData.debug2 = powerScale * 1000;
-        // DebugData.debug3 = Judge.powerHeatData.chassis_power * 1000;
+        DebugData.debug1 = Judge.powerHeatData.chassis_power;
+        DebugData.debug2 = powerScale * 1000;
+        DebugData.debug3 = PID_Power.output;
         // printf("%d\n\r", powerScale);
         // DebugData.debug3 = vw;
-        // DebugData.debug4 = Motor_Yaw.angle;
+        DebugData.debug4 = Motor_LF.speed * RPM2RPS;
         // DebugData.debug5 = Motor_Yaw.position;
-        // DebugData.debug6 = PID_Follow_Speed.output;
-        // DebugData.debug8 = PID_Follow_Speed.output;
+        DebugData.debug6 = PID_LFCM.output;
+        DebugData.debug7 = rotorSpeed[3];
+        // DebugData.debug8 = rotorSpeed[3];
     }
 
     vTaskDelete(NULL);
@@ -375,7 +377,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
