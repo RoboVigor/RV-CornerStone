@@ -109,19 +109,16 @@ float Chassis_Power_Control() {
     static float    scale;
     static uint32_t counter;
     static float    power;
-
-    // 更新功率
-    power = Judge.powerHeatData.chassis_power;
-
     // 功率拟合
-    if (power != lastPower) {
+    if (Judge.powerHeatData.chassis_power != lastPower) {
+        power     = Judge.powerHeatData.chassis_power;
         counter   = 0;
         lastPower = power;
     } else {
         counter++;
-        // if (counter % 1 == 0) {
-        power = (scale * power) + (power - (scale * power)) * pow(2.71828, -1 * counter * 5.0 / 35.0);
-        // }
+        if (counter % 4 == 0) {
+            power = (scale * power) + (power - (scale * power)) * pow(2.71828, -1 * counter * 5.0 / 35.0);
+        }
     }
 
     // PID
@@ -130,9 +127,9 @@ float Chassis_Power_Control() {
     PID_Calculate(&PID_Power, 50, power); // 临时将功率上限设置30方便调试
     scale = (power + PID_Power.output) / power;
     MIAO(scale, 0, 1);
-    return scale;
     DebugData.debug7 = Judge.powerHeatData.chassis_power * 1000;
     DebugData.debug8 = power * 1000;
+    return scale;
 }
 
 void Task_Chassis(void *Parameters) {
