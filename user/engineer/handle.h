@@ -18,6 +18,7 @@
 #include "mpu6500_driver.h"
 #include "Driver_Gyroscope.h"
 #include "Driver_Protocol.h"
+#include "Driver_Fsm.h"
 
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT
@@ -88,7 +89,7 @@ __HANDLE_EXT Protocol_Type Judge, Ps;
 __HANDLE_EXT int DebugA, DebugB, DebugC, DebugD, DebugE, DebugF, DebugG, DebugH, DebugI;
 
 // 取弹状态
-__HANDLE_EXT int takeMode, State;
+__HANDLE_EXT int takeMode, State, State1, State2, State3, State4;
 
 // 距离传感器获得距离
 __HANDLE_EXT uint16_t Distance1, Distance2;

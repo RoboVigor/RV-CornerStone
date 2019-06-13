@@ -261,7 +261,11 @@ void Task_Distance_Sensor(void *Parameter) {
     while (1) {
             temp1 = TIM2CH1_CAPTURE_VAL; //得到总的高电平时间
 
-            if (temp1 < 40000 && temp1 > 500) {
+            if (Distance1 == 0) {     // 第一次
+                Distance1 = temp1 / 100; // cm us
+            }
+
+            if (ABS((temp1/100)-Distance1) <= 20) {
                 Distance1 = temp1 / 100; // cm us
             }
 
@@ -272,11 +276,8 @@ void Task_Distance_Sensor(void *Parameter) {
                 Distance2 = temp2 / 100; // cm us
             }
 
-            if (ABS((temp2/100)-Distance2) > 30) {
-                i++;
-            } else {
+            if (ABS((temp2/100)-Distance2) <= 20) {
                 Distance2 = temp2 / 100; // cm us
-                i = 1;
             }
 
         vTaskDelayUntil(&LastWakeTime, 10);
@@ -285,11 +286,50 @@ void Task_Distance_Sensor(void *Parameter) {
     vTaskDelete(NULL);
 }
 
-void Task_Test_Input(void) {
+void Task_Optoelectronic_Input(void *Parameter) {
     TickType_t LastWakeTime = xTaskGetTickCount();
+    int last_state1 = 0;
+    int last_state2 = 0;
+    int last_state3 = 0;
+    int last_state4 = 0;
+    int state1 = 0;
+    int state2 = 0;
+    int state3 = 0;
+    int state4 = 0;
 
     while(1) {
-        State = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_7);1
+        state1 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_7);
+        if (last_state1 != state1) {
+            vTaskDelay(10);
+            if (state1 == GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_7)) {
+                State1 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_7);
+                last_state1 = state1; 
+            }
+        }
+        state2 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_6);
+        if (last_state2 != state2) {
+            vTaskDelay(10);
+            if (state2 == GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_6)) {
+                State2 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_6);
+                last_state2 = state2; 
+            }
+        }
+        state3 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_5);
+        if (last_state3 != state3) {
+            vTaskDelay(10);
+            if (state3 == GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_5)) {
+                State3 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_5);
+                last_state3 = state3; 
+            }
+        }
+        state4 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_2);
+        if (last_state4 != state4) {
+            vTaskDelay(10);
+            if (state4 == GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_2)) {
+                State4 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_2);
+                last_state4 = state4; 
+            }
+        }
         vTaskDelayUntil(&LastWakeTime, 10);
     }
 
@@ -364,7 +404,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Landing, "Task_Landing", 400, NULL, 3, NULL);
     xTaskCreate(Task_Supply, "Task_Supply", 400, NULL, 3, NULL);
     xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Test_Input, "Task_Test_Input", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Optoelectronic_Input, "Task_Optoelectronic_Input", 400, NULL, 3, NULL);
     
     /* End */
 

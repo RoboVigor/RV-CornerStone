@@ -584,6 +584,11 @@
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Protocol.c</FilePath>
             </File>
+            <File>
+              <FileName>Driver_Fsm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Fsm.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

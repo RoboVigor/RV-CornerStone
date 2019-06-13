@@ -197,7 +197,7 @@ void CAN2_RX0_IRQHandler(void) {
 u8  TIM2CH1_CAPTURE_STA = 0; //输入捕获状态
 
 void TIM2_IRQHandler(void) {
-    if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) {
+    if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET) {
         if (TIM2CH1_CAPTURE_STA == 1) {
                 TIM2CH1_CAPTURE_STA = 0;
                 //获取当前的捕获值
