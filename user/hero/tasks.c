@@ -119,9 +119,9 @@ float Chassis_Power_Control() {
         lastPower = power;
     } else {
         counter++;
-        if (counter % 5 == 0) {
-            power = (scale * power) + (power - (scale * power)) * power(2.71828, -1 * counter * 5.0 / 35.0);
-        }
+        // if (counter % 1 == 0) {
+        power = (scale * power) + (power - (scale * power)) * pow(2.71828, -1 * counter * 5.0 / 35.0);
+        // }
     }
 
     // PID
@@ -131,6 +131,8 @@ float Chassis_Power_Control() {
     scale = (power + PID_Power.output) / power;
     MIAO(scale, 0, 1);
     return scale;
+    DebugData.debug7 = Judge.powerHeatData.chassis_power * 1000;
+    DebugData.debug8 = power * 1000;
 }
 
 void Task_Chassis(void *Parameters) {
@@ -239,7 +241,7 @@ void Task_Chassis(void *Parameters) {
         DebugData.debug4 = Motor_LF.speed * RPM2RPS;
         // DebugData.debug5 = Motor_Yaw.position;
         DebugData.debug6 = PID_LFCM.output;
-        DebugData.debug7 = rotorSpeed[3];
+        // DebugData.debug7 = rotorSpeed[3];
         // DebugData.debug8 = rotorSpeed[3];
     }
 
