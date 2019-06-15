@@ -7,6 +7,7 @@
 #include "beep.h"
 #include "key.h"
 #include "rtos.h"
+#include "vegmath.h"
 #include "Driver_BSP.h"
 #include "Driver_Filter.h"
 #include "Driver_Magic.h"
@@ -18,6 +19,7 @@
 #include "mpu6500_driver.h"
 #include "Driver_Gyroscope.h"
 #include "Driver_Protocol.h"
+#include "Driver_Fsm.h"
 
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT

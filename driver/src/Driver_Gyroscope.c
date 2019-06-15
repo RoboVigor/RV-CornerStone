@@ -43,21 +43,21 @@ int Gyroscope_Update(GyroscopeData_Type *GyroscopeData) {
     ImuData.temp = (((int16_t) mpu_buf[6]) << 8) | mpu_buf[7];
 #if BOARD_FRONT_IS_UP
     ImuData.az = (((int16_t) mpu_buf[4]) << 8) | mpu_buf[5];
-    ImuData.gz = ((((int16_t) mpu_buf[12]) << 8) | mpu_buf[13]) - IMU_GZ_BIAS;
+    ImuData.gz = ((((int16_t) mpu_buf[12]) << 8) | mpu_buf[13]) - (IMU_GZ_BIAS);
 #else
     ImuData.az = -1 * (((int16_t) mpu_buf[4]) << 8) | mpu_buf[5];
-    ImuData.gz = -1 * ((((int16_t) mpu_buf[12]) << 8) | mpu_buf[13]) - IMU_GZ_BIAS;
+    ImuData.gz = -1 * ((((int16_t) mpu_buf[12]) << 8) | mpu_buf[13]) - (IMU_GZ_BIAS);
 #endif
 #if BOARD_SHORT_SIDE_IS_PARALLEL_TO_PITCH
     ImuData.ax = (((int16_t) mpu_buf[0]) << 8) | mpu_buf[1];
     ImuData.ay = (((int16_t) mpu_buf[2]) << 8) | mpu_buf[3];
-    ImuData.gx = ((((int16_t) mpu_buf[8]) << 8) | mpu_buf[9]) - IMU_GX_BIAS;
-    ImuData.gy = ((((int16_t) mpu_buf[10]) << 8) | mpu_buf[11]) - IMU_GY_BIAS;
+    ImuData.gx = ((((int16_t) mpu_buf[8]) << 8) | mpu_buf[9]) - (IMU_GX_BIAS);
+    ImuData.gy = ((((int16_t) mpu_buf[10]) << 8) | mpu_buf[11]) - (IMU_GY_BIAS);
 #else
     ImuData.ay = (((int16_t) mpu_buf[0]) << 8) | mpu_buf[1];
     ImuData.ax = (((int16_t) mpu_buf[2]) << 8) | mpu_buf[3];
-    ImuData.gy = ((((int16_t) mpu_buf[8]) << 8) | mpu_buf[9]) - IMU_GY_BIAS;
-    ImuData.gx = ((((int16_t) mpu_buf[10]) << 8) | mpu_buf[11]) - IMU_GX_BIAS;
+    ImuData.gy = ((((int16_t) mpu_buf[8]) << 8) | mpu_buf[9]) - (IMU_GY_BIAS);
+    ImuData.gx = ((((int16_t) mpu_buf[10]) << 8) | mpu_buf[11]) - (IMU_GX_BIAS);
 #endif
 
     // 读取完成进行解算
@@ -97,7 +97,6 @@ void Gyroscope_Solve(GyroscopeData_Type *GyroscopeData) {
     GyroscopeData->yaw = Filter_Apply_Limit_Breadth(&Filter_Yaw) + GyroscopeData->yawoffset;
 
     // 输出欧拉角
-    // todo:验证有效性
     if (GyroscopeData->startupCounter == GYROSCOPE_START_UP_DELAY - 1) {
         GyroscopeData->yawoffset = -GyroscopeData->yaw;
     }

@@ -5,6 +5,7 @@
 // 调试
 #define DEBUG_ENABLED 0          // 调试开关
 #define SERIAL_DEBUG_PORT USART6 // 串口调试端口
+#undef SERIAL_DEBUG_PORT         // 使用ITM调试
 
 // 陀螺仪
 #define BOARD_FRONT_IS_UP 1                     // 板子正面朝上

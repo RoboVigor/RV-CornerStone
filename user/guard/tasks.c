@@ -15,105 +15,118 @@ void Task_Safe_Mode(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-int debug1 = 0;
-int debug2 = 0;
-int debug3 = 0;
-int debug4 = 0;
-int debug5 = 0;
-int debug6 = 0;
-int debug7 = 0;
-int debug8 = 0;
-
 void Task_Chassis(void *Parameters) {
-    TickType_t LastWakeTime   = xTaskGetTickCount(); // 时钟
-    float      rpm2rps        = 0.104667f;           // 转子的转速(round/min)换算成角速度(rad/s) = 2 * 3.14 / 60
-    float      yawAngleTarget = 0, pitchAngleTarget = 0;
-    float      p                      = 0;
-    uint32_t   pid                    = 0;
-    float      pitchAngleRampProgress = -0.5;
+    // 任务
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.005;               // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     // 初始化角速度PID
     PID_Init(&PID_Chassis_Left, 1, 0, 0, 4000, 2000);
     PID_Init(&PID_Chassis_Right, 1, 0, 0, 4000, 2000);
 
+    while (1) {
+
+        // 计算输出电流PID
+        PID_Calculate(&PID_Chassis_Left, (float) remoteData.lx, Motor_Chassis_Left.speed * RPM2RPS);
+        PID_Calculate(&PID_Chassis_Right, (float) remoteData.lx, Motor_Chassis_Right.speed * RPM2RPS);
+
+        // 输出电流值到电调
+        Can_Send(CAN1, 0x200, PID_Chassis_Left.output, PID_Chassis_Right.output, 0, 0);
+
+        // 底盘运动更新频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+
+        // debug
+        DebugData.debug1 = remoteData.lx;
+        DebugData.debug2 = PID_Chassis_Left.output * 1000;
+        // DebugData.debug3 = ;
+        // DebugData.debug4 = ;
+    }
+
+    vTaskDelete(NULL);
+}
+void Task_Gimbal(void *Parameters) {
+
+    // 任务
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.005;               // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    // 反馈值
+    float yawAngle, yawSpeed, pitchAngle, pitchSpeed;
+
+    // 目标值
+    float yawAngleTarget   = 0;
+    float pitchAngleTarget = 0;
+
+    // Pitch轴斜坡参数
+    float pitchRampProgress    = 0;
+    float pitchRampStart       = -1 * Gyroscope_EulerData.pitch;
+    float pitchAngleTargetRamp = 0;
+
+    // 视觉系统
+    int   lastSeq            = 0;
+    float psYawAngleTarget   = 0;
+    float psPitchAngleTarget = 0;
+
+    // 初始化云台PID
     PID_Init(&PID_Stabilizer_Yaw_Angle, 16, 0, 0, 4000, 800); // i 0.06
     PID_Init(&PID_Stabilizer_Yaw_Speed, 14, 0, 0, 800, 2000);
-
     PID_Init(&PID_Stabilizer_Pitch_Angle, 20, 0.08, 0, 4000, 800);
     PID_Init(&PID_Stabilizer_Pitch_Speed, 8, 0, 0, 3000, 2000);
 
     while (1) {
+        // 设置反馈
+        yawAngle   = -1 * Gyroscope_EulerData.yaw;    // 逆时针为正
+        yawSpeed   = -1 * ImuData.gz / GYROSCOPE_LSB; // 逆时针为正
+        pitchAngle = -1 * Gyroscope_EulerData.pitch;  // 逆时针为正
+        pitchSpeed = ImuData.gx / GYROSCOPE_LSB;      // 逆时针为正
 
-        // PS#1
-        if (PsData.id != pid) {
-            pid = PsData.id;
-            yawAngleTarget -= (PsData.result[0] >> 3) - 15;
-            pitchAngleTarget -= ((PsData.result[0] & 7) - 3) * CHOOSE(1.5, 2, 2.5);
-            MIAO(pitchAngleTarget, -35, 60);
-            printf("%d", pitchAngleTarget);
-        }
-
-        // PS#2
-        // if (PsData.pid != pid) {
-        //   pid = PsData.pid;
-        //   yawAngleTarget -= PsData.result[0] - 128;
+        // 视觉系统
+        // if (lastSeq != Ps.seq) {
+        //     lastSeq          = Ps.seq;
+        //     psYawAngleTarget = Ps.gimbalAimData.yaw_angle_diff;
+        //     psPitchAngleTarget += Ps.gimbalAimData.pitch_angle_diff;
+        //     MIAO(psYawAngleTarget, -5, 5);
+        //     MIAO(psPitchAngleTarget, -5, 5);
+        // } else {
+        //     psYawAngleTarget   = 0;
+        //     psPitchAngleTarget = 0;
         // }
 
-        // 调试
-        // PID_Stabilizer_Pitch_Speed.p = CHOOSE(4, 6, 8);
+        // 设置角度目标
+        if (ABS(remoteData.rx) > 20) yawAngleTarget -= -1 * remoteData.rx / 660.0f * 180 * interval;
+        if (ABS(remoteData.ry) > 20) pitchAngleTarget -= -1 * remoteData.ry / 660.0f * 150 * interval;
+        yawAngleTarget += psYawAngleTarget;
+        pitchAngleTarget += psPitchAngleTarget;
+        MIAO(yawAngleTarget, -50, 50); //+-20
+        MIAO(pitchAngleTarget, -20, 50);
 
-        // 遥控器
-        if (ABS(remoteData.rx) > 10) {
-            yawAngleTarget = (float) -1 * remoteData.rx / 16.5;
+        // 开机时pitch轴匀速抬起
+        pitchAngleTargetRamp = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
+        if (pitchRampProgress < 1) {
+            pitchRampProgress += 0.005f;
         }
 
-        if (ABS(remoteData.ry) > 10) {
-            pitchAngleTarget = (float) -1 * ABS(remoteData.ry) / 7.33;
-        }
+        // 计算PID
+        PID_Calculate(&PID_Stabilizer_Yaw_Angle, yawAngleTarget, yawAngle);
+        PID_Calculate(&PID_Stabilizer_Yaw_Speed, PID_Stabilizer_Yaw_Angle.output, yawSpeed);
 
-        if (pitchAngleRampProgress < 1) {
-            pitchAngleRampProgress += 0.01f;
-        }
+        PID_Calculate(&PID_Stabilizer_Pitch_Angle, pitchAngleTargetRamp, pitchAngle);
+        PID_Calculate(&PID_Stabilizer_Pitch_Speed, PID_Stabilizer_Pitch_Angle.output, pitchSpeed);
 
-        // 计算输出电流PID:底盘PID
-        PID_Calculate(&PID_Chassis_Left, (float) remoteData.lx, Motor_Chassis_Left.speed * rpm2rps);
-        PID_Calculate(&PID_Chassis_Right, (float) remoteData.lx, Motor_Chassis_Right.speed * rpm2rps);
+        // 输出电流
+        Can_Send(CAN1, 0x200, 0, 0, PID_Stabilizer_Yaw_Speed.output, -1 * PID_Stabilizer_Pitch_Speed.output);
 
-        // 计算输出电流PID:Yaw轴PID
-        PID_Calculate(&PID_Stabilizer_Yaw_Angle, yawAngleTarget, Motor_Stabilizer_Yaw.angle);
-        PID_Calculate(&PID_Stabilizer_Yaw_Speed, PID_Stabilizer_Yaw_Angle.output, Motor_Stabilizer_Yaw.speed * rpm2rps);
+        vTaskDelayUntil(&LastWakeTime, intervalms);
 
-        // 计算输出电流PID:Pitch轴PID
-        PID_Calculate(&PID_Stabilizer_Pitch_Angle, pitchAngleTarget - RAMP(0.0f, 90.0f, pitchAngleRampProgress), Motor_Stabilizer_Pitch.angle);
-        PID_Calculate(&PID_Stabilizer_Pitch_Speed, PID_Stabilizer_Pitch_Angle.output, Motor_Stabilizer_Pitch.speed * rpm2rps);
-
-        // // Yaw轴起转电流
-        // if (PID_Stabilizer_Yaw_Angle.error < -0.5 && ABS(Motor_Stabilizer_Yaw.speed) < 5) {
-        //     PID_Stabilizer_Yaw_Speed.output = -800;
-        // } else if (PID_Stabilizer_Yaw_Angle.error > 0.5 && ABS(Motor_Stabilizer_Yaw.speed) < 5) {
-        //     PID_Stabilizer_Yaw_Speed.output = 800;
-        // }
-        // // Pitch轴起转电流
-        // if (PID_Stabilizer_Pitch_Angle.error < -1 && ABS(Motor_Stabilizer_Pitch.speed) < 5) {
-        //     PID_Stabilizer_Pitch_Speed.output = -2100;
-        // } else if (PID_Stabilizer_Pitch_Angle.error > 1 && ABS(Motor_Stabilizer_Pitch.speed) < 5) {
-        //     PID_Stabilizer_Pitch_Speed.output = 0;
-        // }
-
-        // 输出电流值到电调
-        // Can_Send(CAN1, 0x200, PID_Chassis_Left.output, PID_Chassis_Right.output, PID_Stabilizer_Yaw_Speed.output, PID_Stabilizer_Pitch_Speed.output);
-        Can_Send(CAN1, 0x200, 0, 0, PID_Stabilizer_Yaw_Speed.output, PID_Stabilizer_Pitch_Speed.output);
-
-        // debug
-        debug1 = yawAngleTarget;
-        debug2 = pitchAngleTarget;
-        debug3 = RAMP(0.0f, 80.0f, pitchAngleRampProgress);
-        debug4 = pitchAngleRampProgress * 1000;
-
-        // 底盘运动更新频率
-        vTaskDelayUntil(&LastWakeTime, 10);
+        // 调试信息
+        // DebugData.debug1 = ;
+        // DebugData.debug2 = ;
+        // DebugData.debug3 = ;
+        // DebugData.debug4 = ;
     }
-
     vTaskDelete(NULL);
 }
 
@@ -129,28 +142,36 @@ void Task_Debug_Magic_Send(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_Blink(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    while (1) {
+        LED_Run_Horse_XP(); // XP开机动画,建议延时200ms
+        // LED_Run_Horse(); // 跑马灯,建议延时20ms
+        vTaskDelayUntil(&LastWakeTime, 200);
+    }
+
+    vTaskDelete(NULL);
+}
+
+void Task_Startup_Music(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    while (1) {
+        if (KTV_Play(Music_Soul)) break;
+        vTaskDelayUntil(&LastWakeTime, 60);
+    }
+    vTaskDelete(NULL);
+}
+
 void Task_Sys_Init(void *Parameters) {
 
     // 初始化全局变量
     Handle_Init();
 
-    // BSP们
-    BSP_GPIO_Init();
-    BSP_CAN_Init();
-    BSP_UART_Init();
-    BSP_DMA_Init();
-    BSP_TIM_Init();
-    BSP_NVIC_Init();
-    BSP_USER_Init();
+    // 初始化硬件
+    BSP_Init();
 
     // 初始化陀螺仪
-    MPU6500_Initialize();
-    MPU6500_EnableInt();
-
-    // 遥控器数据初始化
-    DBUS_Init(&remoteData);
-
-    //陀螺仪计数器开启确认
+    Gyroscope_Init(&Gyroscope_EulerData);
 
     // 调试任务
 #if DEBUG_ENABLED
@@ -167,18 +188,10 @@ void Task_Sys_Init(void *Parameters) {
     // 功能任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 完成使命
-    vTaskDelete(NULL);
-}
-
-void Task_Blink(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount();
-    while (1) {
-        GREEN_LIGHT_TOGGLE;
-        vTaskDelayUntil(&LastWakeTime, 250);
-    }
-
     vTaskDelete(NULL);
 }

@@ -3,6 +3,7 @@
 void Protocol_Init(Protocol_Type *Protocol) {
     Protocol->index = 0;
     Protocol->step  = STEP_HEADER_SOF;
+    Protocol->seq   = 0;
 }
 
 void Protocol_Update(Protocol_Type *Protocol) {
@@ -80,6 +81,12 @@ void Protocol_Load(Protocol_Type *Protocol) {
     int      i;
     uint8_t *begin_p;
 
+    // seq
+    if (Protocol->packet[3] != 0x00) {
+        Protocol->lost += Protocol->packet[3] - Protocol->seq - 1;
+    }
+    Protocol->seq = Protocol->packet[3];
+
     // id
     Protocol->id = (Protocol->packet[PROTOCOL_HEADER_SIZE + 1] << 8) + Protocol->packet[PROTOCOL_HEADER_SIZE];
 
@@ -99,6 +106,7 @@ void Protocol_Load(Protocol_Type *Protocol) {
 
     default: { return; } break;
     }
+
     // load
     for (i = 0; i < Protocol->dataLength; i++) {
         *(begin_p + i) = Protocol->packet[PROTOCOL_HEADER_CMDID_LEN + i];

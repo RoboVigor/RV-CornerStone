@@ -19,11 +19,11 @@ void BSP_Init(void) {
     // BSP_USART2_Init(9600, USART_IT_RXNE);
 
     // Judge (USART6)
-    BSP_USART6_Init(115200, 0);
+    BSP_USART6_Init(115200, USART_IT_IDLE);
     BSP_DMA_USART6_RX_Init(Judge.buf, Protocol_Buffer_Length);
 
     // Ps (USART3)
-    BSP_USART3_Init(115200, 0);
+    BSP_USART3_Init(115200, USART_IT_IDLE);
     BSP_DMA_USART3_RX_Init(Ps.buf, Protocol_Buffer_Length);
 
     // Servo

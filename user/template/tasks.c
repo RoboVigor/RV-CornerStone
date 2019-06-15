@@ -1,6 +1,6 @@
 /**
  * @brief 甩锅小车
- * @version 0.8.0
+ * @version 1.2.0
  */
 #include "main.h"
 
@@ -92,19 +92,6 @@ void Task_Debug_Magic_Send(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_Beep(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount();
-    uint32_t   index        = 0;
-    while (1) {
-        BEEP_ON;
-        Sing_Startup_music(index % Startup_Success_music_len_XP);
-        index++;
-        vTaskDelayUntil(&LastWakeTime, 250);
-    }
-
-    vTaskDelete(NULL);
-}
-
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
@@ -119,11 +106,9 @@ void Task_Blink(void *Parameters) {
 void Task_Startup_Music(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        if (Beep_Sing_XP()) break; // XP开机音乐
-        // if (Beep_Sing_Sky()) break;  // 天空之城
-        vTaskDelayUntil(&LastWakeTime, 150);
+        if (KTV_Play(Music_Soul)) break;
+        vTaskDelayUntil(&LastWakeTime, 60);
     }
-
     vTaskDelete(NULL);
 }
 
@@ -150,7 +135,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Beep, "Task_Startup_Music", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
