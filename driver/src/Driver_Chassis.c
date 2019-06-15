@@ -31,11 +31,11 @@ void Chassis_Update(ChassisData_Type *cd, float vx, float vy, float vw) {
     cd->rotorSpeed[3] = -coefficient * (vy + vx + vw * CHASSIS_SIZE_K);
 }
 
-void Chassis_Fix(ChassisData_Type *ChassisData, float angle) {
-    float sinYaw = vegsin(-motorAngle);
-    float cosYaw = vegcos(-motorAngle);
-    cd->vy       = cd->vy * cosYaw + cd->vx * sinYaw;
-    cd->vx       = -cd->vy * sinYaw + cd->vx * cosYaw;
+void Chassis_Fix(ChassisData_Type *cd, float angle) {
+    float sinYaw = vegsin(angle);
+    float cosYaw = vegcos(angle);
+    cd->vy       = cd->vy * cosYaw - cd->vx * sinYaw;
+    cd->vx       = cd->vy * sinYaw + cd->vx * cosYaw;
 }
 
 void Chassis_Limit_Rotor_Speed(ChassisData_Type *cd, float maxRotorSpeed) {
@@ -58,10 +58,6 @@ void Chassis_Limit_Rotor_Speed(ChassisData_Type *cd, float maxRotorSpeed) {
         Chassis_Scale_Rotor_Speed(cd, scale);
     }
 }
-float sinYaw = vegsin(-motorAngle);
-float cosYaw = vegcos(-motorAngle);
-vy           = vy * cosYaw + vx * sinYaw;
-vx           = -vy * sinYaw + vx * cosYaw;
 
 void Chassis_Scale_Rotor_Speed(ChassisData_Type *cd, float scale) {
     cd->rotorSpeed[0] = cd->rotorSpeed[0] * scale;

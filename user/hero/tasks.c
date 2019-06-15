@@ -180,7 +180,7 @@ void Task_Chassis(void *Parameters) {
 
         // 麦轮解算及限速
         Chassis_Update(&ChassisData, vx, vy, vw);                                           // 麦轮解算
-        Chassis_Fix(motorAngle);                                                            // 修正旋转后底盘的前进方向
+        Chassis_Fix(&ChassisData, motorAngle);                                                            // 修正旋转后底盘的前进方向
         Chassis_Limit_Rotor_Speed(&ChassisData, 900);                                       // 设置转子速度上限 (rad/s)
         Chassis_Limit_Power(&ChassisData, 50, Judge.powerHeatData.chassis_power, interval); // 根据功率限幅
 
