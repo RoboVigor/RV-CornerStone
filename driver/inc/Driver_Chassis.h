@@ -1,8 +1,6 @@
 /**
  * @file Driver_Chassis.h
  * @brief 底盘运动驱动
- * @version 0.5
- * - Can_Send() 新增了电调标识符id参数,所有CAN发送只需要这一个函数就能够完成
  */
 
 #ifndef __DRIVER_CHASSIS_H
@@ -35,19 +33,20 @@ typedef struct {
 void Chassis_Init(ChassisData_Type *ChassisData);
 
 /**
- * @brief 配置底盘整体运动速度
+ * @brief 麦轮解算, 更新转子转速
  * @param XSpeed 左右 m/s
  * @param YSpeed 前后 m/s
  * @param WSpeed 旋转 rad/s 逆时针为正
+ * @note 电机位置：左上角0,逆时针依次增加
+ * @note 转子的角速度(rad/s) = 电机减速比 * 轮子角速度
  */
 void Chassis_Update(ChassisData_Type *ChassisData, float XSpeed, float YSpeed, float WSpeed);
 
 /**
- * @brief 麦克纳姆轮解算, 更新转子转速
- * @note 电机位置：左上角0,逆时针依次增加
- * @note 转子的角速度(rad/s) = 电机减速比 * 轮子角速度
+ * @brief 修正旋转后底盘的前进方向
+ * @param angle 期望的前进方向
  * */
-void Chassis_Get_Rotor_Speed(ChassisData_Type *ChassisData);
+void Chassis_Fix(ChassisData_Type *ChassisData, float angle);
 
 /**
  * @brief 设置转子速度上限 (rad/s)

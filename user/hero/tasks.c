@@ -126,13 +126,14 @@ void Task_Chassis(void *Parameters) {
 
     // 小陀螺
     float swingProgress  = 0;
-    float swingDuration  = 400;
+    float swingDuration  = 200;
     int   swingDirection = 1;
     float swingStep      = intervalms / swingDuration;
-    float swingAmplitude = 20;
+    float swingAmplitude = 0;
     float swingAngle     = 0;
 
     // 底盘跟随PID
+    float followDeadRegion = 3.0;
     PID_Init(&PID_Follow_Angle, 1, 0, 0, 1000, 0);
     PID_Init(&PID_Follow_Speed, 7, 0, 0, 1000, 0);
 
@@ -159,12 +160,14 @@ void Task_Chassis(void *Parameters) {
         motorSpeedStable = motorSpeedStable / 6.0f;
 
         // 小陀螺
-        if (ABS(swingProgress) > 0.5) {
+        if (ABS(swingProgress) > 1) {
             swingDirection *= -1;
         }
+        swingAmplitude   = CHOOSE(0, 60, 60);
+        followDeadRegion = CHOOSE(3, 0, 0);
         swingProgress += swingStep * swingDirection;
-        swingAmplitude = 0; // CHOOSE(0, 60, 120);
-        swingAngle     = swingProgress * swingAmplitude;
+        swingProgress = CHOOSE(0, swingProgress, swingProgress);
+        // swingAngle    = vegsin(swingProgress * 90) * swingAmplitude;
 
         // 根据运动模式计算PID
         PID_Calculate(&PID_Follow_Angle, swingAngle, motorAngle);                    // 计算航向角角度PID
@@ -175,14 +178,11 @@ void Task_Chassis(void *Parameters) {
         vy = remoteData.ly / 660.0f * 12;
         vw = ABS(PID_Follow_Angle.error) < 3 ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
-        // 麦轮解算
-        Chassis_Update(&ChassisData, vx, vy, vw);
-
-        // 设置转子速度上限 (rad/s)
-        Chassis_Limit_Rotor_Speed(&ChassisData, 900);
-
-        // 根据功率限幅
-        Chassis_Limit_Power(&ChassisData, 50, Judge.powerHeatData.chassis_power, interval);
+        // 麦轮解算及限速
+        Chassis_Update(&ChassisData, vx, vy, vw);                                           // 麦轮解算
+        Chassis_Fix(motorAngle);                                                            // 修正旋转后底盘的前进方向
+        Chassis_Limit_Rotor_Speed(&ChassisData, 900);                                       // 设置转子速度上限 (rad/s)
+        Chassis_Limit_Power(&ChassisData, 50, Judge.powerHeatData.chassis_power, interval); // 根据功率限幅
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * RPM2RPS);

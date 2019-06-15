@@ -2,7 +2,7 @@
 #include "macro.h"
 #include "config.h"
 #include "handle.h"
-#include "math.h"
+#include "vegmath.h"
 
 void Chassis_Init(ChassisData_Type *cd) {
     cd->vx                 = 0;
@@ -31,6 +31,13 @@ void Chassis_Update(ChassisData_Type *cd, float vx, float vy, float vw) {
     cd->rotorSpeed[3] = -coefficient * (vy + vx + vw * CHASSIS_SIZE_K);
 }
 
+void Chassis_Fix(ChassisData_Type *ChassisData, float angle) {
+    float sinYaw = vegsin(-motorAngle);
+    float cosYaw = vegcos(-motorAngle);
+    cd->vy       = cd->vy * cosYaw + cd->vx * sinYaw;
+    cd->vx       = -cd->vy * sinYaw + cd->vx * cosYaw;
+}
+
 void Chassis_Limit_Rotor_Speed(ChassisData_Type *cd, float maxRotorSpeed) {
     float   maxSpeed = 0;
     float   scale    = 0;
@@ -51,6 +58,10 @@ void Chassis_Limit_Rotor_Speed(ChassisData_Type *cd, float maxRotorSpeed) {
         Chassis_Scale_Rotor_Speed(cd, scale);
     }
 }
+float sinYaw = vegsin(-motorAngle);
+float cosYaw = vegcos(-motorAngle);
+vy           = vy * cosYaw + vx * sinYaw;
+vx           = -vy * sinYaw + vx * cosYaw;
 
 void Chassis_Scale_Rotor_Speed(ChassisData_Type *cd, float scale) {
     cd->rotorSpeed[0] = cd->rotorSpeed[0] * scale;
