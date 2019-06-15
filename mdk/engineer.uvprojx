@@ -15,7 +15,7 @@
         <TargetCommonOption>
           <Device>STM32F427II</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.1.0.8</PackID>
+          <PackID>Keil.STM32F4xx_DFP.2.9.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x200000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -377,41 +377,6 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>bsp</GroupName>
-          <Files>
-            <File>
-              <FileName>BSP_CAN.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\BSP_CAN.c</FilePath>
-            </File>
-            <File>
-              <FileName>BSP_DMA.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\BSP_DMA.c</FilePath>
-            </File>
-            <File>
-              <FileName>BSP_GPIO.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\BSP_GPIO.c</FilePath>
-            </File>
-            <File>
-              <FileName>BSP_NVIC.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\BSP_NVIC.c</FilePath>
-            </File>
-            <File>
-              <FileName>BSP_TIM.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\BSP_TIM.c</FilePath>
-            </File>
-            <File>
-              <FileName>BSP_UART.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\src\BSP_UART.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>core</GroupName>
           <Files>
             <File>
@@ -610,9 +575,19 @@
               <FilePath>..\driver\src\Driver_Gyroscope.c</FilePath>
             </File>
             <File>
-              <FileName>Driver_Ps.c</FileName>
+              <FileName>Driver_BSP.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\driver\src\Driver_Ps.c</FilePath>
+              <FilePath>..\driver\src\Driver_BSP.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_Protocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Protocol.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_Fsm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Fsm.c</FilePath>
             </File>
           </Files>
         </Group>
