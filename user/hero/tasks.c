@@ -1,6 +1,6 @@
 /**
- * @brief 甩锅小车
- * @version 0.8.0
+ * @brief 步兵/英雄
+ * @version 1.2.0
  */
 #include "main.h"
 
@@ -30,15 +30,21 @@ void Task_Gimbal(void *Parameters) {
     float yawAngleTarget   = 0;
     float pitchAngleTarget = 0;
 
-    // pitch ramp
-    float pitchRampProgress = 0;
-    float pitchRampStart    = Gyroscope_EulerData.pitch;
+    // Pitch轴斜坡参数
+    float pitchRampProgress    = 0;
+    float pitchRampStart       = -1 * Gyroscope_EulerData.pitch;
+    float pitchAngleTargetRamp = 0;
+
+    // 视觉系统
+    int   lastSeq            = 0;
+    float psYawAngleTarget   = 0;
+    float psPitchAngleTarget = 0;
 
     // 初始化云台PID
     PID_Init(&PID_Cloud_YawAngle, 20, 0, 0, 16000, 0);
     PID_Init(&PID_Cloud_YawSpeed, 60, 0, 0, 4000, 0);
     PID_Init(&PID_Cloud_PitchAngle, 20, 0, 0, 16000, 0);
-    PID_Init(&PID_Cloud_PitchSpeed, 40, 0, 0, 2000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 40, 0, 0, 4000, 0);
 
     while (1) {
         // 设置反馈
@@ -47,14 +53,28 @@ void Task_Gimbal(void *Parameters) {
         pitchAngle = -1 * Gyroscope_EulerData.pitch;  // 逆时针为正
         pitchSpeed = ImuData.gx / GYROSCOPE_LSB;      // 逆时针为正
 
-        // 设置目标
+        // 视觉系统
+        if (lastSeq != Ps.seq) {
+            lastSeq          = Ps.seq;
+            psYawAngleTarget = Ps.gimbalAimData.yaw_angle_diff;
+            psPitchAngleTarget += Ps.gimbalAimData.pitch_angle_diff;
+            MIAO(psYawAngleTarget, -5, 5);
+            MIAO(psPitchAngleTarget, -5, 5);
+        } else {
+            psYawAngleTarget   = 0;
+            psPitchAngleTarget = 0;
+        }
+
+        // 设置角度目标
         if (ABS(remoteData.rx) > 20) yawAngleTarget -= -1 * remoteData.rx / 660.0f * 180 * interval;
         if (ABS(remoteData.ry) > 20) pitchAngleTarget -= -1 * remoteData.ry / 660.0f * 150 * interval;
-        // MIAO(yawAngleTarget, -30, 30);
+        yawAngleTarget += psYawAngleTarget;
+        pitchAngleTarget += psPitchAngleTarget;
+        MIAO(yawAngleTarget, -50, 50); //+-20
         MIAO(pitchAngleTarget, -20, 50);
 
         // 开机时pitch轴匀速抬起
-        pitchAngleTarget = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
+        pitchAngleTargetRamp = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
         if (pitchRampProgress < 1) {
             pitchRampProgress += 0.005f;
         }
@@ -63,7 +83,7 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget, yawAngle);
         PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawSpeed);
 
-        PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTarget, pitchAngle);
+        PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTargetRamp, pitchAngle);
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
 
         // 输出电流
@@ -72,24 +92,44 @@ void Task_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = yawAngle;
-        // DebugData.debug2 = yawSpeed;
-        // DebugData.debug3 = pitchAngle;
-        // DebugData.debug4 = pitchSpeed;
+        // DebugData.debug1 = Ps.seq;
+        // DebugData.debug2 = Ps.gimbalAimData.yaw_angle_diff;
+        // DebugData.debug3 = pitchAngleTargetRamp;
+        // DebugData.debug4 = psYawAngleTarget;
         // DebugData.debug5 = yawAngleTarget;
-        // DebugData.debug6 = yawAngle;
-        // DebugData.debug7 = pitchAngleTarget;
-        // DebugData.debug8 = pitchAngle;
+        // DebugData.debug6 = ImuData.gx;
+        // DebugData.debug7 = ImuData.gy;
+        // DebugData.debug8 = ImuData.gz;
     }
     vTaskDelete(NULL);
 }
 
 float Chassis_Power_Control() {
-    float power = Judge.powerHeatData.chassis_power;
-    float scale;
-    PID_Calculate(&PID_Power, 30, power); // 临时将功率上限设置30方便调试
+    static float    lastPower = 0;
+    static float    scale;
+    static uint32_t counter;
+    static float    power;
+    // 功率拟合
+    if (Judge.powerHeatData.chassis_power != lastPower) {
+        power     = Judge.powerHeatData.chassis_power;
+        counter   = 0;
+        lastPower = power;
+    } else {
+        counter++;
+        if (counter % 4 == 0) {
+            power = (scale * power) + (power - (scale * power)) * pow(2.71828, -1 * counter * 5.0 / 35.0); // 40
+        }
+    }
+
+    // PID
+    PID_Power.p = CHOOSE(0, 0.3, 0.5);
+    PID_Power.i = 0;
+    PID_Calculate(&PID_Power, 50, power); // 临时将功率上限设置30方便调试
     scale = (power + PID_Power.output) / power;
-    return WANG(scale, 0, 1);
+    MIAO(scale, 0, 1);
+    DebugData.debug7 = Judge.powerHeatData.chassis_power * 1000;
+    DebugData.debug8 = power * 1000;
+    return scale;
 }
 
 void Task_Chassis(void *Parameters) {
@@ -125,13 +165,13 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_Follow_Speed, 7, 0, 0, 1000, 0);
 
     // 麦轮速度PID
-    PID_Init(&PID_LFCM, 28, 0, 0, 8000, 1750);
-    PID_Init(&PID_LBCM, 28, 0, 0, 8000, 1750);
-    PID_Init(&PID_RBCM, 28, 0, 0, 8000, 1750);
-    PID_Init(&PID_RFCM, 28, 0, 0, 8000, 1750);
+    PID_Init(&PID_LFCM, 28, 0, 0, 15000, 7500);
+    PID_Init(&PID_LBCM, 28, 0, 0, 15000, 7500);
+    PID_Init(&PID_RBCM, 28, 0, 0, 15000, 7500);
+    PID_Init(&PID_RFCM, 28, 0, 0, 15000, 7500);
 
     //功率PID
-    PID_Init(&PID_Power, 1, 0, 0, 1000, 500);
+    PID_Init(&PID_Power, 0.1, 0, 0, 1000, 500); // d = 3
 
     while (1) {
 
@@ -162,8 +202,8 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeedStable); // 计算航向角角速度PID
 
         // 设置底盘总体移动速度
-        vx = -remoteData.lx / 660.0f;
-        vy = remoteData.ly / 660.0f * 3;
+        vx = -remoteData.lx / 660.0f * 4;
+        vy = remoteData.ly / 660.0f * 12;
         vw = ABS(PID_Follow_Angle.error) < 3 ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
         Chassis_Update(&ChassisData, vx, vy, vw);
 
@@ -190,19 +230,39 @@ void Task_Chassis(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = PID_Power.feedback * 1000;
-        // DebugData.debug2 = powerScale * 1000;
+        DebugData.debug1 = Judge.powerHeatData.chassis_power;
+        DebugData.debug2 = powerScale * 1000;
+        DebugData.debug3 = PID_Power.output;
         // printf("%d\n\r", powerScale);
         // DebugData.debug3 = vw;
-        // DebugData.debug4 = Motor_Yaw.angle;
+        DebugData.debug4 = Motor_LF.speed * RPM2RPS;
         // DebugData.debug5 = Motor_Yaw.position;
-        // DebugData.debug6 = PID_Follow_Speed.output;
-        // DebugData.debug8 = PID_Follow_Speed.output;
+        DebugData.debug6 = PID_LFCM.output;
+        // DebugData.debug7 = rotorSpeed[3];
+        // DebugData.debug8 = rotorSpeed[3];
     }
 
     vTaskDelete(NULL);
 }
+void Task_W(void *Parameters) {
+    // 任务
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.1;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
+    float W  = 60;
+    float Pi = 40;
+
+    while (1) {
+        W -= (Judge.powerHeatData.chassis_power - Pi) * interval;
+        MIAO(W, 0, 60);
+        // 调试信息
+        // DebugData.debug4 = W;
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+
+    vTaskDelete(NULL);
+}
 void Task_Debug_Magic_Send(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
@@ -305,13 +365,9 @@ void Task_Blink(void *Parameters) {
 void Task_Startup_Music(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        // if (Beep_Sing_XP()) break;  // XP开机音乐,建议延时150ms
-        // if (Beep_Sing_Sky()) break; // 天空之城,建议延时350ms
-        // if (Beep_Sing_Earth()) break; // 极乐净土,建议延时120ms
-        if (Beep_Sing_Soul()) break; // New Soul,建议延时60ms
+        if (KTV_Play(Music_Soul)) break;
         vTaskDelayUntil(&LastWakeTime, 60);
     }
-
     vTaskDelete(NULL);
 }
 
@@ -325,7 +381,6 @@ void Task_Sys_Init(void *Parameters) {
 
     // 初始化陀螺仪
     Gyroscope_Init(&Gyroscope_EulerData);
-
     // 调试任务
 #if DEBUG_ENABLED
     // xTaskCreate(Task_Debug_Magic_Receive, "Task_Debug_Magic_Receive", 500, NULL, 6, NULL);
@@ -336,10 +391,11 @@ void Task_Sys_Init(void *Parameters) {
 
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    xTaskCreate(Task_W, "Task_W", 400, NULL, 5, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

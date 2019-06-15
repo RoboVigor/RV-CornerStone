@@ -10,12 +10,11 @@
       <TargetName>Target 1</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060300::V5.06 update 3 (build 300)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F427II</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.9.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.2.13.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x200000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -85,8 +84,6 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
-            <nStopA1X>0</nStopA1X>
-            <nStopA2X>0</nStopA2X>
           </AfterMake>
           <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
@@ -125,6 +122,47 @@
             <HexOffset>0</HexOffset>
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
+          <Simulator>
+            <UseSimulator>0</UseSimulator>
+            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
+            <RunToMain>1</RunToMain>
+            <RestoreBreakpoints>1</RestoreBreakpoints>
+            <RestoreWatchpoints>1</RestoreWatchpoints>
+            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
+            <RestoreFunctions>1</RestoreFunctions>
+            <RestoreToolbox>1</RestoreToolbox>
+            <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
+            <RestoreSysVw>1</RestoreSysVw>
+          </Simulator>
+          <Target>
+            <UseTarget>1</UseTarget>
+            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
+            <RunToMain>1</RunToMain>
+            <RestoreBreakpoints>1</RestoreBreakpoints>
+            <RestoreWatchpoints>1</RestoreWatchpoints>
+            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
+            <RestoreFunctions>0</RestoreFunctions>
+            <RestoreToolbox>1</RestoreToolbox>
+            <RestoreTracepoints>1</RestoreTracepoints>
+            <RestoreSysVw>1</RestoreSysVw>
+          </Target>
+          <RunDebugAfterBuild>0</RunDebugAfterBuild>
+          <TargetSelection>6</TargetSelection>
+          <SimDlls>
+            <CpuDll></CpuDll>
+            <CpuDllArguments></CpuDllArguments>
+            <PeripheralDll></PeripheralDll>
+            <PeripheralDllArguments></PeripheralDllArguments>
+            <InitializationFile></InitializationFile>
+          </SimDlls>
+          <TargetDlls>
+            <CpuDll></CpuDll>
+            <CpuDllArguments></CpuDllArguments>
+            <PeripheralDll></PeripheralDll>
+            <PeripheralDllArguments></PeripheralDllArguments>
+            <InitializationFile></InitializationFile>
+            <Driver>Segger\JL2CM3.dll</Driver>
+          </TargetDlls>
         </DebugOption>
         <Utilities>
           <Flash1>
@@ -189,7 +227,6 @@
             <useUlib>0</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
-            <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
             <RwSelD>3</RwSelD>
             <CodeSel>0</CodeSel>
@@ -324,18 +361,11 @@
             <uSurpInc>0</uSurpInc>
             <uC99>0</uC99>
             <useXO>0</useXO>
-            <v6Lang>1</v6Lang>
-            <v6LangP>1</v6LangP>
-            <vShortEn>1</vShortEn>
-            <vShortWch>1</vShortWch>
-            <v6Lto>0</v6Lto>
-            <v6WtE>0</v6WtE>
-            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--gnu</MiscControls>
               <Define>STM32F427_437xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\user\hero</IncludePath>
+              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\user\hero;..\library\vegmath</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -348,7 +378,6 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -529,6 +558,11 @@
               <FileType>1</FileType>
               <FilePath>..\library\atom\debug\led.c</FilePath>
             </File>
+            <File>
+              <FileName>vegmath.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\vegmath\vegmath.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -583,6 +617,11 @@
               <FileName>Driver_Protocol.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Protocol.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_Fsm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Fsm.c</FilePath>
             </File>
           </Files>
         </Group>
