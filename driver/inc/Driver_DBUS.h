@@ -29,6 +29,8 @@
 #define KEY_S 0x0002
 #define KEY_W 0x0001
 
+enum DBusState { DBusIdle, DBusWorking };
+
 //遥控解码数据存储结构体
 typedef struct {
     union {
@@ -39,6 +41,8 @@ typedef struct {
             int16_t ch1, ch2, ch3, ch4;
         };
     };
+
+    enum DBusState state;
 
     uint8_t switchLeft; // 3 value
     uint8_t switchRight;

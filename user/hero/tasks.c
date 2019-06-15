@@ -329,6 +329,7 @@ void Task_Sys_Init(void *Parameters) {
 
     // 初始化陀螺仪
     Gyroscope_Init(&Gyroscope_EulerData);
+
     // 调试任务
 #if DEBUG_ENABLED
     // xTaskCreate(Task_Debug_Magic_Receive, "Task_Debug_Magic_Receive", 500, NULL, 6, NULL);
@@ -338,12 +339,19 @@ void Task_Sys_Init(void *Parameters) {
     // NULL);
 #endif
 
+    // 低级任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
+    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+
+    // 等待遥控器开启
+    while (!remoteData.state) {
+    }
+
+    // 运动控制任务
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
