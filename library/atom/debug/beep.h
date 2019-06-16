@@ -2,10 +2,10 @@
 #define __BEEP_H
 #include "sys.h"
 
-#define Music_Len_Earth 280
+#define Music_Len_Earth 281
 #define Music_Len_Sky 241
-#define Music_Len_Soul 116
-#define Music_Len_XP 17
+#define Music_Len_Soul 117
+#define Music_Len_XP 18
 
 #define BEEP_ON (TIM12->CCR1 = 599)
 #define BEEP_OFF (TIM12->CCR1 = 0)
