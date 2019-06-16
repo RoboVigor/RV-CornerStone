@@ -19,6 +19,7 @@ typedef struct {
     PID_Type PID_Power;
     float    power;
     float    maxPower;
+    float    targetPower;
     float    referencePower;
     float    lastReferencePower;
     float    interval;
@@ -45,7 +46,7 @@ void Chassis_Update(ChassisData_Type *ChassisData, float XSpeed, float YSpeed, f
 /**
  * @brief 修正旋转后底盘的前进方向
  * @param angle 期望的前进方向
- * */
+ */
 void Chassis_Fix(ChassisData_Type *ChassisData, float angle);
 
 /**
@@ -64,9 +65,10 @@ void Chassis_Scale_Rotor_Speed(ChassisData_Type *ChassisData, float scale);
 /**
  * @brief 设置功率更新上限
  * @param maxPower       功率上限
+ * @param targetPower    目标功率
  * @param referencePower 参考功率 (来源裁判系统或电流计)
  * @param interval       任务周期
  */
-void Chassis_Limit_Power(ChassisData_Type *ChassisData, float maxPower, float referencePower, float interval);
+void Chassis_Limit_Power(ChassisData_Type *ChassisData, float maxPower, float targetPower, float referencePower, float interval);
 
 #endif

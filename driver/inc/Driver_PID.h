@@ -30,8 +30,8 @@ typedef struct {
     float output_P;
     float output_I;
     float output_D;
-    int   output;
-    int   lastOutput;
+    float output;
+    float lastOutput;
 
 } PID_Type;
 
@@ -53,9 +53,9 @@ void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput, float m
  * @param pid PID结构句柄
  * @param target 目标量
  * @param feedback 反馈量
- * @return int
+ * @return float
  */
-int PID_Calculate(PID_Type *pid, float target, float feedback);
+float PID_Calculate(PID_Type *pid, float target, float feedback);
 
 /**
  * @brief 增量式PID计算
@@ -64,9 +64,9 @@ int PID_Calculate(PID_Type *pid, float target, float feedback);
  * @param pid PID结构句柄
  * @param target 目标量
  * @param feedback 反馈量
- * @return int
+ * @return float
  */
-int PID_Increment_Calculate(PID_Type *pid, float target, float feedback);
+float PID_Increment_Calculate(PID_Type *pid, float target, float feedback);
 
 /**
  * @brief 打印PID结构体

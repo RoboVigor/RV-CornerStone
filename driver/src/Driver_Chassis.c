@@ -3,6 +3,7 @@
 #include "config.h"
 #include "handle.h"
 #include "vegmath.h"
+#include "math.h"
 
 void Chassis_Init(ChassisData_Type *cd) {
     cd->vx                 = 0;
@@ -12,7 +13,8 @@ void Chassis_Init(ChassisData_Type *cd) {
     cd->referencePower     = 0;
     cd->lastReferencePower = 0;
     cd->maxPower           = 80;
-    PID_Init(&(cd->PID_Power), 1, 0, 0, 100, 500);
+    cd->targetPower        = 80;
+    PID_Init(&(cd->PID_Power), 1, 0, 0, 500, 10);
 }
 
 void Chassis_Update(ChassisData_Type *cd, float vx, float vy, float vw) {
@@ -66,13 +68,12 @@ void Chassis_Scale_Rotor_Speed(ChassisData_Type *cd, float scale) {
     cd->rotorSpeed[3] = cd->rotorSpeed[3] * scale;
 }
 
-void Chassis_Limit_Power(ChassisData_Type *cd, float maxPower, float referencePower, float interval) {
-    float     targetPower;
-    float     ePow;
+void Chassis_Limit_Power(ChassisData_Type *cd, float maxPower, float targetPower, float referencePower, float interval) {
     PID_Type *PID_Power = &(cd->PID_Power);
 
     // 更新状态
     cd->maxPower       = maxPower;
+    cd->targetPower    = targetPower;
     cd->referencePower = referencePower;
     cd->interval       = interval;
 
@@ -84,24 +85,28 @@ void Chassis_Limit_Power(ChassisData_Type *cd, float maxPower, float referencePo
         // 重置拟合和缩放
         cd->fittingCounter = 0;
         cd->powerScale     = 1;
-        // 模拟功率缓冲
-        cd->powerBuffer -= (cd->referencePower - cd->maxPower) * cd->interval;
-        MIAO(cd->powerBuffer, 0, 60);
     } else {
+        float stable;
+        float ePow;
         cd->fittingCounter++;
         // if (cd->fittingCounter % 1 == 0)
-        targetPower = cd->powerScale * cd->power;
-        ePow        = pow(2.71828, -1 * cd->interval * cd->fittingCounter / 35.0); // 40
-        cd->power   = targetPower + (cd->power - targetPower) * ePow;
+        stable    = cd->powerScale * cd->power;
+        ePow      = pow(2.71828, -(cd->interval) * ((float) cd->fittingCounter) / 0.035); // 40
+        cd->power = stable + (cd->power - stable) * ePow;
     }
 
+    // 模拟功率缓冲
+    cd->powerBuffer -= (cd->referencePower - cd->maxPower) * cd->interval;
+    MIAO(cd->powerBuffer, 0, 60);
+
     // 测试
-    PID_Power->p = CHOOSE(1, 0.3, 0.5);
-    PID_Power->i = 0.01;
+    PID_Power->p = 0.15;
+    PID_Power->i = 0.003;
 
     // 功率PID
-    PID_Calculate(PID_Power, cd->maxPower, cd->power);
-    cd->powerScale *= (cd->power + PID_Power->output) / cd->power;
+    PID_Calculate(PID_Power, cd->targetPower, cd->power);
+    cd->powerScale = (cd->power + PID_Power->output) / cd->power;
     MIAO(cd->powerScale, 0, 1);
+    // printf("%f %f\n",PID_Power->output_I,PID_Power->error);
     Chassis_Scale_Rotor_Speed(cd, cd->powerScale);
 }

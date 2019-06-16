@@ -70,7 +70,7 @@ void Task_Gimbal(void *Parameters) {
         if (ABS(remoteData.ry) > 20) pitchAngleTarget -= -1 * remoteData.ry / 660.0f * 150 * interval;
         yawAngleTarget += psYawAngleTarget;
         pitchAngleTarget += psPitchAngleTarget;
-        MIAO(yawAngleTarget, -50, 50); //+-20
+        // MIAO(yawAngleTarget, -50, 50); //+-20
         MIAO(pitchAngleTarget, -20, 50);
 
         // 开机时pitch轴匀速抬起
@@ -88,6 +88,7 @@ void Task_Gimbal(void *Parameters) {
 
         // 输出电流
         Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, -1 * PID_Cloud_PitchSpeed.output, 0, 0);
+        // Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, 0, 0, 0);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
@@ -114,8 +115,7 @@ void Task_Chassis(void *Parameters) {
     float vx = 0;
     float vy = 0;
     float vw = 0;
-    int   rotorSpeed[4];  // 转子转速
-    float powerScale = 1; // 功率系数
+    float targetPower;
 
     // 反馈值
     float motorAngle, motorSpeed;
@@ -143,6 +143,9 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_RBCM, 28, 0, 0, 15000, 7500);
     PID_Init(&PID_RFCM, 28, 0, 0, 15000, 7500);
 
+    // 初始化底盘
+    Chassis_Init(&ChassisData);
+
     while (1) {
 
         // 设置反馈值
@@ -163,8 +166,8 @@ void Task_Chassis(void *Parameters) {
         if (ABS(swingProgress) > 1) {
             swingDirection *= -1;
         }
-        swingAmplitude   = CHOOSE(0, 60, 60);
-        followDeadRegion = CHOOSE(3, 0, 0);
+        swingAmplitude = CHOOSE(0, 60, 60);
+        // followDeadRegion = CHOOSE(3, 0, 0);
         swingProgress += swingStep * swingDirection;
         swingProgress = CHOOSE(0, swingProgress, swingProgress);
         // swingAngle    = vegsin(swingProgress * 90) * swingAmplitude;
@@ -176,19 +179,20 @@ void Task_Chassis(void *Parameters) {
         // 设置底盘总体移动速度
         vx = -remoteData.lx / 660.0f * 4;
         vy = remoteData.ly / 660.0f * 12;
-        vw = ABS(PID_Follow_Angle.error) < 3 ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
+        vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
         // 麦轮解算及限速
-        Chassis_Update(&ChassisData, vx, vy, vw);                                           // 麦轮解算
-        Chassis_Fix(&ChassisData, motorAngle);                                                            // 修正旋转后底盘的前进方向
-        Chassis_Limit_Rotor_Speed(&ChassisData, 900);                                       // 设置转子速度上限 (rad/s)
-        Chassis_Limit_Power(&ChassisData, 50, Judge.powerHeatData.chassis_power, interval); // 根据功率限幅
+        targetPower = 80.0 - (60.0 - ChassisData.powerBuffer) / 60.0 * CHOOSE(40, 60, 80);
+        Chassis_Update(&ChassisData, vx, vy, vw);                                                        // 麦轮解算
+        Chassis_Fix(&ChassisData, motorAngle);                                                           // 修正旋转后底盘的前进方向
+        Chassis_Limit_Rotor_Speed(&ChassisData, 750);                                                    // 设置转子速度上限 (rad/s)
+        Chassis_Limit_Power(&ChassisData, 80, targetPower, Judge.powerHeatData.chassis_power, interval); // 根据功率限幅
 
         // 计算输出电流PID
-        PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * RPM2RPS);
-        PID_Calculate(&PID_LBCM, rotorSpeed[1], Motor_LB.speed * RPM2RPS);
-        PID_Calculate(&PID_RBCM, rotorSpeed[2], Motor_RB.speed * RPM2RPS);
-        PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * RPM2RPS);
+        PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
+        PID_Calculate(&PID_LBCM, ChassisData.rotorSpeed[1], Motor_LB.speed * RPM2RPS);
+        PID_Calculate(&PID_RBCM, ChassisData.rotorSpeed[2], Motor_RB.speed * RPM2RPS);
+        PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
         Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
@@ -201,7 +205,8 @@ void Task_Chassis(void *Parameters) {
         DebugData.debug2 = ChassisData.power * 1000;
         DebugData.debug3 = ChassisData.powerScale * 1000;
         DebugData.debug4 = Motor_LF.speed * RPM2RPS;
-        // DebugData.debug5 = Motor_Yaw.position;
+        DebugData.debug5 = ChassisData.powerBuffer;
+        DebugData.debug6 = targetPower;
         // DebugData.debug6 = PID_LFCM.output;
         // DebugData.debug7 = rotorSpeed[3];
         // DebugData.debug8 = rotorSpeed[3];
