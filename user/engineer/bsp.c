@@ -161,12 +161,12 @@ void BSP_TIM2CH1_Init(void) {
     NVIC_Init(&NVIC_InitStructure);
 }
 
-void BSP_TEST_INPUT(void) {
+void BSP_Optoelectronic_Input(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOI, ENABLE);
     // 激光
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_7;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_7 | GPIO_Pin_6 | GPIO_Pin_5 | GPIO_Pin_2;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOI, &GPIO_InitStructure);
@@ -190,7 +190,7 @@ void BSP_Init(void) {
     BSP_Rescue_Init();  // PI0
     BSP_Take_Init();    // Take: PA3 Rotate: PA2
     BSP_Pushrod_Init(); // power: PA1 common: PH12 PH11
-    BSP_TEST_INPUT();   // PI7
+    BSP_Optoelectronic_Input();   // PI7 PI6 PI5 PI2
 
     // 补给舵机输出 
     BSP_PWM_Set_Port(&PWM_Supply1, PWM_PORT_PD14);

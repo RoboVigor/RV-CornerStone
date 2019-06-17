@@ -12,8 +12,9 @@ void Handle_Init(void) {
     Motor_Init(&Motor_RB, CHASSIS_MOTOR_REDUCTION_RATE, 0);
     Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, 0);
 
-    // Trasmission
-    Motor_Init(&Motor_Transmission, 36, 1);
+    // 取弹左右平移
+    Motor_Init(&Motor_TH, 19.2f, 1);
+    Motor_Init(&Motor_TV, 19.2f, 1);
 
     // Guide wheel
     Motor_Init(&Motor_LGW, 36, 1);

@@ -141,19 +141,19 @@ void Task_Take(void *Parameters) {
  *  + 电流方向：正 往回
  */
 
-void Task_Transmission(void *Parameters) {
+void Task_Take_Vertical(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
     int   targetAngle = 0;
     int   lastSpeed   = 0;
     int   lastAngle   = 0;
 
-    PID_Init(&PID_Transmission_Speed, 85, 0, 0, 4000, 2000);
-    PID_Init(&PID_Transmission_Angle, 5, 0, 0, 4000, 2000);
+    PID_Init(&PID_TV_Speed, 85, 0, 0, 4000, 2000);
+    PID_Init(&PID_TV_Angle, 5, 0, 0, 4000, 2000);
 
     while (1) {
-        lastSpeed         = Motor_Transmission.speed;
-        lastAngle         = Motor_Transmission.angle;
+        lastSpeed         = Motor_TV.speed;
+        lastAngle         = Motor_TV.angle;
 
         if (takeMode == 0) {
             targetAngle = 300;
@@ -161,9 +161,9 @@ void Task_Transmission(void *Parameters) {
             targetAngle = 0;
         } 
 
-        PID_Calculate(&PID_Transmission_Angle, targetAngle, lastAngle);
-        PID_Calculate(&PID_Transmission_Speed, PID_Transmission_Angle.output, lastSpeed * RPM2RPS);
-        Can_Send(CAN1, 0x1FF, 0, 0, PID_Transmission_Speed.output, 0);
+        PID_Calculate(&PID_TV_Angle, targetAngle, lastAngle);
+        PID_Calculate(&PID_TV_Speed, PID_TV_Angle.output, lastSpeed * RPM2RPS);
+        Can_Send(CAN1, 0x1FF, 0, PID_TV_Speed.output, 0, 0);
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -286,6 +286,33 @@ void Task_Distance_Sensor(void *Parameter) {
     vTaskDelete(NULL);
 }
 
+void Task_Upthrow(void *Parameter) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+
+    float upthrowAngleTarget = 0;
+    float upthrowProgress = 0;
+    float upthrowStart = 0;
+
+    PID_Init(&PID_Upthrow1_Speed, 15, 0, 0, 4000, 2000);  // 30
+    PID_Init(&PID_Upthrow1_Angle, 1.0, 0, 0, 4000, 2000); // 1.4
+
+    while (1) {
+
+        upthrowAngleTarget = RAMP(Motor_Upthrow1.angle, 1000, upthrowProgress);
+        if (upthrowProgress < 1) {
+            upthrowProgress += 0.005f;
+        }
+
+        PID_Calculate(&PID_Upthrow1_Angle, upthrowAngleTarget, Motor_Upthrow1.angle);
+        PID_Calculate(&PID_Upthrow1_Speed, PID_Upthrow1_Angle.output, Motor_Upthrow1.speed * RPM2RPS);
+
+        Can_Send(CAN1, 0x1FF, PID_Upthrow1_Speed.output, -PID_Upthrow1_Speed.output, 0, 0);
+
+        vTaskDelayUntil(&LastWakeTime, 2);
+    }
+    vTaskDelete(NULL);
+}
+
 void Task_Optoelectronic_Input(void *Parameter) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     int last_state1 = 0;
@@ -336,6 +363,48 @@ void Task_Optoelectronic_Input(void *Parameter) {
     vTaskDelete(NULL);
 }
 
+void Task_Take_Horizontal(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+
+    float TargetAngle = 0;
+
+    PID_Init(&PID_TH_Angle, 15, 0, 0, 2000, 2000);
+    PID_Init(&PID_TH_Speed, 1, 0, 0, 2000, 2000);
+
+    while (1) {
+
+        if(State1 == 1 && State4 == 1) {
+            if(State2 == 0 && State3 == 0) {
+                TargetAngle = Motor_TH.angle;
+            } else if(State2 == 0 && State3 == 1) {
+                TargetAngle += 3;
+            } else if(State2 == 1 && State3 == 0) {
+                TargetAngle -= 3; 
+            } else {
+                TargetAngle = Motor_TH.angle;
+            }
+        } else if(State1 == 0 && State4 == 1) {
+            TargetAngle += 3; 
+        } else if(State1 == 1 && State4 == 0) {
+            TargetAngle -= 3;
+        } else {
+            TargetAngle = Motor_TH.angle;
+        }
+
+        if(ABS(TargetAngle)>300) {
+            TargetAngle = Motor_TH.angle;
+        }
+
+        PID_Calculate(&PID_TH_Angle, TargetAngle, Motor_TH.angle);
+        PID_Calculate(&PID_TH_Speed, PID_TH_Angle.output, Motor_TH.speed * RPM2RPS);
+
+        Can_Send(CAN1, 0x1FF, PID_TH_Speed.output, -PID_TH_Speed.output, 0, 0);
+
+        vTaskDelayUntil(&LastWakeTime, 10);
+    }
+    vTaskDelete(NULL);
+}
+
 void Task_Debug_Magic_Send(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
@@ -362,10 +431,7 @@ void Task_Blink(void *Parameters) {
 void Task_Startup_Music(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        // if (Beep_Sing_XP()) break;  // XP开机音乐,建议延时150ms
-        // if (Beep_Sing_Sky()) break; // 天空之城,建议延时350ms
-        // if (Beep_Sing_Earth()) break; // 极乐净土,建议延时120ms
-        if (Beep_Sing_Soul()) break; // New Soul,建议延时60ms
+        if (KTV_Play(Music_Soul)) break;
         vTaskDelayUntil(&LastWakeTime, 60);
     }
 
@@ -398,14 +464,14 @@ void Task_Sys_Init(void *Parameters) {
 
     // Structure
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Transmission, "Task_Transmission", 400, NULL, 3, NULL);
     xTaskCreate(Task_Distance_Sensor, "Task_Distance_Sensor", 400, NULL, 3, NULL);
     xTaskCreate(Task_Take, "Task_Take", 400, NULL, 3, NULL);
     xTaskCreate(Task_Landing, "Task_Landing", 400, NULL, 3, NULL);
     xTaskCreate(Task_Supply, "Task_Supply", 400, NULL, 3, NULL);
     xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 3, NULL);
     xTaskCreate(Task_Optoelectronic_Input, "Task_Optoelectronic_Input", 400, NULL, 3, NULL);
-    
+    xTaskCreate(Task_Take_Horizontal, "Task_Take_Horizontal", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Take_Vertical, "Task_Take_Vertical", 400, NULL, 3, NULL);
     /* End */
 
     // 完成使命
