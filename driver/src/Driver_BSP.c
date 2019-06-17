@@ -553,9 +553,6 @@ void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t 
     GPIO_Init(PWMx->GPIOx, &GPIO_InitStructure);                              // 初始化
 
     // TIM
-    if (PWMx->TIMx - TIM8 == (uint32_t)198948) {
-        PWMx->TIMx = TIM8;
-    }
     if (PWMx->TIMx == TIM8) {
         RCC_APB2PeriphClockCmd(PWMx->RCC_APBxPeriph_TIMx, ENABLE); // 时钟使能
     } else {
