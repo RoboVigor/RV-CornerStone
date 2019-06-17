@@ -182,10 +182,10 @@ void Task_Chassis(void *Parameters) {
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
         // 麦轮解算及限速
-        targetPower = 80.0 - (60.0 - ChassisData.powerBuffer) / 60.0 * CHOOSE(40, 60, 80);
+        targetPower = 80.0 - (60.0 - ChassisData.powerBuffer) / 60.0 * 80.0;
         Chassis_Update(&ChassisData, vx, vy, vw);                                                        // 麦轮解算
         Chassis_Fix(&ChassisData, motorAngle);                                                           // 修正旋转后底盘的前进方向
-        Chassis_Limit_Rotor_Speed(&ChassisData, 750);                                                    // 设置转子速度上限 (rad/s)
+        Chassis_Limit_Rotor_Speed(&ChassisData, 550);                                                    // 设置转子速度上限 (rad/s)
         Chassis_Limit_Power(&ChassisData, 80, targetPower, Judge.powerHeatData.chassis_power, interval); // 根据功率限幅
 
         // 计算输出电流PID
