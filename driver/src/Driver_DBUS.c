@@ -1,6 +1,19 @@
 #include "Driver_DBUS.h"
 
+void DBUS_Init(DBusData_Type *DBusData) {
+    DBusData->state = DBusIdle;
+
+    DBusData->ch1 = 0;
+    DBusData->ch2 = 0;
+    DBusData->ch3 = 0;
+    DBusData->ch4 = 0;
+
+    DBusData->keyBoard.keyCode = 0;
+}
+
 void DBus_Update(DBusData_Type *DBusData, uint8_t DBusBuffer[]) {
+    DBusData->state = DBusWorking;
+
     DBusData->ch1 = (DBusBuffer[0] | DBusBuffer[1] << 8) & 0x07FF;
     DBusData->ch1 -= 1024;
     DBusData->ch2 = (DBusBuffer[1] >> 3 | DBusBuffer[2] << 5) & 0x07FF;
@@ -21,13 +34,4 @@ void DBus_Update(DBusData_Type *DBusData, uint8_t DBusBuffer[]) {
     DBusData->mouse.pressRight = DBusBuffer[13];
 
     DBusData->keyBoard.keyCode = DBusBuffer[14] | DBusBuffer[15] << 8; // key borad code
-}
-
-void DBUS_Init(DBusData_Type *DBusData) {
-    DBusData->ch1 = 0;
-    DBusData->ch2 = 0;
-    DBusData->ch3 = 0;
-    DBusData->ch4 = 0;
-
-    DBusData->keyBoard.keyCode = 0;
 }

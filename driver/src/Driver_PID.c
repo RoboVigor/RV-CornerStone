@@ -20,7 +20,7 @@ void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput, float m
     pid->lastOutput  = 0;
 }
 
-int PID_Calculate(PID_Type *pid, float target, float feedback) {
+float PID_Calculate(PID_Type *pid, float target, float feedback) {
     pid->lastTarget = pid->target;
     pid->target     = target;
     pid->feedback   = feedback;
@@ -44,7 +44,7 @@ int PID_Calculate(PID_Type *pid, float target, float feedback) {
     return pid->output;
 }
 
-int PID_Increment_Calculate(PID_Type *pid, float target, float feedback) {
+float PID_Increment_Calculate(PID_Type *pid, float target, float feedback) {
     pid->target   = target;
     pid->feedback = feedback;
 

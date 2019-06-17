@@ -513,11 +513,11 @@ void BSP_DMA_USART6_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSiz
  * @param PWM_Px 使用的端口,如PWM_PORT_PD12
  */
 void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px) {
-    PWMx->RCC_APBxPeriph_TIMx  = PWM_Px >> 28;
-    uint32_t x                 = PWMx->RCC_APBxPeriph_TIMx;
-    uint32_t TIMx_Base         = ((PWM_Px >> 24 & 0x0F) << 24) + ((x == 4 ? 8 : (x == 8 ? 0xc : (x == 1 ? 0 : 4))) << 8) + PERIPH_BASE;
-    PWMx->TIMx                 = (TIM_TypeDef *) TIMx_Base;
-    PWMx->GPIO_AF_TIMx         = PWM_Px >> 20 & 0xF;
+    PWMx->RCC_APBxPeriph_TIMx = PWM_Px >> 28;
+    uint32_t x                = PWMx->RCC_APBxPeriph_TIMx;
+    uint32_t TIMx_Base = ((PWM_Px >> 24 & 0x0F) << 24) + ((x == 4 ? 8 : (x == 8 ? 0xc : (x == 1 ? 0 : 4))) << 8) + (x == 2 ? APB2PERIPH_BASE : APB1PERIPH_BASE);
+    PWMx->TIMx         = (TIM_TypeDef *) TIMx_Base;
+    PWMx->GPIO_AF_TIMx = PWM_Px >> 20 & 0xF;
     PWMx->RCC_AHB1Periph_GPIOx = PWM_Px >> 4 & 0x0FFF;
     uint32_t GPIOx_Base        = (AHB1PERIPH_BASE + log(PWMx->RCC_AHB1Periph_GPIOx) / log(2) * 0x400);
     PWMx->GPIOx                = (GPIO_TypeDef *) GPIOx_Base;

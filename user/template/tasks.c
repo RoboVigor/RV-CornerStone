@@ -16,13 +16,16 @@ void Task_Safe_Mode(void *Parameters) {
 }
 
 void Task_Chassis(void *Parameters) {
+    // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    int        rotorSpeed[4];                      // 轮子转速
-    float      rpm2rps        = 0.104667f;         // 转子的转速(round/min)换算成角速度(rad/s) = 2 * 3.14 / 60
-    int        mode           = 2;                 // 底盘运动模式,1直线,2转弯
-    int        lastMode       = 2;                 // 上一次的运动模式
-    float      yawAngleTarget = 0;                 // 目标值
-    float      yawAngleFeed, yawSpeedFeed;         // 反馈值
+    float      interval     = 0.005;               // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    // 运动模式
+    int   mode           = 2; // 底盘运动模式,1直线,2转弯
+    int   lastMode       = 2; // 上一次的运动模式
+    float yawAngleTarget = 0; // 目标值
+    float yawAngle, yawSpeed; // 反馈值
 
     // 初始化麦轮角速度PID
     PID_Init(&PID_LFCM, 15, 0.3, 0, 4000, 2000);
@@ -40,42 +43,42 @@ void Task_Chassis(void *Parameters) {
         mode = ABS(remoteData.rx) < 5 ? 1 : 2;
 
         // 设置反馈值
-        yawAngleFeed = Gyroscope_EulerData.yaw; // 航向角角度反馈
-        yawSpeedFeed = ImuData.gz / 16.4;       // 航向角角速度反馈
+        yawAngle = Gyroscope_EulerData.yaw;         // 航向角角度反馈
+        yawSpeed = -1 * ImuData.gz / GYROSCOPE_LSB; // 逆时针为正
 
         // 切换运动模式
         if (mode != lastMode) {
-            PID_YawAngle.output_I = 0;            // 清空角度PID积分
-            PID_YawSpeed.output_I = 0;            // 清空角速度PID积分
-            yawAngleTarget        = yawAngleFeed; // 更新角度PID目标值
-            lastMode              = mode;         // 更新lastMode
+            PID_YawAngle.output_I = 0;        // 清空角度PID积分
+            PID_YawSpeed.output_I = 0;        // 清空角速度PID积分
+            yawAngleTarget        = yawAngle; // 更新角度PID目标值
+            lastMode              = mode;     // 更新lastMode
         }
 
         // 根据运动模式计算PID
         if (mode == 1) {
-            PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngleFeed);      // 计算航向角角度PID
-            PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeedFeed); // 计算航向角角速度PID
+            PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngle);      // 计算航向角角度PID
+            PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeed); // 计算航向角角速度PID
         } else {
-            PID_Calculate(&PID_YawSpeed, -remoteData.rx, yawSpeedFeed); // 计算航向角角速度PID
+            PID_Calculate(&PID_YawSpeed, -remoteData.rx, yawSpeed); // 计算航向角角速度PID
         }
 
         // 设置底盘总体移动速度
         Chassis_Update(&ChassisData, (float) -remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, (float) PID_YawSpeed.output / 1320.0f);
 
-        // 麦轮解算&限幅,获得轮子转速
-        Chassis_Get_Rotor_Speed(&ChassisData, rotorSpeed);
+        // 设置转子速度上限 (rad/s)
+        Chassis_Limit_Rotor_Speed(&ChassisData, 300);
 
         // 计算输出电流PID
-        PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * rpm2rps);
-        PID_Calculate(&PID_LBCM, rotorSpeed[1], Motor_LB.speed * rpm2rps);
-        PID_Calculate(&PID_RBCM, rotorSpeed[2], Motor_RB.speed * rpm2rps);
-        PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * rpm2rps);
+        PID_Calculate(&PID_LFCM, rotorSpeed[0], Motor_LF.speed * RPM2RPS);
+        PID_Calculate(&PID_LBCM, rotorSpeed[1], Motor_LB.speed * RPM2RPS);
+        PID_Calculate(&PID_RBCM, rotorSpeed[2], Motor_RB.speed * RPM2RPS);
+        PID_Calculate(&PID_RFCM, rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调(安全起见默认注释此行)
         // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
-        vTaskDelayUntil(&LastWakeTime, 10);
+        vTaskDelayUntil(&LastWakeTime, interval);
     }
 
     vTaskDelete(NULL);
@@ -131,11 +134,17 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Debug_Gyroscope_Sampling, "Task_Debug_Gyroscope_Sampling", 400, NULL, 6, NULL);
 #endif
 
-    // 功能任务
+    // 低级任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    
+    // 等待遥控器开启
+    while (!remoteData.state) {
+    }
+
+    // 运动控制任务
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
