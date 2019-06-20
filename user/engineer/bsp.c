@@ -184,6 +184,7 @@ void BSP_Init(void) {
     BSP_Laser_Init();
     BSP_Beep_Init();
     BSP_LED_Init();
+    BSP_User_Power_Init();
 
     // GPIO输出配置
     BSP_Landing_Init(); // front: PH11 behind: PI2 power: PH12

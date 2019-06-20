@@ -84,7 +84,7 @@ void BSP_CAN_Init(void) {
     // CAN1
     NVIC_InitStructure.NVIC_IRQChannel                   = CAN1_RX0_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
     NVIC_Init(&NVIC_InitStructure);
     CAN_ITConfig(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR | CAN_IT_WKU | CAN_IT_SLK, ENABLE);
@@ -92,7 +92,7 @@ void BSP_CAN_Init(void) {
     // CAN2
     NVIC_InitStructure.NVIC_IRQChannel                   = CAN2_RX0_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
     NVIC_Init(&NVIC_InitStructure);
     CAN_ITConfig(CAN2, CAN_IT_FMP0, ENABLE);
@@ -208,7 +208,7 @@ void BSP_USART2_Init(uint32_t baudRate, uint16_t interruptFlag) {
                    RCC_APB1Periph_USART2,
                    USART_Mode_Tx | USART_Mode_Rx,
                    USART2_IRQn,
-                   7,
+                   2,
                    baudRate,
                    interruptFlag);
 }
@@ -233,7 +233,7 @@ void BSP_USART3_Init(uint32_t baudRate, uint16_t interruptFlag) {
                    RCC_APB1Periph_USART3,
                    USART_Mode_Tx | USART_Mode_Rx,
                    USART3_IRQn,
-                   7,
+                   2,
                    baudRate,
                    interruptFlag);
 }
@@ -258,7 +258,7 @@ void BSP_USART6_Init(uint32_t baudRate, uint16_t interruptFlag) {
                    RCC_APB2Periph_USART6,
                    USART_Mode_Tx | USART_Mode_Rx,
                    USART6_IRQn,
-                   7,
+                   2,
                    baudRate,
                    interruptFlag);
 }
@@ -283,7 +283,7 @@ void BSP_UART7_Init(uint32_t baudRate, uint16_t interruptFlag) {
                    RCC_APB1Periph_UART7,
                    USART_Mode_Tx | USART_Mode_Rx,
                    UART7_IRQn,
-                   7,
+                   2,
                    baudRate,
                    interruptFlag);
 }
