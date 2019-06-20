@@ -22,8 +22,8 @@ void Task_Chassis(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     // 初始化角速度PID
-    PID_Init(&PID_Chassis_Left, 1, 0, 0, 4000, 2000);
-    PID_Init(&PID_Chassis_Right, 1, 0, 0, 4000, 2000);
+    PID_Init(&PID_Chassis_Left, 2, 0, 0, 4000, 2000);  // 1 0 0
+    PID_Init(&PID_Chassis_Right, 2, 0, 0, 4000, 2000); // 1 0 0
 
     while (1) {
 
@@ -38,8 +38,8 @@ void Task_Chassis(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // debug
-        DebugData.debug1 = remoteData.lx;
-        DebugData.debug2 = PID_Chassis_Left.output * 1000;
+        // DebugData.debug1 = remoteData.lx;
+        // DebugData.debug2 = PID_Chassis_Left.output;
         // DebugData.debug3 = ;
         // DebugData.debug4 = ;
     }
@@ -62,7 +62,7 @@ void Task_Gimbal(void *Parameters) {
 
     // Pitch轴斜坡参数
     float pitchRampProgress    = 0;
-    float pitchRampStart       = -1 * Gyroscope_EulerData.pitch;
+    float pitchRampStart       = -1 * Motor_Stabilizer_Pitch.angle;
     float pitchAngleTargetRamp = 0;
 
     // 视觉系统
@@ -71,17 +71,17 @@ void Task_Gimbal(void *Parameters) {
     float psPitchAngleTarget = 0;
 
     // 初始化云台PID
-    PID_Init(&PID_Stabilizer_Yaw_Angle, 16, 0, 0, 4000, 800); // i 0.06
-    PID_Init(&PID_Stabilizer_Yaw_Speed, 14, 0, 0, 800, 2000);
-    PID_Init(&PID_Stabilizer_Pitch_Angle, 20, 0.08, 0, 4000, 800);
-    PID_Init(&PID_Stabilizer_Pitch_Speed, 8, 0, 0, 3000, 2000);
+    PID_Init(&PID_Stabilizer_Yaw_Angle, 16, 0, 0, 16000, 0);
+    PID_Init(&PID_Stabilizer_Yaw_Speed, 14, 0, 0, 4000, 0);
+    PID_Init(&PID_Stabilizer_Pitch_Angle, 20, 0, 0, 16000, 0);
+    PID_Init(&PID_Stabilizer_Pitch_Speed, 8, 0, 0, 4000, 0);
 
     while (1) {
         // 设置反馈
-        yawAngle   = -1 * Gyroscope_EulerData.yaw;    // 逆时针为正
-        yawSpeed   = -1 * ImuData.gz / GYROSCOPE_LSB; // 逆时针为正
-        pitchAngle = -1 * Gyroscope_EulerData.pitch;  // 逆时针为正
-        pitchSpeed = ImuData.gx / GYROSCOPE_LSB;      // 逆时针为正
+        yawAngle   = -1 * Motor_Stabilizer_Yaw.angle;           // 逆时针为正
+        yawSpeed   = -1 * Motor_Stabilizer_Yaw.speed * RPM2RPS; // 逆时针为正
+        pitchAngle = -1 * Motor_Stabilizer_Pitch.angle;         // 逆时针为正
+        pitchSpeed = Motor_Stabilizer_Pitch.speed * RPM2RPS;    // 逆时针为正
 
         // 视觉系统
         // if (lastSeq != Ps.seq) {
@@ -100,10 +100,10 @@ void Task_Gimbal(void *Parameters) {
         if (ABS(remoteData.ry) > 20) pitchAngleTarget -= -1 * remoteData.ry / 660.0f * 150 * interval;
         yawAngleTarget += psYawAngleTarget;
         pitchAngleTarget += psPitchAngleTarget;
-        MIAO(yawAngleTarget, -50, 50); //+-20
-        MIAO(pitchAngleTarget, -20, 50);
+        MIAO(yawAngleTarget, -20, 20);
+        MIAO(pitchAngleTarget, -50, 50);
 
-        // 开机时pitch轴匀速抬起
+        //开机时pitch轴匀速抬起
         pitchAngleTargetRamp = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
         if (pitchRampProgress < 1) {
             pitchRampProgress += 0.005f;
@@ -117,15 +117,15 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Stabilizer_Pitch_Speed, PID_Stabilizer_Pitch_Angle.output, pitchSpeed);
 
         // 输出电流
-        Can_Send(CAN1, 0x200, 0, 0, PID_Stabilizer_Yaw_Speed.output, -1 * PID_Stabilizer_Pitch_Speed.output);
+        Can_Send(CAN1, 0x200, 0, 0, 0, PID_Stabilizer_Pitch_Speed.output);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = ;
-        // DebugData.debug2 = ;
-        // DebugData.debug3 = ;
-        // DebugData.debug4 = ;
+        DebugData.debug1 = PID_Stabilizer_Pitch_Speed.feedback;
+        DebugData.debug2 = PID_Stabilizer_Pitch_Angle.feedback;
+        DebugData.debug3 = pitchAngleTarget;
+        DebugData.debug4 = PID_Stabilizer_Pitch_Angle.error;
     }
     vTaskDelete(NULL);
 }
@@ -156,8 +156,8 @@ void Task_Blink(void *Parameters) {
 void Task_Startup_Music(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        if (KTV_Play(Music_Soul)) break;
-        vTaskDelayUntil(&LastWakeTime, 60);
+        if (KTV_Play(Music_XP)) break;
+        vTaskDelayUntil(&LastWakeTime, 150);
     }
     vTaskDelete(NULL);
 }
@@ -190,7 +190,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
