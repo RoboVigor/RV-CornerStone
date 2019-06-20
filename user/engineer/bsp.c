@@ -163,13 +163,32 @@ void BSP_TIM2CH1_Init(void) {
 
 void BSP_Optoelectronic_Input(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOI, ENABLE);
-    // 激光
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+    // 取弹对位
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_7 | GPIO_Pin_6 | GPIO_Pin_5 | GPIO_Pin_2;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOI, &GPIO_InitStructure);
+    // 登岛对位
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_4 | GPIO_Pin_6 | GPIO_Pin_5 | GPIO_Pin_12;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOE, &GPIO_InitStructure);
+}
+
+void BSP_Limit_Switch(void) {
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_2 | GPIO_Pin_3;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOC, &GPIO_InitStructure);
 }
 
 void BSP_Init(void) {
@@ -187,11 +206,12 @@ void BSP_Init(void) {
     BSP_User_Power_Init();
 
     // GPIO输出配置
-    BSP_Landing_Init(); // front: PH11 behind: PI2 power: PH12
-    BSP_Rescue_Init();  // PI0
+    BSP_Landing_Init(); // front: PH11 behind: PI2 power: PH12  多加四个IO口读取光电开关
+    BSP_Rescue_Init();  // PI0                                  
     BSP_Take_Init();    // Take: PA3 Rotate: PA2
     BSP_Pushrod_Init(); // power: PA1 common: PH12 PH11
-    BSP_Optoelectronic_Input();   // PI7 PI6 PI5 PI2
+    BSP_Optoelectronic_Input();   // 取弹: PI7 PI6 PI5 PI2 登岛: PE4 PE5 PE6 PE12
+    BSP_Limit_Switch(); // 限位开关: PC2 PC3 
 
     // 补给舵机输出 
     BSP_PWM_Set_Port(&PWM_Supply1, PWM_PORT_PD14);

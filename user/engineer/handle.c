@@ -13,8 +13,8 @@ void Handle_Init(void) {
     Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, 0);
 
     // 取弹左右平移
-    Motor_Init(&Motor_TH, 19.2f, 1);
-    Motor_Init(&Motor_TV, 19.2f, 1);
+    Motor_Init(&Motor_TH, 36, 1); // 2006
+    Motor_Init(&Motor_TV, 19.2f, 1); // 3510
 
     // Guide wheel
     Motor_Init(&Motor_LGW, 36, 1);
