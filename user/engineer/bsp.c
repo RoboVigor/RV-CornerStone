@@ -52,7 +52,7 @@ void BSP_Rescue_Init(void) {
 
 void BSP_Take_Init(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-    // Take 
+    // Take
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_3;
@@ -184,6 +184,7 @@ void BSP_Init(void) {
     BSP_Laser_Init();
     BSP_Beep_Init();
     BSP_LED_Init();
+    BSP_User_Power_Init();
 
     // GPIO输出配置
     BSP_Landing_Init(); // front: PH11 behind: PI2 power: PH12
@@ -192,7 +193,7 @@ void BSP_Init(void) {
     BSP_Pushrod_Init(); // power: PA1 common: PH12 PH11
     BSP_TEST_INPUT();   // PI7
 
-    // 补给舵机输出 
+    // 补给舵机输出
     BSP_PWM_Set_Port(&PWM_Supply1, PWM_PORT_PD14);
     BSP_PWM_Init(&PWM_Supply1, 9000, 200, TIM_OCPolarity_Low);
     BSP_PWM_Set_Port(&PWM_Supply2, PWM_PORT_PD15);
