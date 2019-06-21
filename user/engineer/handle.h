@@ -59,9 +59,9 @@ __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
-__HANDLE_EXT Motor_Type Motor_TakeLeft, Motor_TakeRight;
-__HANDLE_EXT Motor_Type Motor_Transmission;
+__HANDLE_EXT Motor_Type Motor_TH, Motor_TV;
 __HANDLE_EXT Motor_Type Motor_LGW, Motor_RGW;
+__HANDLE_EXT Motor_Type Motor_Upthrow1, Motor_Upthrow2;
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
@@ -79,9 +79,9 @@ __HANDLE_EXT ChassisData_Type ChassisData;
 
 // PID
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
-__HANDLE_EXT PID_Type PID_TakeLeft_Speed, PID_TakeRight_Speed, PID_TakeLeft_Angle, PID_TakeRight_Angle;
-__HANDLE_EXT PID_Type PID_Transmission_Speed, PID_Transmission_Angle;
+__HANDLE_EXT PID_Type PID_TH_Angle, PID_TH_Speed, PID_TV_Angle, PID_TV_Speed;
 __HANDLE_EXT PID_Type PID_LGW, PID_RGW;
+__HANDLE_EXT PID_Type PID_Upthrow1_Angle, PID_Upthrow1_Speed;
 
 // 通讯协议
 __HANDLE_EXT Protocol_Type Judge, Ps;
@@ -90,7 +90,10 @@ __HANDLE_EXT Protocol_Type Judge, Ps;
 __HANDLE_EXT int DebugA, DebugB, DebugC, DebugD, DebugE, DebugF, DebugG, DebugH, DebugI;
 
 // 取弹状态
-__HANDLE_EXT int takeMode, State, State1, State2, State3, State4;
+__HANDLE_EXT int takeMode, State;
+
+// 光电开关传感器数据
+__HANDLE_EXT int T_State1, T_State2, T_State3, T_State4, LF_State1, LF_State2, LB_State1, LB_State2, LSL_State, LSR_State;
 
 // 距离传感器获得距离
 __HANDLE_EXT uint16_t Distance1, Distance2;
