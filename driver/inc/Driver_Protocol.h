@@ -129,7 +129,7 @@ typedef struct {
     uint8_t masks;
 } client_custom_data_t;
 
-    typedef struct {
+typedef struct {
     uint8_t  sof;
     uint16_t data_length;
     uint8_t  seq;
