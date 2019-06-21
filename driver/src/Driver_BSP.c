@@ -713,9 +713,9 @@ extern Sound_Tone_Type Music_Scope_Soul[];
  *
  * @song  名称            歌曲        推荐延时(ms)
  *        Music_Sky       天空之城    350
- *        Music_Len_Earth 极乐净土    120
- *        Music_Len_Soul  New Soul   60
- *        Music_Len_XP    XP开机音乐  150
+ *        Music_Earth     极乐净土    120
+ *        Music_Soul      New Soul   60
+ *        Music_XP        XP开机音乐  150
  */
 uint8_t KTV_Play(Song_Type song) {
     static uint32_t index = 0;
