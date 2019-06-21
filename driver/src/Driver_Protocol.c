@@ -100,6 +100,18 @@ void Protocol_Load(Protocol_Type *Protocol) {
         begin_p = Protocol->powerHeatData.data;
     } break;
 
+    case 0x0205: {
+        begin_p = Protocol->aerialRobotEnergy.data;
+    } break;
+
+    case 0x0206: {
+        begin_p = Protocol->robotHurt.data;
+    } break;
+
+    case 0x0207: {
+        begin_p = Protocol->shootData.data;
+    } break;
+
     case 0x0401: {
         begin_p = Protocol->gimbalAimData.data;
     } break;

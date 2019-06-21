@@ -18,8 +18,8 @@
 #define Protocol_Pack_Length_0205 3
 #define Protocol_Pack_Length_0206 1
 #define Protocol_Pack_Length_0207 6
-#define Protocol_Pack_Length_0301 10
-#define Protocol_Pack_Length_0401 8
+#define Protocol_Pack_Length_0301_D180 10
+#define Protocol_Pack_Length_0401 9
 
 #define PROTOCOL_HEADER 0xA5
 #define PROTOCOL_HEADER_SIZE 5
