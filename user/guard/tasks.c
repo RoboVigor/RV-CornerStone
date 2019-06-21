@@ -1,6 +1,6 @@
 /**
  * @brief 哨兵
- * @version 0.8.0
+ * @version 1.2.0
  */
 #include "main.h"
 

@@ -4,16 +4,18 @@ RoboVigor 电控基石。
 
 ## 规范
 
-- FreeRTOS
-- 使用配置文件调整功能开关及参数（参考电科代码）
+- 永远采用最佳实践
+- 使用配置文件调整参数
+- 使用单独的user文件夹适配不同车种
 - 使用utf-8
 - 采用代码规范
+- 采用FreeRTOS
 - 采用[Gitflow Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)作为版本管理
 
-## 规划
+---
 
-[Projects](https://github.com/orgs/RoboVigor/projects/1)
-
-## 历史
-
-[Commits](https://github.com/tccoin/RV-CornerStone/commits/develop)
+♫
+新的风暴已经出现
+怎么能够停止不前
+鼓气勇气，坚定向前
+奇迹一定会出现

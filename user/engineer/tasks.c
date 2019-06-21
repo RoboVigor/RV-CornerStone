@@ -1,6 +1,6 @@
 /**
- * @brief 甩锅小车
- * @version 0.8.0
+ * @brief 工程车
+ * @version 1.2.0
  */
 #include "main.h"
 
@@ -19,10 +19,10 @@ void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
 
     // 运动模式
-    int        mode           = 2;                 // 底盘运动模式,1直线,2转弯
-    int        lastMode       = 2;                 // 上一次的运动模式
-    float      yawAngleTarget = 0;                 // 目标值
-    float      yawAngle, yawSpeed;         // 反馈值
+    int   mode           = 2; // 底盘运动模式,1直线,2转弯
+    int   lastMode       = 2; // 上一次的运动模式
+    float yawAngleTarget = 0; // 目标值
+    float yawAngle, yawSpeed; // 反馈值
 
     // PID
     int speed_P           = 30;
@@ -55,15 +55,15 @@ void Task_Chassis(void *Parameters) {
         mode = ABS(remoteData.rx) < 5 ? 1 : 2;
 
         // 设置反馈值
-        yawAngle = Gyroscope_EulerData.yaw; // 航向角角度反馈
-        yawSpeed = ImuData.gz / GYROSCOPE_LSB;       // 航向角角速度反馈
+        yawAngle = Gyroscope_EulerData.yaw;    // 航向角角度反馈
+        yawSpeed = ImuData.gz / GYROSCOPE_LSB; // 航向角角速度反馈
 
         // 切换运动模式
         if (mode != lastMode) {
-            PID_YawAngle.output_I = 0;            // 清空角度PID积分
-            PID_YawSpeed.output_I = 0;            // 清空角速度PID积分
+            PID_YawAngle.output_I = 0;        // 清空角度PID积分
+            PID_YawSpeed.output_I = 0;        // 清空角速度PID积分
             yawAngleTarget        = yawAngle; // 更新角度PID目标值
-            lastMode              = mode;         // 更新lastMode
+            lastMode              = mode;     // 更新lastMode
         }
 
         // 根据运动模式计算PID
@@ -89,7 +89,6 @@ void Task_Chassis(void *Parameters) {
         // 输出电流值到电调(安全起见默认注释此行)
         // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
-
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -108,7 +107,7 @@ void Task_Take(void *Parameters) {
             TAKING_ROD_PUSH;
             vTaskDelay(800);
             TAKING_ROD_POWER_OFF;
-            takeMode = 0;        // 传动伸出
+            takeMode = 0; // 传动伸出
             ROTATE_ON;
             vTaskDelay(500);
             TAKE_ON;
@@ -123,11 +122,10 @@ void Task_Take(void *Parameters) {
             TAKE_OFF;
             ROTATE_OFF;
             vTaskDelay(500);
-            takeMode = 1;    // 传动返回
+            takeMode = 1; // 传动返回
             TAKING_ROD_POWER_ON;
             TAKING_ROD_PULL;
             vTaskDelay(4000);
-            
         }
 
         vTaskDelayUntil(&LastWakeTime, 10);
@@ -145,22 +143,22 @@ void Task_Take(void *Parameters) {
 void Task_Take_Vertical(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    int   targetAngle = -1200;
-    int   lastSpeed   = 0;
-    int   lastAngle   = 0;
+    int targetAngle = -1200;
+    int lastSpeed   = 0;
+    int lastAngle   = 0;
 
     PID_Init(&PID_TV_Angle, 6, 0, 0, 4000, 2000);
     PID_Init(&PID_TV_Speed, 2, 0, 0, 4000, 2000);
-    
+
     while (1) {
-        lastSpeed         = Motor_TV.speed;
-        lastAngle         = Motor_TV.angle;
+        lastSpeed = Motor_TV.speed;
+        lastAngle = Motor_TV.angle;
 
         // if (takeMode == 0) {
         //     targetAngle = 300;
         // } else if (takeMode == 1) {
         //     targetAngle = 0;
-        // } 
+        // }
 
         PID_Calculate(&PID_TV_Angle, targetAngle, lastAngle);
         PID_Calculate(&PID_TV_Speed, PID_TV_Angle.output, lastSpeed * RPM2RPS);
@@ -168,10 +166,9 @@ void Task_Take_Vertical(void *Parameters) {
         Can_Send(CAN1, 0x1FF, 0, PID_TV_Speed.output, 0, 0);
         // Can_Send(CAN1, 0x1FF, 0, -1000, 0, 0);
 
-        DebugA=PID_TV_Speed.output;
-        DebugB= targetAngle;
-        DebugC=Motor_TV.angle;
-
+        DebugA = PID_TV_Speed.output;
+        DebugB = targetAngle;
+        DebugC = Motor_TV.angle;
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -189,7 +186,7 @@ void Task_Landing(void *Parameters) {
     PID_Init(&PID_RGW, 5, 0, 0, 4000, 2000);
 
     while (1) {
-    
+
         // if (remoteData.switchLeft == 3) {
         //     LANDING_SWITCH_FRONT;
         //     LANDING_SWITCH_FRONT2;
@@ -258,34 +255,33 @@ void Task_Distance_Sensor(void *Parameter) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
     // 通过PWM波读取距离信息
-    uint16_t   temp1 = 0;
-    uint16_t   temp2 = 0;
-    uint16_t   last_distance = 0;
-    int        i = 0;
-    Distance1       = 0;
-    Distance2       = 0;
+    uint16_t temp1         = 0;
+    uint16_t temp2         = 0;
+    uint16_t last_distance = 0;
+    int      i             = 0;
+    Distance1              = 0;
+    Distance2              = 0;
 
     while (1) {
-            temp1 = TIM2CH1_CAPTURE_VAL; //得到总的高电平时间
+        temp1 = TIM2CH1_CAPTURE_VAL; //得到总的高电平时间
 
-            if (Distance1 == 0) {     // 第一次
-                Distance1 = temp1 / 100; // cm us
-            }
+        if (Distance1 == 0) {        // 第一次
+            Distance1 = temp1 / 100; // cm us
+        }
 
-            if (ABS((temp1/100)-Distance1) <= 20) {
-                Distance1 = temp1 / 100; // cm us
-            }
+        if (ABS((temp1 / 100) - Distance1) <= 20) {
+            Distance1 = temp1 / 100; // cm us
+        }
 
+        temp2 = TIM5CH1_CAPTURE_VAL; //得到总的高电平时间
 
-            temp2 = TIM5CH1_CAPTURE_VAL; //得到总的高电平时间
+        if (Distance2 == 0) {        // 第一次
+            Distance2 = temp2 / 100; // cm us
+        }
 
-            if (Distance2 == 0) {     // 第一次
-                Distance2 = temp2 / 100; // cm us
-            }
-
-            if (ABS((temp2/100)-Distance2) <= 20) {
-                Distance2 = temp2 / 100; // cm us
-            }
+        if (ABS((temp2 / 100) - Distance2) <= 20) {
+            Distance2 = temp2 / 100; // cm us
+        }
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -297,8 +293,8 @@ void Task_Upthrow(void *Parameter) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
     float upthrowAngleTarget = 0;
-    float upthrowProgress = 0;
-    float upthrowStart = 0;
+    float upthrowProgress    = 0;
+    float upthrowStart       = 0;
 
     PID_Init(&PID_Upthrow1_Speed, 15, 0, 0, 4000, 2000);  // 30
     PID_Init(&PID_Upthrow1_Angle, 1.0, 0, 0, 4000, 2000); // 1.4
@@ -327,47 +323,46 @@ void Task_Optoelectronic_Input_Take(void *Parameter) {
     int last_take_state2 = 0;
     int last_take_state3 = 0;
     int last_take_state4 = 0;
-    int take_state1 = 0;
-    int take_state2 = 0;
-    int take_state3 = 0;
-    int take_state4 = 0;
+    int take_state1      = 0;
+    int take_state2      = 0;
+    int take_state3      = 0;
+    int take_state4      = 0;
 
-
-    while(1) {
+    while (1) {
         // 取弹
         take_state1 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_7);
         if (last_take_state1 != take_state1) {
             vTaskDelay(10);
             if (take_state1 == GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_7)) {
-                T_State1 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_7);
-                last_take_state1 = take_state1; 
+                T_State1         = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_7);
+                last_take_state1 = take_state1;
             }
         }
         take_state2 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_6);
         if (last_take_state2 != take_state2) {
             vTaskDelay(10);
             if (take_state2 == GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_6)) {
-                T_State2 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_6);
-                last_take_state2 = take_state2; 
+                T_State2         = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_6);
+                last_take_state2 = take_state2;
             }
         }
         take_state3 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_5);
         if (last_take_state3 != take_state3) {
             vTaskDelay(10);
             if (take_state3 == GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_5)) {
-                T_State3 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_5);
-                last_take_state3 = take_state3; 
+                T_State3         = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_5);
+                last_take_state3 = take_state3;
             }
         }
         take_state4 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_2);
         if (last_take_state4 != take_state4) {
             vTaskDelay(10);
             if (take_state4 == GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_2)) {
-                T_State4 = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_2);
-                last_take_state4 = take_state4; 
+                T_State4         = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_2);
+                last_take_state4 = take_state4;
             }
         }
-        
+
         vTaskDelayUntil(&LastWakeTime, 10);
     }
 
@@ -377,47 +372,47 @@ void Task_Optoelectronic_Input_Take(void *Parameter) {
 void Task_Optoelectronic_Input_Landing(void *Parameter) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    int last_landing_front_state1 = 0;
-    int last_landing_front_state2 = 0;
+    int last_landing_front_state1  = 0;
+    int last_landing_front_state2  = 0;
     int last_landing_behind_state1 = 0;
     int last_landing_behind_state2 = 0;
-    int landing_front_state1 = 0;
-    int landing_front_state2 = 0;
-    int landing_behind_state1 = 0;
-    int landing_behind_state2 = 0;
+    int landing_front_state1       = 0;
+    int landing_front_state2       = 0;
+    int landing_behind_state1      = 0;
+    int landing_behind_state2      = 0;
 
-    while(1) {
+    while (1) {
         // 登岛
         landing_front_state1 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_5);
         if (last_landing_front_state1 != landing_front_state1) {
             vTaskDelay(10);
             if (landing_front_state1 == GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_5)) {
-                LF_State1 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_5);
-                last_landing_front_state1 = landing_front_state1; 
+                LF_State1                 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_5);
+                last_landing_front_state1 = landing_front_state1;
             }
         }
         landing_front_state2 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6);
         if (last_landing_front_state2 != landing_front_state2) {
             vTaskDelay(10);
             if (landing_front_state2 == GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6)) {
-                LF_State2 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6);
-                last_landing_front_state2 = landing_front_state2; 
+                LF_State2                 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6);
+                last_landing_front_state2 = landing_front_state2;
             }
         }
         landing_behind_state1 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4);
         if (last_landing_behind_state1 != landing_behind_state1) {
             vTaskDelay(10);
             if (landing_behind_state1 == GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4)) {
-                LB_State1 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4);
-                last_landing_behind_state1 = landing_behind_state1; 
+                LB_State1                  = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4);
+                last_landing_behind_state1 = landing_behind_state1;
             }
         }
         landing_behind_state2 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_12);
         if (last_landing_behind_state2 != landing_behind_state2) {
             vTaskDelay(10);
             if (landing_behind_state2 == GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_12)) {
-                LB_State2 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_12);
-                last_landing_behind_state2 = landing_behind_state2; 
+                LB_State2                  = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_12);
+                last_landing_behind_state2 = landing_behind_state2;
             }
         }
         vTaskDelayUntil(&LastWakeTime, 10);
@@ -436,19 +431,19 @@ void Task_Take_Horizontal(void *Parameters) {
 
     while (1) {
 
-        if(T_State1 == 1 && T_State4 == 1) {
-            if(T_State2 == 0 && T_State3 == 0) {
+        if (T_State1 == 1 && T_State4 == 1) {
+            if (T_State2 == 0 && T_State3 == 0) {
                 TargetAngle = Motor_TH.angle;
-            } else if(T_State2 == 0 && T_State3 == 1) {
+            } else if (T_State2 == 0 && T_State3 == 1) {
                 TargetAngle += 3;
-            } else if(T_State2 == 1 && T_State3 == 0) {
-                TargetAngle -= 3; 
+            } else if (T_State2 == 1 && T_State3 == 0) {
+                TargetAngle -= 3;
             } else {
                 TargetAngle = Motor_TH.angle;
             }
-        } else if(T_State1 == 0 && T_State4 == 1) {
-            TargetAngle += 3; 
-        } else if(T_State1 == 1 && T_State4 == 0) {
+        } else if (T_State1 == 0 && T_State4 == 1) {
+            TargetAngle += 3;
+        } else if (T_State1 == 1 && T_State4 == 0) {
             TargetAngle -= 3;
         } else {
             TargetAngle = Motor_TH.angle;
@@ -464,7 +459,7 @@ void Task_Take_Horizontal(void *Parameters) {
         Can_Send(CAN2, 0x200, 0, PID_TH_Speed.output, 0, 0);
         // Can_Send(CAN2, 0x200, 0, 0, 0, 0);
 
-        DebugA=TargetAngle;
+        DebugA = TargetAngle;
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -474,26 +469,26 @@ void Task_Take_Horizontal(void *Parameters) {
 void Task_Limit_Switch(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    int last_limit_switch_left = 0;
-    int limit_switch_left = 0;
+    int last_limit_switch_left  = 0;
+    int limit_switch_left       = 0;
     int last_limit_switch_right = 0;
-    int limit_switch_right = 0;
+    int limit_switch_right      = 0;
 
-    while(1) {
+    while (1) {
         limit_switch_left = GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_2);
         if (last_limit_switch_left != limit_switch_left) {
             vTaskDelay(10);
             if (limit_switch_left == GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_2)) {
-                LSL_State = GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_2);
-                last_limit_switch_left = limit_switch_left; 
+                LSL_State              = GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_2);
+                last_limit_switch_left = limit_switch_left;
             }
         }
         limit_switch_right = GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_3);
         if (last_limit_switch_right != limit_switch_right) {
             vTaskDelay(10);
             if (limit_switch_right == GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_3)) {
-                LSR_State = GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_3);
-                last_limit_switch_right = limit_switch_right; 
+                LSR_State               = GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_3);
+                last_limit_switch_right = limit_switch_right;
             }
         }
 
@@ -575,7 +570,7 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Optoelectronic_Input_Take, "Task_Optoelectronic_Input_Take", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Optoelectronic_Input_Landing, "Task_Optoelectronic_Input_Landing", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Upthrow,  "Task_Upthrow", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Limit_Switch,  "Task_Limit_Switch", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Limit_Switch, "Task_Limit_Switch", 400, NULL, 3, NULL);
     /* End */
 
     // 完成使命
