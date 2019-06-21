@@ -142,26 +142,18 @@ void CAN2_RX0_IRQHandler(void) {
     speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
     // 安排数据
-    // switch (CanRxData.StdId) {
-    // case 0x201:
-    //     Motor_Update(&Motor_Chassis_Left, position, speed);
-    //     break;
+    switch (CanRxData.StdId) {
+    case 0x201:
+        Motor_Update(&Motor_LeftFrict, position, speed);
+        break;
 
-    // case 0x202:
-    //     Motor_Update(&Motor_Chassis_Right, position, speed);
-    //     break;
+    case 0x202:
+        Motor_Update(&Motor_RightFrict, position, speed);
+        break;
 
-    // case 0x203:
-    //     Motor_Update(&Motor_RB, position, speed);
-    //     break;
-
-    // case 0x204:
-    //     Motor_Update(&Motor_RF, position, speed);
-    //     break;
-
-    // default:
-    //     break;
-    //}
+    default:
+        break;
+    }
 }
 
 // TIM2 高频计数器

@@ -140,7 +140,7 @@ void Task_Debug_Magic_Send(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_Fire(void *Parameters) {
+void Task_Stir(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
 
     // 目标值
@@ -166,9 +166,40 @@ void Task_Fire(void *Parameters) {
 
         // 调试信息
         DebugData.debug1 = PID_Stir_Speed.feedback;
-        DebugData.debug2 = PID_Stir_Pitch_Angle.output;
-        DebugData.debug3 = PID_Stir_Pitch_Angle.feedback;
+        DebugData.debug2 = PID_Stir_Angle.output;
+        DebugData.debug3 = PID_Stir_Angle.feedback;
         DebugData.debug4 = stirAngleTarget;
+    }
+
+    vTaskDelete(NULL);
+}
+
+void Task_Frict(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      r            = 0.0595;
+    // uint8_t    startCounter = 0;                   // 启动模式计数器
+
+    // 标志位
+    uint8_t frictState = 1;
+
+    // 常量
+    // float frictSpeed = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
+    // 摩擦轮线速度(mps)转转速(rpm)
+    float frictSpeed = 336; // 336 rad/s
+
+    // PID 初始化
+    PID_Init(&PID_LeftFrict, 25, 0.5, 0, 20000, 6000);  // 4 0.08 0    6000  1000
+    PID_Init(&PID_RightFrict, 25, 0.5, 0, 20000, 6000); // 10 0.08           1000
+
+    while (1) {
+
+        // 摩擦轮 PID 控制
+        // LASER_ON;                                                                        // 开启激光
+        PID_Calculate(&PID_LeftFrict, frictSpeed, Motor_LeftFrict.speed * RPM2RPS);    // 左摩擦轮转动
+        PID_Calculate(&PID_RightFrict, -frictSpeed, Motor_RightFrict.speed * RPM2RPS); // 右摩擦轮转动
+        Can_Send(CAN2, 0x200, PID_RightFrict.output, PID_LeftFrict.output, 0, 0);
+
+        vTaskDelayUntil(&LastWakeTime, 10);
     }
 
     vTaskDelete(NULL);
@@ -226,7 +257,8 @@ void Task_Sys_Init(void *Parameters) {
     // 运动控制任务
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Frict, "Task_Frict", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Stir, "Task_Stir", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
