@@ -254,7 +254,7 @@ void Task_Fire(void *Parameters) {
     // PID 初始化
     PID_Init(&PID_LeftFrictSpeed, 25, 0.5, 0, 20000, 6000);  // 4 0.08 0    6000  1000
     PID_Init(&PID_RightFrictSpeed, 25, 0.5, 0, 20000, 6000); // 10 0.08           1000
-    PID_Init(&PID_StirAnlge, 12, 0.01, 0, 4000, 2000);       // 12 0.01
+    PID_Init(&PID_StirAngle, 12, 0.01, 0, 4000, 2000);       // 12 0.01
     PID_Init(&PID_StirSpeed, 5, 0.2, 0, 4000, 2000);         // 5
 
     while (1) {

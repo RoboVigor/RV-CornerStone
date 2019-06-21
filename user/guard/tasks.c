@@ -147,7 +147,7 @@ void Task_Fire(void *Parameters) {
     float stirAngleTarget = 0;
 
     // PID 初始化
-    PID_Init(&PID_Stir_Anlge, 12, 0.01, 0, 4000, 2000); // 12 0.01
+    PID_Init(&PID_Stir_Angle, 12, 0.01, 0, 4000, 2000); // 12 0.01
     PID_Init(&PID_Stir_Speed, 5, 0.2, 0, 4000, 2000);   // 5
 
     while (1) {
@@ -156,8 +156,8 @@ void Task_Fire(void *Parameters) {
         stirAngleTarget += 60.0f;
 
         // 计算PID
-        PID_Calculate(&PID_Stir_Anlge, stirAngleTarget, Motor_Stir.angle);
-        PID_Calculate(&PID_Stir_Speed, PID_Stir_Anlge.output, Motor_Stir.speed * RPM2RPS);
+        PID_Calculate(&PID_Stir_Angle, stirAngleTarget, Motor_Stir.angle);
+        PID_Calculate(&PID_Stir_Speed, PID_Stir_Angle.output, Motor_Stir.speed * RPM2RPS);
 
         // 输出电流
         Can_Send(CAN1, 0x1FF, 0, 0, -1 * PID_Stir_Speed.output, 0);

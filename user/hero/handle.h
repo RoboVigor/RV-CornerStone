@@ -63,7 +63,7 @@ __HANDLE_EXT PWM_Type PWM_Magazine_Servo;
 //发射机构
 __HANDLE_EXT Motor_Type Motor_LeftFrict, Motor_RightFrict, Motor_Stir; // 左/右 摩擦轮 拨弹轮 电机
 __HANDLE_EXT PID_Type PID_LeftFrictSpeed, PID_RightFrictSpeed;         // 左/右 摩擦轮 PID
-__HANDLE_EXT PID_Type PID_StirSpeed, PID_StirAnlge;                    // 拨弹轮 速度/角度 PID
+__HANDLE_EXT PID_Type PID_StirSpeed, PID_StirAngle;                    // 拨弹轮 速度/角度 PID
 
 /**
  * @brief 初始化结构体
