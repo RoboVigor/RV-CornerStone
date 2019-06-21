@@ -127,7 +127,7 @@ typedef struct {
     float   data2;
     float   data3;
     uint8_t masks;
-} client_custom_data_t
+} client_custom_data_t;
 
     typedef struct {
     uint8_t  sof;
