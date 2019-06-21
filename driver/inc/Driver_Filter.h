@@ -9,8 +9,8 @@
  * - 新增基础滤波器
  * - 新增限幅滤波
  */
-#ifndef __Filter_H
-#define __Filter_H
+#ifndef __DRIVER_FILTER_H
+#define __DRIVER_FILTER_H
 
 #include "stm32f4xx_conf.h"
 
