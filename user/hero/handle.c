@@ -13,8 +13,6 @@ void Handle_Init(void) {
     Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, 0);
 
     // 发射机构电机
-    Motor_Init(&Motor_LeftFrict, 1, 0);
-    Motor_Init(&Motor_RightFrict, 1, 0);
     Motor_Init(&Motor_Stir, 36, 1);
 
     // 云台电机

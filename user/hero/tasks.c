@@ -88,7 +88,6 @@ void Task_Gimbal(void *Parameters) {
 
         // 输出电流
         Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, -1 * PID_Cloud_PitchSpeed.output, 0, 0);
-        // Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, 0, 0, 0);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
@@ -201,12 +200,12 @@ void Task_Chassis(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = ChassisData.referencePower * 1000;
-        DebugData.debug2 = ChassisData.power * 1000;
-        DebugData.debug3 = ChassisData.powerScale * 1000;
-        DebugData.debug4 = Motor_LF.speed * RPM2RPS;
-        DebugData.debug5 = ChassisData.powerBuffer;
-        DebugData.debug6 = targetPower;
+        // DebugData.debug1 = ChassisData.referencePower * 1000;
+        // DebugData.debug2 = ChassisData.power * 1000;
+        // DebugData.debug3 = ChassisData.powerScale * 1000;
+        // DebugData.debug4 = Motor_LF.speed * RPM2RPS;
+        // DebugData.debug5 = ChassisData.powerBuffer;
+        // DebugData.debug6 = targetPower;
         // DebugData.debug6 = PID_LFCM.output;
         // DebugData.debug7 = rotorSpeed[3];
         // DebugData.debug8 = rotorSpeed[3];
@@ -232,75 +231,113 @@ void Task_Debug_Magic_Send(void *Parameters) {
  * @param Parameters
  */
 
-int turnNumber = 1;
-
 void Task_Fire(void *Parameters) {
+    // snail摩擦轮任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      r            = 0.0595;
+    float      interval     = 0.005;               // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    float dutyCycleStart  = 0.376; //起始占空比为37.6
+    float dutyCycleMiddle = 0.446; //启动需要到44.6
+    float dutyCycleEnd    = 0.486; //加速到你想要的占空比
+
+    float dutyCycleRightSnailTarget = 0.376; //目标占空比
+    float dutyCycleLeftSnailTarget  = 0.376;
+
+    float dutyCycleRightSnailProgress1 = 0; //存储需要的两个过程（初始到启动，启动到你想要的速度）
+    float dutyCycleLeftSnailProgress1  = 0;
+    float dutyCycleRightSnailProgress2 = 0;
+    float dutyCycleLeftSnailProgress2  = 0;
+
+    int snailRightState = 0; //标志启动完后需要的延时
+    int snailLeftState  = 0;
+
+    // snail拨弹轮任务
+    float rpm2rps = 3.14 / 60; // 转子的转速(round/min)换算成角速度(rad/s)
+    float r       = 0.0595;
     // uint8_t    startCounter = 0;                   // 启动模式计数器
+
+    LASER_ON; // 激光开启
+              // LASER_OFF ; // 激光关闭
 
     // 标志位
     uint8_t frictState = 0;
     uint8_t stirState  = 0;
     uint8_t stirFlag   = 0;
-    int     lastSwitch = 0;
 
-    // 常量
-    // float frictSpeed = -24 / 0.0595 * 2 * 60 / 2 / 3.14;
     // 摩擦轮线速度(mps)转转速(rpm)
     float frictSpeed = 336; // 336 rad/s
-    float stirSpeed  = -40;
+    float stirSpeed  = 36 * 36;
+    float stirAmpre  = 0;
 
     // PID 初始化
-    PID_Init(&PID_LeftFrictSpeed, 25, 0.5, 0, 20000, 6000);  // 4 0.08 0    6000  1000
-    PID_Init(&PID_RightFrictSpeed, 25, 0.5, 0, 20000, 6000); // 10 0.08           1000
-    PID_Init(&PID_StirAngle, 12, 0.01, 0, 4000, 2000);       // 12 0.01
-    PID_Init(&PID_StirSpeed, 5, 0.2, 0, 4000, 2000);         // 5
+    // PID_Init(&PID_StirAngle, 25, 0, 0, 4000, 2000); // 8 0.01
+    PID_Init(&PID_StirSpeed, 5, 0, 0, 1000, 500); // 1.8
+
+    /*来自dji开源，两个snail不能同时启动*/
 
     while (1) {
-        if (remoteData.switchRight == 1) {
-            frictState = 1;
-        } else if (remoteData.switchRight == 3) {
-            frictState = 0;
-        }
-
-        // 摩擦轮 PID 控制
-        if (frictState == 0) {
-            LASER_OFF;                                                                              // 关闭激光
-            PID_Increment_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * RPM2RPS * r);   // 左摩擦轮停止
-            PID_Increment_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * RPM2RPS * r); // 右摩擦轮停止
-            PID_LeftFrictSpeed.output  = PID_LeftFrictSpeed.output / 0.0595 * 60 / 3.14;
-            PID_RightFrictSpeed.output = PID_RightFrictSpeed.output / 0.0595 * 60 / 3.14;
-            // Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
-        } else {
-            LASER_ON;                                                                        // 开启激光
-            PID_Calculate(&PID_LeftFrictSpeed, frictSpeed, Motor_LeftFrict.speed * RPM2RPS); // 左摩擦轮转动
-            PID_Calculate(&PID_RightFrictSpeed, -frictSpeed,
-                          Motor_RightFrict.speed * RPM2RPS); // 右摩擦轮转动
-            // Can_Send(CAN2, 0x200, PID_RightFrictSpeed.output, PID_LeftFrictSpeed.output, 0, 0);
-        }
         if (remoteData.switchLeft == 1) {
-            PWM_Set_Compare(&PWM_Magazine_Servo, 15);
-        }
-        if (remoteData.switchLeft == 2) {
-            stirState = 2;
-        } else if (remoteData.switchLeft == 3) {
-            // lastSwitch = 3;
-            stirState = 0;
-            PWM_Set_Compare(&PWM_Magazine_Servo, 7);
+            // 摩擦轮不转
+            PWM_Set_Compare(&PWM_Snail1, dutyCycleStart * 1250);
+            PWM_Set_Compare(&PWM_Snail2, dutyCycleStart * 1250);
         }
 
+        if (remoteData.switchLeft == 3) {
+            // 摩擦轮转
+            dutyCycleEnd = 0.526;
+
+            if (dutyCycleRightSnailProgress1 <= 1) { //初始状态
+                dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle,
+                                                 dutyCycleRightSnailProgress1); //斜坡上升
+                dutyCycleRightSnailProgress1 += 0.01f;
+            } else {
+                if (snailRightState == 0) { //初始状态停留100ms
+                    vTaskDelay(100);
+                    snailRightState = 1;
+                } else {
+                    if (dutyCycleRightSnailProgress2 <= 1) { //启动状态
+                        dutyCycleRightSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd,
+                                                         dutyCycleRightSnailProgress2); //斜坡上升
+                        dutyCycleRightSnailProgress2 += 0.001f;
+                    } else {
+                        if (dutyCycleLeftSnailProgress1 <= 1) {
+                            dutyCycleLeftSnailTarget = RAMP(dutyCycleStart,
+                                                            dutyCycleMiddle, //右摩擦轮启动完毕，左摩擦轮进入初始状态
+                                                            dutyCycleLeftSnailProgress1);
+                            dutyCycleLeftSnailProgress1 += 0.01f;
+                        } else {
+                            if (snailLeftState == 0) {
+                                vTaskDelay(100);
+                                snailLeftState = 1;
+                            } else {
+                                if (dutyCycleLeftSnailProgress2 <= 1) {
+                                    dutyCycleLeftSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleLeftSnailProgress2);
+                                    dutyCycleLeftSnailProgress2 += 0.001f;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
+            PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
+        }
         //拨弹轮 PID 控制
-        if (stirState == 0) { // 停止模式
-            PID_Increment_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed * RPM2RPS);
-        } else if (stirState == 2) { // 连发模式
-            PID_Increment_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * RPM2RPS);
+        if (remoteData.switchRight == 1) {
+            // 停止
+            // PWM_Set_Compare(&PWM_Magazine_Servo, 7);
+            Can_Send(CAN2, 0x1FF, 0, 0, 0, 0);
+        } else if (remoteData.switchRight == 3 && Ps.gimbalAimData.biu_biu_state) {
+            //连发
+            // PWM_Set_Compare(&PWM_Magazine_Servo, 15);
+            PID_Calculate(&PID_StirSpeed, 100, Motor_Stir.speed * rpm2rps);
+            Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
-        // Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+        vTaskDelayUntil(&LastWakeTime, intervalms);
 
-        vTaskDelayUntil(&LastWakeTime, 10);
+        DebugData.debug1 = Ps.gimbalAimData.biu_biu_state;
     }
-
     vTaskDelete(NULL);
 }
 
@@ -349,6 +386,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
+    TIM5CH1_CAPTURE_STA = 0;
     // 等待遥控器开启
     while (!remoteData.state) {
     }
@@ -356,7 +394,7 @@ void Task_Sys_Init(void *Parameters) {
     // 运动控制任务
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
