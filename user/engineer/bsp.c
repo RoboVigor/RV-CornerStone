@@ -66,25 +66,7 @@ void BSP_Take_Init(void) {
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
-}
-
-void BSP_Pushrod_Init(void) {
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
-    // Common
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_11;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOD, &GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_12;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOD, &GPIO_InitStructure);
-    // Power
+    // Catapult
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_1;
@@ -191,6 +173,23 @@ void BSP_Limit_Switch(void) {
     GPIO_Init(GPIOC, &GPIO_InitStructure);
 }
 
+// void BSP_Fsm_Init(void) {
+//     enum Take_State {T_S0, T_S1, T_S2, T_S3, T_S4, T_S5, T_S6};
+
+//     enum Take_Event {Event0, Event1, Event2, Event3, Event4};
+    
+//     enum Take_Fsmtable {
+//         // { EVENT1,  SPRING,    summer_thing,  SUMMER }
+//         {Event1, T_S0, Take_Throwup(), T_S1},
+//         {Event2, T_S1, Take_Horizontal(), T_S2},
+//         {Event3, T_S2, Take_Rotate_ON(), T_S3},
+//         {Event4, T_S3, Take_ON(), T_S4},
+//         {Event5, T_S4, Take_Rotate_OFF(), T_S5},
+//         {Event6, T_S5, Take_Horizontal(), T_S2},
+//         {Event7, T_S5, Take_Reset(), T_S0}
+//     };
+// }
+
 void BSP_Init(void) {
     BSP_CAN_Init();
     BSP_DBUS_Init(remoteBuffer);
@@ -204,12 +203,12 @@ void BSP_Init(void) {
     BSP_Beep_Init();
     BSP_LED_Init();
     BSP_User_Power_Init();
+    // BSP_Fsm_Init();
 
     // GPIO输出配置
-    BSP_Landing_Init(); // front: PH11 behind: PI2 power: PH12  多加四个IO口读取光电开关
+    BSP_Landing_Init(); //  PH11  多加四个IO口读取光电开关
     BSP_Rescue_Init();  // PI0                                  
-    BSP_Take_Init();    // Take: PA3 Rotate: PA2
-    BSP_Pushrod_Init(); // power: PA1 common: PH12 PH11
+    BSP_Take_Init();    // Take: PA3 Rotate: PA2 Catapult: PA1
     BSP_Optoelectronic_Input();   // 取弹: PI7 PI6 PI5 PI2 登岛: PE4 PE5 PE6 PE12
     BSP_Limit_Switch(); // 限位开关: PC2 PC3 
 
@@ -231,3 +230,4 @@ void BSP_Init(void) {
     BSP_TIM5CH1_Init(); // PH10
     BSP_TIM2CH1_Init(); // PA0
 }
+// 空余: PH12 

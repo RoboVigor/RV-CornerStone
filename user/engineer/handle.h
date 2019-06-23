@@ -45,10 +45,8 @@
 #define TAKE_ON GPIO_SetBits(GPIOA, GPIO_Pin_3);
 #define TAKE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3);
 
-#define TAKING_ROD_PUSH GPIO_SetBits(GPIOD, GPIO_Pin_12 | GPIO_Pin_13);
-#define TAKING_ROD_PULL GPIO_ResetBits(GPIOD, GPIO_Pin_12 | GPIO_Pin_13);
-#define TAKING_ROD_POWER_ON GPIO_SetBits(GPIOA, GPIO_Pin_1);
-#define TAKING_ROD_POWER_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_1);
+#define CATAPULT_ON GPIO_SetBits(GPIOA, GPIO_Pin_1);
+#define CATAPULT_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_1);
 
 // Rescue
 #define RESCUE_HOOK_DOWN GPIO_SetBits(GPIOI, GPIO_Pin_0);
@@ -79,7 +77,7 @@ __HANDLE_EXT ChassisData_Type ChassisData;
 
 // PID
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
-__HANDLE_EXT PID_Type PID_TH_Angle, PID_TH_Speed, PID_TV_Angle, PID_TV_Speed;
+__HANDLE_EXT PID_Type PID_TH_Speed, PID_TV_Angle, PID_TV_Speed;
 __HANDLE_EXT PID_Type PID_LGW, PID_RGW;
 __HANDLE_EXT PID_Type PID_Upthrow1_Angle, PID_Upthrow1_Speed;
 
@@ -103,6 +101,10 @@ __HANDLE_EXT u32 TIM5CH1_CAPTURE_VAL, TIM2CH1_CAPTURE_VAL;
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Supply1, PWM_Supply2, PWM_Image_Yaw, PWM_Image_Pitch, PWM_Rescue;
+
+// Fsm
+__HANDLE_EXT FsmTable_t Take_Fsmtable;
+__HANDLE_EXT Fsm_t Take_Fsm;
 
 /**
  * @brief 初始化结构体

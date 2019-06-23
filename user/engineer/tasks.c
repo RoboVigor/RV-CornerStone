@@ -104,18 +104,13 @@ void Task_Take(void *Parameters) {
 
         if (remoteData.switchLeft == 1) {
 
-            TAKING_ROD_POWER_ON;
-            TAKING_ROD_PUSH;
             vTaskDelay(800);
-            TAKING_ROD_POWER_OFF;
             takeMode = 0;        // 传动伸出
             ROTATE_ON;
             vTaskDelay(500);
             TAKE_ON;
             vTaskDelay(800);
-            TAKING_ROD_POWER_ON;
             vTaskDelay(1500);
-            TAKING_ROD_POWER_OFF;
             ROTATE_OFF;
             vTaskDelay(500);
             ROTATE_ON;
@@ -124,8 +119,6 @@ void Task_Take(void *Parameters) {
             ROTATE_OFF;
             vTaskDelay(500);
             takeMode = 1;    // 传动返回
-            TAKING_ROD_POWER_ON;
-            TAKING_ROD_PULL;
             vTaskDelay(4000);
             
         }
@@ -429,40 +422,21 @@ void Task_Optoelectronic_Input_Landing(void *Parameter) {
 void Task_Take_Horizontal(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    float TargetAngle = 0;
+    float TargetSpeed = 0;
 
-    PID_Init(&PID_TH_Angle, 10, 0, 0, 2000, 2000);
-    PID_Init(&PID_TH_Speed, 2, 0, 0, 2000, 2000);
+    PID_Init(&PID_TH_Speed, 25, 0.1, 0, 2000, 2000);
 
     while (1) {
 
-        if(T_State1 == 1 && T_State4 == 1) {
-            if(T_State2 == 0 && T_State3 == 0) {
-                TargetAngle = Motor_TH.angle;
-            } else if(T_State2 == 0 && T_State3 == 1) {
-                TargetAngle += 3;
-            } else if(T_State2 == 1 && T_State3 == 0) {
-                TargetAngle -= 3; 
-            } else {
-                TargetAngle = Motor_TH.angle;
-            }
-        } else if(T_State1 == 0 && T_State4 == 1) {
-            TargetAngle += 3; 
-        } else if(T_State1 == 1 && T_State4 == 0) {
-            TargetAngle -= 3;
+        if(T_State1 == 1 && T_State2 == 0 && T_State3 == 0 && T_State4 == 1) {
+            TargetSpeed = 0;
         } else {
-            TargetAngle = Motor_TH.angle;
+            TargetSpeed = -350;
         }
 
-        if (ABS(TargetAngle) > 540) {
-            TargetAngle = Motor_TH.angle;
-        }
-
-        PID_Calculate(&PID_TH_Angle, TargetAngle, Motor_TH.angle);
-        PID_Calculate(&PID_TH_Speed, PID_TH_Angle.output, Motor_TH.speed * RPM2RPS);
+        PID_Calculate(&PID_TH_Speed, TargetSpeed, Motor_TH.speed * RPM2RPS);
 
         Can_Send(CAN2, 0x200, 0, PID_TH_Speed.output, 0, 0);
-        // Can_Send(CAN2, 0x200, 0, 0, 0, 0);
 
         DebugA=TargetAngle;
 
@@ -560,8 +534,8 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
-    // while (!remoteData.state) {
-    // }
+    while (!remoteData.state) {
+    }
 
     // Structure
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
@@ -571,11 +545,11 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Supply, "Task_Supply", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Take_Horizontal, "Task_Take_Horizontal", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Take_Vertical, "Task_Take_Vertical", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Take_Vertical, "Task_Take_Vertical", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Optoelectronic_Input_Take, "Task_Optoelectronic_Input_Take", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Optoelectronic_Input_Landing, "Task_Optoelectronic_Input_Landing", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Upthrow,  "Task_Upthrow", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Limit_Switch,  "Task_Limit_Switch", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Upthrow,  "Task_Upthrow", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Limit_Switch,  "Task_Limit_Switch", 400, NULL, 3, NULL);
     /* End */
 
     // 完成使命

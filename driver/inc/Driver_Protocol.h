@@ -75,14 +75,59 @@ typedef struct {
 typedef struct {
     union {
         struct {
-            float yaw_angle_diff;
-            float pitch_angle_diff;
+            uint8_t energy_point;
+            uint8_t attack_time;
+        };
+        struct {
+            uint8_t data[Protocol_Pack_Length_0205];
+        };
+    };
+} aerial_robot_energy_t;
+
+typedef struct {
+    union {
+        struct {
+            uint8_t armor_id : 4;
+            uint8_t hurt_type : 4;
+        };
+        struct {
+            uint8_t data[Protocol_Pack_Length_0206];
+        };
+    };
+} ext_robot_hurt_t;
+
+typedef struct {
+    union {
+        struct {
+            uint8_t bullet_type;
+            uint8_t bullet_freq;
+            float   bullet_speed;
+        };
+        struct {
+            uint8_t data[Protocol_Pack_Length_0207];
+        };
+    };
+} ext_shoot_data_t;
+
+typedef struct {
+    union {
+        struct {
+            float   yaw_angle_diff;
+            float   pitch_angle_diff;
+            uint8_t biu_biu_state;
         };
         struct {
             uint8_t data[Protocol_Pack_Length_0401];
         };
     };
 } ext_gimal_aim_data_t;
+
+typedef struct {
+    float   data1;
+    float   data2;
+    float   data3;
+    uint8_t masks;
+} client_custom_data_t;
 
 typedef struct {
     uint8_t  sof;
@@ -112,6 +157,9 @@ typedef struct {
     uint64_t               received;
     ext_game_robot_state_t robotState;
     ext_power_heat_data_t  powerHeatData;
+    aerial_robot_energy_t  aerialRobotEnergy;
+    ext_robot_hurt_t       robotHurt;
+    ext_shoot_data_t       shootData;
     ext_gimal_aim_data_t   gimbalAimData;
 } Protocol_Type;
 

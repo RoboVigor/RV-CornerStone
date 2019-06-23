@@ -16,6 +16,10 @@ void Handle_Init(void) {
     Motor_Init(&Motor_TH, 36, 1); // 2006
     Motor_Init(&Motor_TV, 19.2f, 1); // 3510
 
+    // 抬升
+    Motor_Init(&Motor_Upthrow1, 19.2f, 1);
+    Motor_Init(&Motor_Upthrow2, 19.2f, 1);
+
     // Guide wheel
     Motor_Init(&Motor_LGW, 36, 1);
     Motor_Init(&Motor_RGW, 36, 1);
@@ -26,3 +30,39 @@ void Handle_Init(void) {
     // 初始化串口调试数据
     Magic_Init(&magic, 0);
 }
+
+//         {Event2, T_S1, , T_S2},
+//         {Event3, T_S2, , T_S3},
+//         {Event4, T_S3, (), T_S4},
+//         {Event5, T_S4, Take_Rotate_OFF(), T_S5},
+//         {Event6, T_S5, Take_Horizontal(), T_S2},
+//         {Event7, T_S5, Take_Reset(), T_S0}
+
+// void Take_Throwup(void) {
+//     TargetAngle = 300;
+// }
+
+// void Take_Horizontal(void) {
+//     if((T_State1 == 1 && T_State2 == 0 && T_State3 == 0 && T_State4 == 1) || LSL_State == 1 || LSR_State == 1) {
+//         TargetAngle = Motor_TH.angle;
+//     } else {
+//         TargetAngle += 3;
+//     }
+// }
+
+// void Take_Rotate_ON(void) {
+//     ROTATE_ON;
+// }
+
+// void Take_ON(void) {
+//     TAKE_ON;
+// }
+
+// void Take_Rotate_OFF(void) {
+//     ROTATE_OFF;
+// }
+
+// void Take_Reset(void) {
+
+// }
+
