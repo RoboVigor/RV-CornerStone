@@ -477,6 +477,7 @@ void BSP_DMA_USART3_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSiz
  * @param DMA_BufferSize         长度
  */
 void BSP_DMA_USART6_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+
     // NVIC
     NVIC_InitTypeDef NVIC_InitStructure;
     NVIC_InitStructure.NVIC_IRQChannel                   = DMA2_Stream1_IRQn;
@@ -484,6 +485,7 @@ void BSP_DMA_USART6_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSiz
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
+
     // DMA
     USART_DMACmd(USART6, USART_DMAReq_Rx, ENABLE);
     DMA_InitTypeDef DMA_InitStructure;
@@ -526,9 +528,9 @@ void BSP_DMA_USART6_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSiz
     DMA_InitTypeDef DMA_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
     DMA_InitStructure.DMA_Channel            = DMA_Channel_5;
-    DMA_InitStructure.DMA_PeripheralBaseAddr = &USART6->DR;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &USART6->SR;
     DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
-    DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
+    DMA_InitStructure.DMA_DIR                = DMA_DIR_MemoryToPeripheral;
     DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
     DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
     DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
@@ -536,8 +538,8 @@ void BSP_DMA_USART6_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSiz
     DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
     DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
     DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
-    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Enable;
-    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOStatus_HalfFull;
+    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Disable;
+    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOThreshold_Full;
     DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
     DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
     DMA_Init(DMA2_Stream6, &DMA_InitStructure);

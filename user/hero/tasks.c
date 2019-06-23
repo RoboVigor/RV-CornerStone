@@ -227,6 +227,16 @@ void Task_Debug_Magic_Send(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_DMASend(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    while (1) {
+        USART_DMACmd(USART6, USART_DMAReq_Tx, ENABLE);
+        DMA_Cmd(DMA2_Stream6, ENABLE);
+        vTaskDelayUntil(&LastWakeTime, 10);
+    }
+    vTaskDelete(NULL);
+}
+
 /**
  * @brief 发射机构代码
  *
@@ -381,6 +391,7 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Debug_RTOS_State, "Task_Debug_RTOS_State", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Debug_Gyroscope_Sampling, "Task_Debug_Gyroscope_Sampling", 400, NULL, 6,
     // NULL);
+    xTaskCreate(Task_DMASend, "Task_DMASend", 500, NULL, 6, NULL);
 #endif
 
     // 低级任务
@@ -390,13 +401,13 @@ void Task_Sys_Init(void *Parameters) {
 
     TIM5CH1_CAPTURE_STA = 0;
     // 等待遥控器开启
-    while (!remoteData.state) {
-    }
+    // while (!remoteData.state) {
+    // }
 
     // 运动控制任务
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
+    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
