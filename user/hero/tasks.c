@@ -194,7 +194,9 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        if (remoteData.switchLeft != 3) {
+            Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        }
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -272,7 +274,7 @@ void Task_Fire(void *Parameters) {
 
     // PID 初始化
     // PID_Init(&PID_StirAngle, 25, 0, 0, 4000, 2000); // 8 0.01
-    PID_Init(&PID_StirSpeed, 5, 0, 0, 1000, 500); // 1.8
+    PID_Init(&PID_StirSpeed, 10, 0, 0, 1000, 500); // 1.8
 
     /*来自dji开源，两个snail不能同时启动*/
 
