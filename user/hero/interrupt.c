@@ -96,10 +96,10 @@ void USART6_IRQHandler(void) {
     DMA_SetCurrDataCounter(DMA2_Stream1, Protocol_Buffer_Length);
     DMA_Cmd(DMA2_Stream1, ENABLE);
 
-    if (DMA_GetFlagStatus(DMA2_Stream1, DMA2_FLAG_TC6) == SET) {
-        DMA_ClearFlag(DMA2_Stream6, DMA2_FLAG_GL6);
-        DMA_Cmd(DMA2_Stream6, DISABLE);
+    while (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF6) != SET) {
     }
+    DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6);
+    DMA_Cmd(DMA2_Stream6, DISABLE);
 }
 
 /**
