@@ -274,7 +274,7 @@ void Task_Fire(void *Parameters) {
 
     // PID 初始化
     // PID_Init(&PID_StirAngle, 25, 0, 0, 4000, 2000); // 8 0.01
-    PID_Init(&PID_StirSpeed, 10, 0, 0, 1000, 500); // 1.8
+    PID_Init(&PID_StirSpeed, 40, 0, 0, 1000, 250); // 1.8
 
     /*来自dji开源，两个snail不能同时启动*/
 
@@ -330,15 +330,23 @@ void Task_Fire(void *Parameters) {
             // 停止
             // PWM_Set_Compare(&PWM_Magazine_Servo, 7);
             Can_Send(CAN2, 0x1FF, 0, 0, 0, 0);
-        } else if (remoteData.switchRight == 3 && Ps.gimbalAimData.biu_biu_state) {
+            // } else if (remoteData.switchRight == 3 && Ps.gimbalAimData.biu_biu_state) {
+        } else if (remoteData.switchRight == 3) {
             //连发
             // PWM_Set_Compare(&PWM_Magazine_Servo, 15);
-            PID_Calculate(&PID_StirSpeed, 100, Motor_Stir.speed * rpm2rps);
+            PID_Calculate(&PID_StirSpeed, 70, Motor_Stir.speed * rpm2rps);
             Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
-        DebugData.debug1 = Ps.gimbalAimData.biu_biu_state;
+        // DebugData.debug1 = Ps.gimbalAimData.biu_biu_state;
+        DebugData.debug2 = 70;
+        DebugData.debug3 = Motor_Stir.speed * rpm2rps;
+        DebugData.debug4 = PID_StirSpeed.output;
+        DebugData.debug5 = PID_StirSpeed.output_I;
+        // DebugData.debug6 = ImuData.gx;
+        // DebugData.debug7 = ImuData.gy;
+        // DebugData.debug8 = ImuData.gz;
     }
     vTaskDelete(NULL);
 }
@@ -388,7 +396,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
-    TIM5CH1_CAPTURE_STA = 0;
+    // TIM5CH1_CAPTURE_STA = 0;
     // 等待遥控器开启
     while (!remoteData.state) {
     }
