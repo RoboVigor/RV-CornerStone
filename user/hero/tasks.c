@@ -230,7 +230,7 @@ void Task_Debug_Magic_Send(void *Parameters) {
 void Task_DMASend(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        USART_DMACmd(USART6, USART_DMAReq_Tx, ENABLE);
+        DMA_SetCurrDataCounter(DMA2_Stream6, );
         DMA_Cmd(DMA2_Stream6, ENABLE);
         vTaskDelayUntil(&LastWakeTime, 10);
     }
