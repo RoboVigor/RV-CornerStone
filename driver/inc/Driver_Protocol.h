@@ -18,7 +18,8 @@
 #define Protocol_Pack_Length_0205 3
 #define Protocol_Pack_Length_0206 1
 #define Protocol_Pack_Length_0207 6
-#define Protocol_Pack_Length_0301_D180 10
+#define Protocol_Pack_Length_0301_Header 6
+#define Protocol_Pack_Length_0301_D180 13
 #define Protocol_Pack_Length_0401 9
 
 #define PROTOCOL_HEADER 0xA5
@@ -26,8 +27,8 @@
 #define PROTOCOL_CMD_SIZE 2
 #define PROTOCOL_CRC16_SIZE 2
 #define PROTOCOL_HEADER_CRC_LEN (PROTOCOL_HEADER_SIZE + PROTOCOL_CRC16_SIZE)
-#define PROTOCOL_HEADER_CRC_CMDID_LEN (PROTOCOL_HEADER_SIZE + PROTOCOL_CRC16_SIZE + sizeof(uint16_t))
-#define PROTOCOL_HEADER_CMDID_LEN (PROTOCOL_HEADER_SIZE + sizeof(uint16_t))
+#define PROTOCOL_HEADER_CRC_CMDID_LEN (PROTOCOL_HEADER_SIZE + PROTOCOL_CRC16_SIZE + PROTOCOL_CMD_SIZE)
+#define PROTOCOL_HEADER_CMDID_LEN (PROTOCOL_HEADER_SIZE + PROTOCOL_CMD_SIZE)
 
 typedef union {
     uint8_t U[4];
@@ -123,11 +124,35 @@ typedef struct {
 } ext_gimal_aim_data_t;
 
 typedef struct {
-    float   data1;
-    float   data2;
-    float   data3;
-    uint8_t masks;
+    union {
+        struct {
+            uint16_t data_cmd_id;
+            uint16_t send_id;
+            uint16_t receiver_id;
+        };
+        struct {
+            uint8_t data[Protocol_Pack_Length_0301_Header];
+        };
+    };
+} interactive_header_data_t;
+
+typedef struct {
+    union {
+        struct {
+            float   data1;
+            float   data2;
+            float   data3;
+            uint8_t masks;
+        };
+        struct {
+            uint8_t data[Protocol_Pack_Length_0301_D180];
+        };
+    };
 } client_custom_data_t;
+
+typedef struct {
+    uint8_t data[112];
+} robot_interactive_data_t;
 
 typedef struct {
     uint8_t  sof;
@@ -146,21 +171,24 @@ typedef enum {
 } unpack_step_e;
 
 typedef struct {
-    uint8_t                buf[Protocol_Buffer_Length];
-    uint8_t                packet[Protocol_Buffer_Length];
-    unpack_step_e          step;
-    uint16_t               index;
-    uint16_t               dataLength;
-    uint16_t               seq;
-    uint16_t               id;
-    uint64_t               lost;
-    uint64_t               received;
-    ext_game_robot_state_t robotState;
-    ext_power_heat_data_t  powerHeatData;
-    aerial_robot_energy_t  aerialRobotEnergy;
-    ext_robot_hurt_t       robotHurt;
-    ext_shoot_data_t       shootData;
-    ext_gimal_aim_data_t   gimbalAimData;
+    uint8_t                   buf[Protocol_Buffer_Length];
+    uint8_t                   packet[Protocol_Buffer_Length];
+    unpack_step_e             step;
+    uint16_t                  index;
+    uint16_t                  dataLength;
+    uint16_t                  seq;
+    uint16_t                  id;
+    uint64_t                  lost;
+    uint64_t                  received;
+    ext_game_robot_state_t    robotState;
+    ext_power_heat_data_t     powerHeatData;
+    aerial_robot_energy_t     aerialRobotEnergy;
+    ext_robot_hurt_t          robotHurt;
+    ext_shoot_data_t          shootData;
+    ext_gimal_aim_data_t      gimbalAimData;
+    interactive_header_data_t interactiveHeaderData;
+    client_custom_data_t      clientCustomData;
+    robot_interactive_data_t  robotInteractiveData;
 } Protocol_Type;
 
 unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength, unsigned char ucCRC8);
@@ -170,8 +198,11 @@ uint16_t      Get_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength, uint16
 uint32_t      Verify_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
 void          Append_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
 
-void Protocol_Init(Protocol_Type *Protocol);
-void Protocol_Update(Protocol_Type *Protocol);
-void Protocol_Decode(Protocol_Type *Protocol, uint8_t byte);
-void Protocol_Load(Protocol_Type *Protocol);
+void     Protocol_Init(Protocol_Type *Protocol);
+void     Protocol_Update(Protocol_Type *Protocol);
+void     Protocol_Decode(Protocol_Type *Protocol, uint8_t byte);
+void     Protocol_Load(Protocol_Type *Protocol);
+void     Protocol_Code(Protocol_Type *Protocol, uint16_t id);
+uint16_t Protocol_Interact(Protocol_Type *Protocol, uint16_t id);
+
 #endif

@@ -227,16 +227,20 @@ void Task_Debug_Magic_Send(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_DMASend(void *Parameters) {
+void Task_DMA_Send(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
+
         while (DMA_GetFlagStatus(DMA2_Stream6, DMA_IT_TCIF6) != SET) {
         }
         DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6);
         DMA_Cmd(DMA2_Stream6, DISABLE);
+        Protocol_Code(&Interact, 0xD180);
+
         DMA_SetCurrDataCounter(DMA2_Stream6, Protocol_Buffer_Length);
         DMA_Cmd(DMA2_Stream6, ENABLE);
-        vTaskDelayUntil(&LastWakeTime, 10);
+
+        vTaskDelayUntil(&LastWakeTime, 100);
     }
     vTaskDelete(NULL);
 }
@@ -395,7 +399,7 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Debug_RTOS_State, "Task_Debug_RTOS_State", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Debug_Gyroscope_Sampling, "Task_Debug_Gyroscope_Sampling", 400, NULL, 6,
     // NULL);
-    xTaskCreate(Task_DMASend, "Task_DMASend", 500, NULL, 6, NULL);
+
 #endif
 
     // 低级任务
@@ -413,6 +417,7 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
 
+    xTaskCreate(Task_DMA_Send, "Task_DMA_Send", 500, NULL, 6, NULL);
     // 完成使命
     vTaskDelete(NULL);
     vTaskDelay(10);

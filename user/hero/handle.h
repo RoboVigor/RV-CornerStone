@@ -55,7 +55,7 @@ __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
 // 通讯协议
-__HANDLE_EXT Protocol_Type Judge, Ps;
+__HANDLE_EXT Protocol_Type Judge, Ps, Interact;
 
 // 弹舱盖舵机
 __HANDLE_EXT PWM_Type PWM_Magazine_Servo;

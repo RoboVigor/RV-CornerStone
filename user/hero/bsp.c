@@ -22,7 +22,7 @@ void BSP_Init(void) {
     // Judge (USART6)
     BSP_USART6_Init(115200, USART_IT_IDLE);
     BSP_DMA_USART6_RX_Init(Judge.buf, Protocol_Buffer_Length);
-    BSP_DMA_USART6_TX_Init(Judge.buf, Protocol_Buffer_Length);
+    BSP_DMA_USART6_TX_Init(Interact.buf, Protocol_Buffer_Length);
 
     // Ps (USART3)
     BSP_USART3_Init(115200, USART_IT_IDLE);
