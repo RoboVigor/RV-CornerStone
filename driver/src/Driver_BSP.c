@@ -528,7 +528,7 @@ void BSP_DMA_USART6_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSiz
     DMA_InitTypeDef DMA_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
     DMA_InitStructure.DMA_Channel            = DMA_Channel_5;
-    DMA_InitStructure.DMA_PeripheralBaseAddr = &USART6->SR;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &USART6->DR;
     DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
     DMA_InitStructure.DMA_DIR                = DMA_DIR_MemoryToPeripheral;
     DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;

@@ -230,7 +230,11 @@ void Task_Debug_Magic_Send(void *Parameters) {
 void Task_DMASend(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        DMA_SetCurrDataCounter(DMA2_Stream6, );
+        while (DMA_GetFlagStatus(DMA2_Stream6, DMA_IT_TCIF6) != SET) {
+        }
+        DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6);
+        DMA_Cmd(DMA2_Stream6, DISABLE);
+        DMA_SetCurrDataCounter(DMA2_Stream6, Protocol_Buffer_Length);
         DMA_Cmd(DMA2_Stream6, ENABLE);
         vTaskDelayUntil(&LastWakeTime, 10);
     }
