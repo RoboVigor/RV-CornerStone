@@ -191,7 +191,7 @@ void CAN2_RX0_IRQHandler(void) {
 
     //安排数据
     switch (CanRxData.StdId) {
-    case 0x207:
+    case 0x201:
         Motor_Update(&Motor_Stir, position, speed);
     default:
         break;
