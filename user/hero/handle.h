@@ -61,8 +61,8 @@ __HANDLE_EXT Protocol_Type Judge, Ps;
 __HANDLE_EXT PWM_Type PWM_Magazine_Servo;
 
 //发射机构
-__HANDLE_EXT Motor_Type Motor_Stir;                 // 左/右 摩擦轮 拨弹轮 电机
-__HANDLE_EXT PID_Type PID_StirSpeed, PID_StirAngle; // 拨弹轮 速度/角度 PID
+__HANDLE_EXT Motor_Type Motor_LeftFrict, Motor_RightFrict, Motor_Stir2006, Motor_Stir3510;           // 左/右 摩擦轮 拨弹轮 电机
+__HANDLE_EXT PID_Type PID_LeftFrictSpeed, PID_RightFrictSpeed, PID_Stir2006Speed, PID_Stir3510Speed; // 拨弹轮 速度/角度 PID
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;
