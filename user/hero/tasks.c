@@ -123,14 +123,6 @@ void Task_Chassis(void *Parameters) {
     int   filterp        = 0;
     float motorSpeedStable;
 
-    // 小陀螺
-    float swingProgress  = 0;
-    float swingDuration  = 200;
-    int   swingDirection = 1;
-    float swingStep      = intervalms / swingDuration;
-    float swingAmplitude = 0;
-    float swingAngle     = 0;
-
     // 底盘跟随PID
     float followDeadRegion = 3.0;
     PID_Init(&PID_Follow_Angle, 1, 0, 0, 1000, 0);
@@ -147,45 +139,36 @@ void Task_Chassis(void *Parameters) {
 
     while (1) {
 
-        // 设置反馈值
-        motorAngle     = Motor_Yaw.angle;                          // 电机角度
-        motorSpeed     = (motorAngle - lastMotorAngle) / interval; // 电机角速度
-        lastMotorAngle = motorAngle;                               // 保存为上一次的电机角度
+        // // 设置反馈值
+        // motorAngle     = Motor_Yaw.angle;                          // 电机角度
+        // motorSpeed     = (motorAngle - lastMotorAngle) / interval; // 电机角速度
+        // lastMotorAngle = motorAngle;                               // 保存为上一次的电机角度
 
-        // 对电机角速度进行平均值滤波
-        filter[filterp] = motorAngle;
-        filterp         = filterp == 5 ? 0 : filterp + 1;
-        int i;
-        for (i = 0; i < 6; i++) {
-            motorSpeedStable += filter[i];
-        }
-        motorSpeedStable = motorSpeedStable / 6.0f;
+        // // 对电机角速度进行平均值滤波
+        // filter[filterp] = motorAngle;
+        // filterp         = filterp == 5 ? 0 : filterp + 1;
+        // int i;
+        // for (i = 0; i < 6; i++) {
+        //     motorSpeedStable += filter[i];
+        // }
+        // motorSpeedStable = motorSpeedStable / 6.0f;
 
-        // 小陀螺
-        if (ABS(swingProgress) > 1) {
-            swingDirection *= -1;
-        }
-        swingAmplitude = CHOOSE(0, 60, 60);
-        // followDeadRegion = CHOOSE(3, 0, 0);
-        swingProgress += swingStep * swingDirection;
-        swingProgress = CHOOSE(0, swingProgress, swingProgress);
-        // swingAngle    = vegsin(swingProgress * 90) * swingAmplitude;
-
-        // 根据运动模式计算PID
-        PID_Calculate(&PID_Follow_Angle, swingAngle, motorAngle);                    // 计算航向角角度PID
-        PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeedStable); // 计算航向角角速度PID
+        // // 根据运动模式计算PID
+        // PID_Calculate(&PID_Follow_Angle, 0, motorAngle);                    // 计算航向角角度PID
+        // PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeedStable); // 计算航向角角速度PID
 
         // 设置底盘总体移动速度
         vx = -remoteData.lx / 660.0f * 4;
         vy = remoteData.ly / 660.0f * 12;
-        vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
+        // vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
+        vw = remoteData.rx / 660.0f;
 
         // 麦轮解算及限速
-        targetPower = 80.0 - (60.0 - ChassisData.powerBuffer) / 60.0 * 80.0;
-        Chassis_Update(&ChassisData, vx, vy, vw);                                                        // 麦轮解算
-        Chassis_Fix(&ChassisData, motorAngle);                                                           // 修正旋转后底盘的前进方向
-        Chassis_Limit_Rotor_Speed(&ChassisData, 550);                                                    // 设置转子速度上限 (rad/s)
-        Chassis_Limit_Power(&ChassisData, 80, targetPower, Judge.powerHeatData.chassis_power, interval); // 根据功率限幅
+        // targetPower = 80.0 - (60.0 - ChassisData.powerBuffer) / 60.0 * 80.0;
+        Chassis_Update(&ChassisData, vx, vy, vw); // 麦轮解算
+        // Chassis_Fix(&ChassisData, motorAngle);    // 修正旋转后底盘的前进方向
+        // Chassis_Limit_Rotor_Speed(&ChassisData, 550);                                                    // 设置转子速度上限 (rad/s)
+        // Chassis_Limit_Power(&ChassisData, 80, targetPower, Judge.powerHeatData.chassis_power, interval); // 根据功率限幅
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
@@ -194,9 +177,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        if (remoteData.switchLeft != 3) {
-            Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
-        }
+        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -294,8 +275,8 @@ void Task_Blink(void *Parameters) {
 void Task_Startup_Music(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        if (KTV_Play(Music_Soul)) break;
-        vTaskDelayUntil(&LastWakeTime, 60);
+        if (KTV_Play(Music_Earth)) break;
+        vTaskDelayUntil(&LastWakeTime, 120);
     }
     vTaskDelete(NULL);
 }
@@ -332,8 +313,8 @@ void Task_Sys_Init(void *Parameters) {
 
     // 运动控制任务
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
+    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
