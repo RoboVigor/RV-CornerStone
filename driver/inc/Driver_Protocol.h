@@ -5,6 +5,10 @@
 
 #define Protocol_Buffer_Length 1000
 
+#define Protocol_Data_Id_Client 0xD180
+#define Protocol_Data_Id_Vision 0x0200
+#define Protocol_Data_Id_Robot 0x0201 : case 0x0202 : case 0x0203 : case 0x0204 : case 0x0205 : case 0x0206 : case 0x0207
+
 #define Protocol_Pack_Length_0001 3
 #define Protocol_Pack_Length_0002 1
 #define Protocol_Pack_Length_0003 2
@@ -19,7 +23,9 @@
 #define Protocol_Pack_Length_0206 1
 #define Protocol_Pack_Length_0207 6
 #define Protocol_Pack_Length_0301_Header 6
-#define Protocol_Pack_Length_0301_D180 13
+#define Protocol_Pack_Length_0301_Client 13
+#define Protocol_Pack_Length_0301_Vision 1
+#define Protocol_Pack_Length_0301_Robot 112
 #define Protocol_Pack_Length_0401 9
 
 #define PROTOCOL_HEADER 0xA5
@@ -34,7 +40,7 @@ typedef union {
     uint8_t U[4];
     float   F;
     int     I;
-} FormatTrans;
+} format_trans_t;
 
 typedef struct {
     union {
@@ -145,13 +151,25 @@ typedef struct {
             uint8_t masks;
         };
         struct {
-            uint8_t data[Protocol_Pack_Length_0301_D180];
+            uint8_t data[Protocol_Pack_Length_0301_Client];
         };
     };
 } client_custom_data_t;
 
 typedef struct {
-    uint8_t data[112];
+    uint8_t data[Protocol_Pack_Length_0301_Vision];
+} vision_interactive_data_t;
+
+typedef struct {
+    union {
+        struct {
+            format_trans_t format_trans_data[Protocol_Pack_Length_0301_Robot / sizeof(float)];
+        };
+        struct {
+            uint8_t data[Protocol_Pack_Length_0301_Robot];
+        };
+    };
+    uint16_t length;
 } robot_interactive_data_t;
 
 typedef struct {
@@ -189,6 +207,7 @@ typedef struct {
     ext_gimal_aim_data_t      gimbalAimData;
     interactive_header_data_t interactiveHeaderData;
     client_custom_data_t      clientCustomData;
+    vision_interactive_data_t visionInteractiveData;
     robot_interactive_data_t  robotInteractiveData;
 } Protocol_Type;
 

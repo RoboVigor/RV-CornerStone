@@ -510,6 +510,43 @@ void BSP_DMA_USART6_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSiz
 }
 
 /**
+ * @brief USART3_TX的DMA初始化
+ *
+ * @param DMA_Memory0BaseAddr    复制到哪里
+ * @param DMA_BufferSize         长度
+ */
+void BSP_DMA_USART3_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+    // NVIC
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA1_Stream3_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+    // DMA
+    USART_DMACmd(USART3, USART_DMAReq_Tx, ENABLE);
+    DMA_InitTypeDef DMA_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+    DMA_InitStructure.DMA_Channel            = DMA_Channel_4;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &USART3->DR;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
+    DMA_InitStructure.DMA_DIR                = DMA_DIR_MemoryToPeripheral;
+    DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Disable;
+    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOThreshold_Full;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA1_Stream3, &DMA_InitStructure);
+    DMA_Cmd(DMA1_Stream3, ENABLE);
+}
+
+/**
  * @brief USART6_TX的DMA初始化
  *
  * @param DMA_Memory0BaseAddr    复制到哪里

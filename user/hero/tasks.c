@@ -227,8 +227,11 @@ void Task_Debug_Magic_Send(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_DMA_Send(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount();
+void Task_Client(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.2;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
     while (1) {
 
         while (DMA_GetFlagStatus(DMA2_Stream6, DMA_IT_TCIF6) != SET) {
@@ -236,21 +239,45 @@ void Task_DMA_Send(void *Parameters) {
         DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6);
         DMA_Cmd(DMA2_Stream6, DISABLE);
 
-        Interact.interactiveHeaderData.data_cmd_id = 0xD180;
-        Interact.interactiveHeaderData.send_id     = Judge.robotState.robot_id;
-        // Interact.interactiveHeaderData.receiver_id = ;
+        Judge.interactiveHeaderData.data_cmd_id = 0xD180;
+        Judge.interactiveHeaderData.send_id     = Judge.robotState.robot_id;
 
-        Interact.clientCustomData.data1 = 1;
-        Interact.clientCustomData.data2 = 1.1;
-        Interact.clientCustomData.data3 = 1.11;
-        Interact.clientCustomData.masks = 0;
+        Judge.clientCustomData.data1 = 1;
+        Judge.clientCustomData.data2 = 1.1;
+        Judge.clientCustomData.data3 = 1.11;
+        Judge.clientCustomData.masks = 0;
 
-        Protocol_Pack(&Interact);
+        Protocol_Pack(&Judge);
 
         DMA_SetCurrDataCounter(DMA2_Stream6, Protocol_Buffer_Length);
         DMA_Cmd(DMA2_Stream6, ENABLE);
 
-        vTaskDelayUntil(&LastWakeTime, 100);
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+    vTaskDelete(NULL);
+}
+
+void Task_Vision(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.2;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    while (1) {
+
+        while (DMA_GetFlagStatus(DMA1_Stream3, DMA_IT_TCIF3) != SET) {
+        }
+        DMA_ClearFlag(DMA1_Stream3, DMA_FLAG_TCIF3);
+        DMA_Cmd(DMA1_Stream3, DISABLE);
+
+        Ps.interactiveHeaderData.data_cmd_id = 0x2000;
+        Ps.interactiveHeaderData.send_id     = Judge.robotState.robot_id;
+
+        Protocol_Pack(&Ps);
+
+        DMA_SetCurrDataCounter(DMA1_Stream3, Protocol_Buffer_Length);
+        DMA_Cmd(DMA1_Stream3, ENABLE);
+
+        vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
 }
@@ -427,7 +454,10 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
 
-    xTaskCreate(Task_DMA_Send, "Task_DMA_Send", 500, NULL, 6, NULL);
+    // DMA发送任务
+    xTaskCreate(Task_Client, "Task_Client", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Vision, "Task_Vision", 500, NULL, 6, NULL);
+
     // 完成使命
     vTaskDelete(NULL);
     vTaskDelay(10);

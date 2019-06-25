@@ -24,17 +24,25 @@ void Protocol_Pack(Protocol_Type *Protocol) {
     id    = Protocol->interactiveHeaderData.data_cmd_id;
 
     switch (id) {
-    case (0xD180): {
+    case Protocol_Data_Id_Client: {
         // Client Custom Data
-        dataLength = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_D180;
+        dataLength = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client;
         Protocol->interactiveHeaderData.receiver_id =
             (Protocol->interactiveHeaderData.send_id % 10) | (Protocol->interactiveHeaderData.send_id / 10) << 4 | (0x01 << 8);
     } break;
 
-    default: {
-        // Robot Interactive Data
-        // dataLength = Protocol_Pack_Length_0301_Header + ;
+    case Protocol_Data_Id_Vision: {
+        // Vision Interactive Data
+        dataLength = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Vision;
     } break;
+
+    case Protocol_Data_Id_Robot: {
+        // Robot Interactive Data
+        dataLength = Protocol_Pack_Length_0301_Header + Protocol->robotInteractiveData.length;
+    } break;
+
+    default:
+        break;
     }
 
     // Header SOF
@@ -48,7 +56,7 @@ void Protocol_Pack(Protocol_Type *Protocol) {
     Protocol->extPacket[index++] = 0x00;
 
     // Header CRC8
-    Protocol->extPacket[index++] = Get_CRC8_Check_Sum(Protocol->extPacket, PROTOCOL_HEADER_SIZE, 0xff);
+    Protocol->extPacket[index++] = Get_CRC8_Check_Sum(Protocol->extPacket, PROTOCOL_HEADER_SIZE - 1, CRC8_INIT);
 
     // Cmd ID
     Protocol->extPacket[index++] = 0x01;
@@ -61,23 +69,33 @@ void Protocol_Pack(Protocol_Type *Protocol) {
 
     // Data
     switch (id) {
-    case (0xD180): {
+    case Protocol_Data_Id_Client: {
         // Client Custom Data
         while (index < PROTOCOL_HEADER_CMDID_LEN + dataLength) {
             Protocol->extPacket[index++] = Protocol->clientCustomData.data[index - PROTOCOL_HEADER_CMDID_LEN - Protocol_Pack_Length_0301_Header];
         }
     } break;
 
-    default: {
+    case Protocol_Data_Id_Vision: {
+        // Vision Interactive Data
+        while (index < PROTOCOL_HEADER_CMDID_LEN + dataLength) {
+            Protocol->extPacket[index++] = Protocol->visionInteractiveData.data[index - PROTOCOL_HEADER_CMDID_LEN - Protocol_Pack_Length_0301_Header];
+        }
+    } break;
+
+    case Protocol_Data_Id_Robot: {
         // Robot Interactive Data
         while (index < PROTOCOL_HEADER_CMDID_LEN + dataLength) {
             Protocol->extPacket[index++] = Protocol->robotInteractiveData.data[index - PROTOCOL_HEADER_CMDID_LEN - Protocol_Pack_Length_0301_Header];
         }
-    } break;
+    }
+
+    default:
+        break;
     }
 
     // Data CRC16
-    dataCRC16                    = Get_CRC16_Check_Sum(Protocol->extPacket, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength, 0xffff);
+    dataCRC16                    = Get_CRC16_Check_Sum(Protocol->extPacket, PROTOCOL_HEADER_CMDID_LEN + dataLength, CRC_INIT);
     Protocol->extPacket[index++] = (dataCRC16) &0xff;
     Protocol->extPacket[index++] = (dataCRC16) >> 8;
 
@@ -187,6 +205,10 @@ void Protocol_Load(Protocol_Type *Protocol) {
 
     case 0x0401: {
         begin_p = Protocol->gimbalAimData.data;
+    } break;
+
+    case 0x0301: {
+        begin_p = Protocol->robotInteractiveData.data;
     } break;
 
     default: { return; } break;
