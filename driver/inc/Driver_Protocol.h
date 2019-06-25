@@ -173,6 +173,7 @@ typedef enum {
 typedef struct {
     uint8_t                   buf[Protocol_Buffer_Length];
     uint8_t                   packet[Protocol_Buffer_Length];
+    uint8_t                   extPacket[Protocol_Buffer_Length];
     unpack_step_e             step;
     uint16_t                  index;
     uint16_t                  dataLength;
@@ -198,11 +199,10 @@ uint16_t      Get_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength, uint16
 uint32_t      Verify_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
 void          Append_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
 
-void     Protocol_Init(Protocol_Type *Protocol);
-void     Protocol_Update(Protocol_Type *Protocol);
-void     Protocol_Decode(Protocol_Type *Protocol, uint8_t byte);
-void     Protocol_Load(Protocol_Type *Protocol);
-void     Protocol_Code(Protocol_Type *Protocol, uint16_t id);
-uint16_t Protocol_Interact(Protocol_Type *Protocol, uint16_t id);
+void Protocol_Init(Protocol_Type *Protocol);
+void Protocol_Update(Protocol_Type *Protocol);
+void Protocol_Unpack(Protocol_Type *Protocol, uint8_t byte);
+void Protocol_Load(Protocol_Type *Protocol);
+void Protocol_Pack(Protocol_Type *Protocol);
 
 #endif

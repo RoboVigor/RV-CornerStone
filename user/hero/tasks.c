@@ -235,7 +235,17 @@ void Task_DMA_Send(void *Parameters) {
         }
         DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6);
         DMA_Cmd(DMA2_Stream6, DISABLE);
-        Protocol_Code(&Interact, 0xD180);
+
+        Interact.interactiveHeaderData.data_cmd_id = 0xD180;
+        Interact.interactiveHeaderData.send_id     = Judge.robotState.robot_id;
+        // Interact.interactiveHeaderData.receiver_id = ;
+
+        Interact.clientCustomData.data1 = 1;
+        Interact.clientCustomData.data2 = 1.1;
+        Interact.clientCustomData.data3 = 1.11;
+        Interact.clientCustomData.masks = 0;
+
+        Protocol_Pack(&Interact);
 
         DMA_SetCurrDataCounter(DMA2_Stream6, Protocol_Buffer_Length);
         DMA_Cmd(DMA2_Stream6, ENABLE);

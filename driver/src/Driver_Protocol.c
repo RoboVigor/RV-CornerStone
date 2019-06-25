@@ -9,85 +9,84 @@ void Protocol_Init(Protocol_Type *Protocol) {
 void Protocol_Update(Protocol_Type *Protocol) {
     int i = 0;
     for (i = 0; i < Protocol_Buffer_Length; i++) {
-        Protocol_Decode(Protocol, Protocol->buf[i]);
+        Protocol_Unpack(Protocol, Protocol->buf[i]);
     }
 }
 
-void Protocol_Code(Protocol_Type *Protocol, uint16_t id) {
+void Protocol_Pack(Protocol_Type *Protocol) {
     int      i;
+    uint16_t index;
+    uint16_t id;
+    uint16_t dataLength;
     uint16_t dataCRC16;
 
-    Protocol->index      = 0;
-    Protocol->dataLength = Protocol_Interact(Protocol, id);
-
-    // Header SOF
-    Protocol->packet[Protocol->index++] = PROTOCOL_HEADER;
-
-    // Data Length
-    Protocol->packet[Protocol->index++] = (Protocol->dataLength) & 0xff;
-    Protocol->packet[Protocol->index++] = (Protocol->dataLength) >> 8;
-
-    // Frame SEQ
-    Protocol->packet[Protocol->index++] = 0x00;
-
-    // Header CRC8
-    Protocol->packet[Protocol->index++] = Get_CRC8_Check_Sum(Protocol->packet, PROTOCOL_HEADER_SIZE, 0xff);
-
-    // Cmd ID
-    Protocol->packet[Protocol->index++] = 0x03;
-    Protocol->packet[Protocol->index++] = 0x01;
-
-    // Data Header
-    while (Protocol->index < PROTOCOL_HEADER_CMDID_LEN + Protocol_Pack_Length_0301_Header) {
-        Protocol->packet[Protocol->index++] = Protocol->interactiveHeaderData.data[Protocol->index - PROTOCOL_HEADER_CMDID_LEN];
-    }
-    if (id == 0xD180)
-        // Client Custom Data
-        while (Protocol->index < PROTOCOL_HEADER_CMDID_LEN + Protocol->dataLength) {
-            Protocol->packet[Protocol->index++] =
-                Protocol->clientCustomData.data[Protocol->index - PROTOCOL_HEADER_CMDID_LEN - Protocol_Pack_Length_0301_Header];
-        }
-    else
-        // Robot Interactive Data
-        while (Protocol->index < PROTOCOL_HEADER_CMDID_LEN + Protocol->dataLength) {
-            Protocol->packet[Protocol->index++] =
-                Protocol->robotInteractiveData.data[Protocol->index - PROTOCOL_HEADER_CMDID_LEN - Protocol_Pack_Length_0301_Header];
-        }
-
-    // Data CRC16
-    dataCRC16                           = Get_CRC16_Check_Sum(Protocol->packet, PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol->dataLength, 0xffff);
-    Protocol->packet[Protocol->index++] = (dataCRC16) &0xff;
-    Protocol->packet[Protocol->index++] = (dataCRC16) >> 8;
-
-    for (i = 0; i < Protocol->index; i++)
-        Protocol->buf[i] = Protocol->packet[i];
-}
-
-uint16_t Protocol_Interact(Protocol_Type *Protocol, uint16_t id) {
-
-    Protocol->interactiveHeaderData.data_cmd_id = id;
-    Protocol->interactiveHeaderData.send_id     = Protocol->robotState.robot_id;
+    index = 0;
+    id    = Protocol->interactiveHeaderData.data_cmd_id;
 
     switch (id) {
     case (0xD180): {
-
-        Protocol->interactiveHeaderData.receiver_id = (Protocol->robotState.robot_id % 10) | (Protocol->robotState.robot_id / 10) << 4 | (0x01 << 8);
-
-        Protocol->clientCustomData.data1 = 1;
-        Protocol->clientCustomData.data2 = 1.1;
-        Protocol->clientCustomData.data3 = 1.11;
-        Protocol->clientCustomData.masks = 0x00;
-
-        return (Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_D180);
-
+        // Client Custom Data
+        dataLength = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_D180;
+        Protocol->interactiveHeaderData.receiver_id =
+            (Protocol->interactiveHeaderData.send_id % 10) | (Protocol->interactiveHeaderData.send_id / 10) << 4 | (0x01 << 8);
     } break;
 
-    default:
-        break;
+    default: {
+        // Robot Interactive Data
+        // dataLength = Protocol_Pack_Length_0301_Header + ;
+    } break;
+    }
+
+    // Header SOF
+    Protocol->extPacket[index++] = PROTOCOL_HEADER;
+
+    // Data Length
+    Protocol->extPacket[index++] = (dataLength) &0xff;
+    Protocol->extPacket[index++] = (dataLength) >> 8;
+
+    // Frame SEQ
+    Protocol->extPacket[index++] = 0x00;
+
+    // Header CRC8
+    Protocol->extPacket[index++] = Get_CRC8_Check_Sum(Protocol->extPacket, PROTOCOL_HEADER_SIZE, 0xff);
+
+    // Cmd ID
+    Protocol->extPacket[index++] = 0x01;
+    Protocol->extPacket[index++] = 0x03;
+
+    // Data Header
+    while (index < PROTOCOL_HEADER_CMDID_LEN + Protocol_Pack_Length_0301_Header) {
+        Protocol->extPacket[index++] = Protocol->interactiveHeaderData.data[index - PROTOCOL_HEADER_CMDID_LEN];
+    }
+
+    // Data
+    switch (id) {
+    case (0xD180): {
+        // Client Custom Data
+        while (index < PROTOCOL_HEADER_CMDID_LEN + dataLength) {
+            Protocol->extPacket[index++] = Protocol->clientCustomData.data[index - PROTOCOL_HEADER_CMDID_LEN - Protocol_Pack_Length_0301_Header];
+        }
+    } break;
+
+    default: {
+        // Robot Interactive Data
+        while (index < PROTOCOL_HEADER_CMDID_LEN + dataLength) {
+            Protocol->extPacket[index++] = Protocol->robotInteractiveData.data[index - PROTOCOL_HEADER_CMDID_LEN - Protocol_Pack_Length_0301_Header];
+        }
+    } break;
+    }
+
+    // Data CRC16
+    dataCRC16                    = Get_CRC16_Check_Sum(Protocol->extPacket, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength, 0xffff);
+    Protocol->extPacket[index++] = (dataCRC16) &0xff;
+    Protocol->extPacket[index++] = (dataCRC16) >> 8;
+
+    for (i = 0; i < index; i++) {
+        Protocol->buf[i] = Protocol->extPacket[i];
     }
 }
 
-void Protocol_Decode(Protocol_Type *Protocol, uint8_t byte) {
+void Protocol_Unpack(Protocol_Type *Protocol, uint8_t byte) {
     switch (Protocol->step) {
     case STEP_HEADER_SOF: {
         if (byte == PROTOCOL_HEADER) {
