@@ -257,9 +257,41 @@ void Task_Client(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_Vision(void *Parameters) {
+void Task_Robot(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.2;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    while (1) {
+
+        while (DMA_GetFlagStatus(DMA2_Stream6, DMA_IT_TCIF6) != SET) {
+        }
+        DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6);
+        DMA_Cmd(DMA2_Stream6, DISABLE);
+
+        Judge.interactiveHeaderData.data_cmd_id = 0x0201;
+        Judge.interactiveHeaderData.send_id     = Judge.robotState.robot_id;
+        Judge.interactiveHeaderData.receiver_id = 0;
+
+        Judge.robotInteractiveData.format_trans_data[1].F = 1;
+        Judge.robotInteractiveData.format_trans_data[2].F = 1.1;
+        Judge.robotInteractiveData.format_trans_data[3].F = 1.11;
+        Judge.robotInteractiveData.format_trans_data[4].F = 1.111;
+        Judge.robotInteractiveData.length                 = 4 * sizeof(float);
+
+        Protocol_Pack(&Judge);
+
+        DMA_SetCurrDataCounter(DMA2_Stream6, Protocol_Buffer_Length);
+        DMA_Cmd(DMA2_Stream6, ENABLE);
+
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+    vTaskDelete(NULL);
+}
+
+void Task_Vision(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.1;                 // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
@@ -268,9 +300,6 @@ void Task_Vision(void *Parameters) {
         }
         DMA_ClearFlag(DMA1_Stream3, DMA_FLAG_TCIF3);
         DMA_Cmd(DMA1_Stream3, DISABLE);
-
-        Ps.interactiveHeaderData.data_cmd_id = 0x2000;
-        Ps.interactiveHeaderData.send_id     = Judge.robotState.robot_id;
 
         Protocol_Pack(&Ps);
 
@@ -456,6 +485,7 @@ void Task_Sys_Init(void *Parameters) {
 
     // DMA发送任务
     xTaskCreate(Task_Client, "Task_Client", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Robot, "Task_Robot", 500, NULL, 5, NULL);
     xTaskCreate(Task_Vision, "Task_Vision", 500, NULL, 6, NULL);
 
     // 完成使命

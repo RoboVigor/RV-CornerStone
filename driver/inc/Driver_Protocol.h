@@ -6,7 +6,6 @@
 #define Protocol_Buffer_Length 1000
 
 #define Protocol_Data_Id_Client 0xD180
-#define Protocol_Data_Id_Vision 0x0200
 #define Protocol_Data_Id_Robot 0x0201 : case 0x0202 : case 0x0203 : case 0x0204 : case 0x0205 : case 0x0206 : case 0x0207
 
 #define Protocol_Pack_Length_0001 3
