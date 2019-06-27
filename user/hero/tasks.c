@@ -240,7 +240,8 @@ void Task_Client(void *Parameters) {
         DMA_Cmd(DMA2_Stream6, DISABLE);
 
         Judge.interactiveHeaderData.data_cmd_id = 0xD180;
-        Judge.interactiveHeaderData.send_id     = Judge.robotState.robot_id;
+        // Judge.interactiveHeaderData.send_id     = Judge.robotState.robot_id;
+        Judge.interactiveHeaderData.send_id = 1;
 
         Judge.clientCustomData.data1 = 1;
         Judge.clientCustomData.data2 = 1.1;
@@ -273,11 +274,11 @@ void Task_Robot(void *Parameters) {
         Judge.interactiveHeaderData.send_id     = Judge.robotState.robot_id;
         Judge.interactiveHeaderData.receiver_id = 0;
 
-        Judge.robotInteractiveData.format_trans_data[1].F = 1;
-        Judge.robotInteractiveData.format_trans_data[2].F = 1.1;
-        Judge.robotInteractiveData.format_trans_data[3].F = 1.11;
-        Judge.robotInteractiveData.format_trans_data[4].F = 1.111;
-        Judge.robotInteractiveData.length                 = 4 * sizeof(float);
+        Judge.robotInteractiveData[0].transformer[1].F = 1;
+        Judge.robotInteractiveData[0].transformer[2].F = 1.1;
+        Judge.robotInteractiveData[0].transformer[3].F = 1.11;
+        Judge.robotInteractiveData[0].transformer[4].F = 1.111;
+        Judge.robotInteractiveData[0].length           = 4 * sizeof(float);
 
         Protocol_Pack(&Judge);
 
@@ -471,7 +472,7 @@ void Task_Sys_Init(void *Parameters) {
     // 低级任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     TIM5CH1_CAPTURE_STA = 0;
     // 等待遥控器开启

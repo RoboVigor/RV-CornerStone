@@ -23,7 +23,6 @@
 #define Protocol_Pack_Length_0207 6
 #define Protocol_Pack_Length_0301_Header 6
 #define Protocol_Pack_Length_0301_Client 13
-#define Protocol_Pack_Length_0301_Vision 1
 #define Protocol_Pack_Length_0301_Robot 112
 #define Protocol_Pack_Length_0401 9
 
@@ -156,13 +155,13 @@ typedef struct {
 } client_custom_data_t;
 
 typedef struct {
-    uint8_t data[Protocol_Pack_Length_0301_Vision];
+    uint8_t data[Protocol_Pack_Length_0401];
 } vision_interactive_data_t;
 
 typedef struct {
     union {
         struct {
-            format_trans_t format_trans_data[Protocol_Pack_Length_0301_Robot / sizeof(float)];
+            format_trans_t transformer[Protocol_Pack_Length_0301_Robot / sizeof(float)];
         };
         struct {
             uint8_t data[Protocol_Pack_Length_0301_Robot];
@@ -190,7 +189,7 @@ typedef enum {
 typedef struct {
     uint8_t                   buf[Protocol_Buffer_Length];
     uint8_t                   packet[Protocol_Buffer_Length];
-    uint8_t                   extPacket[Protocol_Buffer_Length];
+    uint8_t                   interact[Protocol_Buffer_Length];
     unpack_step_e             step;
     uint16_t                  index;
     uint16_t                  dataLength;
@@ -207,7 +206,7 @@ typedef struct {
     interactive_header_data_t interactiveHeaderData;
     client_custom_data_t      clientCustomData;
     vision_interactive_data_t visionInteractiveData;
-    robot_interactive_data_t  robotInteractiveData;
+    robot_interactive_data_t  robotInteractiveData[8];
 } Protocol_Type;
 
 unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength, unsigned char ucCRC8);
