@@ -3,7 +3,7 @@
 
 #include "stm32f4xx.h"
 
-#define Protocol_Buffer_Length 1000
+#define Protocol_Buffer_Length 128
 
 #define Protocol_Data_Id_Client 0xD180
 #define Protocol_Data_Id_Robot 0x0201 : case 0x0202 : case 0x0203 : case 0x0204 : case 0x0205 : case 0x0206 : case 0x0207
@@ -167,7 +167,6 @@ typedef struct {
             uint8_t data[Protocol_Pack_Length_0301_Robot];
         };
     };
-    uint16_t length;
 } robot_interactive_data_t;
 
 typedef struct {
@@ -220,6 +219,6 @@ void Protocol_Init(Protocol_Type *Protocol);
 void Protocol_Update(Protocol_Type *Protocol);
 void Protocol_Unpack(Protocol_Type *Protocol, uint8_t byte);
 void Protocol_Load(Protocol_Type *Protocol);
-void Protocol_Pack(Protocol_Type *Protocol);
+void Protocol_Pack(Protocol_Type *Protocol, int length);
 
 #endif
