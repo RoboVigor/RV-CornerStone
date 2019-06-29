@@ -194,9 +194,9 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        if (remoteData.switchLeft != 3) {
-            Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
-        }
+        // if (remoteData.switchLeft != 3) {
+        //     Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        // }
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -272,9 +272,17 @@ void Task_Fire(void *Parameters) {
     float stirSpeed  = 36 * 36;
     float stirAmpre  = 0;
 
+    //热量控制
+    int   shootMode       = 0; //设计模式0停止 1连发 2一次n连发
+    int   shootNum        = 0;
+    int   mayShootNum     = 0;
+    int   maxBulletSpeed  = 0;
+    float lastBulletSpeed = 0;
+    float maxShootHeat    = 0;
+
     // PID 初始化
-    // PID_Init(&PID_StirAngle, 25, 0, 0, 4000, 2000); // 8 0.01
-    PID_Init(&PID_StirSpeed, 40, 0, 0, 1000, 250); // 1.8
+    // PID_Init(&PID_StirAngle, 4, 0, 0, 4000, 500);   // 8 0.01
+    PID_Init(&PID_StirSpeed, 20, 0, 0, 4000, 1000); // 1.8
 
     /*来自dji开源，两个snail不能同时启动*/
 
@@ -285,7 +293,7 @@ void Task_Fire(void *Parameters) {
             PWM_Set_Compare(&PWM_Snail2, dutyCycleStart * 1250);
         }
 
-        if (remoteData.switchLeft == 3) {
+        if (remoteData.switchLeft != 1) {
             // 摩擦轮转
             dutyCycleEnd = 0.526;
 
@@ -326,24 +334,50 @@ void Task_Fire(void *Parameters) {
             PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
         }
         //拨弹轮 PID 控制
-        if (remoteData.switchRight == 1) {
+        // if (lastBulletSpeed < Judge.shootData.bullet_speed) {
+        //     maxBulletSpeed  = Judge.shootData.bullet_speed;
+        //     lastBulletSpeed = Judge.shootData.bullet_speed;
+        // }
+
+        maxShootHeat = 0.8 * Judge.robotState.shooter_heat0_cooling_limit;
+        // mayShootNum  = (Judge.robotState.shooter_heat0_cooling_limit - Judge.powerHeatData.shooter_heat0) / maxBulletSpeed;
+
+        // if (lastBulletSpeed != Judge.shootData.bullet_speed) {
+        //     shootNum += 1;
+        //     lastBulletSpeed = Judge.shootData.bullet_speed;
+        // }
+        if (remoteData.switchRight == 3 && remoteData.switchLeft == 3 && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
+            shootMode = 1; //连发
+        } else if (remoteData.switchRight == 3 && remoteData.switchLeft == 2 && (shootNum + 1) < mayShootNum) {
+            shootMode = 2; // n连发
+        } else {
+            shootMode = 0; //停止
+        }
+        if (shootMode = 1) {
+            //连发
+            // PWM_Set_Compare(&PWM_Magazine_Servo, 15);
+            PID_Calculate(&PID_StirSpeed, 100, Motor_Stir.speed * rpm2rps);
+            Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+        }
+        //  if ( shootMode = 2) {
+        //     PID_Calculate(&PID_StirAngle, 40 * shootNum, Motor_Stir.angle);
+        //     PID_Calculate(&PID_StirSpeed, PID_StirAngle.output, Motor_Stir.speed * rpm2rps);
+        //     Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+        //     shootNum = 0;
+        // }
+        if (shootMode = 0) {
             // 停止
             // PWM_Set_Compare(&PWM_Magazine_Servo, 7);
             Can_Send(CAN2, 0x1FF, 0, 0, 0, 0);
             // } else if (remoteData.switchRight == 3 && Ps.gimbalAimData.biu_biu_state) {
-        } else if (remoteData.switchRight == 3) {
-            //连发
-            // PWM_Set_Compare(&PWM_Magazine_Servo, 15);
-            PID_Calculate(&PID_StirSpeed, 70, Motor_Stir.speed * rpm2rps);
-            Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // DebugData.debug1 = Ps.gimbalAimData.biu_biu_state;
-        DebugData.debug2 = 70;
-        DebugData.debug3 = Motor_Stir.speed * rpm2rps;
-        DebugData.debug4 = PID_StirSpeed.output;
-        DebugData.debug5 = PID_StirSpeed.output_I;
+        DebugData.debug2 = Judge.powerHeatData.shooter_heat0;
+        DebugData.debug3 = Judge.shootData.bullet_speed;
+        DebugData.debug4 = Judge.robotState.shooter_heat0_cooling_limit;
+        DebugData.debug5 = Judge.robotState.shooter_heat0_cooling_rate;
         // DebugData.debug6 = ImuData.gx;
         // DebugData.debug7 = ImuData.gy;
         // DebugData.debug8 = ImuData.gz;
