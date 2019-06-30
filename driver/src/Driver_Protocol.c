@@ -22,9 +22,6 @@ void Protocol_Pack(Protocol_Type *Protocol, int length) {
     uint16_t            CRC_INIT  = 0xffff;
     uint16_t            dataCRC16;
 
-    for (i = 0; i < 127; i++) {
-        Protocol->interact[i] = 0x00;
-    }
     index      = 0;
     id         = Protocol->interactiveHeaderData.data_cmd_id;
     dataLength = length - PROTOCOL_HEADER_CRC_CMDID_LEN;
@@ -37,7 +34,7 @@ void Protocol_Pack(Protocol_Type *Protocol, int length) {
     Protocol->interact[index++] = (dataLength) >> 8;
 
     // Frame SEQ
-    Protocol->interact[index++] = 0x00;
+    Protocol->interact[index++]++;
 
     // Header CRC8
     Protocol->interact[index++] = Get_CRC8_Check_Sum(Protocol->interact, PROTOCOL_HEADER_SIZE - 1, CRC8_INIT);
@@ -47,6 +44,10 @@ void Protocol_Pack(Protocol_Type *Protocol, int length) {
     Protocol->interact[index++] = 0x03;
 
     // Data
+    for (i = PROTOCOL_HEADER_CMDID_LEN; i < Protocol_Buffer_Length; i++) {
+        Protocol->interact[i] = 0x00;
+    }
+
     switch (id) {
     case Protocol_Data_Id_Client: {
         // Data Header
