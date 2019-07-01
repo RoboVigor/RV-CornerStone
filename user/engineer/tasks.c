@@ -238,7 +238,7 @@ void Task_Take_Vertical(void *Parameters) {
         //     targetAngle = 300;
         // } else if (TV_Out == 1) {
         //     targetAngle = ;
-        // } else {
+        // } else if(TV_Out == 0) {
         //     targetAngle = 0;
         // }
 
@@ -377,10 +377,10 @@ void Task_Upthrow(void *Parameter) {
     int last_TU_Up = 0;
     TU_Up = 0;
 
-    PID_Init(&PID_Upthrow1_Angle1, 48, 0, 0, 4000, 2000); // 1.4
-    PID_Init(&PID_Upthrow1_Speed1, 22, 0, 0, 4300, 2000);  // 30
-    PID_Init(&PID_Upthrow2_Angle1, 18, 0, 0, 4000, 2000); // 1.4
-    PID_Init(&PID_Upthrow2_Speed1, 8, 0, 0, 4300, 2000);  // 30
+    PID_Init(&PID_Upthrow1_Angle1, 40, 0.3, 0, 4000, 2000); // 56
+    PID_Init(&PID_Upthrow1_Speed1, 10, 0, 0, 4000, 2000);  // 43
+    PID_Init(&PID_Upthrow2_Angle1, 40, 0.3, 0, 4000, 2000); // 15
+    PID_Init(&PID_Upthrow2_Speed1, 10, 0, 0, 4000, 2000);  // 6
 
     PID_Init(&PID_Upthrow1_Angle2, 5, 0, 0, 4000, 2000); 
     PID_Init(&PID_Upthrow1_Speed2, 1, 0, 0, 4000, 2000);  
@@ -390,13 +390,16 @@ void Task_Upthrow(void *Parameter) {
     while (1) {
         //上升
         
-        if(TU_Up > last_TU_Up) {
-            if(TU_Up == 1) {
+        // if(TU_Up > last_TU_Up) {
+        if(remoteData.switchRight == 1){
+            // if(TU_Up == 1) {
+            if(remoteData.switchLeft == 3){
                 upthrowAngleTarget=RAMP(Motor_Upthrow1.angle,550,upthrowProgress);//第二段740
                 if(upthrowProgress<1){
                     upthrowProgress+=0.003f;
                 }
-            }else if(TU_Up == 2) {
+            // }else if(TU_Up == 2) {
+            }else if(remoteData.switchLeft == 1) {
                 upthrowAngleTarget=RAMP(Motor_Upthrow1.angle,740,upthrowProgress);//第二段740
                 if(upthrowProgress<1){
                     upthrowProgress+=0.01f;
@@ -409,10 +412,11 @@ void Task_Upthrow(void *Parameter) {
             PID_Calculate(&PID_Upthrow2_Speed1, PID_Upthrow2_Angle1.output, Motor_Upthrow2.speed * RPM2RPS);
             last_TU_Up = TU_Up;
 
-            // Can_Send(CAN1, 0x1FF, PID_Upthrow1_Speed1.output, PID_Upthrow2_Speed1.output, 0, 0);
+            Can_Send(CAN1, 0x1FF, 1.2 * PID_Upthrow1_Speed1.output, PID_Upthrow2_Speed1.output, 0, 0);
         }
         //下降
-        if(TU_Up < last_TU_Up) {
+        // if(TU_Up < last_TU_Up) {
+        if(remoteData.switchRight == 2) {
             if(TU_Up == 1) {
                 upthrowAngleTarget=RAMP(Motor_Upthrow1.angle,900,upthrowProgress);//第二次540
                 if(upthrowProgress<1){
@@ -433,6 +437,13 @@ void Task_Upthrow(void *Parameter) {
 
             // Can_Send(CAN1, 0x1FF, PID_Upthrow1_Speed2.output, PID_Upthrow2_Speed2.output, 0, 0);
         }
+
+        DebugA = Motor_Upthrow1.angle;
+        DebugB = Motor_Upthrow2.angle;
+        DebugC = Motor_Upthrow1.speed;
+        DebugD = Motor_Upthrow2.speed;
+        DebugE = PID_Upthrow1_Speed1.output;
+        DebugF = PID_Upthrow2_Speed1.output;
         
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -601,9 +612,6 @@ void Task_Limit_Switch(void *Parameters) {
             }
         }
 
-        DebugA = Motor_TV.angle;
-        DebugB = Motor_TV.speed;
-
         vTaskDelayUntil(&LastWakeTime, 10);
     }
     vTaskDelete(NULL);
@@ -671,7 +679,7 @@ void Task_Sys_Init(void *Parameters) {
     }
 
     // Structure
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Distance_Sensor, "Task_Distance_Sensor", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Take_Fsm, "Task_Take_Fsm", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Landing, "Task_Landing", 400, NULL, 3, NULL);
@@ -681,7 +689,7 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Take_Vertical, "Task_Take_Vertical", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Optoelectronic_Input_Take, "Task_Optoelectronic_Input_Take", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Optoelectronic_Input_Landing, "Task_Optoelectronic_Input_Landing", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Upthrow,  "Task_Upthrow", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Upthrow,  "Task_Upthrow", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Limit_Switch, "Task_Limit_Switch", 400, NULL, 3, NULL);
     /* End */
 
