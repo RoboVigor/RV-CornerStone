@@ -26,8 +26,8 @@ void BSP_Init(void) {
 
     // Ps (USART3)
     BSP_USART3_Init(115200, USART_IT_IDLE);
-    // BSP_DMA_USART3_RX_Init(Ps.buf, Protocol_Buffer_Length);
-    // BSP_DMA_USART3_TX_Init(Ps.interact, Protocol_Buffer_Length);
+    BSP_DMA_USART3_RX_Init(Ps.buf, Protocol_Buffer_Length);
+    BSP_DMA_USART3_TX_Init(Ps.interact, Protocol_Buffer_Length);
 
     // // Servo
     // BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PORT_PD14);

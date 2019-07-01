@@ -233,25 +233,27 @@ void Task_Client(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
-        int length = 0;
+        int length;
 
         while (DMA_GetFlagStatus(DMA2_Stream6, DMA_IT_TCIF6) != SET) {
         }
         DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6);
         DMA_Cmd(DMA2_Stream6, DISABLE);
 
-        Judge.interactiveHeaderData.data_cmd_id = 0xD180;
-        Judge.interactiveHeaderData.send_id     = Judge.robotState.robot_id;
-        Judge.interactiveHeaderData.receiver_id = (Judge.interactiveHeaderData.send_id % 10) | (Judge.interactiveHeaderData.send_id / 10) << 4 | (0x01 << 8);
+        // Data Header
+        Judge.clientCustomData.data_cmd_id = 0xD180;
+        Judge.clientCustomData.send_id     = Judge.robotState.robot_id;
+        Judge.clientCustomData.receiver_id = (Judge.clientCustomData.send_id % 10) | (Judge.clientCustomData.send_id / 10) << 4 | (0x01 << 8);
 
+        // Data
         Judge.clientCustomData.data1 = 1;
         Judge.clientCustomData.data2 = 1.1;
         Judge.clientCustomData.data3 = 1.11;
-        Judge.clientCustomData.masks = 0;
+        Judge.clientCustomData.masks = 0x3c;
 
         length = PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client;
 
-        Protocol_Pack(&Judge, length);
+        Protocol_Pack(&Judge, length, 0xD180);
 
         DMA_SetCurrDataCounter(DMA2_Stream6, Protocol_Buffer_Length);
         DMA_Cmd(DMA2_Stream6, ENABLE);
@@ -267,18 +269,20 @@ void Task_Robot(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
-        int index  = 0;
-        int length = 0;
+        int index = 0;
+        int length;
 
         while (DMA_GetFlagStatus(DMA2_Stream6, DMA_IT_TCIF6) != SET) {
         }
         DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6);
         DMA_Cmd(DMA2_Stream6, DISABLE);
 
-        Judge.interactiveHeaderData.data_cmd_id = 0x0201;
-        Judge.interactiveHeaderData.send_id     = Judge.robotState.robot_id;
-        Judge.interactiveHeaderData.receiver_id = 1;
+        // Data Header
+        Judge.robotInteractiveData[0].data_cmd_id = 0x0200;
+        Judge.robotInteractiveData[0].send_id     = Judge.robotState.robot_id;
+        Judge.robotInteractiveData[0].receiver_id = 1;
 
+        // Data
         Judge.robotInteractiveData[0].transformer[index++].F = 1;
         Judge.robotInteractiveData[0].transformer[index++].F = 1.1;
         Judge.robotInteractiveData[0].transformer[index++].F = 1.11;
@@ -286,11 +290,7 @@ void Task_Robot(void *Parameters) {
 
         length = PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol_Pack_Length_0301_Header + index * sizeof(float);
 
-        Protocol_Pack(&Judge, length);
-
-        for (index = 0; index < length; index++) {
-            Protocol_Unpack(&Judge, Judge.interact[index]);
-        }
+        Protocol_Pack(&Judge, length, 0xD200);
 
         DMA_SetCurrDataCounter(DMA2_Stream6, Protocol_Buffer_Length);
         DMA_Cmd(DMA2_Stream6, ENABLE);
@@ -306,14 +306,18 @@ void Task_Vision(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
-        int length = 0;
+        int length;
 
         while (DMA_GetFlagStatus(DMA1_Stream3, DMA_IT_TCIF3) != SET) {
         }
         DMA_ClearFlag(DMA1_Stream3, DMA_FLAG_TCIF3);
         DMA_Cmd(DMA1_Stream3, DISABLE);
 
-        Protocol_Pack(&Ps, length);
+        Ps.visionInteractiveData.data1 = 0x6666;
+
+        length = PROTOCOL_HEADER_CRC_CMDID_LEN + 2;
+
+        Protocol_Pack(&Ps, length, 0x6666);
 
         DMA_SetCurrDataCounter(DMA1_Stream3, Protocol_Buffer_Length);
         DMA_Cmd(DMA1_Stream3, ENABLE);
@@ -497,8 +501,8 @@ void Task_Sys_Init(void *Parameters) {
 
     // DMA发送任务
     xTaskCreate(Task_Client, "Task_Client", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Robot, "Task_Robot", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Vision, "Task_Vision", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Robot, "Task_Robot", 500, NULL, 5, NULL);
+    xTaskCreate(Task_Vision, "Task_Vision", 500, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

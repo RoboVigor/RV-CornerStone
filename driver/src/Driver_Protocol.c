@@ -13,17 +13,17 @@ void Protocol_Update(Protocol_Type *Protocol) {
     }
 }
 
-void Protocol_Pack(Protocol_Type *Protocol, int length) {
-    int                 i;
-    uint16_t            index;
-    uint16_t            id;
-    uint16_t            dataLength;
-    const unsigned char CRC8_INIT = 0xff;
-    uint16_t            CRC_INIT  = 0xffff;
-    uint16_t            dataCRC16;
+void Protocol_Pack(Protocol_Type *Protocol, int length, uint16_t id) {
+    int      i;
+    uint8_t *begin_p;
+    uint16_t index;
+    uint16_t dataLength;
+
+    uint8_t  CRC8_INIT  = 0xff;
+    uint16_t CRC16_INIT = 0xffff;
+    uint16_t dataCRC16;
 
     index      = 0;
-    id         = Protocol->interactiveHeaderData.data_cmd_id;
     dataLength = length - PROTOCOL_HEADER_CRC_CMDID_LEN;
 
     // Header SOF
@@ -50,39 +50,22 @@ void Protocol_Pack(Protocol_Type *Protocol, int length) {
 
     switch (id) {
     case Protocol_Data_Id_Client: {
-        // Data Header
-        for (i = 0; i < Protocol_Pack_Length_0301_Header; i++) {
-            Protocol->interact[index++] = Protocol->interactiveHeaderData.data[i];
-        }
-
-        // Client Custom Data
-        for (i = 0; i < Protocol_Pack_Length_0301_Client; i++) {
-            Protocol->interact[index++] = Protocol->clientCustomData.data[i];
-        }
+        begin_p = Protocol->clientCustomData.data;
     } break;
 
     case Protocol_Data_Id_Robot: {
-        // Data Header
-        for (i = 0; i < Protocol_Pack_Length_0301_Header; i++) {
-            Protocol->interact[index++] = Protocol->interactiveHeaderData.data[i];
-        }
-
-        // Robot Interactive Data
-        for (i = 0; i < dataLength - Protocol_Pack_Length_0301_Header; i++) {
-            Protocol->interact[index++] = Protocol->robotInteractiveData[0].data[i];
-        }
+        begin_p = Protocol->robotInteractiveData[0].data;
     } break;
 
-    default: {
-        // Vision Interactive Data
-        for (i = 0; i < Protocol_Pack_Length_0401; i++) {
-            Protocol->interact[index++] = Protocol->visionInteractiveData.data[i];
-        }
-    } break;
+    default: { begin_p = Protocol->visionInteractiveData.data; } break;
+    }
+
+    for (i = 0; i < dataLength; i++) {
+        Protocol->interact[index++] = *(begin_p + i);
     }
 
     // Data CRC16
-    dataCRC16                   = Get_CRC16_Check_Sum(Protocol->interact, PROTOCOL_HEADER_CMDID_LEN + dataLength, CRC_INIT);
+    dataCRC16                   = Get_CRC16_Check_Sum(Protocol->interact, PROTOCOL_HEADER_CMDID_LEN + dataLength, CRC16_INIT);
     Protocol->interact[index++] = (dataCRC16) &0xff;
     Protocol->interact[index++] = (dataCRC16) >> 8;
 }
@@ -200,14 +183,8 @@ void Protocol_Load(Protocol_Type *Protocol) {
     }
 
     // load
-    if (Protocol->id == 0x0301) {
-        for (i = 0; i < Protocol->dataLength - Protocol_Pack_Length_0301_Header; i++) {
-            *(begin_p + i) = Protocol->packet[PROTOCOL_HEADER_CMDID_LEN + Protocol_Pack_Length_0301_Header + i];
-        }
-    } else {
-        for (i = 0; i < Protocol->dataLength; i++) {
-            *(begin_p + i) = Protocol->packet[PROTOCOL_HEADER_CMDID_LEN + i];
-        }
+    for (i = 0; i < Protocol->dataLength; i++) {
+        *(begin_p + i) = Protocol->packet[PROTOCOL_HEADER_CMDID_LEN + i];
     }
 }
 
