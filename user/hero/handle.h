@@ -66,9 +66,6 @@ __HANDLE_EXT PID_Type PID_StirSpeed, PID_StirAngle; // 拨弹轮 速度/角度 P
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;
-
-// PWM 捕获
-__HANDLE_EXT u32 TIM5CH1_CAPTURE_STA, TIM5CH1_CAPTURE_VAL;
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行

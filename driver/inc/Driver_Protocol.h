@@ -36,6 +36,7 @@ typedef union {
 } FormatTrans;
 
 typedef struct {
+    uint16_t seq;
     union {
         struct {
             uint8_t  robot_id;
@@ -57,6 +58,7 @@ typedef struct {
 } ext_game_robot_state_t;
 
 typedef struct {
+    uint16_t seq;
     union {
         struct {
             uint16_t chassis_volt;
@@ -73,6 +75,7 @@ typedef struct {
 } ext_power_heat_data_t;
 
 typedef struct {
+    uint16_t seq;
     union {
         struct {
             uint8_t energy_point;
@@ -85,6 +88,7 @@ typedef struct {
 } aerial_robot_energy_t;
 
 typedef struct {
+    uint16_t seq;
     union {
         struct {
             uint8_t armor_id : 4;
@@ -97,6 +101,7 @@ typedef struct {
 } ext_robot_hurt_t;
 
 typedef struct {
+    uint16_t seq;
     union {
         struct {
             uint8_t bullet_type;
@@ -110,6 +115,7 @@ typedef struct {
 } ext_shoot_data_t;
 
 typedef struct {
+    uint16_t seq;
     union {
         struct {
             float   yaw_angle_diff;
@@ -160,7 +166,7 @@ typedef struct {
     aerial_robot_energy_t  aerialRobotEnergy;
     ext_robot_hurt_t       robotHurt;
     ext_shoot_data_t       shootData;
-    ext_gimal_aim_data_t   gimbalAimData;
+    ext_gimal_aim_data_t   autoaimData;
 } Protocol_Type;
 
 unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength, unsigned char ucCRC8);

@@ -88,8 +88,8 @@ void Task_Gimbal(void *Parameters) {
         // 视觉系统
         // if (lastSeq != Ps.seq) {
         //     lastSeq          = Ps.seq;
-        //     psYawAngleTarget = Ps.gimbalAimData.yaw_angle_diff;
-        //     psPitchAngleTarget += Ps.gimbalAimData.pitch_angle_diff;
+        //     psYawAngleTarget = Ps.autoaimData.yaw_angle_diff;
+        //     psPitchAngleTarget += Ps.autoaimData.pitch_angle_diff;
         //     MIAO(psYawAngleTarget, -5, 5);
         //     MIAO(psPitchAngleTarget, -5, 5);
         // } else {

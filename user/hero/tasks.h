@@ -14,6 +14,7 @@ void Task_Startup_Music(void *Parameters); // 开机音乐
 void Task_Chassis(void *Parameters);       // 底盘运动
 void Task_Safe_Mode(void *Parameters);     // 安全模式
 void Task_Gimbal(void *Parameters);        // 云台任务
-void Task_Fire(void *Parameters);          // 发射机构
+void Task_Fire_Stir(void *Parameters);     // 发射机构 (拨弹轮)
+void Task_Fire_Frict(void *Parameters);    // 发射机构 (摩擦轮)
 
 #endif
