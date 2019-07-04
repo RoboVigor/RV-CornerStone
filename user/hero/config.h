@@ -13,7 +13,7 @@
 #define BOARD_FRONT_IS_UP 0                     // 板子正面朝上
 #define BOARD_SHORT_SIDE_IS_PARALLEL_TO_PITCH 0 // 板子短边朝下
 #define GYROSCOPE_START_UP_DELAY_ENABLED 1      // 开机解算延迟开关
-#define GYROSCOPE_START_UP_DELAY 1700           // 开机解算延迟量
+#define GYROSCOPE_START_UP_DELAY 150            // 开机解算延迟量
 #define GYROSCOPE_YAW_FILTER_THRESHOLD 0.005f   // 零飘修正阈值
 #define IMU_GX_BIAS 11                          // GX静态误差,通过平放主控板采样得到
 #define IMU_GY_BIAS 3                           // GY静态误差

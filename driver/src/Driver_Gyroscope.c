@@ -5,29 +5,36 @@
 #include "MadgwickAHRS.h"
 #include "Driver_Gyroscope.h"
 
-static float rollAngle;
-static float pitchAngle;
-static float yawAngle;
-static float xSpeed;
-static float ySpeed;
-static float zSpeed;
-static float xAcc;
-static float yAcc;
-static float zAcc;
+static float
+
+rollAngle;
+static float          pitchAngle;
+static float          yawAngle;
+static float          xSpeed;
+static float          ySpeed;
+static float          zSpeed;
+static float          xAcc;
+static float          yAcc;
+static float          zAcc;
+static int16_t        debug100 = 0;
+extern volatile float beta;
 
 Filter_Type Filter_Yaw = {.count = 0, .thresholdLB = GYROSCOPE_YAW_FILTER_THRESHOLD};
 
-extern ImuData_Type       ImuData;
-extern GyroscopeData_Type Gyroscope_EulerData;
+extern ImuData_Type ImuData;
 
 void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
     GyroscopeData->startupCounter = 0;
     MPU6500_Initialize();
     MPU6500_EnableInt();
 #if GYROSCOPE_START_UP_DELAY_ENABLED
+    beta = 5;
     while (1) {
-        LED_Set_Progress(Gyroscope_EulerData.startupCounter / (GYROSCOPE_START_UP_DELAY / 7) + 1);
-        if (Gyroscope_EulerData.startupCounter >= GYROSCOPE_START_UP_DELAY) break;
+        LED_Set_Progress(GyroscopeData->startupCounter / (GYROSCOPE_START_UP_DELAY / 7) + 1);
+        if (GyroscopeData->startupCounter >= GYROSCOPE_START_UP_DELAY) {
+            beta = 0.1;
+            break;
+        }
     }
 #endif
 }
@@ -103,6 +110,7 @@ void Gyroscope_Solve(GyroscopeData_Type *GyroscopeData) {
 
     GyroscopeData->pitch = -pitchAngle;
     GyroscopeData->roll  = rollAngle;
+    debug100             = GyroscopeData->pitch;
 
     // 输出欧拉角
 #if GYROSCOPE_START_UP_DELAY_ENABLED
