@@ -15,8 +15,8 @@ void Handle_Init(void) {
     // 发射机构电机
     Motor_Init(&Motor_LeftFrict, 1, 0);
     Motor_Init(&Motor_RightFrict, 1, 0);
-    Motor_Init(&Motor_Stir2006, 1, 0);
-    Motor_Init(&Motor_Stir3510, 1, 0);
+    Motor_Init(&Motor_Stir2006, 36, 0);
+    Motor_Init(&Motor_Stir3510, 19.2, 0);
 
     // 云台电机
     Motor_Init(&Motor_Yaw, 1.0, 1);   // 顺时针为正电流

@@ -41,10 +41,10 @@ void Task_Gimbal(void *Parameters) {
     float psPitchAngleTarget = 0;
 
     // 初始化云台PID
-    PID_Init(&PID_Cloud_YawAngle, 40, 0, 0, 16000, 0);
-    PID_Init(&PID_Cloud_YawSpeed, 60, 0, 0, 4000, 0);
-    PID_Init(&PID_Cloud_PitchAngle, 20, 0, 0, 16000, 0);
-    PID_Init(&PID_Cloud_PitchSpeed, 40, 0, 0, 4000, 0);
+    PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 8000, 0);
+    PID_Init(&PID_Cloud_YawSpeed, 20, 0, 0, 8000, 0);
+    PID_Init(&PID_Cloud_PitchAngle, 2, 0, 0, 8000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 2, 0, 0, 8000, 0);
 
     while (1) {
         // 设置反馈
@@ -87,16 +87,18 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
 
         // 输出电流
-        Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
+        // Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
+        // Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = yawAngle;
-        DebugData.debug2 = yawSpeed;
-        DebugData.debug3 = pitchAngle;
-        DebugData.debug4 = pitchSpeed;
-        DebugData.debug5 = pitchAngleTarget;
+        DebugData.debug1 = Motor_Yaw.position;
+        DebugData.debug2 = pitchAngle;
+        DebugData.debug3 = pitchSpeed;
+        DebugData.debug4 = yawAngle;
+        DebugData.debug5 = yawSpeed;
+        // DebugData.debug6 = Gyroscope_EulerData.roll;
         DebugData.debug6 = ImuData.gx;
         DebugData.debug7 = ImuData.gy;
         DebugData.debug8 = ImuData.gz;
@@ -166,7 +168,7 @@ void Task_Chassis(void *Parameters) {
         // targetPower = 80.0 - (60.0 - ChassisData.powerBuffer) / 60.0 * 80.0;
         Chassis_Update(&ChassisData, vx, vy, vw); // 麦轮解算
         // Chassis_Fix(&ChassisData, motorAngle);    // 修正旋转后底盘的前进方向
-        // Chassis_Limit_Rotor_Speed(&ChassisData, 550);                                                    // 设置转子速度上限 (rad/s)
+        Chassis_Limit_Rotor_Speed(&ChassisData, 550); // 设置转子速度上限 (rad/s)
         // Chassis_Limit_Power(&ChassisData, 80, targetPower, Judge.powerHeatData.chassis_power, interval); // 根据功率限幅
 
         // 计算输出电流PID
@@ -224,39 +226,41 @@ void Task_Fire(void *Parameters) {
 
     // 常量
     // float frictSpeed = -24 / 0.0595 * 2 * 60 / 2 / 3.14;  // 摩擦轮线速度(mps)转转速(rpm)
-    float frictSpeed    = 336; // 336 rad/s
-    float stirSpeed     = 36;
-    float stir2006Speed = 36;
-    float stir3510Speed = 36;
 
     // PID 初始化
-    PID_Init(&PID_LeftFrictSpeed, 25, 0.5, 0, 20000, 6000);
-    PID_Init(&PID_RightFrictSpeed, 25, 0.5, 0, 20000, 6000);
-    PID_Init(&PID_Stir2006Speed, 25, 0.5, 0, 20000, 6000);
-    PID_Init(&PID_Stir3510Speed, 25, 0.5, 0, 20000, 6000);
+    PID_Init(&PID_LeftFrictSpeed, 20, 0.05, 0, 10000, 5000);
+    PID_Init(&PID_RightFrictSpeed, 20, 0.05, 0, 10000, 5000);
+    PID_Init(&PID_Stir2006Speed, 25, 0, 0, 20000, 6000); //半径38
+    // PID_Init(&PID_Stir3510Angle, 100, 0, 0, 15000, 10000); //半径110
+    PID_Init(&PID_Stir3510Speed, 100, 10, 0, 15000, 10000);
     while (1) {
         // DebugCode 标志位设置
 
         // 2006,3510拨弹轮
-        PID_Calculate(&PID_Stir2006Speed, stir2006Speed, Motor_Stir2006.speed * rpm2rps);
-        PID_Calculate(&PID_Stir3510Speed, stir3510Speed, Motor_Stir3510.speed * rpm2rps);
-        // 摩擦轮 PID 控制
-        /** frictState
-         *  0: 停止
-         *  1: 旋转
-         */
-        if (frictState == 0) {
-            PID_Increment_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
-            PID_Increment_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
+        if (remoteData.switchRight == 3) {
+            PID_Calculate(&PID_Stir3510Speed, 10, Motor_Stir3510.speed * rpm2rps);
+            PID_Calculate(&PID_Stir2006Speed, 49, Motor_Stir2006.speed * rpm2rps);
+            PID_Calculate(&PID_LeftFrictSpeed, -100, Motor_LeftFrict.speed * rpm2rps);  // 左摩擦轮
+            PID_Calculate(&PID_RightFrictSpeed, 100, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮
+
             Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, PID_Stir2006Speed.output, PID_Stir3510Speed.output);
-        } else {
-            LASER_ON;                                                                          // 开启激光
-            PID_Calculate(&PID_LeftFrictSpeed, -frictSpeed, Motor_LeftFrict.speed * rpm2rps);  // 左摩擦轮转动
-            PID_Calculate(&PID_RightFrictSpeed, frictSpeed, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮转动
-            // Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, PID_Stir2006Speed.output, PID_Stir3510Speed.output);
+        } else if (remoteData.switchLeft == 1) {
+            PID_LeftFrictSpeed.output_I  = 0;
+            PID_RightFrictSpeed.output_I = 0;
+            PID_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
+            PID_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
             Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
         }
+
         vTaskDelayUntil(&LastWakeTime, 10);
+        // DebugData.debug1 = Motor_Stir3510.speed * rpm2rps;
+        // DebugData.debug2 = PID_Stir3510Speed.output;
+        // DebugData.debug3 = PID_Stir3510Speed.output_I;
+        // DebugData.debug4 = Motor_LeftFrict.speed * rpm2rps;
+        // DebugData.debug5 = pitchAngleTarget;
+        // DebugData.debug6 = ImuData.gx;
+        // DebugData.debug7 = ImuData.gy;
+        // DebugData.debug8 = ImuData.gz;
     }
     vTaskDelete(NULL);
 }
@@ -312,7 +316,7 @@ void Task_Sys_Init(void *Parameters) {
     }
 
     // 运动控制任务
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
 
