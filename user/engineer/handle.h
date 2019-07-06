@@ -84,8 +84,8 @@ __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 __HANDLE_EXT PID_Type PID_TH_Speed, PID_TV_Angle, PID_TV_Speed;
 __HANDLE_EXT PID_Type PID_LGW, PID_RGW;
-__HANDLE_EXT PID_Type PID_Upthrow1_Angle1, PID_Upthrow1_Speed1,PID_Upthrow2_Angle1, PID_Upthrow2_Speed1,
-PID_Upthrow1_Angle2, PID_Upthrow1_Speed2,PID_Upthrow2_Angle2, PID_Upthrow2_Speed2;
+__HANDLE_EXT PID_Type PID_Upthrow1_Angle, PID_Upthrow1_Speed,PID_Upthrow2_Angle, PID_Upthrow2_Speed;
+__HANDLE_EXT PID_Type PID_TH_Angle;
 
 // 通讯协议
 __HANDLE_EXT Protocol_Type Judge, Ps;
@@ -109,7 +109,7 @@ __HANDLE_EXT u32 TIM5CH1_CAPTURE_VAL, TIM2CH1_CAPTURE_VAL;
 __HANDLE_EXT PWM_Type PWM_Supply1, PWM_Supply2, PWM_Image_Yaw, PWM_Image_Pitch, PWM_Rescue;
 
 // Fsm需求
-__HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out;
+__HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, Find_Box, TH_State, TH_Reset;
 
 /**
  * @brief 初始化结构体
@@ -122,6 +122,7 @@ void Handle_Init(void);
 void Take_Throwup(void);
 void Take_Horizontal(void);
 void Take_Start_Get(void);
+void Take_TV_Progress(void);
 void Take_ON(void);
 void Take_Up(void);
 void Take_Down(void);

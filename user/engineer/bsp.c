@@ -197,7 +197,6 @@ void BSP_Init(void) {
     BSP_Beep_Init();
     BSP_LED_Init();
     BSP_User_Power_Init();
-    // BSP_Fsm_Init();
 
     // GPIO输出配置
     BSP_Landing_Init(); //  PH11  多加四个IO口读取光电开关
