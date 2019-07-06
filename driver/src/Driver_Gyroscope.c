@@ -5,9 +5,7 @@
 #include "MadgwickAHRS.h"
 #include "Driver_Gyroscope.h"
 
-static float
-
-rollAngle;
+static float          rollAngle;
 static float          pitchAngle;
 static float          yawAngle;
 static float          xSpeed;
