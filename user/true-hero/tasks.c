@@ -86,6 +86,9 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTargetRamp, pitchAngle);
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
 
+        if (ABS(-1 * PID_Cloud_YawSpeed.output) < 200) {
+            PID_Cloud_YawSpeed.output = 0;
+        }
         // 输出电流
         Can_Send(CAN1, 0x1FF, -1 * PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
 
@@ -96,8 +99,8 @@ void Task_Gimbal(void *Parameters) {
         // DebugData.debug2 = yawAngle;
         // DebugData.debug3 = PID_Cloud_YawSpeed.output;
         // DebugData.debug4 = pitchAngleTargetRamp;
-        // DebugData.debug5 = pitchAngle;
-        // DebugData.debug6 = Gyroscope_EulerData.roll;
+        DebugData.debug5 = yawAngleTarget;
+        DebugData.debug6 = yawAngle;
         // DebugData.debug6 = PID_Cloud_PitchSpeed.output;
         // DebugData.debug7 = pitchRampStart;
         // DebugData.debug8 = pitchAngleTarget;
@@ -227,39 +230,64 @@ void Task_Fire(void *Parameters) {
     // float frictSpeed = -24 / 0.0595 * 2 * 60 / 2 / 3.14;  // 摩擦轮线速度(mps)转转速(rpm)
 
     // PID 初始化
-    PID_Init(&PID_LeftFrictSpeed, 20, 0.05, 0, 10000, 5000);
-    PID_Init(&PID_RightFrictSpeed, 20, 0.05, 0, 10000, 5000);
-    PID_Init(&PID_Stir2006Speed, 25, 0, 0, 20000, 6000); //半径38
+    PID_Init(&PID_LeftFrictSpeed, 25, 0.1, 0, 10000, 5000);
+    PID_Init(&PID_RightFrictSpeed, 25, 0.1, 0, 10000, 5000);
+    PID_Init(&PID_Stir2006Speed, 30, 0.01, 0, 20000, 6000); //半径38
     // PID_Init(&PID_Stir3510Angle, 100, 0, 0, 15000, 10000); //半径110
     PID_Init(&PID_Stir3510Speed, 100, 10, 0, 15000, 10000);
+    PID_Init(&PID_Compensation, 30, 0, 0, 4000, 500);
     while (1) {
         // DebugCode 标志位设置
 
         // 2006,3510拨弹轮
         if (remoteData.switchRight == 3) {
-            PID_Calculate(&PID_Stir3510Speed, 10, Motor_Stir3510.speed * rpm2rps);
+            PID_Calculate(&PID_Stir3510Speed, 6, Motor_Stir3510.speed * rpm2rps);
             PID_Calculate(&PID_Stir2006Speed, 49, Motor_Stir2006.speed * rpm2rps);
-            PID_Calculate(&PID_LeftFrictSpeed, -100, Motor_LeftFrict.speed * rpm2rps);  // 左摩擦轮
-            PID_Calculate(&PID_RightFrictSpeed, 100, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮
 
-            Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, PID_Stir2006Speed.output, PID_Stir3510Speed.output);
-        } else if (remoteData.switchLeft == 1) {
+        } else if (remoteData.switchRight == 1) {
+            PID_Stir3510Speed.output_I = 0;
+            PID_Calculate(&PID_Stir3510Speed, 0, Motor_Stir3510.speed * rpm2rps);
+            PID_Calculate(&PID_Stir2006Speed, 0, Motor_Stir2006.speed * rpm2rps);
+        }
+        if (remoteData.switchLeft == 1) {
             PID_LeftFrictSpeed.output_I  = 0;
             PID_RightFrictSpeed.output_I = 0;
+            PID_Compensation.output      = 0;
             PID_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
             PID_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
-            Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
+        } else if (remoteData.switchLeft == 3) {
+            PID_Calculate(&PID_RightFrictSpeed, 250, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮
+            PID_Calculate(&PID_LeftFrictSpeed, -250, Motor_LeftFrict.speed * rpm2rps);  // 左摩擦轮
+            PID_Calculate(&PID_Compensation, -Motor_LeftFrict.speed * rpm2rps, Motor_RightFrict.speed * rpm2rps);
         }
+        Can_Send(CAN2,
+                 0x200,
+                 PID_LeftFrictSpeed.output - PID_Compensation.output * 0,
+                 PID_RightFrictSpeed.output + PID_Compensation.output * 18,
+                 PID_Stir2006Speed.output,
+                 PID_Stir3510Speed.output);
+
+        // if (remoteData.switchRight == 3) {
+        //     // PWM_Set_Compare(&PWM_Magazine_ServoL, 25);
+        //     TIM_SetCompare2(TIM2, 0.8);
+        //     TIM_SetCompare1(TIM2, 0.8);
+        //     // PWM_Set_Compare(&PWM_Magazine_ServoR, 15);
+        // } else if (remoteData.switchRight == 1) {
+        //     TIM_SetCompare2(TIM2, 0.525);
+        //     TIM_SetCompare1(TIM2, 0.525);
+        //     // PWM_Set_Compare(&PWM_Magazine_ServoL, 15);
+        //     // PWM_Set_Compare(&PWM_Magazine_ServoR, 5);
+        // }
 
         vTaskDelayUntil(&LastWakeTime, 10);
-        // DebugData.debug1 = Motor_Stir3510.speed * rpm2rps;
-        // DebugData.debug2 = PID_Stir3510Speed.output;
-        // DebugData.debug3 = PID_Stir3510Speed.output_I;
-        // DebugData.debug4 = Motor_LeftFrict.speed * rpm2rps;
-        // DebugData.debug5 = pitchAngleTarget;
-        // DebugData.debug6 = ImuData.gx;
-        // DebugData.debug7 = ImuData.gy;
-        // DebugData.debug8 = ImuData.gz;
+        DebugData.debug1 = Motor_LeftFrict.speed * rpm2rps;
+        DebugData.debug2 = Motor_RightFrict.speed * rpm2rps;
+        DebugData.debug3 = Motor_Stir3510.speed * rpm2rps;
+        DebugData.debug4 = Motor_Stir2006.speed * rpm2rps;
+        // DebugData.debug5 = PID_Compensation.output;
+        // DebugData.debug6 = yawAngle;
+        DebugData.debug7 = PID_RightFrictSpeed.output;
+        DebugData.debug8 = -1 * PID_Cloud_YawSpeed.output;
     }
     vTaskDelete(NULL);
 }
@@ -317,7 +345,7 @@ void Task_Sys_Init(void *Parameters) {
     // 运动控制任务
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

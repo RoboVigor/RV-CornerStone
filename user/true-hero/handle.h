@@ -58,14 +58,12 @@ __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_
 __HANDLE_EXT Protocol_Type Judge, Ps;
 
 // 弹舱盖舵机
-__HANDLE_EXT PWM_Type PWM_Magazine_Servo;
+__HANDLE_EXT PWM_Type PWM_Magazine_ServoL, PWM_Magazine_ServoR;
 
 //发射机构
-__HANDLE_EXT Motor_Type Motor_LeftFrict, Motor_RightFrict, Motor_Stir2006, Motor_Stir3510;                              // 左/右 摩擦轮 拨弹轮 电机
-__HANDLE_EXT PID_Type PID_LeftFrictSpeed, PID_RightFrictSpeed, PID_Stir2006Speed, PID_Stir3510Speed, PID_Stir3510Angle; // 拨弹轮 速度/角度 PID
-
-// PWM
-__HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;
+__HANDLE_EXT Motor_Type Motor_LeftFrict, Motor_RightFrict, Motor_Stir2006, Motor_Stir3510; // 左/右 摩擦轮 拨弹轮 电机
+__HANDLE_EXT PID_Type PID_LeftFrictSpeed, PID_RightFrictSpeed, PID_Stir2006Speed, PID_Stir3510Speed, PID_Stir3510Angle,
+    PID_Compensation; // 拨弹轮 速度/角度 PID
 
 // PWM 捕获
 __HANDLE_EXT u32 TIM5CH1_CAPTURE_STA, TIM5CH1_CAPTURE_VAL;
