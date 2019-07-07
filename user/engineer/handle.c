@@ -61,7 +61,7 @@ void Take_Start_Get(void) {
 }
 
 void Take_TV_Progress(void) {
-    TV_Out = -1;
+    TV_Out = 3;
 }
 
 void Take_ON(void) {
@@ -98,8 +98,8 @@ void Take_Reset(void) {
     TAKE_OFF;
     CATAPULT_OFF;
     ROTATE_OFF;
-    TH_Move = 2;
     TV_Out = 0;
+    TH_Move = 2;
     TU_Up = 1;
     Chassis_State = CHASSIS_NORMAL;
 }
