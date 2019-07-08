@@ -109,7 +109,7 @@ __HANDLE_EXT u32 TIM5CH1_CAPTURE_VAL, TIM2CH1_CAPTURE_VAL;
 __HANDLE_EXT PWM_Type PWM_Supply1, PWM_Supply2, PWM_Image_Yaw, PWM_Image_Pitch, PWM_Rescue;
 
 // Fsm需求
-__HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, Find_Box, TH_State, TH_Reset;
+__HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, Find_Box, Detected_State, TH_Reset, Chassis_Detect, Chassis_Detect_Parallel;
 
 /**
  * @brief 初始化结构体
@@ -120,7 +120,9 @@ void Take_TV_1(void);
 void Take_TV_2(void);
 void Handle_Init(void);
 void Take_Throwup(void);
-void Take_Horizontal(void);
+void Take_Horizontal_Right(void);
+void Take_Horizontal_Left(void);
+void Take_Chassis_Detect(void);
 void Take_Start_Get(void);
 void Take_TV_Progress(void);
 void Take_ON(void);

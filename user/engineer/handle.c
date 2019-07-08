@@ -44,18 +44,21 @@ void Take_TV_2(void) {
     TV_Out = 2;
 }
 
-void Take_Horizontal(void) {
+void Take_Horizontal_Right(void) {
     TH_Move = 1;
-    if(LSR_State == 1) {
-        // Chassis_State = CHASSIS_DETECT_RIGHT;
-        // GPIO_SetBits(GPIOD, GPIO_Pin_15);
-    }
+}
+
+void Take_Horizontal_Left(void) {
+    TH_Move = 2;
+}
+
+void Take_Chassis_Detect(void) {
+    Chassis_Detect = 1;
 }
 
 void Take_Start_Get(void) {
     TH_Move = 0;
-    // Chassis_State = CHASSIS_NORMAL;
-    // GPIO_ResetBits(GPIOD, GPIO_Pin_15);
+    Chassis_Detect = 0;
     vTaskDelay(500);
     ROTATE_ON;
 }
@@ -86,21 +89,29 @@ void Take_OFF(void) {
 
 void Take_Catapult(void) {
     CATAPULT_ON;
-    vTaskDelay(600);
+    vTaskDelay(500);
     CATAPULT_OFF;
-    vTaskDelay(600);
+    vTaskDelay(500);
     CATAPULT_ON;
-    vTaskDelay(600);
+    vTaskDelay(500);
     CATAPULT_OFF;
 }
 
 void Take_Reset(void) {
     TAKE_OFF;
+    vTaskDelay(1000);
     CATAPULT_OFF;
+    vTaskDelay(1000);
     ROTATE_OFF;
+    vTaskDelay(1000);
     TV_Out = 0;
+    vTaskDelay(4000);
     TH_Move = 2;
+    vTaskDelay(4000);
     TU_Up = 1;
+    vTaskDelay(4000);
+    Chassis_Detect = 0;
+    vTaskDelay(4000);
     Chassis_State = CHASSIS_NORMAL;
 }
 
