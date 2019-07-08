@@ -12,10 +12,9 @@ void Task_Safe_Mode(void *Parameters) {
             Can_Send(CAN1, 0x2FF, 0, 0, 0, 0);
             PWM_Set_Compare(&PWM_Snail1, 0.376 * 1250);
             PWM_Set_Compare(&PWM_Snail2, 0.376 * 1250);
-            vTaskDelay(50);
             vTaskSuspendAll();
         }
-        vTaskDelay(100);
+        vTaskDelay(2);
     }
     vTaskDelete(NULL);
 }
@@ -98,7 +97,7 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget += pitchAngleTargetPs;
 
         // 上坡补偿
-        pitchAngleTargetFixStable = LowPassFilter_RC_1order(-1 * (chassisAngle / 30.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200);
+        pitchAngleTargetFixStable = LowPassFilter_RC_1order(-1 * (chassisAngle / 50.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200);
         pitchAngleTarget += pitchAngleTargetFixStable;
 
         // 限制云台运动范围
@@ -449,7 +448,7 @@ void Task_Sys_Init(void *Parameters) {
 #endif
 
     // 低级任务
-    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
+    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 10, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
