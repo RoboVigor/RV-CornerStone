@@ -22,7 +22,7 @@ void Task_Landing(void *Parameters);
 void Task_Supply(void *Parameters);
 void Task_Rescue(void *Parameters);
 void Task_Optoelectronic_Input_Take(void *Parameters);
-void Task_Take_Horizontal(void *Parameters);
+void Task_Upthrow_Horizontial(void *Parameters);
 void Task_Take_Vertical(void *Parameters);
 void Task_Optoelectronic_Input_Landing(void *Parameter);
 void Task_Upthrow(void *Parameter); 
