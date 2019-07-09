@@ -100,27 +100,27 @@ void Protocol_Load(Protocol_Type *Protocol) {
 
     case 0x0202: {
         begin_p = Protocol->powerHeatData.data;
-        seq     = &(Protocol->robotState.seq);
+        seq     = &(Protocol->powerHeatData.seq);
     } break;
 
     case 0x0205: {
         begin_p = Protocol->aerialRobotEnergy.data;
-        seq     = &(Protocol->robotState.seq);
+        seq     = &(Protocol->aerialRobotEnergy.seq);
     } break;
 
     case 0x0206: {
         begin_p = Protocol->robotHurt.data;
-        seq     = &(Protocol->robotState.seq);
+        seq     = &(Protocol->robotHurt.seq);
     } break;
 
     case 0x0207: {
         begin_p = Protocol->shootData.data;
-        seq     = &(Protocol->robotState.seq);
+        seq     = &(Protocol->shootData.seq);
     } break;
 
     case 0x0401: {
         begin_p = Protocol->autoaimData.data;
-        seq     = &(Protocol->robotState.seq);
+        seq     = &(Protocol->autoaimData.seq);
     } break;
 
     default: { return; } break;

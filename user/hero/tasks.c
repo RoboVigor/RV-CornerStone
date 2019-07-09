@@ -97,7 +97,7 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget += pitchAngleTargetPs;
 
         // 上坡补偿
-        pitchAngleTargetFixStable = LowPassFilter_RC_1order(-1 * (chassisAngle / 50.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200);
+        pitchAngleTargetFixStable = LowPassFilter_RC_1order(-1 * (chassisAngle / 40.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200);
         pitchAngleTarget += pitchAngleTargetFixStable;
 
         // 限制云台运动范围
@@ -121,12 +121,12 @@ void Task_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = chassisAngle;
-        DebugData.debug2 = Motor_Pitch.angle;
-        DebugData.debug3 = Gyroscope_EulerData.pitch;
-        DebugData.debug4 = pitchAngleTargetFixStable;
-        DebugData.debug5 = pitchAngleTarget;
-        DebugData.debug6 = pitchAngle;
+        // DebugData.debug1 = chassisAngle;
+        // DebugData.debug2 = Motor_Pitch.angle;
+        // DebugData.debug3 = Gyroscope_EulerData.pitch;
+        // DebugData.debug4 = pitchAngleTargetFixStable;
+        // DebugData.debug5 = pitchAngleTarget;
+        // DebugData.debug6 = pitchAngle;
     }
     vTaskDelete(NULL);
 }
@@ -190,8 +190,6 @@ void Task_Chassis(void *Parameters) {
             followDeadRegion = 2; // 开启底盘跟随死区
             Motor_Yaw.round  = 0; // 圈数清零
         }
-        swingAngle += 360 * interval;
-        followDeadRegion = 0;
         PID_Calculate(&PID_Follow_Angle, swingAngle, motorAngle);
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeed);
 
@@ -215,13 +213,12 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
-
-        // 底盘运动更新频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
+        // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 调试信息
-        // DebugData.debug1 = PID_Follow_Angle.output * 1000;
+        // DebugData.debug1 = Ps.seq;
+        // DebugData.debug2 = Ps.autoaimData.pitch_angle_diff;
+        // DebugData.debug3 = Ps.autoaimData.seq;
         // DebugData.debug2 = PID_Follow_Angle.error * 1000;
         // DebugData.debug3 = PID_Follow_Angle.feedback * 1000;
         // DebugData.debug5 = ChassisData.powerBuffer;
@@ -229,6 +226,9 @@ void Task_Chassis(void *Parameters) {
         // DebugData.debug6 = PID_LFCM.output;
         // DebugData.debug7 = rotorSpeed[3];
         // DebugData.debug8 = rotorSpeed[3];
+
+        // 底盘运动更新频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
     }
 
     vTaskDelete(NULL);
