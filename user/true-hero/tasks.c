@@ -99,8 +99,8 @@ void Task_Gimbal(void *Parameters) {
         // DebugData.debug2 = yawAngle;
         // DebugData.debug3 = PID_Cloud_YawSpeed.output;
         // DebugData.debug4 = pitchAngleTargetRamp;
-        DebugData.debug5 = yawAngleTarget;
-        DebugData.debug6 = yawAngle;
+        // DebugData.debug5 = yawAngleTarget;
+        // DebugData.debug6 = yawAngle;
         // DebugData.debug6 = PID_Cloud_PitchSpeed.output;
         // DebugData.debug7 = pitchRampStart;
         // DebugData.debug8 = pitchAngleTarget;
@@ -133,10 +133,10 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_Follow_Speed, 5, 0, 0, 1000, 0);
 
     // 麦轮速度PID
-    PID_Init(&PID_LFCM, 28, 0, 0, 15000, 7500);
-    PID_Init(&PID_LBCM, 28, 0, 0, 15000, 7500);
-    PID_Init(&PID_RBCM, 28, 0, 0, 15000, 7500);
-    PID_Init(&PID_RFCM, 28, 0, 0, 15000, 7500);
+    PID_Init(&PID_LFCM, 35, 0.01, 0, 15000, 7500);
+    PID_Init(&PID_LBCM, 35, 0.01, 0, 15000, 7500);
+    PID_Init(&PID_RBCM, 35, 0.01, 0, 15000, 7500);
+    PID_Init(&PID_RFCM, 35, 0.01, 0, 15000, 7500);
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
@@ -162,16 +162,16 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeedStable); // 计算航向角角速度PID
 
         // 设置底盘总体移动速度
-        vx = -remoteData.lx / 660.0f * 2; // 4
-        vy = remoteData.ly / 660.0f * 6;  // 12
+        vx = -remoteData.lx / 660.0f * 4;
+        vy = remoteData.ly / 660.0f * 12;
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
         // 麦轮解算及限速
-        // targetPower = 80.0 - (60.0 - ChassisData.powerBuffer) / 60.0 * 80.0;
+        targetPower = 80.0 - (60.0 - ChassisData.powerBuffer) / 60.0 * 80.0;
         Chassis_Update(&ChassisData, vx, vy, vw); // 麦轮解算
-        // Chassis_Fix(&ChassisData, motorAngle);    // 修正旋转后底盘的前进方向
-        Chassis_Limit_Rotor_Speed(&ChassisData, 550); // 设置转子速度上限 (rad/s)
-        // Chassis_Limit_Power(&ChassisData, 80, targetPower, Judge.powerHeatData.chassis_power, interval); // 根据功率限幅
+        // Chassis_Fix(&ChassisData, motorAngle);                                                           // 修正旋转后底盘的前进方向
+        Chassis_Limit_Rotor_Speed(&ChassisData, 600);                                                    // 设置转子速度上限 (rad/s)
+        Chassis_Limit_Power(&ChassisData, 80, targetPower, Judge.powerHeatData.chassis_power, interval); // 根据功率限幅
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
@@ -185,15 +185,15 @@ void Task_Chassis(void *Parameters) {
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
-        // 调试信息
+        // 调试信息T
         // DebugData.debug1 = ChassisData.referencePower * 1000;
-        // DebugData.debug2 = ChassisData.power * 1000;
+        // DebugData.debug2 = ChassisData.power;
         // DebugData.debug3 = ChassisData.powerScale * 1000;
-        // DebugData.debug4 = Motor_LF.speed * RPM2RPS;
+        // DebugData.debug4 = Judge.powerHeatData.chassis_power;
         // DebugData.debug5 = ChassisData.powerBuffer;
         // DebugData.debug6 = targetPower;
         // DebugData.debug6 = PID_LFCM.output;
-        // DebugData.debug7 = rotorSpeed[3];
+        // DebugData.debug7 = ChassisData.rotorSpeed[3];
         // DebugData.debug8 = rotorSpeed[3];
     }
 
@@ -232,16 +232,17 @@ void Task_Fire(void *Parameters) {
     // PID 初始化
     PID_Init(&PID_LeftFrictSpeed, 25, 0.1, 0, 10000, 5000);
     PID_Init(&PID_RightFrictSpeed, 25, 0.1, 0, 10000, 5000);
-    PID_Init(&PID_Stir2006Speed, 30, 0.01, 0, 20000, 6000); //半径38
+    PID_Init(&PID_Stir2006Speed, 30, 0.1, 0, 15000, 5500); //半径38
     // PID_Init(&PID_Stir3510Angle, 100, 0, 0, 15000, 10000); //半径110
     PID_Init(&PID_Stir3510Speed, 100, 10, 0, 15000, 10000);
-    PID_Init(&PID_Compensation, 30, 0, 0, 4000, 500);
+    // PID_Init(&PID_Compensation, 30, 0, 0, 4000, 500);
+    LASER_ON; // 激光开启
     while (1) {
         // DebugCode 标志位设置
 
         // 2006,3510拨弹轮
         if (remoteData.switchRight == 3) {
-            PID_Calculate(&PID_Stir3510Speed, 6, Motor_Stir3510.speed * rpm2rps);
+            PID_Calculate(&PID_Stir3510Speed, 1, Motor_Stir3510.speed * rpm2rps);
             PID_Calculate(&PID_Stir2006Speed, 49, Motor_Stir2006.speed * rpm2rps);
 
         } else if (remoteData.switchRight == 1) {
@@ -252,20 +253,22 @@ void Task_Fire(void *Parameters) {
         if (remoteData.switchLeft == 1) {
             PID_LeftFrictSpeed.output_I  = 0;
             PID_RightFrictSpeed.output_I = 0;
-            PID_Compensation.output      = 0;
+            // PID_Compensation.output      = 0;
             PID_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
             PID_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
         } else if (remoteData.switchLeft == 3) {
             PID_Calculate(&PID_RightFrictSpeed, 250, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮
             PID_Calculate(&PID_LeftFrictSpeed, -250, Motor_LeftFrict.speed * rpm2rps);  // 左摩擦轮
-            PID_Calculate(&PID_Compensation, -Motor_LeftFrict.speed * rpm2rps, Motor_RightFrict.speed * rpm2rps);
+            // PID_Calculate(&PID_Compensation, -Motor_LeftFrict.speed * rpm2rps, Motor_RightFrict.speed * rpm2rps);
         }
-        Can_Send(CAN2,
-                 0x200,
-                 PID_LeftFrictSpeed.output - PID_Compensation.output * 0,
-                 PID_RightFrictSpeed.output + PID_Compensation.output * 18,
-                 PID_Stir2006Speed.output,
-                 PID_Stir3510Speed.output);
+        // Can_Send(CAN2,
+        //          0x200,
+        //          PID_LeftFrictSpeed.output - PID_Compensation.output * 0,
+        //          PID_RightFrictSpeed.output + PID_Compensation.output * 18,
+        //          PID_Stir2006Speed.output,
+        //          PID_Stir3510Speed.output);
+
+        Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, PID_Stir2006Speed.output, PID_Stir3510Speed.output);
 
         // if (remoteData.switchRight == 3) {
         //     // PWM_Set_Compare(&PWM_Magazine_ServoL, 25);
@@ -284,10 +287,10 @@ void Task_Fire(void *Parameters) {
         DebugData.debug2 = Motor_RightFrict.speed * rpm2rps;
         DebugData.debug3 = Motor_Stir3510.speed * rpm2rps;
         DebugData.debug4 = Motor_Stir2006.speed * rpm2rps;
-        // DebugData.debug5 = PID_Compensation.output;
-        // DebugData.debug6 = yawAngle;
-        DebugData.debug7 = PID_RightFrictSpeed.output;
-        DebugData.debug8 = -1 * PID_Cloud_YawSpeed.output;
+        DebugData.debug5 = PID_Stir2006Speed.output;
+        DebugData.debug6 = PID_Stir2006Speed.output_I;
+        // DebugData.debug7 = PID_RightFrictSpeed.output;
+        // DebugData.debug8 = -1 * PID_Cloud_YawSpeed.output;
     }
     vTaskDelete(NULL);
 }
