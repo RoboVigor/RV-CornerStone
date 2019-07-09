@@ -97,7 +97,7 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget += pitchAngleTargetPs;
 
         // 上坡补偿
-        pitchAngleTargetFixStable = LowPassFilter_RC_1order(-1 * (chassisAngle / 50.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200);
+        pitchAngleTargetFixStable = LowPassFilter_RC_1order(-1 * (chassisAngle / 40.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200);
         pitchAngleTarget += pitchAngleTargetFixStable;
 
         // 限制云台运动范围
@@ -121,7 +121,7 @@ void Task_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = chassisAngle;
+        DebugData.debug1 = pitchAngleTargetControl;
         DebugData.debug2 = Motor_Pitch.angle;
         DebugData.debug3 = Gyroscope_EulerData.pitch;
         DebugData.debug4 = pitchAngleTargetFixStable;
