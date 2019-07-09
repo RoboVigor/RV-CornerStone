@@ -13,7 +13,7 @@ RoboVigor 电控基石。
 - 采用[Gitflow Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)作为版本管理
 
 ---
-## 步兵
+## 滑环步兵
 
 ### 遥控器控制
 
@@ -30,17 +30,13 @@ RoboVigor 电控基石。
 
 总共12根线
 
-can线       2根
+can线     2根
 
 云台供电  2根
 
 裁判系统  4根
 
-摄像头      至少2根（电走主控）
-
-串口          至少2根 （接地走主控）
-
-**todo: 测量云台供电电流；测试MiniPC供电和云台供电是否共地**
+串口      4根
 
 ---
 
