@@ -425,7 +425,7 @@ void BSP_TIM2_Init(void) {
     // NVIC
     NVIC_InitTypeDef NVIC_InitStructure;
     NVIC_InitStructure.NVIC_IRQChannel                   = TIM2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
@@ -505,6 +505,43 @@ void BSP_DMA_USART6_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSiz
     DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
     DMA_Init(DMA2_Stream1, &DMA_InitStructure);
     DMA_Cmd(DMA2_Stream1, ENABLE);
+}
+
+/**
+ * @brief USART6_TX的DMA初始化
+ *
+ * @param DMA_Memory0BaseAddr    复制到哪里
+ * @param DMA_BufferSize         长度
+ */
+void BSP_DMA_USART6_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+    // NVIC
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA2_Stream6_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+    // DMA
+    USART_DMACmd(USART6, USART_DMAReq_Tx, ENABLE);
+    DMA_InitTypeDef DMA_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+    DMA_InitStructure.DMA_Channel            = DMA_Channel_5;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &USART6->DR;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
+    DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
+    DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Enable;
+    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOStatus_HalfFull;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA2_Stream6, &DMA_InitStructure);
+    DMA_Cmd(DMA2_Stream6, ENABLE);
 }
 
 /**
@@ -713,9 +750,9 @@ extern Sound_Tone_Type Music_Scope_Soul[];
  *
  * @song  名称            歌曲        推荐延时(ms)
  *        Music_Sky       天空之城    350
- *        Music_Earth 极乐净土    120
- *        Music_Soul  New Soul   60
- *        Music_XP    XP开机音乐  150
+ *        Music_Earth     极乐净土    120
+ *        Music_Soul      New Soul   60
+ *        Music_XP        XP开机音乐  150
  */
 uint8_t KTV_Play(Song_Type song) {
     static uint32_t index = 0;

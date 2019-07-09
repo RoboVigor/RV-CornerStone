@@ -31,11 +31,11 @@ typedef struct Fsm_s {
 
 // 示例状态表
 // FsmTable_t year_table[] = {
-    // {到来的事件，当前的状态，将要要执行的函数，下一个状态}
-    // {EVENT1, SPRING, summer_thing, SUMMER},
-    // {EVENT2, SUMMER, autumn_thing, AUTUMN},
-    // {EVENT3, AUTUMN, winter_thing, WINTER},
-    // {EVENT4, WINTER, spring_thing, SPRING},
+// {到来的事件，当前的状态，将要要执行的函数，下一个状态}
+// {EVENT1, SPRING, summer_thing, SUMMER},
+// {EVENT2, SUMMER, autumn_thing, AUTUMN},
+// {EVENT3, AUTUMN, winter_thing, WINTER},
+// {EVENT4, WINTER, spring_thing, SPRING},
 // };
 
 // 函数

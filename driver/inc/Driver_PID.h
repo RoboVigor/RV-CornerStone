@@ -53,7 +53,7 @@ void PID_Init(PID_Type *pid, float p, float i, float d, float maxOutput, float m
  * @param pid PID结构句柄
  * @param target 目标量
  * @param feedback 反馈量
-* @return float
+ * @return float
  */
 float PID_Calculate(PID_Type *pid, float target, float feedback);
 
@@ -64,7 +64,7 @@ float PID_Calculate(PID_Type *pid, float target, float feedback);
  * @param pid PID结构句柄
  * @param target 目标量
  * @param feedback 反馈量
-* @return float
+ * @return float
  */
 float PID_Increment_Calculate(PID_Type *pid, float target, float feedback);
 

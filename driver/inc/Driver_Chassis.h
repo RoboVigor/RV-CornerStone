@@ -1,8 +1,6 @@
 /**
  * @file Driver_Chassis.h
  * @brief 底盘运动驱动
- * @version 0.5
- * - Can_Send() 新增了电调标识符id参数,所有CAN发送只需要这一个函数就能够完成
  */
 
 #ifndef __DRIVER_CHASSIS_H
@@ -12,7 +10,7 @@
 #include "Driver_PID.h"
 
 typedef struct {
-     // 转子转速
+    // 转子转速
     int16_t rotorSpeed[4];
     float   vx;
     float   vy;
