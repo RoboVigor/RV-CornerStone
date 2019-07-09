@@ -19,19 +19,6 @@ void Task_Safe_Mode(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-float LowPassFilter_RC_1order(float Vi, float *Vo_p, float sampleFrq) {
-    // yawSpeedStable = LowPassFilter_RC_1order(-1 * ImuData.gy / GYROSCOPE_LSB, &yawSpeed, 200);
-    float CutFrq, RC, Cof1, Cof2;
-
-    // low pass filter @cutoff frequency = 5 Hz
-    CutFrq = 20;
-    RC     = (float) 1.0 / 2.0 / PI / CutFrq;
-    Cof1   = 1 / (1 + RC * sampleFrq);
-    Cof2   = RC * sampleFrq / (1 + RC * sampleFrq);
-    *Vo_p  = Cof1 * Vi + Cof2 * (*Vo_p);
-    return *Vo_p;
-}
-
 void Task_Gimbal(void *Parameters) {
     // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -97,7 +84,7 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget += pitchAngleTargetPs;
 
         // 上坡补偿
-        pitchAngleTargetFixStable = LowPassFilter_RC_1order(-1 * (chassisAngle / 40.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200);
+        pitchAngleTargetFixStable = FirstOrderLowPassFilter(-1 * (chassisAngle / 40.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200, 20);
         pitchAngleTarget += pitchAngleTargetFixStable;
 
         // 限制云台运动范围
@@ -151,12 +138,7 @@ void Task_Chassis(void *Parameters) {
     float power          = 0;
 
     // 小陀螺
-    float swingAmplitude = 360;
-    float swingDuration  = 1000;
-    float swingProgress  = 0;
-    int   swingDirection = 1;
-    float swingStep      = intervalms / swingDuration;
-    float swingAngle     = 0;
+    float swingAngle = 0;
 
     // 底盘跟随PID
     float followDeadRegion = 2.0;
@@ -184,8 +166,6 @@ void Task_Chassis(void *Parameters) {
             swingAngle += 360 * interval;
             followDeadRegion = 0; // 关闭底盘跟随死区
         } else {
-            swingDirection   = 1;
-            swingProgress    = 0;
             swingAngle       = 0;
             followDeadRegion = 2; // 开启底盘跟随死区
             Motor_Yaw.round  = 0; // 圈数清零
@@ -213,7 +193,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 调试信息
         // DebugData.debug1 = Ps.seq;

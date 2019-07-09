@@ -18,26 +18,26 @@ void Chassis_Init(ChassisData_Type *cd) {
 }
 
 void Chassis_Update(ChassisData_Type *cd, float vx, float vy, float vw) {
-    float coefficient;
-
-    // 更新状态
     cd->vx = vx;
     cd->vy = vy;
     cd->vw = vw;
-
-    // 麦轮解算
-    coefficient       = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE;
-    cd->rotorSpeed[0] = coefficient * (vy - vx - vw * CHASSIS_SIZE_K);
-    cd->rotorSpeed[1] = coefficient * (vy + vx - vw * CHASSIS_SIZE_K);
-    cd->rotorSpeed[2] = -coefficient * (vy - vx + vw * CHASSIS_SIZE_K);
-    cd->rotorSpeed[3] = -coefficient * (vy + vx + vw * CHASSIS_SIZE_K);
 }
 
 void Chassis_Fix(ChassisData_Type *cd, float angle) {
-    float sinYaw = vegsin(angle);
-    float cosYaw = vegcos(angle);
-    cd->vy       = cd->vy * cosYaw - cd->vx * sinYaw;
-    cd->vx       = cd->vy * sinYaw + cd->vx * cosYaw;
+    float sinYaw = vegsin(angle); // 1
+    float cosYaw = vegcos(angle); // 0
+    float vx     = cd->vx;
+    float vy     = cd->vy;
+    cd->vy       = vy * cosYaw - vx * sinYaw;
+    cd->vx       = vy * sinYaw + vx * cosYaw;
+}
+
+void Chassis_Calculate_Rotor_Speed(ChassisData_Type *cd) {
+    float coefficient = CHASSIS_INVERSE_WHEEL_RADIUS * CHASSIS_MOTOR_REDUCTION_RATE;
+    cd->rotorSpeed[0] = coefficient * (cd->vy - cd->vx - cd->vw * CHASSIS_SIZE_K);
+    cd->rotorSpeed[1] = coefficient * (cd->vy + cd->vx - cd->vw * CHASSIS_SIZE_K);
+    cd->rotorSpeed[2] = -coefficient * (cd->vy - cd->vx + cd->vw * CHASSIS_SIZE_K);
+    cd->rotorSpeed[3] = -coefficient * (cd->vy + cd->vx + cd->vw * CHASSIS_SIZE_K);
 }
 
 void Chassis_Limit_Rotor_Speed(ChassisData_Type *cd, float maxRotorSpeed) {

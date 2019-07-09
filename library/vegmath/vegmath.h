@@ -21,4 +21,15 @@ double vegsin(float deg);
  */
 double vegcos(float deg);
 
+/**
+ * @brief 低通滤波
+ *
+ * @param input      输入
+ * @param output     输出变量指针, 与return值相同
+ * @param sampleFrq  采样频率
+ * @param CutFrq     截至频率
+ * @return float     返回过滤后的值
+ */
+float FirstOrderLowPassFilter(float input, float *output, float sampleFrq, float CutFrq);
+
 #endif

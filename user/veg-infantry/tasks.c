@@ -1,7 +1,8 @@
 /**
- * @brief 步兵/英雄
+ * @brief 步兵 (无滑环)
  * @version 1.2.0
  */
+
 #include "main.h"
 
 void Task_Safe_Mode(void *Parameters) {
@@ -9,7 +10,6 @@ void Task_Safe_Mode(void *Parameters) {
         if (remoteData.switchRight == 2) {
             Can_Send(CAN1, 0x200, 0, 0, 0, 0);
             Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
-            Can_Send(CAN1, 0x2FF, 0, 0, 0, 0);
             PWM_Set_Compare(&PWM_Snail1, 0.376 * 1250);
             PWM_Set_Compare(&PWM_Snail2, 0.376 * 1250);
             vTaskSuspendAll();
@@ -17,19 +17,6 @@ void Task_Safe_Mode(void *Parameters) {
         vTaskDelay(2);
     }
     vTaskDelete(NULL);
-}
-
-float LowPassFilter_RC_1order(float Vi, float *Vo_p, float sampleFrq) {
-    // yawSpeedStable = LowPassFilter_RC_1order(-1 * ImuData.gy / GYROSCOPE_LSB, &yawSpeed, 200);
-    float CutFrq, RC, Cof1, Cof2;
-
-    // low pass filter @cutoff frequency = 5 Hz
-    CutFrq = 20;
-    RC     = (float) 1.0 / 2.0 / PI / CutFrq;
-    Cof1   = 1 / (1 + RC * sampleFrq);
-    Cof2   = RC * sampleFrq / (1 + RC * sampleFrq);
-    *Vo_p  = Cof1 * Vi + Cof2 * (*Vo_p);
-    return *Vo_p;
 }
 
 void Task_Gimbal(void *Parameters) {
@@ -97,7 +84,7 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget += pitchAngleTargetPs;
 
         // 上坡补偿
-        pitchAngleTargetFixStable = LowPassFilter_RC_1order(-1 * (chassisAngle / 40.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200);
+        pitchAngleTargetFixStable = FirstOrderLowPassFilter(-1 * (chassisAngle / 40.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200, 20);
         pitchAngleTarget += pitchAngleTargetFixStable;
 
         // 限制云台运动范围
@@ -116,17 +103,19 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
 
         // 输出电流
-        Can_Send(CAN1, 0x1FF, 0, 10 * PID_Cloud_PitchSpeed.output, 0, 0);
-        Can_Send(CAN1, 0x2FF, -100 * PID_Cloud_YawSpeed.output, 0, 0, 0);
-        vTaskDelayUntil(&LastWakeTime, intervalms);
+        Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, -1 * PID_Cloud_PitchSpeed.output, 0, 0);
 
         // 调试信息
-        // DebugData.debug1 = chassisAngle;
-        // DebugData.debug2 = Motor_Pitch.angle;
-        // DebugData.debug3 = Gyroscope_EulerData.pitch;
-        // DebugData.debug4 = pitchAngleTargetFixStable;
-        // DebugData.debug5 = pitchAngleTarget;
-        // DebugData.debug6 = pitchAngle;
+        // DebugData.debug1 = Ps.seq;
+        // DebugData.debug2 = Ps.autoaimData.yaw_angle_diff;
+        // DebugData.debug3 = pitchAngleTargetRamp;
+        // DebugData.debug4 = psYawAngleTarget;
+        // DebugData.debug3 = yawAngleTarget;
+        // DebugData.debug6 = ImuData.gx;
+        // DebugData.debug7 = ImuData.gy;
+        // DebugData.debug8 = ImuData.gz;
+
+        vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
 }
@@ -213,22 +202,21 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+
+        // 底盘运动更新频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = Ps.seq;
-        // DebugData.debug2 = Ps.autoaimData.pitch_angle_diff;
-        // DebugData.debug3 = Ps.autoaimData.seq;
-        // DebugData.debug2 = PID_Follow_Angle.error * 1000;
-        // DebugData.debug3 = PID_Follow_Angle.feedback * 1000;
+        // DebugData.debug1 = ChassisData.referencePower * 1000;
+        // DebugData.debug2 = ChassisData.power * 1000;
+        // DebugData.debug3 = ChassisData.powerScale * 1000;
+        // DebugData.debug4 = Motor_LF.speed * RPM2RPS;
         // DebugData.debug5 = ChassisData.powerBuffer;
         // DebugData.debug6 = targetPower;
         // DebugData.debug6 = PID_LFCM.output;
         // DebugData.debug7 = rotorSpeed[3];
         // DebugData.debug8 = rotorSpeed[3];
-
-        // 底盘运动更新频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
     }
 
     vTaskDelete(NULL);
@@ -448,7 +436,7 @@ void Task_Sys_Init(void *Parameters) {
 #endif
 
     // 低级任务
-    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 10, NULL);
+    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
@@ -459,8 +447,8 @@ void Task_Sys_Init(void *Parameters) {
     // 运动控制任务
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
-    // xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

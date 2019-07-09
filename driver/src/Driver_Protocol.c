@@ -78,8 +78,9 @@ void Protocol_Decode(Protocol_Type *Protocol, uint8_t byte) {
 }
 
 void Protocol_Load(Protocol_Type *Protocol) {
-    int      i;
-    uint8_t *begin_p;
+    int       i;
+    uint8_t * begin_p;
+    uint16_t *seq;
 
     // seq
     if (Protocol->packet[3] != 0x00) {
@@ -94,30 +95,39 @@ void Protocol_Load(Protocol_Type *Protocol) {
     switch (Protocol->id) {
     case 0x0201: {
         begin_p = Protocol->robotState.data;
+        seq     = &(Protocol->robotState.seq);
     } break;
 
     case 0x0202: {
         begin_p = Protocol->powerHeatData.data;
+        seq     = &(Protocol->powerHeatData.seq);
     } break;
 
     case 0x0205: {
         begin_p = Protocol->aerialRobotEnergy.data;
+        seq     = &(Protocol->aerialRobotEnergy.seq);
     } break;
 
     case 0x0206: {
         begin_p = Protocol->robotHurt.data;
+        seq     = &(Protocol->robotHurt.seq);
     } break;
 
     case 0x0207: {
         begin_p = Protocol->shootData.data;
+        seq     = &(Protocol->shootData.seq);
     } break;
 
     case 0x0401: {
-        begin_p = Protocol->gimbalAimData.data;
+        begin_p = Protocol->autoaimData.data;
+        seq     = &(Protocol->autoaimData.seq);
     } break;
 
     default: { return; } break;
     }
+
+    // packet seq
+    *seq = Protocol->seq;
 
     // load
     for (i = 0; i < Protocol->dataLength; i++) {

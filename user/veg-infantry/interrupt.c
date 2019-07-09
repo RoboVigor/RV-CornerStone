@@ -160,8 +160,8 @@ void CAN1_RX0_IRQHandler(void) {
         Motor_Update(&Motor_RF, position, speed);
         break;
 
-    case 0x209:
-        Motor_Update(&Motor_Yaw, position, speed);
+    case 0x205:
+        Motor_Update(&Motor_Yaw, position, 0);
         break;
 
     case 0x206:

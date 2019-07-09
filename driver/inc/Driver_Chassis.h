@@ -34,7 +34,7 @@ typedef struct {
 void Chassis_Init(ChassisData_Type *ChassisData);
 
 /**
- * @brief 麦轮解算, 更新转子转速
+ * @brief 更新麦轮转速
  * @param XSpeed 左右 m/s
  * @param YSpeed 前后 m/s
  * @param WSpeed 旋转 rad/s 逆时针为正
@@ -48,6 +48,11 @@ void Chassis_Update(ChassisData_Type *ChassisData, float XSpeed, float YSpeed, f
  * @param angle 期望的前进方向
  */
 void Chassis_Fix(ChassisData_Type *ChassisData, float angle);
+
+/**
+ * @brief 麦轮解算, 更新转子转速
+ */
+void Chassis_Calculate_Rotor_Speed(ChassisData_Type *ChassisData);
 
 /**
  * @brief 设置转子速度上限 (rad/s)

@@ -617,62 +617,37 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_hero</GroupName>
+          <GroupName>user_veg_infantry</GroupName>
           <Files>
             <File>
               <FileName>bsp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\hero\bsp.c</FilePath>
+              <FilePath>..\user\veg-infantry\bsp.c</FilePath>
             </File>
             <File>
               <FileName>handle.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\hero\handle.c</FilePath>
+              <FilePath>..\user\veg-infantry\handle.c</FilePath>
             </File>
             <File>
               <FileName>interrupt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\hero\interrupt.c</FilePath>
+              <FilePath>..\user\veg-infantry\interrupt.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\hero\main.c</FilePath>
+              <FilePath>..\user\veg-infantry\main.c</FilePath>
             </File>
             <File>
               <FileName>task_debug.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\hero\task_debug.c</FilePath>
+              <FilePath>..\user\veg-infantry\task_debug.c</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\hero\tasks.c</FilePath>
-            </File>
-            <File>
-              <FileName>tasks.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\hero\tasks.h</FilePath>
-            </File>
-            <File>
-              <FileName>rtos.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\hero\rtos.h</FilePath>
-            </File>
-            <File>
-              <FileName>main.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\hero\main.h</FilePath>
-            </File>
-            <File>
-              <FileName>handle.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\hero\handle.h</FilePath>
-            </File>
-            <File>
-              <FileName>config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\hero\config.h</FilePath>
+              <FilePath>..\user\veg-infantry\tasks.c</FilePath>
             </File>
           </Files>
         </Group>
