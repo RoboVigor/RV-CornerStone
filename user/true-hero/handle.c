@@ -15,7 +15,7 @@ void Handle_Init(void) {
     // 发射机构电机
     Motor_Init(&Motor_LeftFrict, 1, 0);
     Motor_Init(&Motor_RightFrict, 1, 0);
-    Motor_Init(&Motor_Stir2006, 36, 0);
+    Motor_Init(&Motor_Stir2006, 36, 1);
     Motor_Init(&Motor_Stir3510, 19.2, 0);
 
     // 云台电机
