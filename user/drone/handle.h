@@ -58,6 +58,8 @@ __HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;
 //PWM 捕获
 __HANDLE_EXT u32 TIM5CH1_CAPTURE_STA,TIM5CH1_CAPTURE_VAL;
 
+__HANDLE_EXT int debug1,debug2;
+
 
 /**
  * @brief 初始化结构体
