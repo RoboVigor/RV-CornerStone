@@ -166,8 +166,6 @@ void Task_Chassis(void *Parameters) {
             swingAngle += 360 * interval;
             followDeadRegion = 0; // 关闭底盘跟随死区
         } else {
-            swingDirection   = 1;
-            swingProgress    = 0;
             swingAngle       = 0;
             followDeadRegion = 2; // 开启底盘跟随死区
             Motor_Yaw.round  = 0; // 圈数清零

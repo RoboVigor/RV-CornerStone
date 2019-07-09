@@ -622,32 +622,32 @@
             <File>
               <FileName>bsp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\loop_infantry\bsp.c</FilePath>
+              <FilePath>..\user\loop-infantry\bsp.c</FilePath>
             </File>
             <File>
               <FileName>handle.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\loop_infantry\handle.c</FilePath>
+              <FilePath>..\user\loop-infantry\handle.c</FilePath>
             </File>
             <File>
               <FileName>interrupt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\loop_infantry\interrupt.c</FilePath>
+              <FilePath>..\user\loop-infantry\interrupt.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\loop_infantry\main.c</FilePath>
+              <FilePath>..\user\loop-infantry\main.c</FilePath>
             </File>
             <File>
               <FileName>task_debug.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\loop_infantry\task_debug.c</FilePath>
+              <FilePath>..\user\loop-infantry\task_debug.c</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\loop_infantry\tasks.c</FilePath>
+              <FilePath>..\user\loop-infantry\tasks.c</FilePath>
             </File>
           </Files>
         </Group>
