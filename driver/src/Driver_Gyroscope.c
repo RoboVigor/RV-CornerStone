@@ -14,7 +14,6 @@ static float          zSpeed;
 static float          xAcc;
 static float          yAcc;
 static float          zAcc;
-static int16_t        debug100 = 0;
 extern volatile float beta;
 
 Filter_Type Filter_Yaw = {.count = 0, .thresholdLB = GYROSCOPE_YAW_FILTER_THRESHOLD};
@@ -108,7 +107,6 @@ void Gyroscope_Solve(GyroscopeData_Type *GyroscopeData) {
 
     GyroscopeData->pitch = -pitchAngle;
     GyroscopeData->roll  = rollAngle;
-    debug100             = GyroscopeData->pitch;
 
     // 输出欧拉角
 #if GYROSCOPE_START_UP_DELAY_ENABLED
