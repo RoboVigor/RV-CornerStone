@@ -10,7 +10,7 @@ void Task_Safe_Mode(void *Parameters) {
             Can_Send(CAN1, 0x200, 0, 0, 0, 0);
             vTaskSuspendAll();
         }
-        vTaskDelay(100);
+        vTaskDelay(2);
     }
     vTaskDelete(NULL);
 }

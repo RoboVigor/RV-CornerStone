@@ -10,7 +10,7 @@ void Task_Safe_Mode(void *Parameters) {
             Can_Send(CAN1, 0x200, 0, 0, 0, 0);
             vTaskSuspendAll();
         }
-        vTaskDelay(100);
+        vTaskDelay(2);
     }
     vTaskDelete(NULL);
 }
@@ -73,7 +73,7 @@ void Task_Chassis(void *Parameters) {
                     }
                 }
             // 设置左右
-            } else if (Chassis_Detect == 1 && remoteData.switchRight == 1) { 
+            } else if (Chassis_Detect == 1 && remoteData.switchRight == 1) {
                 // Chassis_State = CHASSIS_DETECT_LEFT;
                 Chassis_State = CHASSIS_DETECT_RIGHT;
             // 正常运动
@@ -561,7 +561,7 @@ void Task_Upthrow_Horizontial(void *Parameter) {
             TU_Up  = 0;
             TV_Out = 0;
         }
-        
+
         // // 调PID使用
         // if (remoteData.switchRight == 2) {
         //     TU_Up = 0;

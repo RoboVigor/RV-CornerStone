@@ -10,7 +10,7 @@ void Task_Safe_Mode(void *Parameters) {
       Can_Send(CAN1, 0x200, 0, 0, 0, 0);
       vTaskSuspendAll();
     }
-    vTaskDelay(100);
+    vTaskDelay(2);
   }
   vTaskDelete(NULL);
 }
@@ -38,7 +38,7 @@ void Task_Snail(void *Parameters) {
   /*来自dji开源，两个snail不能同时启动*/
 
   while (1) {
-    
+
     GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
 		if (remoteData.switchLeft == 1) {
             // 摩擦轮不转
@@ -53,7 +53,7 @@ void Task_Snail(void *Parameters) {
         }
 
         else if (remoteData.switchLeft != 1) {
-	
+
     if (dutyCycleRightSnailProgress1 <= 1) { //初始状态
       dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle,
                                        dutyCycleRightSnailProgress1); //斜坡上升
@@ -91,12 +91,12 @@ void Task_Snail(void *Parameters) {
       }
     }
 		}
-				
-	
+
+
     PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
     PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
-				
-				
+
+
     vTaskDelayUntil(&LastWakeTime, 5);
   }
   vTaskDelete(NULL);
@@ -202,7 +202,7 @@ void Task_Fire(void *Parameters) {               //拨弹轮
 
   while (1) {
     stirState = 1;
-		
+
     //拨弹轮 PID 控制
     if (stirState == 0) { // 停止模式
       PID_Increment_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed * rpm2rps);
