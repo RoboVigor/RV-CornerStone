@@ -21,7 +21,7 @@ void Task_Snail(void *Parameters) {
 
   float dutyCycleStart = 0.376;  //起始占空比为37.6
   float dutyCycleMiddle = 0.446; //启动需要到44.6
-  float dutyCycleEnd = 0.486;    //加速到你想要的占空比
+  float dutyCycleEnd = 0.400;    //加速到你想要的占空比
 
   float dutyCycleRightSnailTarget = 0.376; //目标占空比
   float dutyCycleLeftSnailTarget = 0.376;
@@ -38,8 +38,22 @@ void Task_Snail(void *Parameters) {
   /*来自dji开源，两个snail不能同时启动*/
 
   while (1) {
+    
     GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
+		if (remoteData.switchLeft == 1) {
+            // 摩擦轮不转
+            //PWM_Set_Compare(&PWM_Snail1, dutyCycleStart * 1250);
+            //PWM_Set_Compare(&PWM_Snail2, dutyCycleStart * 1250);
+						dutyCycleRightSnailTarget =0.376;
+						dutyCycleLeftSnailTarget =0.376;
+						dutyCycleRightSnailProgress1=0;
+						dutyCycleRightSnailProgress2=0;
+						dutyCycleLeftSnailProgress1=0;
+						dutyCycleLeftSnailProgress2=0;
+        }
 
+        else if (remoteData.switchLeft != 1) {
+	
     if (dutyCycleRightSnailProgress1 <= 1) { //初始状态
       dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle,
                                        dutyCycleRightSnailProgress1); //斜坡上升
@@ -76,8 +90,13 @@ void Task_Snail(void *Parameters) {
         }
       }
     }
+		}
+				
+	
     PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
     PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
+				
+				
     vTaskDelayUntil(&LastWakeTime, 5);
   }
   vTaskDelete(NULL);
@@ -103,6 +122,7 @@ void Task_Gimbal(void *Parameters) {
   while (1) {
     yawMode = ABS(remoteData.rx) < 30 ? 1 : 2;
     pitchMode = ABS(remoteData.ry) < 30 ? 1 : 2;
+    debug1=Motor_Yaw.angle;
 
     //设定输入target
     if (yawMode != yawLastMode) {
@@ -115,8 +135,21 @@ void Task_Gimbal(void *Parameters) {
                     Motor_Yaw.angle); // 计算航向角角度PID
       PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output,
                     Motor_Yaw.speed); // 计算航向角角速度PID
-    } else {
-      PID_Calculate(&PID_Cloud_YawSpeed, remoteData.rx,
+    } else if(Motor_Yaw.angle>33&&remoteData.rx>-30){
+       PID_Calculate(&PID_Cloud_YawAngle, 34,
+                    Motor_Yaw.angle); // 计算航向角角度PID
+      PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output,
+                    Motor_Yaw.speed); // 计算航向角角速度PID
+
+    }else if(Motor_Yaw.angle<-33&&remoteData.rx<30) {
+      PID_Calculate(&PID_Cloud_YawAngle, -34,
+                    Motor_Yaw.angle); // 计算航向角角度PID
+      PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output,
+                    Motor_Yaw.speed); // 计算航向角角速度PID
+
+
+    }else{
+      PID_Calculate(&PID_Cloud_YawSpeed, remoteData.rx * 0.3 ,
                     Motor_Yaw.speed); // 计算航向角角速度PID
     }
 
@@ -134,8 +167,7 @@ void Task_Gimbal(void *Parameters) {
                     Motor_Pitch.speed); // 计算航向角角速度PID
     }
 
-    Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output,
-             PID_Cloud_PitchSpeed.output, 0, 0);
+    Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
 
     vTaskDelayUntil(&LastWakeTime, 5);
   }
@@ -170,20 +202,21 @@ void Task_Fire(void *Parameters) {               //拨弹轮
 
   while (1) {
     stirState = 1;
+		
     //拨弹轮 PID 控制
     if (stirState == 0) { // 停止模式
       PID_Increment_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed * rpm2rps);
-      Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
+      Can_Send(CAN1, 0x200, 0, 0, 0, 0);
     } else if (stirState == 1) { // 连发模式
       if (remoteData.lx < -60) { //正转
-        PID_Calculate(&PID_StirSpeed, -4500.0, Motor_Stir.speed);
-        Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+        PID_Calculate(&PID_StirSpeed, -6500.0, Motor_Stir.speed);
+        Can_Send(CAN1, 0x200, 0, 0, PID_StirSpeed.output, 0);
       } else if (remoteData.lx > 60) { //高速倒转，清弹
         PID_Calculate(&PID_StirSpeed, remoteData.lx * 15, Motor_Stir.speed);
-        Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+        Can_Send(CAN1, 0x200, 0, 0, PID_StirSpeed.output, 0);
       } else if (remoteData.lx < 60 && remoteData.lx > -60) {
         PID_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed);
-        Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+        Can_Send(CAN1, 0x200, 0, 0, PID_StirSpeed.output, 0);
       }
     }
 
@@ -202,10 +235,13 @@ void Task_Sys_Init(void *Parameters) {
   BSP_Init();
 
   // 初始化陀螺仪
-  Gyroscope_Init(&Gyroscope_EulerData);
+  //Gyroscope_Init(&Gyroscope_EulerData);
 
   TIM5CH1_CAPTURE_STA = 0;
   while (!remoteData.state) {
+    //debug1=Motor_Pitch.position;
+    //debug2=Motor_Yaw.position;
+
   }
 
   // 功能任务
