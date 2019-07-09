@@ -9,6 +9,8 @@
 
 #include <math.h>
 
+#define PI 3.1415926f
+
 #define cordic_1K 0x26DD3B6A
 int cordic_ctab[] = {
     0x3243F6A8, 0x1DAC6705, 0x0FADBAFC, 0x07F56EA6, 0x03FEAB76, 0x01FFD55B, 0x00FFFAAA, 0x007FFF55, 0x003FFFEA, 0x001FFFFD, 0x000FFFFF,
@@ -42,4 +44,13 @@ double vegsin(float deg) {
 
 double vegcos(float deg) {
     return vegsin(deg + 90);
+}
+
+float FirstOrderLowPassFilter(float input, float *output, float sampleFrq, float cutFrq) {
+    float RC, Cof1, Cof2;
+    RC      = (float) 1.0 / 2.0 / PI / cutFrq;
+    Cof1    = 1 / (1 + RC * sampleFrq);
+    Cof2    = RC * sampleFrq / (1 + RC * sampleFrq);
+    *output = Cof1 * input + Cof2 * (*output);
+    return *output;
 }
