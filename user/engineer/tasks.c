@@ -38,6 +38,9 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_YawAngle, 10, 0, 0, 1000, 1000);
     PID_Init(&PID_YawSpeed, 5, 0, 0, 4000, 1000);
 
+    // 初始化底盘
+    Chassis_Init(&ChassisData);
+
     while (1) {
         // 设置反馈值
         yawAngle = Gyroscope_EulerData.yaw;    // 航向角角度反馈
@@ -55,28 +58,33 @@ void Task_Chassis(void *Parameters) {
 
                     // 设置底盘总体移动速度
                     Chassis_Update(&ChassisData, 0.2, 0, (float) PID_YawSpeed.output / 660.0f);
+                    Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
 
                 } else {
                     if (Distance1 - Distance2 > 30) {
                         PID_Calculate(&PID_YawSpeed, 30, yawSpeed); // 计算航向角角速度PID
                         Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
+                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                     } else if (Distance1 - Distance2 < -30) {
                         PID_Calculate(&PID_YawSpeed, -30, yawSpeed); // 计算航向角角速度PID
                         Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
+                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                     } else if (Distance1 < 100 && Distance2 < 100) {
                         PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
                         Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
+                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                     } else {
                         PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
                         // 设置底盘总体移动速度
                         Chassis_Update(&ChassisData, 0.2, 0, (float) PID_YawSpeed.output / 660.0f);
+                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                     }
                 }
-            // 设置左右
+                // 设置左右
             } else if (Chassis_Detect == 1 && remoteData.switchRight == 1) {
                 // Chassis_State = CHASSIS_DETECT_LEFT;
                 Chassis_State = CHASSIS_DETECT_RIGHT;
-            // 正常运动
+                // 正常运动
             } else {
                 Chassis_State = CHASSIS_NORMAL;
             }
@@ -99,6 +107,7 @@ void Task_Chassis(void *Parameters) {
 
                 // 设置底盘总体移动速度
                 Chassis_Update(&ChassisData, (float) -remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, (float) PID_YawSpeed.output / 1320.0f);
+                Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                 // 重新赋初值
                 Chassis_State = -1;
             } else if (Chassis_State == CHASSIS_DETECT_LEFT) {
@@ -108,10 +117,12 @@ void Task_Chassis(void *Parameters) {
                     PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
 
                     Chassis_Update(&ChassisData, 0, 0.1, (float) PID_YawSpeed.output / 660.0f);
+                    Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                 } else {
                     PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
 
                     Chassis_Update(&ChassisData, 0, -0.15, (float) PID_YawSpeed.output / 660.0f);
+                    Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                 }
             } else if (Chassis_State == CHASSIS_DETECT_RIGHT) {
                 // 读单边提高响应速度
@@ -120,15 +131,19 @@ void Task_Chassis(void *Parameters) {
                     Detected_State = 1;
                     // 赋返回速度
                     Chassis_Update(&ChassisData, 0, -0.1, (float) PID_YawSpeed.output / 660.0f);
+                    Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                 } else {
                     if (Distance1 - Distance2 > 50) {
                         PID_Calculate(&PID_YawSpeed, 30, yawSpeed);
                         Chassis_Update(&ChassisData, 0, 0.15, (float) PID_YawSpeed.output / 660.0f);
+                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                     } else if (Distance1 - Distance2 < -50) {
                         PID_Calculate(&PID_YawSpeed, -30, yawSpeed);
                         Chassis_Update(&ChassisData, 0, 0.15, (float) PID_YawSpeed.output / 660.0f);
+                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                     } else {
                         Chassis_Update(&ChassisData, 0, 0.15, 0);
+                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                     }
                 }
             }
@@ -308,7 +323,7 @@ void Task_Take_Fsm(void *Parameters) {
             Fsm_Update(&Take_Fsm, TV_Out1);
             // Fsm_Update(&Take_Fsm, TV_Out2);
             vTaskDelay(500);
-            Fsm_Update(&Take_Fsm, Start_Detect_Horizontial_Right);  // 夹角左右寻找 底盘寻找未加入向左
+            Fsm_Update(&Take_Fsm, Start_Detect_Horizontial_Right); // 夹角左右寻找 底盘寻找未加入向左
             // Fsm_Update(&Take_Fsm, Start_Detect_Chassis);
             if (Detected_State == 1) {
                 Fsm_Update(&Take_Fsm, Start_Get);
@@ -854,10 +869,10 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Landing, "Task_Landing", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Supply, "Task_Supply", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Take_Vertical, "Task_Take_Vertical", 400, NULL, 3, NULL);    // 前后伸缩
+    xTaskCreate(Task_Take_Vertical, "Task_Take_Vertical", 400, NULL, 3, NULL); // 前后伸缩
     xTaskCreate(Task_Optoelectronic_Input_Take, "Task_Optoelectronic_Input_Take", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Optoelectronic_Input_Landing, "Task_Optoelectronic_Input_Landing", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Upthrow_Horizontial, "Task_Upthrow_Horizontial", 400, NULL, 3, NULL);  // 抬升与平移
+    xTaskCreate(Task_Upthrow_Horizontial, "Task_Upthrow_Horizontial", 400, NULL, 3, NULL); // 抬升与平移
     xTaskCreate(Task_Limit_Switch, "Task_Limit_Switch", 400, NULL, 3, NULL);
     /* End */
 

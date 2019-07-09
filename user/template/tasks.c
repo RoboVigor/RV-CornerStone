@@ -37,6 +37,9 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_YawAngle, 10, 0, 0, 1000, 1000);
     PID_Init(&PID_YawSpeed, 2, 0, 0, 4000, 1000);
 
+    // 初始化底盘
+    Chassis_Init(&ChassisData);
+
     while (1) {
 
         // 更新运动模式
@@ -64,6 +67,9 @@ void Task_Chassis(void *Parameters) {
 
         // 设置底盘总体移动速度
         Chassis_Update(&ChassisData, (float) -remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, (float) PID_YawSpeed.output / 1320.0f);
+
+        // 麦轮解算
+        Chassis_Calculate_Rotor_Speed(&ChassisData);
 
         // 设置转子速度上限 (rad/s)
         Chassis_Limit_Rotor_Speed(&ChassisData, 300);
