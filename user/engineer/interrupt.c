@@ -126,17 +126,17 @@ void CAN1_RX0_IRQHandler(void) {
         Motor_Update(&Motor_RF, position, speed);
         break;
 
-    // case 0x205:
-    //     Motor_Update(&Motor_TH, position, speed);
-    //     break;
-
-    case 0x206:
-        Motor_Update(&Motor_TV, position, speed);
+    case 0x205:
+        Motor_Update(&Motor_Upthrow1, position, speed);
         break;
 
-    // case 0x207:
-    //     Motor_Update(&Motor_Transmission, position, speed);
-    //     break;
+    case 0x206:
+        Motor_Update(&Motor_Upthrow2, position, speed);
+        break;
+
+    case 0x207:
+        Motor_Update(&Motor_TH, position, speed);
+        break;
 
     default:
         break;
@@ -161,20 +161,28 @@ void CAN2_RX0_IRQHandler(void) {
 
     // 安排数据
     switch (CanRxData.StdId) {
-    case 0x201:
-        Motor_Update(&Motor_LGW, position, speed);
-        break;
-
-    case 0x202:
-        Motor_Update(&Motor_RGW, position, speed);
-        break;
-
-        // case 0x203:
-        //     Motor_Update(&Motor_RB, position, speed);
+        // case 0x201:
+        //     Motor_Update(&Motor_LGW, position, speed);
         //     break;
+
+        // case 0x202:
+        //     Motor_Update(&Motor_RGW, position, speed);
+        //     break;
+
+        case 0x203:
+            Motor_Update(&Motor_TV, position, speed);
+            break;
 
         // case 0x204:
         //     Motor_Update(&Motor_RF, position, speed);
+        //     break;
+
+        // case 0x205:
+        //     Motor_Update(&Motor_Upthrow1, position, speed);
+        //     break;
+
+        // case 0x206:
+        //     Motor_Update(&Motor_Upthrow2, position, speed);
         //     break;
 
     default:
@@ -194,47 +202,47 @@ void CAN2_RX0_IRQHandler(void) {
 // }
 
 // TIM2 输入捕获初始化
-u8  TIM2CH1_CAPTURE_STA = 0; //输入捕获状态
+u8 TIM2CH1_CAPTURE_STA = 0; //输入捕获状态
 
 void TIM2_IRQHandler(void) {
     if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET) {
         if (TIM2CH1_CAPTURE_STA == 1) {
-                TIM2CH1_CAPTURE_STA = 0;
-                //获取当前的捕获值
-                TIM2CH1_CAPTURE_VAL = TIM2->CCR1;
-                //设置上升沿捕获
-                TIM_OC1PolarityConfig(TIM2, TIM_ICPolarity_Rising);
-            } else {
-                TIM2CH1_CAPTURE_STA = 1;
-                TIM_SetCounter(TIM2, 0);                             //计数器清空
-                TIM_OC1PolarityConfig(TIM2, TIM_ICPolarity_Falling); //设置下降沿捕获
-            }
+            TIM2CH1_CAPTURE_STA = 0;
+            //获取当前的捕获值
+            TIM2CH1_CAPTURE_VAL = TIM2->CCR1;
+            //设置上升沿捕获
+            TIM_OC1PolarityConfig(TIM2, TIM_ICPolarity_Rising);
+        } else {
+            TIM2CH1_CAPTURE_STA = 1;
+            TIM_SetCounter(TIM2, 0);                             //计数器清空
+            TIM_OC1PolarityConfig(TIM2, TIM_ICPolarity_Falling); //设置下降沿捕获
+        }
     }
 
     TIM_ClearITPendingBit(TIM2, TIM_IT_CC1 | TIM_IT_Update); //清除中断标志位
 }
 
 // TIM5 输入捕获初始化
-u8  TIM5CH1_CAPTURE_STA = 0; //输入捕获状态
+u8 TIM5CH1_CAPTURE_STA = 0; //输入捕获状态
 
 // TIM5 输入捕获
 void TIM5_IRQHandler(void) {
     // 单通道输入捕获
-        // 捕获 1 发生捕获事件
-        if (TIM_GetITStatus(TIM5, TIM_IT_CC1) != RESET) {
-            // 捕获到一个下降沿
-            if (TIM5CH1_CAPTURE_STA == 1) {
-                TIM5CH1_CAPTURE_STA = 0;
-                //获取当前的捕获值
-                TIM5CH1_CAPTURE_VAL = TIM5->CCR1;
-                //设置上升沿捕获
-                TIM_OC1PolarityConfig(TIM5, TIM_ICPolarity_Rising);
-            } else {
-                TIM5CH1_CAPTURE_STA = 1;
-                TIM_SetCounter(TIM5, 0);                             //计数器清空
-                TIM_OC1PolarityConfig(TIM5, TIM_ICPolarity_Falling); //设置下降沿捕获
-            }
+    // 捕获 1 发生捕获事件
+    if (TIM_GetITStatus(TIM5, TIM_IT_CC1) != RESET) {
+        // 捕获到一个下降沿
+        if (TIM5CH1_CAPTURE_STA == 1) {
+            TIM5CH1_CAPTURE_STA = 0;
+            //获取当前的捕获值
+            TIM5CH1_CAPTURE_VAL = TIM5->CCR1;
+            //设置上升沿捕获
+            TIM_OC1PolarityConfig(TIM5, TIM_ICPolarity_Rising);
+        } else {
+            TIM5CH1_CAPTURE_STA = 1;
+            TIM_SetCounter(TIM5, 0);                             //计数器清空
+            TIM_OC1PolarityConfig(TIM5, TIM_ICPolarity_Falling); //设置下降沿捕获
         }
+    }
 
     TIM_ClearITPendingBit(TIM5, TIM_IT_CC1 | TIM_IT_Update); //清除中断标志位
 }

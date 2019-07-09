@@ -45,14 +45,17 @@
 #define TAKE_ON GPIO_SetBits(GPIOA, GPIO_Pin_3);
 #define TAKE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3);
 
-#define TAKING_ROD_PUSH GPIO_SetBits(GPIOD, GPIO_Pin_12 | GPIO_Pin_13);
-#define TAKING_ROD_PULL GPIO_ResetBits(GPIOD, GPIO_Pin_12 | GPIO_Pin_13);
-#define TAKING_ROD_POWER_ON GPIO_SetBits(GPIOA, GPIO_Pin_1);
-#define TAKING_ROD_POWER_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_1);
+#define CATAPULT_ON GPIO_SetBits(GPIOA, GPIO_Pin_1);
+#define CATAPULT_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_1);
 
 // Rescue
 #define RESCUE_HOOK_DOWN GPIO_SetBits(GPIOI, GPIO_Pin_0);
 #define RESCUE_HOOK_UP GPIO_ResetBits(GPIOI, GPIO_Pin_0);
+
+// 底盘运动状态
+#define CHASSIS_NORMAL 0
+#define CHASSIS_DETECT_RIGHT 1
+#define CHASSIS_DETECT_LEFT 2
 
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
@@ -79,9 +82,10 @@ __HANDLE_EXT ChassisData_Type ChassisData;
 
 // PID
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
-__HANDLE_EXT PID_Type PID_TH_Angle, PID_TH_Speed, PID_TV_Angle, PID_TV_Speed;
+__HANDLE_EXT PID_Type PID_TH_Speed, PID_TV_Angle, PID_TV_Speed;
 __HANDLE_EXT PID_Type PID_LGW, PID_RGW;
-__HANDLE_EXT PID_Type PID_Upthrow1_Angle, PID_Upthrow1_Speed;
+__HANDLE_EXT PID_Type PID_Upthrow1_Angle, PID_Upthrow1_Speed,PID_Upthrow2_Angle, PID_Upthrow2_Speed;
+__HANDLE_EXT PID_Type PID_TH_Angle;
 
 // 通讯协议
 __HANDLE_EXT Protocol_Type Judge, Ps;
@@ -104,10 +108,29 @@ __HANDLE_EXT u32 TIM5CH1_CAPTURE_VAL, TIM2CH1_CAPTURE_VAL;
 // PWM
 __HANDLE_EXT PWM_Type PWM_Supply1, PWM_Supply2, PWM_Image_Yaw, PWM_Image_Pitch, PWM_Rescue;
 
+// Fsm需求
+__HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, Find_Box, Detected_State, TH_Reset, Chassis_Detect, Chassis_Detect_Parallel;
+
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行
  */
+void Take_TV_0(void);
+void Take_TV_1(void);
+void Take_TV_2(void);
 void Handle_Init(void);
+void Take_Throwup(void);
+void Take_Horizontal_Right(void);
+void Take_Horizontal_Left(void);
+void Take_Chassis_Detect(void);
+void Take_Start_Get(void);
+void Take_TV_Progress(void);
+void Take_ON(void);
+void Take_Up(void);
+void Take_Down(void);
+void Take_Rotate_OFF(void);
+void Take_OFF(void);
+void Take_Catapult(void);
+void Take_Reset(void);
 
 #endif
