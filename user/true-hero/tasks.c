@@ -241,10 +241,8 @@ void Task_Fire(void *Parameters) {
     // PID 初始化
     PID_Init(&PID_LeftFrictSpeed, 25, 0.1, 0, 10000, 5000);
     PID_Init(&PID_RightFrictSpeed, 25, 0.1, 0, 10000, 5000);
-    PID_Init(&PID_Stir2006Angle, 5, 0, 0, 15000, 5500);
-    PID_Init(&PID_Stir2006Speed, 30, 0.1, 0, 15000, 5500); //半径38
-    // PID_Init(&PID_Stir3510Angle, 100, 0, 0, 15000, 10000); //半径110
-    PID_Init(&PID_Stir3510Speed, 100, 10, 0, 15000, 10000);
+    PID_Init(&PID_Stir2006Speed, 30, 0.1, 0, 15000, 8000);  //半径38
+    PID_Init(&PID_Stir3510Speed, 100, 10, 0, 15000, 10000); //半径110
     // PID_Init(&PID_Compensation, 30, 0, 0, 4000, 500);
 
     while (1) {
@@ -252,17 +250,17 @@ void Task_Fire(void *Parameters) {
 
         // 2006,3510拨弹轮
         if (shootMode == 1) {
-            // if (remoteData.switchLeft == 1) {
-            //     PID_LeftFrictSpeed.output_I  = 0;
-            //     PID_RightFrictSpeed.output_I = 0;
-            //     // PID_Compensation.output      = 0;
-            //     PID_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
-            //     PID_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
-            // } else if (remoteData.switchLeft != 1) {
-            //     PID_Calculate(&PID_RightFrictSpeed, 250, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮
-            //     PID_Calculate(&PID_LeftFrictSpeed, -250, Motor_LeftFrict.speed * rpm2rps);  // 左摩擦轮
-            //     // PID_Calculate(&PID_Compensation, -Motor_LeftFrict.speed * rpm2rps, Motor_RightFrict.speed * rpm2rps);
-            // }
+            if (remoteData.switchLeft == 1) {
+                PID_LeftFrictSpeed.output_I  = 0;
+                PID_RightFrictSpeed.output_I = 0;
+                // PID_Compensation.output      = 0;
+                PID_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
+                PID_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
+            } else if (remoteData.switchLeft != 1) {
+                PID_Calculate(&PID_RightFrictSpeed, 230, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮
+                PID_Calculate(&PID_LeftFrictSpeed, -230, Motor_LeftFrict.speed * rpm2rps);  // 左摩擦轮
+                // PID_Calculate(&PID_Compensation, -Motor_LeftFrict.speed * rpm2rps, Motor_RightFrict.speed * rpm2rps);
+            }
             if (remoteData.switchLeft == 3) {
                 PWM_Set_Compare(&PWM_Magazine_Servo, 15);
             } else if (remoteData.switchLeft == 2) {
@@ -279,11 +277,13 @@ void Task_Fire(void *Parameters) {
                 PID_Calculate(&PID_Stir2006Speed, 49, Motor_Stir2006.speed * rpm2rps);
                 PID_Calculate(&PID_Stir3510Speed, 4, Motor_Stir3510.speed * rpm2rps);
             } else if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 1 && state == 0) {
+                PID_Stir2006Speed.output_I = 0;
                 PID_Stir3510Speed.output_I = 0;
                 PID_Calculate(&PID_Stir2006Speed, 0, Motor_Stir2006.speed * rpm2rps);
                 PID_Calculate(&PID_Stir3510Speed, 0, Motor_Stir3510.speed * rpm2rps);
             } else {
-                PID_Calculate(&PID_Stir3510Speed, 0, Motor_Stir3510.speed * rpm2rps);
+                PID_Stir3510Speed.output_I = 0;
+                PID_Stir3510Speed.output   = 0;
             }
         }
         // Can_Send(CAN2, 0x200, 0, 0, PID_Stir2006Speed.output, PID_Stir3510Speed.output);
@@ -295,15 +295,15 @@ void Task_Fire(void *Parameters) {
         //          PID_Stir2006Speed.output,
         //          PID_Stir3510Speed.output);
 
-        // Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, PID_Stir2006Speed.output, PID_Stir3510Speed.output);
+        Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, PID_Stir2006Speed.output, PID_Stir3510Speed.output);
 
         vTaskDelayUntil(&LastWakeTime, 10);
-        // DebugData.debug1 = Motor_LeftFrict.speed * rpm2rps;
-        // DebugData.debug2 = Motor_RightFrict.speed * rpm2rps;
-        // DebugData.debug3 = Motor_Stir3510.speed * rpm2rps;
-        // DebugData.debug4 = Motor_Stir2006.speed * rpm2rps;
-        // DebugData.debug5 = GPIO_ReadOutputDataBit(GPIOE, GPIO_Pin_4);
-        // DebugData.debug6 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4); // feesible  按下为1
+        DebugData.debug1 = Motor_LeftFrict.speed * rpm2rps;
+        DebugData.debug2 = Motor_RightFrict.speed * rpm2rps;
+        DebugData.debug3 = Motor_Stir3510.speed * rpm2rps;
+        DebugData.debug4 = Motor_Stir2006.speed * rpm2rps;
+        DebugData.debug5 = Judge.powerHeatData.shooter_heat1;
+        DebugData.debug6 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4); // feesible  按下为1
         // DebugData.debug7 = GPIO_ReadOutputDataBit(GPIOF, GPIO_Pin_0);
         // DebugData.debug8 = GPIO_ReadInputDataBit(GPIOF, GPIO_Pin_0);
     }
@@ -362,7 +362,7 @@ void Task_Sys_Init(void *Parameters) {
 
     // 运动控制任务
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 6, NULL);
 
     // 完成使命
