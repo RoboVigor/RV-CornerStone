@@ -42,9 +42,9 @@ void Task_Gimbal(void *Parameters) {
 
     // 初始化云台PID
     PID_Init(&PID_Cloud_YawAngle, 15, 0, 0, 3000, 0);
-    PID_Init(&PID_Cloud_YawSpeed, 30, 0, 0, 6000, 0);
-    PID_Init(&PID_Cloud_PitchAngle, 15, 0.01, 0, 3000, 500);
-    PID_Init(&PID_Cloud_PitchSpeed, 30, 0, 0, 6000, 0);
+    PID_Init(&PID_Cloud_YawSpeed, 30, 0, 0, 8000, 0);
+    PID_Init(&PID_Cloud_PitchAngle, 10, 0, 0, 3000, 500);
+    PID_Init(&PID_Cloud_PitchSpeed, 30, 0, 0, 8000, 0);
 
     while (1) {
         // 设置反馈
@@ -90,7 +90,7 @@ void Task_Gimbal(void *Parameters) {
             PID_Cloud_YawSpeed.output = 0;
         }
         // 输出电流
-        Can_Send(CAN1, 0x1FF, -1 * PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
+        // Can_Send(CAN1, 0x1FF, -1 * PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
@@ -224,42 +224,36 @@ void Task_Fire(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     //模式
     int shootMode = 1; // 0为纯手动控制大拨弹   1为自动控制大拨弹
+    int state     = 0;
 
-    int state = 0;
+    //射击参数
+    int maxShootHeat = Judge.robotState.shooter_heat1_cooling_limit;
 
     GPIO_SetBits(GPIOF, GPIO_Pin_0); //微动开关IO口输出高电平
 
     float rpm2rps = 3.14 / 60;
-    float radius  = 0.0595;
 
     // 激光
     LASER_ON; // 激光开启
 
-    // 常量
-    // float frictSpeed = -24 / 0.0595 * 2 * 60 / 2 / 3.14;  // 摩擦轮线速度(mps)转转速(rpm)
-
     // PID 初始化
-    PID_Init(&PID_LeftFrictSpeed, 25, 0.1, 0, 10000, 5000);
-    PID_Init(&PID_RightFrictSpeed, 25, 0.1, 0, 10000, 5000);
+    PID_Init(&PID_LeftFrictSpeed, 30, 0.1, 0, 10000, 5000);
+    PID_Init(&PID_RightFrictSpeed, 30, 0.1, 0, 10000, 5000);
     PID_Init(&PID_Stir2006Speed, 30, 0.1, 0, 15000, 8000);  //半径38
     PID_Init(&PID_Stir3510Speed, 100, 10, 0, 15000, 10000); //半径110
-    // PID_Init(&PID_Compensation, 30, 0, 0, 4000, 500);
 
     while (1) {
-        // DebugCode 标志位设置
 
         // 2006,3510拨弹轮
         if (shootMode == 1) {
             if (remoteData.switchLeft == 1) {
                 PID_LeftFrictSpeed.output_I  = 0;
                 PID_RightFrictSpeed.output_I = 0;
-                // PID_Compensation.output      = 0;
                 PID_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
                 PID_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
             } else if (remoteData.switchLeft != 1) {
                 PID_Calculate(&PID_RightFrictSpeed, 230, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮
                 PID_Calculate(&PID_LeftFrictSpeed, -230, Motor_LeftFrict.speed * rpm2rps);  // 左摩擦轮
-                // PID_Calculate(&PID_Compensation, -Motor_LeftFrict.speed * rpm2rps, Motor_RightFrict.speed * rpm2rps);
             }
             if (remoteData.switchLeft == 3) {
                 PWM_Set_Compare(&PWM_Magazine_Servo, 15);
@@ -267,45 +261,37 @@ void Task_Fire(void *Parameters) {
                 PWM_Set_Compare(&PWM_Magazine_Servo, 8);
             }
 
-            if (remoteData.switchRight == 3) {
-                PID_Calculate(&PID_Stir2006Speed, 49, Motor_Stir2006.speed * rpm2rps);
-                state = 1;
+            if (remoteData.switchRight == 3 && Judge.powerHeatData.shooter_heat1 < (maxShootHeat - 100)) {
+                PID_Calculate(&PID_Stir2006Speed, 35, Motor_Stir2006.speed * rpm2rps);
+                PID_Stir3510Speed.output_I = 0;
+                PID_Stir3510Speed.output   = 0;
+                state                      = 1;
             } else if (remoteData.switchRight == 1) {
                 state = 0;
             }
+
             if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 0 && state == 0) {
-                PID_Calculate(&PID_Stir2006Speed, 49, Motor_Stir2006.speed * rpm2rps);
+                PID_Calculate(&PID_Stir2006Speed, 35, Motor_Stir2006.speed * rpm2rps);
                 PID_Calculate(&PID_Stir3510Speed, 4, Motor_Stir3510.speed * rpm2rps);
             } else if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 1 && state == 0) {
                 PID_Stir2006Speed.output_I = 0;
                 PID_Stir3510Speed.output_I = 0;
                 PID_Calculate(&PID_Stir2006Speed, 0, Motor_Stir2006.speed * rpm2rps);
                 PID_Calculate(&PID_Stir3510Speed, 0, Motor_Stir3510.speed * rpm2rps);
-            } else {
-                PID_Stir3510Speed.output_I = 0;
-                PID_Stir3510Speed.output   = 0;
             }
         }
-        // Can_Send(CAN2, 0x200, 0, 0, PID_Stir2006Speed.output, PID_Stir3510Speed.output);
-
-        // Can_Send(CAN2,
-        //          0x200,
-        //          PID_LeftFrictSpeed.output - PID_Compensation.output * 0,
-        //          PID_RightFrictSpeed.output + PID_Compensation.output * 18,
-        //          PID_Stir2006Speed.output,
-        //          PID_Stir3510Speed.output);
 
         Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, PID_Stir2006Speed.output, PID_Stir3510Speed.output);
 
         vTaskDelayUntil(&LastWakeTime, 10);
-        DebugData.debug1 = Motor_LeftFrict.speed * rpm2rps;
-        DebugData.debug2 = Motor_RightFrict.speed * rpm2rps;
-        DebugData.debug3 = Motor_Stir3510.speed * rpm2rps;
-        DebugData.debug4 = Motor_Stir2006.speed * rpm2rps;
+        // DebugData.debug1 = Motor_LeftFrict.speed * rpm2rps;
+        // DebugData.debug2 = Motor_RightFrict.speed * rpm2rps;
+        DebugData.debug3 = PID_Stir2006Speed.output_I;
+        DebugData.debug4 = PID_Stir2006Speed.output;
         DebugData.debug5 = Judge.powerHeatData.shooter_heat1;
-        DebugData.debug6 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4); // feesible  按下为1
-        // DebugData.debug7 = GPIO_ReadOutputDataBit(GPIOF, GPIO_Pin_0);
-        // DebugData.debug8 = GPIO_ReadInputDataBit(GPIOF, GPIO_Pin_0);
+        // DebugData.debug6 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4); // feesible  按下为1
+        DebugData.debug7 = Judge.robotState.shooter_heat1_cooling_limit;
+        DebugData.debug8 = Judge.robotState.shooter_heat0_cooling_limit;
     }
     vTaskDelete(NULL);
 }
