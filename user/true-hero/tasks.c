@@ -302,10 +302,10 @@ void Task_Fire(void *Parameters) {
             stop = 0;
         }
 
-        if (stop == 1 && counter1 < 30) {
+        if (stop == 1 && counter1 < 20) {
             counter1 += 1;
             PID_Stir2006Speed.output = -800;
-        } else if (counter1 == 30 && counter2 < 50) {
+        } else if (counter1 == 20 && counter2 < 50) {
             lastStop                   = 0;
             PID_Stir2006Speed.output_I = 0;
             PID_Stir2006Speed.output   = 0;
