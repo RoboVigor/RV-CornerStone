@@ -103,14 +103,14 @@ __HANDLE_EXT int T_State1, T_State2, T_State3, T_State4, LF_State1, LF_State2, L
 __HANDLE_EXT uint16_t Distance1, Distance2;
 
 // 输入捕获值
-__HANDLE_EXT u32 TIM5CH1_CAPTURE_VAL, TIM2CH1_CAPTURE_VAL;
+__HANDLE_EXT u32 TIM5CH1_CAPTURE_VAL, TIM2CH1_CAPTURE_VAL, TIM3CH3_CAPTURE_VAL;
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Supply1, PWM_Supply2, PWM_Image_Yaw, PWM_Image_Pitch, PWM_Rescue;
 
 // Fsm需求
-__HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, Find_Box, Detected_State, TH_Reset, Chassis_Detect, Chassis_Detect_Parallel;
-
+__HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, Find_Box, Detected_State, TH_Reset, Chassis_Detect, Chassis_Detect_Parallel, Detected_Direction, TV_Ready;
+__HANDLE_EXT Fsm_t Take_Fsm;
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行
@@ -122,7 +122,8 @@ void Handle_Init(void);
 void Take_Throwup(void);
 void Take_Horizontal_Right(void);
 void Take_Horizontal_Left(void);
-void Take_Chassis_Detect(void);
+void Take_Chassis_Detect_Right(void);
+void Take_Chassis_Detect_Left(void);
 void Take_Start_Get(void);
 void Take_TV_Progress(void);
 void Take_ON(void);

@@ -19,20 +19,19 @@ void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
 
     // 运动模式
-    int   mode           = 2; // 底盘运动模式,1直线,2转弯
-    int   lastMode       = 2; // 上一次的运动模式
-    float yawAngleTarget = 0; // 目标值
-    float yawAngle, yawSpeed; // 反馈值
+    int   mode                    = 2; // 底盘运动模式,1直线,2转弯
+    int   lastMode                = 2; // 上一次的运动模式
+    int   Chassis_Parallel_Finish = 0;
+    float yawAngleTarget          = 0; // 目标值
+    float yawAngle, yawSpeed;          // 反馈值
     Chassis_Detect_Parallel = 0;
     Chassis_State           = -1;
-    DebugA                  = 0;
-    DebugB                  = 0;
 
     // 初始化麦轮角速度PID
-    PID_Init(&PID_LFCM, 25, 1, 0, 10000, 4000);
-    PID_Init(&PID_LBCM, 25, 1, 0, 10000, 4000);
-    PID_Init(&PID_RBCM, 25, 1, 0, 10000, 4000);
-    PID_Init(&PID_RFCM, 25, 1, 0, 10000, 4000);
+    PID_Init(&PID_LFCM, 28, 1.2, 0, 10000, 4000);
+    PID_Init(&PID_LBCM, 28, 1.2, 0, 10000, 4000);
+    PID_Init(&PID_RBCM, 28, 1.2, 0, 10000, 4000);
+    PID_Init(&PID_RFCM, 28, 1.2, 0, 10000, 4000);
 
     // 初始化航向角角度PID和角速度PID
     PID_Init(&PID_YawAngle, 10, 0, 0, 1000, 1000);
@@ -57,36 +56,42 @@ void Task_Chassis(void *Parameters) {
                     PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
 
                     // 设置底盘总体移动速度
-                    Chassis_Update(&ChassisData, 0.2, 0, (float) PID_YawSpeed.output / 660.0f);
+                    Chassis_Update(&ChassisData, 0.4, 0, (float) PID_YawSpeed.output / 660.0f);
                     Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
 
-                } else {
-                    if (Distance1 - Distance2 > 30) {
-                        PID_Calculate(&PID_YawSpeed, 30, yawSpeed); // 计算航向角角速度PID
-                        Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
-                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
-                    } else if (Distance1 - Distance2 < -30) {
-                        PID_Calculate(&PID_YawSpeed, -30, yawSpeed); // 计算航向角角速度PID
-                        Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
-                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
-                    } else if (Distance1 < 100 && Distance2 < 100) {
+                } else if (Chassis_Parallel_Finish == 1) {
+                    PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
+                    Chassis_Update(&ChassisData, 0.4, 0, (float) PID_YawSpeed.output / 660.0f);
+                    if (Distance1 < 150 && Distance2 < 150) {
                         PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
+                        Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
+                    }
+                    Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
+                } else {
+                    if (Distance1 - Distance2 > 20) {
+                        PID_Calculate(&PID_YawSpeed, 20, yawSpeed); // 计算航向角角速度PID
+                        Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
+                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
+                    } else if (Distance1 - Distance2 < -20) {
+                        PID_Calculate(&PID_YawSpeed, -20, yawSpeed); // 计算航向角角速度PID
                         Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
                         Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                     } else {
-                        PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
-                        // 设置底盘总体移动速度
-                        Chassis_Update(&ChassisData, 0.2, 0, (float) PID_YawSpeed.output / 660.0f);
-                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
+                        Chassis_Parallel_Finish = 1;
                     }
                 }
                 // 设置左右
             } else if (Chassis_Detect == 1 && remoteData.switchRight == 1) {
-                // Chassis_State = CHASSIS_DETECT_LEFT;
-                Chassis_State = CHASSIS_DETECT_RIGHT;
+
+                Chassis_State           = CHASSIS_DETECT_RIGHT;
+                Chassis_Parallel_Finish = 0;
+            } else if (Chassis_Detect == 2 && remoteData.switchRight == 1) {
+                Chassis_State           = CHASSIS_DETECT_LEFT;
+                Chassis_Parallel_Finish = 0;
                 // 正常运动
             } else {
-                Chassis_State = CHASSIS_NORMAL;
+                Chassis_State           = CHASSIS_NORMAL;
+                Chassis_Parallel_Finish = 0;
             }
 
             if (Chassis_State == CHASSIS_NORMAL) {
@@ -111,12 +116,12 @@ void Task_Chassis(void *Parameters) {
                 // 重新赋初值
                 Chassis_State = -1;
             } else if (Chassis_State == CHASSIS_DETECT_LEFT) {
-                if (T_State3 == 0 && T_State4 == 1) {
-                    Chassis_State  = CHASSIS_NORMAL;
+                if (((T_State2 == 0 && T_State1 == 1) || (T_State3 == 0 && T_State4 == 1)) && TV_Ready == 1) {
+                    Chassis_Detect = 0;
                     Detected_State = 1;
                     PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
 
-                    Chassis_Update(&ChassisData, 0, 0.1, (float) PID_YawSpeed.output / 660.0f);
+                    Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
                     Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                 } else {
                     PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
@@ -126,25 +131,15 @@ void Task_Chassis(void *Parameters) {
                 }
             } else if (Chassis_State == CHASSIS_DETECT_RIGHT) {
                 // 读单边提高响应速度
-                if (T_State3 == 0 && T_State4 == 1) {
-                    Chassis_State  = CHASSIS_NORMAL;
+                if ((T_State2 == 0 && T_State1 == 1) || (T_State3 == 0 && T_State4 == 1) && TV_Ready == 1) {
+                    Chassis_Detect = 0;
                     Detected_State = 1;
                     // 赋返回速度
-                    Chassis_Update(&ChassisData, 0, -0.1, (float) PID_YawSpeed.output / 660.0f);
+                    Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
                     Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                 } else {
-                    if (Distance1 - Distance2 > 50) {
-                        PID_Calculate(&PID_YawSpeed, 30, yawSpeed);
-                        Chassis_Update(&ChassisData, 0, 0.15, (float) PID_YawSpeed.output / 660.0f);
-                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
-                    } else if (Distance1 - Distance2 < -50) {
-                        PID_Calculate(&PID_YawSpeed, -30, yawSpeed);
-                        Chassis_Update(&ChassisData, 0, 0.15, (float) PID_YawSpeed.output / 660.0f);
-                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
-                    } else {
-                        Chassis_Update(&ChassisData, 0, 0.15, 0);
-                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
-                    }
+                    Chassis_Update(&ChassisData, 0, 0.15, 0);
+                    Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                 }
             }
         }
@@ -171,20 +166,16 @@ void Task_Chassis(void *Parameters) {
 void Task_Take_Fsm(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    Fsm_t Take_Fsm;
-
     enum Take_State { T_S0 = 0, T_S1, T_S2, T_S3, T_S4, T_S5, T_S6, T_S7, T_S8, T_S9, T_S10, T_S11, T_S12 };
 
     enum Take_Event {
         Reset = 0,
         TV_Out1,
         TV_Out2,
-        Start_Detect_Horizontial_Right,
-        Start_Detect_Horizontial_Left,
-        Start_Detect_Chassis,
-        Keep_Detect_Horizontial_Right,
-        Keep_Detect_Horizontial_Left,
-        Keep_Detect_Chassis,
+        Detect_Horizontial_Right,
+        Detect_Horizontial_Left,
+        Detect_Chassis_Right,
+        Detect_Chassis_Left,
         Start_Get,
         Take_On,
         Start_Up2,
@@ -193,20 +184,15 @@ void Task_Take_Fsm(void *Parameters) {
         Rotate_Off,
         Back_To_Up1,
         Take_Off,
-        Catapult_On,
-        Back_To_Detect_Horizontial_Right,
-        Back_To_Detect_Horizontial_Left,
-        Back_To_Detect_Chassis
+        Catapult_On
     };
 
-    FsmTable_t Take_Fsmtable[] = {{TV_Out1, T_S0, Take_TV_1, T_S1},
-                                  {TV_Out2, T_S0, Take_TV_2, T_S1},
-                                  {Start_Detect_Horizontial_Right, T_S1, Take_Horizontal_Right, T_S2},
-                                  {Start_Detect_Horizontial_Left, T_S1, Take_Horizontal_Left, T_S2},
-                                  {Start_Detect_Chassis, T_S1, Take_Chassis_Detect, T_S2},
-                                  {Keep_Detect_Horizontial_Right, T_S2, Take_Horizontal_Right, T_S2},
-                                  {Keep_Detect_Horizontial_Left, T_S2, Take_Horizontal_Left, T_S2},
-                                  {Keep_Detect_Chassis, T_S2, Take_Chassis_Detect, T_S2},
+    FsmTable_t Take_Fsmtable[] = {{TV_Out1, T_S0, Take_TV_1, T_S2},
+                                  {TV_Out2, T_S0, Take_TV_2, T_S2},
+                                  {Detect_Horizontial_Right, T_S2, Take_Horizontal_Right, T_S2},
+                                  {Detect_Horizontial_Left, T_S2, Take_Horizontal_Left, T_S2},
+                                  {Detect_Chassis_Right, T_S2, Take_Chassis_Detect_Right, T_S2},
+                                  {Detect_Chassis_Left, T_S2, Take_Chassis_Detect_Left, T_S2},
                                   {Start_Get, T_S2, Take_Start_Get, T_S3},
                                   {Take_On, T_S3, Take_ON, T_S4},
                                   {Start_Up2, T_S4, Take_Up, T_S5},
@@ -215,11 +201,8 @@ void Task_Take_Fsm(void *Parameters) {
                                   {Take_Off, T_S7, Take_OFF, T_S8},
                                   {Catapult_On, T_S8, Take_Catapult, T_S9},
                                   {Back_To_Up1, T_S9, Take_Down, T_S10},
-                                  {TV_Out1, T_S10, Take_TV_1, T_S11},
-                                  {TV_Out2, T_S10, Take_TV_2, T_S11},
-                                  {Back_To_Detect_Horizontial_Right, T_S11, Take_Horizontal_Right, T_S2},
-                                  {Back_To_Detect_Horizontial_Left, T_S11, Take_Horizontal_Left, T_S2},
-                                  {Back_To_Detect_Chassis, T_S11, Take_Chassis_Detect, T_S2},
+                                  {TV_Out1, T_S10, Take_TV_1, T_S2},
+                                  {TV_Out2, T_S10, Take_TV_2, T_S2},
 
                                   // 退出流程
                                   {Reset, T_S10, Take_Reset, T_S0},
@@ -232,129 +215,101 @@ void Task_Take_Fsm(void *Parameters) {
                                   {Reset, T_S3, Take_Reset, T_S0},
                                   {Reset, T_S2, Take_Reset, T_S0},
                                   {Reset, T_S1, Take_Reset, T_S0}};
+    //   {Reset, T_S0, Take_Reset, T_S0},};
 
     Fsm_Init(&Take_Fsm, &Take_Fsmtable);
     Take_Fsm.curState = T_S0;
     Take_Fsm.size     = sizeof(Take_Fsmtable) / sizeof(FsmTable_t);
 
-    int cnt           = 0;
-    int three_box_cnt = 0;
+    int cnt            = 0;
+    int three_box_cnt  = 0;
+    int six_box_cnt    = 0;
+    Detected_Direction = 0;
+    TV_Ready           = 0;
 
     while (1) {
 
         if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
             Fsm_Update(&Take_Fsm, Reset);
+            six_box_cnt = 0;
         }
 
         if (remoteData.switchLeft == 1 && remoteData.switchRight != 3) {
-            //     // 三角形三箱(未精简)
-            //     if (three_box_cnt == 0) {
-            //         Fsm_Update(&Take_Fsm, TV_Out1);
-            //         vTaskDelay(500);
-            //         Fsm_Update(&Take_Fsm, Start_Detect_Chassis);
-            //         if (Detected_State == 1) {
-            //             Fsm_Update(&Take_Fsm, Start_Get);
-            //             vTaskDelay(2000);
-            //             Fsm_Update(&Take_Fsm, Take_On);
-            //             vTaskDelay(1000);
-            //             Fsm_Update(&Take_Fsm, Start_Up2);
-            //             vTaskDelay(4000);
-            //             Fsm_Update(&Take_Fsm, TV_Out_Progress);
-            //             vTaskDelay(3000);
-            //             Fsm_Update(&Take_Fsm, Rotate_Off);
-            //             vTaskDelay(2000);
-            //             Fsm_Update(&Take_Fsm, Take_Off);
-            //             vTaskDelay(1500);
-            //             Fsm_Update(&Take_Fsm, Catapult_On);
-            //             Fsm_Update(&Take_Fsm, Back_To_Up1);
-            //             vTaskDelay(2000);
-            //             Detected_State = 0;
-            //             three_box_cnt++;
-            //         }
-            //     } else if (three_box_cnt == 1) {
-            //         Fsm_Update(&Take_Fsm, TV_Out1);
-            //         vTaskDelay(500);
-            //         Fsm_Update(&Take_Fsm, Back_To_Detect_Horizontial_Right);
-            //         if (Detected_State == 1) {
-            //             Fsm_Update(&Take_Fsm, Start_Get);
-            //             vTaskDelay(2000);
-            //             Fsm_Update(&Take_Fsm, Take_On);
-            //             vTaskDelay(1000);
-            //             Fsm_Update(&Take_Fsm, Start_Up2);
-            //             vTaskDelay(4000);
-            //             Fsm_Update(&Take_Fsm, TV_Out_Progress);
-            //             vTaskDelay(3000);
-            //             Fsm_Update(&Take_Fsm, Rotate_Off);
-            //             vTaskDelay(2000);
-            //             Fsm_Update(&Take_Fsm, Take_Off);
-            //             vTaskDelay(1500);
-            //             Fsm_Update(&Take_Fsm, Catapult_On);
-            //             Fsm_Update(&Take_Fsm, Back_To_Up1);
-            //             vTaskDelay(2000);
-            //             Detected_State = 0;
-            //             three_box_cnt++;
-            //         }
-            //     } else if (three_box_cnt == 2) {
+            //     if (three_box_cnt == 2) {
             //         Fsm_Update(&Take_Fsm, TV_Out2);
-            //         vTaskDelay(500);
-            //         Fsm_Update(&Take_Fsm, Back_To_Detect_Horizontial_Left);
-            //         if (Detected_State == 1) {
-            //             Fsm_Update(&Take_Fsm, Start_Get);
-            //             vTaskDelay(2000);
-            //             Fsm_Update(&Take_Fsm, Take_On);
-            //             vTaskDelay(1000);
-            //             Fsm_Update(&Take_Fsm, Start_Up2);
-            //             vTaskDelay(4000);
-            //             Fsm_Update(&Take_Fsm, TV_Out_Progress);
-            //             vTaskDelay(3000);
-            //             Fsm_Update(&Take_Fsm, Rotate_Off);
-            //             vTaskDelay(2000);
-            //             Fsm_Update(&Take_Fsm, Take_Off);
-            //             vTaskDelay(1500);
-            //             Fsm_Update(&Take_Fsm, Catapult_On);
-            //             Fsm_Update(&Take_Fsm, Back_To_Up1);
-            //             vTaskDelay(2000);
-            //             Detected_State = 0;
-            //             three_box_cnt  = 4;
+            //     } else if (three_box_cnt > 2) {
+            //         Fsm_Update(&Take_Fsm, Reset);
+            //     } else {
+            //         Fsm_Update(&Take_Fsm, TV_Out1);
+            //     }
+            //     vTaskDelay(500);
+            //     if (Detected_State == 1) {
+            //         Fsm_Update(&Take_Fsm, Start_Get);
+            //         vTaskDelay(2000);
+            //         Fsm_Update(&Take_Fsm, Take_On);
+            //         vTaskDelay(1000);
+            //         Fsm_Update(&Take_Fsm, Start_Up2);
+            //         vTaskDelay(4000);
+            //         Fsm_Update(&Take_Fsm, TV_Out_Progress);
+            //         vTaskDelay(3000);
+            //         Fsm_Update(&Take_Fsm, Rotate_Off);
+            //         vTaskDelay(2000);
+            //         Fsm_Update(&Take_Fsm, Take_Off);
+            //         vTaskDelay(1500);
+            //         Fsm_Update(&Take_Fsm, Catapult_On);
+            //         Fsm_Update(&Take_Fsm, Back_To_Up1);
+            //         vTaskDelay(2000);
+            //         Detected_State = 0;
+            //         three_box_cnt++;
+            //     } else {
+            //         if (three_box_cnt == 0) {
+            //             Fsm_Update(&Take_Fsm, Detect_Chassis);
+            //         } else if (three_box_cnt == 1) {
+            //             Fsm_Update(&Take_Fsm, Detect_Horizontial_Right);
+            //         } else if (three_box_cnt == 2) {
+            //             Fsm_Update(&Take_Fsm, Detect_Horizontial_Left);
             //         }
             //     }
 
-            // 取一箱流程
-            Fsm_Update(&Take_Fsm, TV_Out1);
-            // Fsm_Update(&Take_Fsm, TV_Out2);
-            vTaskDelay(500);
-            Fsm_Update(&Take_Fsm, Start_Detect_Horizontial_Right); // 夹角左右寻找 底盘寻找未加入向左
-            // Fsm_Update(&Take_Fsm, Start_Detect_Chassis);
+            // 取六箱流程
+            if (six_box_cnt < 3) {
+                Fsm_Update(&Take_Fsm, TV_Out1);
+            } else if (six_box_cnt < 6) {
+                Fsm_Update(&Take_Fsm, TV_Out2);
+            }
+            vTaskDelay(800);
+            TV_Ready = 1;
             if (Detected_State == 1) {
                 Fsm_Update(&Take_Fsm, Start_Get);
                 vTaskDelay(2000);
                 Fsm_Update(&Take_Fsm, Take_On);
-                vTaskDelay(1000);
+                vTaskDelay(700);
                 Fsm_Update(&Take_Fsm, Start_Up2);
-                vTaskDelay(4000);
-                Fsm_Update(&Take_Fsm, TV_Out_Progress);
-                vTaskDelay(3000);
-                Fsm_Update(&Take_Fsm, Rotate_Off);
                 vTaskDelay(2000);
+                Fsm_Update(&Take_Fsm, TV_Out_Progress);
+                vTaskDelay(1000);
+                Fsm_Update(&Take_Fsm, Rotate_Off);
+                vTaskDelay(1000);
                 Fsm_Update(&Take_Fsm, Take_Off);
                 vTaskDelay(1500);
                 Fsm_Update(&Take_Fsm, Catapult_On);
                 Fsm_Update(&Take_Fsm, Back_To_Up1);
                 vTaskDelay(2000);
+                six_box_cnt++;
                 Detected_State = 0;
+                TV_Ready = 0;
             } else {
-                Fsm_Update(&Take_Fsm, Keep_Detect_Horizontial_Right);
-                // Fsm_Update(&Take_Fsm, Keep_Detect_Chassis);
-                cnt++;
-            }
-
-            if (cnt < 3) {
-                Fsm_Update(&Take_Fsm, TV_Out1);
-                Fsm_Update(&Take_Fsm, Back_To_Detect_Horizontial_Right);
-                // Fsm_Update(&Take_Fsm, Back_To_Detect_Chassis);
-                cnt = 0;
-            } else {
-                Fsm_Update(&Take_Fsm, Reset);
+                // Fsm_Update(&Take_Fsm, Detect_Horizontial_Right); // 夹角左右寻找 底盘寻找未加入向左
+                // Fsm_Update(&Take_Fsm, Detect_Chassis_Right);
+                if (six_box_cnt < 2) {
+                    Fsm_Update(&Take_Fsm, Detect_Chassis_Left);
+                } else if (six_box_cnt < 3) {
+                    Fsm_Update(&Take_Fsm, Detect_Horizontial_Left);
+                } else if (six_box_cnt < 5) {
+                    Fsm_Update(&Take_Fsm, Detect_Chassis_Right);
+                } else if (six_box_cnt < 6) {
+                    Fsm_Update(&Take_Fsm, Detect_Horizontial_Right);
+                }
             }
         }
 
@@ -388,7 +343,7 @@ void Task_Take_Vertical(void *Parameters) {
         // }
 
         if (TV_Out == 2) {
-            targetAngle = -1300;
+            targetAngle = -1190;
             if (last_TV_Out != 2) {
                 TV_Progress   = 0;
                 TV_Ramp_Start = Motor_TV.angle;
@@ -426,6 +381,8 @@ void Task_Take_Vertical(void *Parameters) {
         PID_Calculate(&PID_TV_Speed, PID_TV_Angle.output, Motor_TV.speed);
 
         Can_Send(CAN2, 0x200, 0, 0, PID_TV_Speed.output, 0);
+
+        DebugE = Motor_TV.angle;
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -519,25 +476,11 @@ void Task_Distance_Sensor(void *Parameter) {
     Distance2              = 0;
 
     while (1) {
-        temp1 = TIM2CH1_CAPTURE_VAL; //得到总的高电平时间
+        temp1     = TIM2CH1_CAPTURE_VAL; //得到总的高电平时间
+        Distance1 = temp1;               // cm us
 
-        // if (Distance1 == 0) {        // 第一次
-        //     Distance1 = temp1 / 100; // cm us
-        // }
-
-        // if (ABS((temp1 / 100) - Distance1) <= 20) {
-        Distance1 = temp1; // cm us
-        // }
-
-        temp2 = TIM5CH1_CAPTURE_VAL; //得到总的高电平时间
-
-        // if (Distance2 == 0) {        // 第一次
-        Distance2 = temp2; // cm us
-        // }
-
-        // if (ABS((temp2 / 100) - Distance2) <= 20) {
-        //     Distance2 = temp2 / 100; // cm us
-        // }
+        temp2     = TIM5CH1_CAPTURE_VAL; //得到总的高电平时间
+        Distance2 = temp2;               // cm us
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -561,20 +504,23 @@ void Task_Upthrow_Horizontial(void *Parameter) {
     int   last_TU_state      = 0;
     TU_Up                    = 0;
 
-    PID_Init(&PID_TH_Speed, 20, 0.1, 0, 4000, 2000); // 25 0.1
+    PID_Init(&PID_TH_Speed, 35, 0.5, 0, 5000, 2000); // 25 0.1
 
     PID_Init(&PID_Upthrow1_Angle, 13, 0.015, 0, 500, 300); //
     PID_Init(&PID_Upthrow1_Speed, 30, 1, 0, 8000, 4000);   //
-    PID_Init(&PID_Upthrow2_Angle, 6, 0.012, 0, 500, 300);  //
-    PID_Init(&PID_Upthrow2_Speed, 32, 0.4, 0, 8000, 4000); //
+    PID_Init(&PID_Upthrow2_Angle, 8, 0.018, 0, 500, 300);  //
+    PID_Init(&PID_Upthrow2_Speed, 35, 0.5, 0, 8000, 4000); //
 
     while (1) {
         // 状态机使用
         if (remoteData.switchRight == 1 && remoteData.switchLeft != 1) {
             TU_Up = 1;
         } else if (remoteData.switchRight == 3 && remoteData.switchLeft != 1) {
-            TU_Up  = 0;
-            TV_Out = 0;
+            if (TV_Out != 0) {
+                TV_Out = 0;
+                vTaskDelay(5000);
+            }
+            TU_Up = 0;
         }
 
         // // 调PID使用
@@ -591,11 +537,9 @@ void Task_Upthrow_Horizontial(void *Parameter) {
                 upthrowProgress = 0;
                 TH_Ramp_Start   = Motor_Upthrow1.angle;
             }
-            upthrowAngleTarget = RAMP(TH_Ramp_Start, 600, upthrowProgress);
+            upthrowAngleTarget = RAMP(TH_Ramp_Start, 420, upthrowProgress);
             if (upthrowProgress < 1) {
-                // 取消斜坡函数
-                // upthrowProgress += 0.04f;
-                upthrowProgress += 1.0f;
+                upthrowProgress += 0.05f;
             }
             last_TU_state = 1;
         } else if (TU_Up == 0) {
@@ -614,10 +558,10 @@ void Task_Upthrow_Horizontial(void *Parameter) {
                 upthrowProgress = 0;
                 TH_Ramp_Start   = Motor_Upthrow1.angle;
             }
-            upthrowAngleTarget = RAMP(TH_Ramp_Start, 745, upthrowProgress);
+            upthrowAngleTarget = RAMP(TH_Ramp_Start, 735, upthrowProgress);
             if (upthrowProgress < 1) {
-                // upthrowProgress += 0.05f;
-                upthrowProgress += 1.0f;
+                upthrowProgress += 0.08f;
+                // upthrowProgress += 1.0f;
             }
             last_TU_state = 2;
         }
@@ -629,7 +573,7 @@ void Task_Upthrow_Horizontial(void *Parameter) {
 
         // TH
 
-        if (T_State1 == 1 && T_State2 == 0 && T_State3 == 0 && T_State4 == 1 && remoteData.switchLeft == 1) {
+        if (((T_State2 == 0 && T_State1 == 1) || (T_State3 == 0 && T_State4 == 1)) && remoteData.switchLeft == 1 && TV_Ready == 1) {
             TH_Move        = 0;
             Detected_State = 1;
         }
@@ -639,9 +583,9 @@ void Task_Upthrow_Horizontial(void *Parameter) {
         }
 
         if (TH_Move == 1) {
-            TH_TargetSpeed = 260;
+            TH_TargetSpeed = 250;
         } else if (TH_Move == 2) {
-            TH_TargetSpeed = -260;
+            TH_TargetSpeed = -250;
         } else if (TH_Move == 0) {
             TH_TargetSpeed = 0;
         }
@@ -649,6 +593,11 @@ void Task_Upthrow_Horizontial(void *Parameter) {
         PID_Calculate(&PID_TH_Speed, TH_TargetSpeed, Motor_TH.speed * RPM2RPS);
 
         Can_Send(CAN1, 0x1FF, PID_Upthrow1_Speed.output, PID_Upthrow2_Speed.output, PID_TH_Speed.output, 0);
+
+        DebugA = Motor_Upthrow1.angle;
+        DebugB = Motor_Upthrow1.speed;
+        DebugC = Motor_Upthrow2.angle;
+        DebugD = Motor_Upthrow2.speed;
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -704,15 +653,7 @@ void Task_Optoelectronic_Input_Take(void *Parameter) {
             }
         }
 
-        // if(T_State1 == 1 && T_State2 == 0 && T_State3 == 0 && T_State4 == 1) {
-        // if (T_State2 == 0 && T_State1 == 1) {
-        //     Find_Box = 1;
-        //     if(remoteData.switchLeft != 1) {
-        //         Find_Box = 0;
-        //     }
-        // }
-
-        vTaskDelayUntil(&LastWakeTime, 1);
+        vTaskDelayUntil(&LastWakeTime, 5);
     }
 
     vTaskDelete(NULL);

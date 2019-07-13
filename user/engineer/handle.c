@@ -13,7 +13,7 @@ void Handle_Init(void) {
     Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, 0);
 
     // 取弹前后左右平移
-    Motor_Init(&Motor_TH, 36, 1); // 2006
+    Motor_Init(&Motor_TH, 36, 1);    // 2006
     Motor_Init(&Motor_TV, 19.2f, 1); // 3510
 
     // 抬升
@@ -31,7 +31,6 @@ void Handle_Init(void) {
     Magic_Init(&magic, 0);
 }
 
-
 void Take_TV_0(void) {
     TV_Out = 0;
 }
@@ -45,20 +44,27 @@ void Take_TV_2(void) {
 }
 
 void Take_Horizontal_Right(void) {
-    TH_Move = 1;
+    TH_Move            = 1;
+    Detected_Direction = 1;
 }
 
 void Take_Horizontal_Left(void) {
-    TH_Move = 2;
+    TH_Move            = 2;
+    Detected_Direction = 2;
 }
 
-void Take_Chassis_Detect(void) {
-    Chassis_Detect = 1;
+void Take_Chassis_Detect_Right(void) {
+    Chassis_Detect     = 1;
+    Detected_Direction = 1;
+}
+
+void Take_Chassis_Detect_Left(void) {
+    Chassis_Detect     = 2;
+    Detected_Direction = 2;
 }
 
 void Take_Start_Get(void) {
     TH_Move = 0;
-    Chassis_Detect = 0;
     vTaskDelay(500);
     ROTATE_ON;
 }
@@ -98,6 +104,7 @@ void Take_Catapult(void) {
 }
 
 void Take_Reset(void) {
+    Chassis_Detect = 0;
     TAKE_OFF;
     vTaskDelay(1000);
     CATAPULT_OFF;
@@ -105,13 +112,17 @@ void Take_Reset(void) {
     ROTATE_OFF;
     vTaskDelay(1000);
     TV_Out = 0;
-    vTaskDelay(4000);
-    TH_Move = 2;
+    vTaskDelay(2000);
+    if (Detected_Direction == 2) {
+        TH_Move = 1;
+    } else if (Detected_Direction == 1) {
+        TH_Move = 2;
+    } else {
+        TH_Move = 0;
+    }
+    Detected_Direction = 0;
     vTaskDelay(4000);
     TU_Up = 1;
     vTaskDelay(4000);
-    Chassis_Detect = 0;
-    vTaskDelay(4000);
     Chassis_State = CHASSIS_NORMAL;
 }
-
