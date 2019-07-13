@@ -10,9 +10,9 @@
 // #define SERIAL_DEBUG_PORT USART6 // 串口调试端口
 
 // 陀螺仪校准
-#define IMU_GX_BIAS 15 // GX静态误差,通过平放主控板采样得到
-#define IMU_GY_BIAS 6  // GY静态误差
-#define IMU_GZ_BIAS 11 // GZ静态误差
+#define IMU_GX_BIAS 31 // GX静态误差,通过平放主控板采样得到
+#define IMU_GY_BIAS -3 // GY静态误差
+#define IMU_GZ_BIAS -1 // GZ静态误差
 
 // 运动参数
 #define GIMBAL_PITCH_MIN -35

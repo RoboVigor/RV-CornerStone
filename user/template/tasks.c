@@ -7,8 +7,11 @@
 void Task_Safe_Mode(void *Parameters) {
     while (1) {
         if (remoteData.switchRight == 2) {
-            Can_Send(CAN1, 0x200, 0, 0, 0, 0);
             vTaskSuspendAll();
+            while (1) {
+                Can_Send(CAN1, 0x200, 0, 0, 0, 0);
+                vTaskDelay(2);
+            }
         }
         vTaskDelay(2);
     }
@@ -81,7 +84,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调(安全起见默认注释此行)
-        //  Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
