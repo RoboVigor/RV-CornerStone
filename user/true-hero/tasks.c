@@ -126,17 +126,21 @@ void Task_Chassis(void *Parameters) {
     float filter[6]      = {0, 0, 0, 0, 0, 0};
     int   filterp        = 0;
     float motorSpeedStable;
+    float power = 0;
+
+    // 小陀螺
+    float swingAngle = 0;
 
     // 底盘跟随PID
-    float followDeadRegion = 3.0;
-    PID_Init(&PID_Follow_Angle, 1, 0, 0, 1000, 0);
-    PID_Init(&PID_Follow_Speed, 5, 0, 0, 1000, 0);
+    float followDeadRegion = 2.0;
+    PID_Init(&PID_Follow_Angle, 1, 0, 0, 1000, 100);
+    PID_Init(&PID_Follow_Speed, 10, 0, 0, 1000, 0);
 
     // 麦轮速度PID
-    PID_Init(&PID_LFCM, 35, 0.01, 0, 15000, 7500);
-    PID_Init(&PID_LBCM, 35, 0.01, 0, 15000, 7500);
-    PID_Init(&PID_RBCM, 35, 0.01, 0, 15000, 7500);
-    PID_Init(&PID_RFCM, 35, 0.01, 0, 15000, 7500);
+    PID_Init(&PID_LFCM, 28, 0, 0, 15000, 7500);
+    PID_Init(&PID_LBCM, 28, 0, 0, 15000, 7500);
+    PID_Init(&PID_RBCM, 28, 0, 0, 15000, 7500);
+    PID_Init(&PID_RFCM, 28, 0, 0, 15000, 7500);
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
@@ -144,9 +148,9 @@ void Task_Chassis(void *Parameters) {
     while (1) {
 
         // 设置反馈值
-        motorAngle     = Motor_Yaw.angle;                          // 电机角度
-        motorSpeed     = (motorAngle - lastMotorAngle) / interval; // 电机角速度
-        lastMotorAngle = motorAngle;                               // 保存为上一次的电机角度
+        motorAngle = Motor_Yaw.angle;                          // 电机角度
+        motorSpeed = (motorAngle - lastMotorAngle) / interval; // 电机角速度
+        power      = Judge.powerHeatData.chassis_power;        // 裁判系统功率
 
         // 对电机角速度进行平均值滤波
         filter[filterp] = motorAngle;
@@ -157,13 +161,21 @@ void Task_Chassis(void *Parameters) {
         }
         motorSpeedStable = motorSpeedStable / 6.0f;
 
-        // 根据运动模式计算PID
-        PID_Calculate(&PID_Follow_Angle, 0, motorAngle);                             // 计算航向角角度PID
-        PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeedStable); // 计算航向角角速度PID
+        // 小陀螺
+        if (remoteData.switchLeft == 2) {
+            swingAngle += 360 * interval;
+            followDeadRegion = 0; // 关闭底盘跟随死区
+        } else {
+            swingAngle       = 0;
+            followDeadRegion = 2; // 开启底盘跟随死区
+            Motor_Yaw.round  = 0; // 圈数清零
+        }
+        PID_Calculate(&PID_Follow_Angle, swingAngle, motorAngle);
+        PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeedStable);
 
         // 设置底盘总体移动速度
-        vx = -remoteData.lx / 660.0f * 4;
-        vy = remoteData.ly / 660.0f * 12;
+        vx = remoteData.lx / 660.0f * 4;
+        vy = -remoteData.ly / 660.0f * 12;
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
         // 麦轮解算及限速
@@ -171,8 +183,10 @@ void Task_Chassis(void *Parameters) {
         Chassis_Update(&ChassisData, vx, vy, vw);                            // 更新麦轮转速
         Chassis_Fix(&ChassisData, motorAngle);                               // 修正旋转后底盘的前进方向
         Chassis_Calculate_Rotor_Speed(&ChassisData);                         // 麦轮解算
-        Chassis_Limit_Rotor_Speed(&ChassisData, CHASSIS_ROTOR_SPEED);        // 设置转子速度上限 (rad/s)
-        Chassis_Limit_Power(&ChassisData, 80, targetPower, power, interval); // 根据功率限幅
+        Chassis_Limit_Rotor_Speed(&ChassisData,
+                                  CHASSIS_ROTOR_SPEED); // 设置转子速度上限 (rad/s)
+        Chassis_Limit_Power(&ChassisData, 80, targetPower, power,
+                            interval); // 根据功率限幅
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
@@ -183,19 +197,20 @@ void Task_Chassis(void *Parameters) {
         // 输出电流值到电调
         Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
-        // 底盘运动更新频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
-
-        // 调试信息T
-        // DebugData.debug1 = ChassisData.referencePower * 1000;
-        // DebugData.debug2 = ChassisData.power;
-        // DebugData.debug3 = ChassisData.powerScale * 1000;
-        // DebugData.debug4 = Judge.powerHeatData.chassis_power;
+        // 调试信息
+        // DebugData.debug1 = Ps.seq;
+        // DebugData.debug2 = Ps.autoaimData.pitch_angle_diff;
+        // DebugData.debug3 = Ps.autoaimData.seq;
+        // DebugData.debug2 = PID_Follow_Angle.error * 1000;
+        // DebugData.debug3 = PID_Follow_Angle.feedback * 1000;
         // DebugData.debug5 = ChassisData.powerBuffer;
         // DebugData.debug6 = targetPower;
         // DebugData.debug6 = PID_LFCM.output;
-        // DebugData.debug7 = ChassisData.rotorSpeed[3];
+        // DebugData.debug7 = rotorSpeed[3];
         // DebugData.debug8 = rotorSpeed[3];
+
+        // 底盘运动更新频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
     }
 
     vTaskDelete(NULL);
