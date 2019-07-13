@@ -20,8 +20,8 @@ void Handle_Init(void) {
     Motor_Init(&Motor_Pitch, 1.0, 1); // 逆时针为正电流
     Motor_Yaw.positionBias   = 4800;
     Motor_Yaw.position       = 4800;
-    Motor_Pitch.positionBias = 5270;
-    Motor_Pitch.position     = 5270;
+    Motor_Pitch.positionBias = 4680;
+    Motor_Pitch.position     = 4680;
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData);

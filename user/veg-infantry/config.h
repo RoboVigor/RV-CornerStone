@@ -10,13 +10,13 @@
 // #define SERIAL_DEBUG_PORT USART6 // 串口调试端口
 
 // 陀螺仪校准
-#define IMU_GX_BIAS -12 // GX静态误差,通过平放主控板采样得到
-#define IMU_GY_BIAS 8   // GY静态误差
-#define IMU_GZ_BIAS 18  // GZ静态误差
+#define IMU_GX_BIAS 13 // GX静态误差,通过平放主控板采样得到
+#define IMU_GY_BIAS 4  // GY静态误差
+#define IMU_GZ_BIAS 11 // GZ静态误差
 
 // 运动参数
-#define GIMBAL_PITCH_MIN -20
-#define GIMBAL_PITCH_MAX 50
+#define GIMBAL_PITCH_MIN -15
+#define GIMBAL_PITCH_MAX 30
 #define CHASSIS_ROTOR_SPEED 550
 
 // 底盘配置
@@ -28,7 +28,7 @@
 #define BOARD_FRONT_IS_UP 0                     // 板子正面朝上
 #define BOARD_SHORT_SIDE_IS_PARALLEL_TO_PITCH 0 // 板子短边朝下
 #define GYROSCOPE_START_UP_DELAY_ENABLED 1      // 开机解算延迟开关
-#define GYROSCOPE_START_UP_DELAY 150            // 开机解算延迟量
+#define GYROSCOPE_START_UP_DELAY 200            // 开机解算延迟量
 #define GYROSCOPE_YAW_FILTER_THRESHOLD 0.005f   // 零飘修正阈值
 #define GYROSCOPE_LSB 16.384f                   // 陀螺仪敏感度 2^16/4000
 #define ACCELERATE_LSB 4096.0f                  // 加速度计敏感度 2^16/16
