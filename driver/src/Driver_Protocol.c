@@ -40,8 +40,13 @@ void Protocol_Pack(Protocol_Type *Protocol, int length, uint16_t id) {
     Protocol->interact[index++] = Get_CRC8_Check_Sum(Protocol->interact, PROTOCOL_HEADER_SIZE - 1, CRC8_INIT);
 
     // Cmd ID
-    Protocol->interact[index++] = 0x01;
-    Protocol->interact[index++] = 0x03;
+    if (id == Protocol_Data_Id_Board | Protocol_Data_Id_Vision) {
+        Protocol->interact[index++] = (id) &0xff;
+        Protocol->interact[index++] = (id) >> 8;
+    } else {
+        Protocol->interact[index++] = 0x01;
+        Protocol->interact[index++] = 0x03;
+    }
 
     // Data
     for (i = PROTOCOL_HEADER_CMDID_LEN; i < Protocol_Buffer_Length; i++) {
@@ -49,15 +54,19 @@ void Protocol_Pack(Protocol_Type *Protocol, int length, uint16_t id) {
     }
 
     switch (id) {
+    case Protocol_Data_Id_Board: {
+        begin_p = Protocol->boardInteractiveData[0].data;
+    } break;
+
     case Protocol_Data_Id_Client: {
         begin_p = Protocol->clientCustomData.data;
     } break;
 
-    case Protocol_Data_Id_Robot: {
-        begin_p = Protocol->robotInteractiveData[0].data;
+    case Protocol_Data_Id_Vision: {
+        begin_p = Protocol->visionInteractiveData.data;
     } break;
 
-    default: { begin_p = Protocol->visionInteractiveData.data; } break;
+    default: { begin_p = Protocol->robotInteractiveData[0].data; } break;
     }
 
     for (i = 0; i < dataLength; i++) {
@@ -170,13 +179,17 @@ void Protocol_Load(Protocol_Type *Protocol) {
         begin_p = Protocol->shootData.data;
     } break;
 
-    case 0x0401: {
-        begin_p = Protocol->gimbalAimData.data;
+    case 0x0300: {
+        begin_p = Protocol->boardInteractiveData[1].data;
     } break;
 
     case 0x0301: {
         sendRobot = Protocol->packet[PROTOCOL_HEADER_CMDID_LEN + 2] % 10;
         begin_p   = Protocol->robotInteractiveData[sendRobot].data;
+    } break;
+
+    case 0x0401: {
+        begin_p = Protocol->gimbalAimData.data;
     } break;
 
     default: { return; } break;
