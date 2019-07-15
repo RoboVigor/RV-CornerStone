@@ -307,27 +307,31 @@ void Task_Ps(void *Parameters) {
         Ps.boardInteractiveData[0].data3 = 3.33;
         Ps.boardInteractiveData[0].data4 = 4.44;
         Ps.boardInteractiveData[0].data5 = 5.55;
-        Ps.boardInteractiveData[0].data6 = 6.66;
-        Ps.boardInteractiveData[0].data7 = 7.77;
-        Ps.boardInteractiveData[0].data8 = 8.88;
 
-        length = PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol_Data_Id_Board;
+        length = PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol_Pack_Length_0301_Board;
 
         Protocol_Pack(&Ps, length, Protocol_Data_Id_Board);
 
-        // 视觉通信
-        Ps.visionInteractiveData.transformer[index].U16[1]   = 0x6666;
-        Ps.visionInteractiveData.transformer[index++].U16[2] = 0x6666;
+        // // 视觉通信
+        // Ps.visionInteractiveData.transformer[index].U16[1]   = 0x6666;
+        // Ps.visionInteractiveData.transformer[index++].U16[2] = 0x6666;
 
-        length = PROTOCOL_HEADER_CRC_CMDID_LEN + index * sizeof(float);
+        // length = PROTOCOL_HEADER_CRC_CMDID_LEN + index * sizeof(float);
 
-        Protocol_Pack(&Ps, length, Protocol_Data_Id_Vision);
+        // Protocol_Pack(&Ps, length, Protocol_Data_Id_Vision);
 
         // enable DMA
         DMA_SetCurrDataCounter(DMA1_Stream3, Protocol_Interact_Length);
         DMA_Cmd(DMA1_Stream3, ENABLE);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
+
+        // 调试信息
+        DebugData.debug1 = Ps.boardInteractiveData[1].data1 * 1000;
+        DebugData.debug2 = Ps.boardInteractiveData[1].data2 * 1000;
+        DebugData.debug3 = Ps.boardInteractiveData[1].data3 * 1000;
+        DebugData.debug4 = Ps.boardInteractiveData[1].data4 * 1000;
+        DebugData.debug5 = Ps.boardInteractiveData[1].data5 * 1000;
     }
     vTaskDelete(NULL);
 }
@@ -462,8 +466,8 @@ void Task_Blink(void *Parameters) {
 void Task_Startup_Music(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        if (KTV_Play(Music_Soul)) break;
-        vTaskDelayUntil(&LastWakeTime, 60);
+        if (KTV_Play(Music_Earth)) break;
+        vTaskDelayUntil(&LastWakeTime, 120);
     }
     vTaskDelete(NULL);
 }
@@ -492,7 +496,7 @@ void Task_Sys_Init(void *Parameters) {
     // 低级任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     TIM5CH1_CAPTURE_STA = 0;
     // 等待遥控器开启

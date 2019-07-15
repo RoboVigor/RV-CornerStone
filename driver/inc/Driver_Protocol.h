@@ -23,7 +23,7 @@
 #define Protocol_Pack_Length_0205 3
 #define Protocol_Pack_Length_0206 1
 #define Protocol_Pack_Length_0207 6
-#define Protocol_Pack_Length_0301_Board 32
+#define Protocol_Pack_Length_0301_Board 20
 #define Protocol_Pack_Length_0301_Client 13
 #define Protocol_Pack_Length_0301_Header 6
 #define Protocol_Pack_Length_0301_Robot 112
@@ -141,9 +141,6 @@ typedef struct {
             float data3;
             float data4;
             float data5;
-            float data6;
-            float data7;
-            float data8;
         };
         struct {
             uint8_t data[Protocol_Pack_Length_0301_Board];
