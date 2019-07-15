@@ -240,6 +240,6 @@ void Protocol_Init(Protocol_Type *Protocol);
 void Protocol_Update(Protocol_Type *Protocol);
 void Protocol_Unpack(Protocol_Type *Protocol, uint8_t byte);
 void Protocol_Load(Protocol_Type *Protocol);
-void Protocol_Pack(Protocol_Type *Protocol, int length, uint16_t id);
+void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id);
 
 #endif

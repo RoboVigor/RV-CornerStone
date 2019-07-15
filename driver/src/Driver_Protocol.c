@@ -13,18 +13,16 @@ void Protocol_Update(Protocol_Type *Protocol) {
     }
 }
 
-void Protocol_Pack(Protocol_Type *Protocol, int length, uint16_t id) {
+void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
     int      i;
     uint8_t *begin_p;
     uint16_t index;
-    uint16_t dataLength;
 
     uint8_t  CRC8_INIT  = 0xff;
     uint16_t CRC16_INIT = 0xffff;
     uint16_t dataCRC16;
 
-    index      = 0;
-    dataLength = length - PROTOCOL_HEADER_CRC_CMDID_LEN;
+    index = 0;
 
     // Header SOF
     Protocol->interact[index++] = PROTOCOL_HEADER;

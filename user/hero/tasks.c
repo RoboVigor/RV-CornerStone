@@ -233,8 +233,8 @@ void Task_Judge(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
-        int index = 0;
-        int length;
+        int      index = 0;
+        uint16_t dataLength;
 
         // 客户端自定义数据
         while (DMA_GetFlagStatus(DMA2_Stream6, DMA_IT_TCIF6) != SET) {
@@ -251,9 +251,9 @@ void Task_Judge(void *Parameters) {
         Judge.clientCustomData.data3 = 1.11;
         Judge.clientCustomData.masks = 0x3c;
 
-        length = PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client;
+        dataLength = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client;
 
-        Protocol_Pack(&Judge, length, Protocol_Data_Id_Client);
+        Protocol_Pack(&Judge, dataLength, Protocol_Data_Id_Client);
 
         DMA_SetCurrDataCounter(DMA2_Stream6, Protocol_Interact_Length);
         DMA_Cmd(DMA2_Stream6, ENABLE);
@@ -273,9 +273,9 @@ void Task_Judge(void *Parameters) {
         Judge.robotInteractiveData[0].transformer[index++].F = 1.11;
         Judge.robotInteractiveData[0].transformer[index++].F = 1.111;
 
-        length = PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol_Pack_Length_0301_Header + index * sizeof(float);
+        dataLength = Protocol_Pack_Length_0301_Header + index * sizeof(float);
 
-        Protocol_Pack(&Judge, length, 0x0200);
+        Protocol_Pack(&Judge, dataLength, 0x0200);
 
         DMA_SetCurrDataCounter(DMA2_Stream6, Protocol_Interact_Length);
         DMA_Cmd(DMA2_Stream6, ENABLE);
@@ -292,8 +292,8 @@ void Task_Ps(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
-        int index = 0;
-        int length;
+        int      index = 0;
+        uint16_t dataLength;
 
         // disable DMA
         while (DMA_GetFlagStatus(DMA1_Stream3, DMA_IT_TCIF3) != SET) {
@@ -308,17 +308,17 @@ void Task_Ps(void *Parameters) {
         Ps.boardInteractiveData[0].data4 = 4.44;
         Ps.boardInteractiveData[0].data5 = 5.55;
 
-        length = PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol_Pack_Length_0301_Board;
+        dataLength = Protocol_Pack_Length_0301_Board;
 
-        Protocol_Pack(&Ps, length, Protocol_Data_Id_Board);
+        Protocol_Pack(&Ps, dataLength, Protocol_Data_Id_Board);
 
         // // 视觉通信
         // Ps.visionInteractiveData.transformer[index].U16[1]   = 0x6666;
         // Ps.visionInteractiveData.transformer[index++].U16[2] = 0x6666;
 
-        // length = PROTOCOL_HEADER_CRC_CMDID_LEN + index * sizeof(float);
+        // dataLength = index * sizeof(float);
 
-        // Protocol_Pack(&Ps, length, Protocol_Data_Id_Vision);
+        // Protocol_Pack(&Ps, dataLength, Protocol_Data_Id_Vision);
 
         // enable DMA
         DMA_SetCurrDataCounter(DMA1_Stream3, Protocol_Interact_Length);
@@ -496,7 +496,7 @@ void Task_Sys_Init(void *Parameters) {
     // 低级任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     TIM5CH1_CAPTURE_STA = 0;
     // 等待遥控器开启
