@@ -242,7 +242,7 @@ void Task_Judge(void *Parameters) {
         DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6);
         DMA_Cmd(DMA2_Stream6, DISABLE);
 
-        Judge.clientCustomData.data_cmd_id = Protocol_Data_Id_Client;
+        Judge.clientCustomData.data_cmd_id = Protocol_Interact_Id_Client;
         Judge.clientCustomData.send_id     = Judge.robotState.robot_id;
         Judge.clientCustomData.receiver_id = (Judge.clientCustomData.send_id % 10) | (Judge.clientCustomData.send_id / 10) << 4 | (0x01 << 8);
 
@@ -253,7 +253,7 @@ void Task_Judge(void *Parameters) {
 
         dataLength = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client;
 
-        Protocol_Pack(&Judge, dataLength, Protocol_Data_Id_Client);
+        Protocol_Pack(&Judge, dataLength, Protocol_Interact_Id_Client);
 
         DMA_SetCurrDataCounter(DMA2_Stream6, Protocol_Interact_Length);
         DMA_Cmd(DMA2_Stream6, ENABLE);
@@ -282,6 +282,12 @@ void Task_Judge(void *Parameters) {
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
+
+        // 调试信息
+        DebugData.debug1 = Judge.robotInteractiveData[1].transformer[0].F;
+        DebugData.debug2 = Judge.robotInteractiveData[1].transformer[1].F;
+        DebugData.debug3 = Judge.robotInteractiveData[1].transformer[2].F;
+        DebugData.debug4 = Judge.robotInteractiveData[1].transformer[3].F;
     }
     vTaskDelete(NULL);
 }
@@ -308,9 +314,9 @@ void Task_Ps(void *Parameters) {
         Ps.boardInteractiveData[0].data4 = 4.44;
         Ps.boardInteractiveData[0].data5 = 5.55;
 
-        dataLength = Protocol_Pack_Length_0301_Board;
+        dataLength = Protocol_Pack_Length_0302;
 
-        Protocol_Pack(&Ps, dataLength, Protocol_Data_Id_Board);
+        Protocol_Pack(&Ps, dataLength, Protocol_Interact_Id_Board);
 
         // // 视觉通信
         // Ps.visionInteractiveData.transformer[index].U16[1]   = 0x6666;
@@ -318,7 +324,7 @@ void Task_Ps(void *Parameters) {
 
         // dataLength = index * sizeof(float);
 
-        // Protocol_Pack(&Ps, dataLength, Protocol_Data_Id_Vision);
+        // Protocol_Pack(&Ps, dataLength, Protocol_Interact_Id_Vision);
 
         // enable DMA
         DMA_SetCurrDataCounter(DMA1_Stream3, Protocol_Interact_Length);
@@ -327,11 +333,11 @@ void Task_Ps(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = Ps.boardInteractiveData[1].data1 * 1000;
-        DebugData.debug2 = Ps.boardInteractiveData[1].data2 * 1000;
-        DebugData.debug3 = Ps.boardInteractiveData[1].data3 * 1000;
-        DebugData.debug4 = Ps.boardInteractiveData[1].data4 * 1000;
-        DebugData.debug5 = Ps.boardInteractiveData[1].data5 * 1000;
+        // DebugData.debug1 = Ps.boardInteractiveData[1].data1 * 1000;
+        // DebugData.debug2 = Ps.boardInteractiveData[1].data2 * 1000;
+        // DebugData.debug3 = Ps.boardInteractiveData[1].data3 * 1000;
+        // DebugData.debug4 = Ps.boardInteractiveData[1].data4 * 1000;
+        // DebugData.debug5 = Ps.boardInteractiveData[1].data5 * 1000;
     }
     vTaskDelete(NULL);
 }

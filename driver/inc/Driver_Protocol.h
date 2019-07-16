@@ -3,12 +3,14 @@
 
 #include "stm32f4xx.h"
 
+#pragma pack(1)
+
 #define Protocol_Buffer_Length 128
 #define Protocol_Interact_Length 32
 
-#define Protocol_Data_Id_Board 0x0300
-#define Protocol_Data_Id_Client 0xD180
-#define Protocol_Data_Id_Vision 0x6666
+#define Protocol_Interact_Id_Board 0x0302
+#define Protocol_Interact_Id_Client 0xD180
+#define Protocol_Interact_Id_Vision 0x0402
 
 #define Protocol_Pack_Length_0001 3
 #define Protocol_Pack_Length_0002 1
@@ -23,12 +25,12 @@
 #define Protocol_Pack_Length_0205 3
 #define Protocol_Pack_Length_0206 1
 #define Protocol_Pack_Length_0207 6
-#define Protocol_Pack_Length_0301_Board 20
 #define Protocol_Pack_Length_0301_Client 13
 #define Protocol_Pack_Length_0301_Header 6
 #define Protocol_Pack_Length_0301_Robot 112
-#define Protocol_Pack_Length_0301_Vision 32
+#define Protocol_Pack_Length_0302 20
 #define Protocol_Pack_Length_0401 9
+#define Protocol_Pack_Length_0402 32
 
 #define PROTOCOL_HEADER 0xA5
 #define PROTOCOL_HEADER_SIZE 5
@@ -143,7 +145,7 @@ typedef struct {
             float data5;
         };
         struct {
-            uint8_t data[Protocol_Pack_Length_0301_Board];
+            uint8_t data[Protocol_Pack_Length_0302];
         };
     };
 } board_interactive_data_t;
@@ -182,10 +184,10 @@ typedef struct {
 typedef struct {
     union {
         struct {
-            format_trans_t transformer[Protocol_Pack_Length_0301_Vision / sizeof(float)];
+            format_trans_t transformer[Protocol_Pack_Length_0402 / sizeof(float)];
         };
         struct {
-            uint8_t data[Protocol_Pack_Length_0301_Vision];
+            uint8_t data[Protocol_Pack_Length_0402];
         };
     };
 } vision_interactive_data_t;

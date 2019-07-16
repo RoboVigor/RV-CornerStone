@@ -38,7 +38,7 @@ void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
     Protocol->interact[index++] = Get_CRC8_Check_Sum(Protocol->interact, PROTOCOL_HEADER_SIZE - 1, CRC8_INIT);
 
     // Cmd ID
-    if (id == Protocol_Data_Id_Board | Protocol_Data_Id_Vision) {
+    if ((id == Protocol_Interact_Id_Board) || (Protocol_Interact_Id_Vision)) {
         Protocol->interact[index++] = (id) &0xff;
         Protocol->interact[index++] = (id) >> 8;
     } else {
@@ -52,15 +52,15 @@ void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
     }
 
     switch (id) {
-    case Protocol_Data_Id_Board: {
+    case Protocol_Interact_Id_Board: {
         begin_p = Protocol->boardInteractiveData[0].data;
     } break;
 
-    case Protocol_Data_Id_Client: {
+    case Protocol_Interact_Id_Client: {
         begin_p = Protocol->clientCustomData.data;
     } break;
 
-    case Protocol_Data_Id_Vision: {
+    case Protocol_Interact_Id_Vision: {
         begin_p = Protocol->visionInteractiveData.data;
     } break;
 
