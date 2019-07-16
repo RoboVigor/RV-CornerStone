@@ -6,7 +6,6 @@
 #pragma pack(1)
 
 #define Protocol_Buffer_Length 128
-#define Protocol_Interact_Length 32
 
 #define Protocol_Interact_Id_Board 0x0302
 #define Protocol_Interact_Id_Client 0xD180
@@ -209,9 +208,9 @@ typedef enum {
 } unpack_step_e;
 
 typedef struct {
-    uint8_t                   buf[Protocol_Buffer_Length];
+    uint8_t                   sendBuf[Protocol_Buffer_Length];
+    uint8_t                   receiveBuf[Protocol_Buffer_Length];
     uint8_t                   packet[Protocol_Buffer_Length];
-    uint8_t                   interact[Protocol_Buffer_Length];
     unpack_step_e             step;
     uint16_t                  index;
     uint16_t                  dataLength;

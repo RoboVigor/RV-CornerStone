@@ -9,13 +9,14 @@ void Protocol_Init(Protocol_Type *Protocol) {
 void Protocol_Update(Protocol_Type *Protocol) {
     int i = 0;
     for (i = 0; i < Protocol_Buffer_Length; i++) {
-        Protocol_Unpack(Protocol, Protocol->buf[i]);
+        Protocol_Unpack(Protocol, Protocol->receiveBuf[i]);
     }
 }
 
 void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
     int      i;
     uint8_t *begin_p;
+    uint8_t *send_p;
     uint16_t index;
 
     uint8_t  CRC8_INIT  = 0xff;
@@ -25,30 +26,30 @@ void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
     index = 0;
 
     // Header SOF
-    Protocol->interact[index++] = PROTOCOL_HEADER;
+    Protocol->sendBuf[index++] = PROTOCOL_HEADER;
 
     // Data Length
-    Protocol->interact[index++] = (dataLength) &0xff;
-    Protocol->interact[index++] = (dataLength) >> 8;
+    Protocol->sendBuf[index++] = (dataLength) &0xff;
+    Protocol->sendBuf[index++] = (dataLength) >> 8;
 
     // Frame SEQ
-    Protocol->interact[index++]++;
+    Protocol->sendBuf[index++]++;
 
     // Header CRC8
-    Protocol->interact[index++] = Get_CRC8_Check_Sum(Protocol->interact, PROTOCOL_HEADER_SIZE - 1, CRC8_INIT);
+    Protocol->sendBuf[index++] = Get_CRC8_Check_Sum(Protocol->sendBuf, PROTOCOL_HEADER_SIZE - 1, CRC8_INIT);
 
     // Cmd ID
     if ((id == Protocol_Interact_Id_Board) || (Protocol_Interact_Id_Vision)) {
-        Protocol->interact[index++] = (id) &0xff;
-        Protocol->interact[index++] = (id) >> 8;
+        Protocol->sendBuf[index++] = (id) &0xff;
+        Protocol->sendBuf[index++] = (id) >> 8;
     } else {
-        Protocol->interact[index++] = 0x01;
-        Protocol->interact[index++] = 0x03;
+        Protocol->sendBuf[index++] = 0x01;
+        Protocol->sendBuf[index++] = 0x03;
     }
 
     // Data
     for (i = PROTOCOL_HEADER_CMDID_LEN; i < Protocol_Buffer_Length; i++) {
-        Protocol->interact[i] = 0x00;
+        Protocol->sendBuf[i] = 0x00;
     }
 
     switch (id) {
@@ -68,13 +69,18 @@ void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
     }
 
     for (i = 0; i < dataLength; i++) {
-        Protocol->interact[index++] = *(begin_p + i);
+        Protocol->sendBuf[index++] = *(begin_p + i);
     }
 
     // Data CRC16
-    dataCRC16                   = Get_CRC16_Check_Sum(Protocol->interact, PROTOCOL_HEADER_CMDID_LEN + dataLength, CRC16_INIT);
-    Protocol->interact[index++] = (dataCRC16) &0xff;
-    Protocol->interact[index++] = (dataCRC16) >> 8;
+    dataCRC16                  = Get_CRC16_Check_Sum(Protocol->sendBuf, PROTOCOL_HEADER_CMDID_LEN + dataLength, CRC16_INIT);
+    Protocol->sendBuf[index++] = (dataCRC16) &0xff;
+    Protocol->sendBuf[index++] = (dataCRC16) >> 8;
+
+    send_p = Protocol->sendBuf;
+    for (i = 0; i < index; i++) {
+        *send_p++ = Protocol->sendBuf[i];
+    }
 }
 
 void Protocol_Unpack(Protocol_Type *Protocol, uint8_t byte) {

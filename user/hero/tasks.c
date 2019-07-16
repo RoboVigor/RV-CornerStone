@@ -255,7 +255,7 @@ void Task_Judge(void *Parameters) {
 
         Protocol_Pack(&Judge, dataLength, Protocol_Interact_Id_Client);
 
-        DMA_SetCurrDataCounter(DMA2_Stream6, Protocol_Interact_Length);
+        DMA_SetCurrDataCounter(DMA2_Stream6, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
         DMA_Cmd(DMA2_Stream6, ENABLE);
 
         // 机器人间通信
@@ -277,7 +277,7 @@ void Task_Judge(void *Parameters) {
 
         Protocol_Pack(&Judge, dataLength, 0x0200);
 
-        DMA_SetCurrDataCounter(DMA2_Stream6, Protocol_Interact_Length);
+        DMA_SetCurrDataCounter(DMA2_Stream6, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
         DMA_Cmd(DMA2_Stream6, ENABLE);
 
         // 发送频率
@@ -327,7 +327,7 @@ void Task_Ps(void *Parameters) {
         // Protocol_Pack(&Ps, dataLength, Protocol_Interact_Id_Vision);
 
         // enable DMA
-        DMA_SetCurrDataCounter(DMA1_Stream3, Protocol_Interact_Length);
+        DMA_SetCurrDataCounter(DMA1_Stream3, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
         DMA_Cmd(DMA1_Stream3, ENABLE);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
