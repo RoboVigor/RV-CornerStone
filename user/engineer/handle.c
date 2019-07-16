@@ -21,8 +21,8 @@ void Handle_Init(void) {
     Motor_Init(&Motor_Upthrow2, 19.2f, 1);
 
     // Guide wheel
-    Motor_Init(&Motor_LGW, 36, 1);
-    Motor_Init(&Motor_RGW, 36, 1);
+    Motor_Init(&Motor_LGW, 36, 0);
+    Motor_Init(&Motor_RGW, 36, 0);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData);
@@ -65,19 +65,21 @@ void Take_Chassis_Detect_Left(void) {
 
 void Take_Start_Get(void) {
     TH_Move = 0;
-    vTaskDelay(500);
     ROTATE_ON;
 }
 
 void Take_TV_Progress(void) {
+
     TV_Out = 3;
 }
 
 void Take_ON(void) {
+
     TAKE_ON;
 }
 
 void Take_Up(void) {
+
     TU_Up = 2;
 }
 
@@ -86,33 +88,25 @@ void Take_Down(void) {
 }
 
 void Take_Rotate_OFF(void) {
+
     ROTATE_OFF;
 }
 
 void Take_OFF(void) {
+
     TAKE_OFF;
 }
 
-void Take_Catapult(void) {
+void Take_Catapult_On(void) {
     CATAPULT_ON;
-    vTaskDelay(500);
-    CATAPULT_OFF;
-    vTaskDelay(500);
-    CATAPULT_ON;
-    vTaskDelay(500);
-    CATAPULT_OFF;
 }
 
 void Take_Reset(void) {
     Chassis_Detect = 0;
     TAKE_OFF;
-    vTaskDelay(1000);
     CATAPULT_OFF;
-    vTaskDelay(1000);
     ROTATE_OFF;
-    vTaskDelay(1000);
     TV_Out = 0;
-    vTaskDelay(2000);
     if (Detected_Direction == 2) {
         TH_Move = 1;
     } else if (Detected_Direction == 1) {
@@ -120,9 +114,7 @@ void Take_Reset(void) {
     } else {
         TH_Move = 0;
     }
-    Detected_Direction = 0;
-    vTaskDelay(4000);
-    TU_Up = 1;
-    vTaskDelay(4000);
-    Chassis_State = CHASSIS_NORMAL;
+    TU_Up          = 1;
+    Chassis_State  = CHASSIS_NORMAL;
+    Detected_State = 0;
 }

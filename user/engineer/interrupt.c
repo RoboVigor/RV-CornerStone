@@ -225,21 +225,21 @@ void TIM2_IRQHandler(void) {
 u8 TIM3CH3_CAPTURE_STA = 0; //输入捕获状态
 
 void TIM3_IRQHandler(void) {
-    if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET) {
+    if (TIM_GetITStatus(TIM3, TIM_IT_CC3) != RESET) {
         if (TIM3CH3_CAPTURE_STA == 1) {
             TIM3CH3_CAPTURE_STA = 0;
             //获取当前的捕获值
             TIM3CH3_CAPTURE_VAL = TIM3->CCR3;
             //设置上升沿捕获
-            TIM_OC1PolarityConfig(TIM2, TIM_ICPolarity_Rising);
+            TIM_OC3PolarityConfig(TIM3, TIM_ICPolarity_Rising);
         } else {
             TIM3CH3_CAPTURE_STA = 1;
             TIM_SetCounter(TIM3, 0);                             //计数器清空
-            TIM_OC1PolarityConfig(TIM3, TIM_ICPolarity_Falling); //设置下降沿捕获
+            TIM_OC3PolarityConfig(TIM3, TIM_ICPolarity_Falling); //设置下降沿捕获
         }
     }
 
-    TIM_ClearITPendingBit(TIM2, TIM_IT_CC1 | TIM_IT_Update); //清除中断标志位
+    TIM_ClearITPendingBit(TIM3, TIM_IT_CC3 | TIM_IT_Update); //清除中断标志位
 }
 
 // TIM5 输入捕获初始化
@@ -265,6 +265,38 @@ void TIM5_IRQHandler(void) {
     }
 
     TIM_ClearITPendingBit(TIM5, TIM_IT_CC1 | TIM_IT_Update); //清除中断标志位
+}
+
+void TIM8_TRG_COM_TIM14_IRQHandler(void) {
+    if(TIM_GetITStatus(TIM14,TIM_IT_Update) == SET) {
+        if (Fsm_TIM14_State != 1) {
+            Fsm_TIM14_Cnt = 0;
+        } else {
+            Fsm_TIM14_Cnt++;
+        }
+    }
+    TIM_ClearITPendingBit(TIM14,TIM_IT_Update); 
+}
+
+u8 TIM9CH1_CAPTURE_STA = 0;
+
+void TIM1_BRK_TIM9_IRQHandler(void) {
+    if (TIM_GetITStatus(TIM9, TIM_IT_CC1) != RESET) {
+        // 捕获到一个下降沿
+        if (TIM9CH1_CAPTURE_STA == 1) {
+            TIM9CH1_CAPTURE_STA = 0;
+            //获取当前的捕获值
+            TIM9CH1_CAPTURE_VAL = TIM9->CCR1;
+            //设置上升沿捕获
+            TIM_OC1PolarityConfig(TIM9, TIM_ICPolarity_Rising);
+        } else {
+            TIM9CH1_CAPTURE_STA = 1;
+            TIM_SetCounter(TIM9, 0);                             //计数器清空
+            TIM_OC1PolarityConfig(TIM9, TIM_ICPolarity_Falling); //设置下降沿捕获
+        }
+    }
+
+    TIM_ClearITPendingBit(TIM9, TIM_IT_CC1 | TIM_IT_Update); //清除中断标志位
 }
 
 /**

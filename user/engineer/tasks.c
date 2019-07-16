@@ -52,13 +52,9 @@ void Task_Chassis(void *Parameters) {
             // 对平行
             if (remoteData.switchLeft == 3) {
                 if (Distance1 > 3000 && Distance2 > 3000) {
-
                     PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
-
                     // 设置底盘总体移动速度
                     Chassis_Update(&ChassisData, 0.4, 0, (float) PID_YawSpeed.output / 660.0f);
-                    Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
-
                 } else if (Chassis_Parallel_Finish == 1) {
                     PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
                     Chassis_Update(&ChassisData, 0.4, 0, (float) PID_YawSpeed.output / 660.0f);
@@ -66,29 +62,27 @@ void Task_Chassis(void *Parameters) {
                         PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
                         Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
                     }
-                    Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                 } else {
                     if (Distance1 - Distance2 > 20) {
                         PID_Calculate(&PID_YawSpeed, 20, yawSpeed); // 计算航向角角速度PID
                         Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
-                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                     } else if (Distance1 - Distance2 < -20) {
                         PID_Calculate(&PID_YawSpeed, -20, yawSpeed); // 计算航向角角速度PID
                         Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
-                        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                     } else {
                         Chassis_Parallel_Finish = 1;
                     }
                 }
                 // 设置左右
             } else if (Chassis_Detect == 1 && remoteData.switchRight == 1) {
-
                 Chassis_State           = CHASSIS_DETECT_RIGHT;
                 Chassis_Parallel_Finish = 0;
             } else if (Chassis_Detect == 2 && remoteData.switchRight == 1) {
                 Chassis_State           = CHASSIS_DETECT_LEFT;
                 Chassis_Parallel_Finish = 0;
                 // 正常运动
+            } else if (remoteData.switchRight != 1 && Chassis_Delanding_State == 1) {
+                Chassis_State = CHASSIS_DELANDING;
             } else {
                 Chassis_State           = CHASSIS_NORMAL;
                 Chassis_Parallel_Finish = 0;
@@ -112,7 +106,6 @@ void Task_Chassis(void *Parameters) {
 
                 // 设置底盘总体移动速度
                 Chassis_Update(&ChassisData, (float) -remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, (float) PID_YawSpeed.output / 1320.0f);
-                Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                 // 重新赋初值
                 Chassis_State = -1;
             } else if (Chassis_State == CHASSIS_DETECT_LEFT) {
@@ -122,12 +115,10 @@ void Task_Chassis(void *Parameters) {
                     PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
 
                     Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
-                    Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                 } else {
                     PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
 
                     Chassis_Update(&ChassisData, 0, -0.15, (float) PID_YawSpeed.output / 660.0f);
-                    Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                 }
             } else if (Chassis_State == CHASSIS_DETECT_RIGHT) {
                 // 读单边提高响应速度
@@ -136,14 +127,28 @@ void Task_Chassis(void *Parameters) {
                     Detected_State = 1;
                     // 赋返回速度
                     Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
-                    Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
                 } else {
                     Chassis_Update(&ChassisData, 0, 0.15, 0);
-                    Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
+                }
+            } else if (Chassis_State == CHASSIS_DELANDING) {
+                if (Distance_Delanding_Parallel1 < 2500 && Distance_Delanding_Parallel2 < 2500) {
+                    PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
+                    Chassis_Update(&ChassisData, 0.1, 0, (float) PID_YawSpeed.output / 660.0f);
+                } else if (Distance_Delanding_Parallel1 - Distance_Delanding_Parallel2 > 50) {
+                    PID_Calculate(&PID_YawSpeed, 20, yawSpeed); // 计算航向角角速度PID
+                    Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
+                } else if (Distance_Delanding_Parallel1 - Distance_Delanding_Parallel2 < -50) {
+                    PID_Calculate(&PID_YawSpeed, 20, yawSpeed); // 计算航向角角速度PID
+                    Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
+                } else {
+                    PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
+                    Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
+                    Chassis_Delanding_Parallel_Over = 1;
                 }
             }
         }
 
+        Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
         // 麦轮解算&限幅,获得轮子转速
         Chassis_Limit_Rotor_Speed(&ChassisData, 300);
 
@@ -166,154 +171,204 @@ void Task_Chassis(void *Parameters) {
 void Task_Take_Fsm(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    enum Take_State { T_S0 = 0, T_S1, T_S2, T_S3, T_S4, T_S5, T_S6, T_S7, T_S8, T_S9, T_S10, T_S11, T_S12 };
-
-    enum Take_Event {
-        Reset = 0,
-        TV_Out1,
-        TV_Out2,
-        Detect_Horizontial_Right,
-        Detect_Horizontial_Left,
-        Detect_Chassis_Right,
-        Detect_Chassis_Left,
-        Start_Get,
-        Take_On,
-        Start_Up2,
-        TV_Out_Progress,
-        TV_Out0,
-        Rotate_Off,
-        Back_To_Up1,
-        Take_Off,
-        Catapult_On
-    };
-
-    FsmTable_t Take_Fsmtable[] = {{TV_Out1, T_S0, Take_TV_1, T_S2},
-                                  {TV_Out2, T_S0, Take_TV_2, T_S2},
-                                  {Detect_Horizontial_Right, T_S2, Take_Horizontal_Right, T_S2},
-                                  {Detect_Horizontial_Left, T_S2, Take_Horizontal_Left, T_S2},
-                                  {Detect_Chassis_Right, T_S2, Take_Chassis_Detect_Right, T_S2},
-                                  {Detect_Chassis_Left, T_S2, Take_Chassis_Detect_Left, T_S2},
-                                  {Start_Get, T_S2, Take_Start_Get, T_S3},
-                                  {Take_On, T_S3, Take_ON, T_S4},
-                                  {Start_Up2, T_S4, Take_Up, T_S5},
-                                  {TV_Out_Progress, T_S5, Take_TV_Progress, T_S6},
-                                  {Rotate_Off, T_S6, Take_Rotate_OFF, T_S7},
-                                  {Take_Off, T_S7, Take_OFF, T_S8},
-                                  {Catapult_On, T_S8, Take_Catapult, T_S9},
-                                  {Back_To_Up1, T_S9, Take_Down, T_S10},
-                                  {TV_Out1, T_S10, Take_TV_1, T_S2},
-                                  {TV_Out2, T_S10, Take_TV_2, T_S2},
-
-                                  // 退出流程
-                                  {Reset, T_S10, Take_Reset, T_S0},
-                                  {Reset, T_S9, Take_Reset, T_S0},
-                                  {Reset, T_S8, Take_Reset, T_S0},
-                                  {Reset, T_S7, Take_Reset, T_S0},
-                                  {Reset, T_S6, Take_Reset, T_S0},
-                                  {Reset, T_S5, Take_Reset, T_S0},
-                                  {Reset, T_S4, Take_Reset, T_S0},
-                                  {Reset, T_S3, Take_Reset, T_S0},
-                                  {Reset, T_S2, Take_Reset, T_S0},
-                                  {Reset, T_S1, Take_Reset, T_S0}};
-    //   {Reset, T_S0, Take_Reset, T_S0},};
-
-    Fsm_Init(&Take_Fsm, &Take_Fsmtable);
-    Take_Fsm.curState = T_S0;
-    Take_Fsm.size     = sizeof(Take_Fsmtable) / sizeof(FsmTable_t);
-
-    int cnt            = 0;
-    int three_box_cnt  = 0;
+    int Fsm_State      = 0;
     int six_box_cnt    = 0;
-    Detected_Direction = 0;
+    int a              = 2;
     TV_Ready           = 0;
+    Detected_Direction = 0;
+    Fsm_TIM14_Cnt      = 0;
+    Fsm_TIM14_State    = 0;
 
     while (1) {
+        if (remoteData.switchRight == 1) {
+            switch (Fsm_State) {
+            case 0:
+                Take_Reset();
+                Fsm_TIM14_State = 0;
+                six_box_cnt     = 0;
 
-        if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
-            Fsm_Update(&Take_Fsm, Reset);
-            six_box_cnt = 0;
-        }
-
-        if (remoteData.switchLeft == 1 && remoteData.switchRight != 3) {
-            //     if (three_box_cnt == 2) {
-            //         Fsm_Update(&Take_Fsm, TV_Out2);
-            //     } else if (three_box_cnt > 2) {
-            //         Fsm_Update(&Take_Fsm, Reset);
-            //     } else {
-            //         Fsm_Update(&Take_Fsm, TV_Out1);
-            //     }
-            //     vTaskDelay(500);
-            //     if (Detected_State == 1) {
-            //         Fsm_Update(&Take_Fsm, Start_Get);
-            //         vTaskDelay(2000);
-            //         Fsm_Update(&Take_Fsm, Take_On);
-            //         vTaskDelay(1000);
-            //         Fsm_Update(&Take_Fsm, Start_Up2);
-            //         vTaskDelay(4000);
-            //         Fsm_Update(&Take_Fsm, TV_Out_Progress);
-            //         vTaskDelay(3000);
-            //         Fsm_Update(&Take_Fsm, Rotate_Off);
-            //         vTaskDelay(2000);
-            //         Fsm_Update(&Take_Fsm, Take_Off);
-            //         vTaskDelay(1500);
-            //         Fsm_Update(&Take_Fsm, Catapult_On);
-            //         Fsm_Update(&Take_Fsm, Back_To_Up1);
-            //         vTaskDelay(2000);
-            //         Detected_State = 0;
-            //         three_box_cnt++;
-            //     } else {
-            //         if (three_box_cnt == 0) {
-            //             Fsm_Update(&Take_Fsm, Detect_Chassis);
-            //         } else if (three_box_cnt == 1) {
-            //             Fsm_Update(&Take_Fsm, Detect_Horizontial_Right);
-            //         } else if (three_box_cnt == 2) {
-            //             Fsm_Update(&Take_Fsm, Detect_Horizontial_Left);
-            //         }
-            //     }
-
-            // 取六箱流程
-            if (six_box_cnt < 3) {
-                Fsm_Update(&Take_Fsm, TV_Out1);
-            } else if (six_box_cnt < 6) {
-                Fsm_Update(&Take_Fsm, TV_Out2);
-            }
-            vTaskDelay(800);
-            TV_Ready = 1;
-            if (Detected_State == 1) {
-                Fsm_Update(&Take_Fsm, Start_Get);
-                vTaskDelay(2000);
-                Fsm_Update(&Take_Fsm, Take_On);
-                vTaskDelay(700);
-                Fsm_Update(&Take_Fsm, Start_Up2);
-                vTaskDelay(2000);
-                Fsm_Update(&Take_Fsm, TV_Out_Progress);
-                vTaskDelay(1000);
-                Fsm_Update(&Take_Fsm, Rotate_Off);
-                vTaskDelay(1000);
-                Fsm_Update(&Take_Fsm, Take_Off);
-                vTaskDelay(1500);
-                Fsm_Update(&Take_Fsm, Catapult_On);
-                Fsm_Update(&Take_Fsm, Back_To_Up1);
-                vTaskDelay(2000);
-                six_box_cnt++;
-                Detected_State = 0;
-                TV_Ready = 0;
-            } else {
-                // Fsm_Update(&Take_Fsm, Detect_Horizontial_Right); // 夹角左右寻找 底盘寻找未加入向左
-                // Fsm_Update(&Take_Fsm, Detect_Chassis_Right);
-                if (six_box_cnt < 2) {
-                    Fsm_Update(&Take_Fsm, Detect_Chassis_Left);
-                } else if (six_box_cnt < 3) {
-                    Fsm_Update(&Take_Fsm, Detect_Horizontial_Left);
-                } else if (six_box_cnt < 5) {
-                    Fsm_Update(&Take_Fsm, Detect_Chassis_Right);
-                } else if (six_box_cnt < 6) {
-                    Fsm_Update(&Take_Fsm, Detect_Horizontial_Right);
+                if (remoteData.switchLeft == 1 && remoteData.switchRight != 3) {
+                    Fsm_State = 1;
                 }
+                break;
+            case 1:
+
+                if (six_box_cnt < 3) {
+                    Take_TV_1();
+                } else if (six_box_cnt < 6) {
+                    Take_TV_2();
+                }
+
+                Fsm_TIM14_State = 1;
+
+                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                    Fsm_State = 0;
+                } else {
+                    Fsm_TIM14_State = 1;
+                    if (Fsm_TIM14_Cnt >= 800 * a) {
+                        TV_Ready        = 1;
+                        Fsm_State       = 2;
+                        Fsm_TIM14_State = 0;
+                        if (Detected_State == 1) {
+                            Fsm_State = 3;
+                        } else {
+                            Fsm_State = 2;
+                        }
+                    }
+                }
+                break;
+            case 2:
+                if (six_box_cnt < 2) {
+                    Take_Chassis_Detect_Left();
+                } else if (six_box_cnt < 3) {
+                    Take_Horizontal_Left();
+                } else if (six_box_cnt < 5) {
+                    Take_Chassis_Detect_Right();
+                } else if (six_box_cnt < 6) {
+                    Take_Horizontal_Right();
+                }
+
+                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                    Fsm_State = 0;
+                } else {
+                    if (Detected_State == 1) {
+                        Fsm_State = 3;
+                    }
+                }
+                break;
+            case 3:
+                Take_Start_Get();
+
+                Fsm_TIM14_State = 1;
+
+                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                    Fsm_State = 0;
+                } else {
+                    if (Fsm_TIM14_Cnt >= 2000 * a) {
+                        Fsm_State       = 4;
+                        Fsm_TIM14_State = 0;
+                    }
+                }
+                break;
+            case 4:
+                Take_ON();
+
+                Fsm_TIM14_State = 1;
+
+                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                    Fsm_State = 0;
+                } else {
+                    if (Fsm_TIM14_Cnt >= 700 * a) {
+                        Fsm_State       = 5;
+                        Fsm_TIM14_State = 0;
+                    }
+                }
+                break;
+            case 5:
+                Take_Up();
+
+                Fsm_TIM14_State = 1;
+
+                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                    Fsm_State = 0;
+                } else {
+                    if (Fsm_TIM14_Cnt >= 2000 * a) {
+                        Fsm_State       = 6;
+                        Fsm_TIM14_State = 0;
+                    }
+                }
+                break;
+            case 6:
+                Take_TV_Progress();
+
+                Fsm_TIM14_State = 1;
+
+                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                    Fsm_State = 0;
+                } else {
+                    if (Fsm_TIM14_Cnt >= 1000 * a) {
+                        Fsm_State       = 7;
+                        Fsm_TIM14_State = 0;
+                    }
+                }
+                break;
+            case 7:
+                Take_Rotate_OFF();
+
+                Fsm_TIM14_State = 1;
+
+                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                    Fsm_State = 0;
+                } else {
+                    if (Fsm_TIM14_Cnt >= 1000 * a) {
+                        Fsm_State       = 8;
+                        Fsm_TIM14_State = 0;
+                    }
+                }
+                break;
+            case 8:
+                Take_OFF();
+
+                Fsm_TIM14_State = 1;
+
+                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                    Fsm_State = 0;
+                } else {
+                    if (Fsm_TIM14_Cnt >= 1500 * a) {
+                        Fsm_State       = 9;
+                        Fsm_TIM14_State = 0;
+                    }
+                }
+                break;
+            case 9:
+                Take_Catapult_On();
+
+                Fsm_TIM14_State = 1;
+
+                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                    Fsm_State = 0;
+                } else {
+                    if (Fsm_TIM14_Cnt >= 500 * a) {
+                        Fsm_State       = 10;
+                        Fsm_TIM14_State = 0;
+                    }
+                }
+                break;
+            case 10:
+                CATAPULT_OFF;
+                six_box_cnt++;
+
+                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                    Fsm_State = 0;
+                } else {
+                    Fsm_State = 11;
+                }
+                break;
+            case 11:
+                Take_Down();
+
+                Fsm_TIM14_State = 1;
+
+                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                    Fsm_State = 0;
+                } else {
+                    if (Fsm_TIM14_Cnt >= 1000 * a) {
+                        Fsm_State       = 1;
+                        Fsm_TIM14_State = 0;
+                    }
+                }
+
+                Detected_State = 0;
+                break;
+            // case 12:
+            // case 13:
+            default:
+                break;
             }
         }
+        DebugA = six_box_cnt;
 
-        vTaskDelayUntil(&LastWakeTime, 2);
+        vTaskDelayUntil(&LastWakeTime, 8);
     }
     vTaskDelete(NULL);
 }
@@ -382,18 +437,18 @@ void Task_Take_Vertical(void *Parameters) {
 
         Can_Send(CAN2, 0x200, 0, 0, PID_TV_Speed.output, 0);
 
-        DebugE = Motor_TV.angle;
-
         vTaskDelayUntil(&LastWakeTime, 10);
     }
 
     vTaskDelete(NULL);
 }
 
-void Task_Landing(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount();
-    uint8_t    bangMode     = 0; // 上岛传感器切换， 0 前端， 1 后端
-    uint8_t    powerMode    = 0; // 电源
+void Task_Landing_Fsm(void *Parameters) {
+    TickType_t LastWakeTime      = xTaskGetTickCount();
+    uint8_t    bangMode          = 0; // 上岛传感器切换， 0 前端， 1 后端
+    uint8_t    powerMode         = 0; // 电源
+    float      guide_wheel_speed = 0;
+    int        Fsm_Landing_State = 0;
 
     // PID 初始化
     PID_Init(&PID_LGW, 5, 0, 0, 4000, 2000);
@@ -401,24 +456,57 @@ void Task_Landing(void *Parameters) {
 
     while (1) {
 
-        // if (remoteData.switchLeft == 3) {
-        //     LANDING_SWITCH_FRONT;
-        //     LANDING_SWITCH_FRONT2;
-        // } else if (remoteData.switchLeft == 1) {
-        //     LANDING_SWITCH_BEHIND;
-        //     LANDING_SWITCH_BEHIND2;
-        // }
+        if (remoteData.switchRight == 3) {
+            Fsm_Landing_State = 0;
+        }
 
-        // // Power Control
-        // if (remoteData.switchRight == 1) {
-        //     LANDING_POWER_ON;
-        // } else {
-        //     LANDING_POWER_OFF;
-        // }
+        switch (Fsm_Landing_State) {
+        case 0:
+            guide_wheel_speed = 0;
+            LANDING_OFF;
+
+            if (remoteData.switchLeft == 1 && remoteData.switchRight != 1) {
+                Fsm_Landing_State = 1;
+            } else if (remoteData.switchLeft == 2 && remoteData.switchRight != 1) {
+                Fsm_Landing_State = 3;
+            }
+            break;
+        case 1:
+            LANDING_ON;
+            guide_wheel_speed = 0.2;
+            Fsm_Landing_State = 2;
+            break;
+        case 2:
+            if (Distance_Landing_Behind < 1500) {
+                LANDING_OFF;
+                guide_wheel_speed = 0;
+                Fsm_Landing_State = 0;
+            }
+            break;
+        case 3:
+            Chassis_Delanding_State = 1;
+            if (Chassis_Delanding_Parallel_Over == 1) {
+                Chassis_Delanding_State         = 0;
+                Chassis_Delanding_Parallel_Over = 0;
+                Fsm_Landing_State               = 4;
+            }
+            break;
+        case 4:
+            guide_wheel_speed = -0.2;
+            if (Distance_Landing_Front > 2500) {
+                guide_wheel_speed = 0;
+                LANDING_OFF;
+                Fsm_Landing_State = 5;
+            }
+            break;
+
+        default:
+            break;
+        }
 
         // PID 计算
-        PID_Increment_Calculate(&PID_LGW, remoteData.ry, Motor_LGW.speed * RPM2RPS);
-        PID_Increment_Calculate(&PID_RGW, -remoteData.ry, Motor_RGW.speed * RPM2RPS);
+        PID_Increment_Calculate(&PID_LGW, guide_wheel_speed, Motor_LGW.speed * RPM2RPS);
+        PID_Increment_Calculate(&PID_RGW, -guide_wheel_speed, Motor_RGW.speed * RPM2RPS);
 
         // 发送数据至电调
         Can_Send(CAN2, 0x200, PID_LGW.output, PID_RGW.output, 0, 0);
@@ -433,7 +521,7 @@ void Task_Supply(void *Parameters) {
 
     while (1) {
         // Controller
-        if (remoteData.switchLeft == 1) {
+        if (remoteData.keyBoard.keyCode == KEY_R) {
             PWM_Set_Compare(&PWM_Supply1, 15);
             PWM_Set_Compare(&PWM_Supply2, 15);
         } else {
@@ -480,7 +568,11 @@ void Task_Distance_Sensor(void *Parameter) {
         Distance1 = temp1;               // cm us
 
         temp2     = TIM5CH1_CAPTURE_VAL; //得到总的高电平时间
-        Distance2 = temp2;               // cm us
+        Distance2 = temp2;               // cm
+
+        Distance_Delanding_Parallel1 = TIM3CH3_CAPTURE_VAL;
+
+        Distance_Delanding_Parallel2 = TIM9CH1_CAPTURE_VAL;
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -506,7 +598,7 @@ void Task_Upthrow_Horizontial(void *Parameter) {
 
     PID_Init(&PID_TH_Speed, 35, 0.5, 0, 5000, 2000); // 25 0.1
 
-    PID_Init(&PID_Upthrow1_Angle, 13, 0.015, 0, 500, 300); //
+    PID_Init(&PID_Upthrow1_Angle, 18, 0.015, 0, 500, 300); //
     PID_Init(&PID_Upthrow1_Speed, 30, 1, 0, 8000, 4000);   //
     PID_Init(&PID_Upthrow2_Angle, 8, 0.018, 0, 500, 300);  //
     PID_Init(&PID_Upthrow2_Speed, 35, 0.5, 0, 8000, 4000); //
@@ -516,10 +608,6 @@ void Task_Upthrow_Horizontial(void *Parameter) {
         if (remoteData.switchRight == 1 && remoteData.switchLeft != 1) {
             TU_Up = 1;
         } else if (remoteData.switchRight == 3 && remoteData.switchLeft != 1) {
-            if (TV_Out != 0) {
-                TV_Out = 0;
-                vTaskDelay(5000);
-            }
             TU_Up = 0;
         }
 
@@ -558,7 +646,7 @@ void Task_Upthrow_Horizontial(void *Parameter) {
                 upthrowProgress = 0;
                 TH_Ramp_Start   = Motor_Upthrow1.angle;
             }
-            upthrowAngleTarget = RAMP(TH_Ramp_Start, 735, upthrowProgress);
+            upthrowAngleTarget = RAMP(TH_Ramp_Start, 670, upthrowProgress);
             if (upthrowProgress < 1) {
                 upthrowProgress += 0.08f;
                 // upthrowProgress += 1.0f;
@@ -593,11 +681,6 @@ void Task_Upthrow_Horizontial(void *Parameter) {
         PID_Calculate(&PID_TH_Speed, TH_TargetSpeed, Motor_TH.speed * RPM2RPS);
 
         Can_Send(CAN1, 0x1FF, PID_Upthrow1_Speed.output, PID_Upthrow2_Speed.output, PID_TH_Speed.output, 0);
-
-        DebugA = Motor_Upthrow1.angle;
-        DebugB = Motor_Upthrow1.speed;
-        DebugC = Motor_Upthrow2.angle;
-        DebugD = Motor_Upthrow2.speed;
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -807,7 +890,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
     xTaskCreate(Task_Distance_Sensor, "Task_Distance_Sensor", 400, NULL, 3, NULL);
     xTaskCreate(Task_Take_Fsm, "Task_Take_Fsm", 400, NULL, 4, NULL);
-    // xTaskCreate(Task_Landing, "Task_Landing", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Landing_Fsm, "Task_Landing_Fsm", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Supply, "Task_Supply", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 3, NULL);
     xTaskCreate(Task_Take_Vertical, "Task_Take_Vertical", 400, NULL, 3, NULL); // 前后伸缩
