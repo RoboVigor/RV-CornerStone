@@ -21,4 +21,5 @@ void Handle_Init(void) {
     // 通讯协议初始化
     Protocol_Init(&Judge);
     Protocol_Init(&Ps);
+    Protocol_Init(&Board);
 }
