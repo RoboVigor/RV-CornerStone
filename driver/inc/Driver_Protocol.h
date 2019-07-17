@@ -8,7 +8,8 @@
 #define Protocol_Buffer_Length 128
 
 #define Protocol_Interact_Id_Board 0x0302
-#define Protocol_Interact_Id_Client 0xD180
+#define Protocol_Interact_Id_Client_Data 0xD180
+#define Protocol_Interact_Id_Client_Graph 0x0100
 #define Protocol_Interact_Id_Vision 0x0402
 
 #define Protocol_Pack_Length_0001 3
@@ -24,7 +25,8 @@
 #define Protocol_Pack_Length_0205 3
 #define Protocol_Pack_Length_0206 1
 #define Protocol_Pack_Length_0207 6
-#define Protocol_Pack_Length_0301_Client 13
+#define Protocol_Pack_Length_0301_Client_Data 13
+#define Protocol_Pack_Length_0301_Client_Graph 61
 #define Protocol_Pack_Length_0301_Header 6
 #define Protocol_Pack_Length_0301_Robot 112
 #define Protocol_Pack_Length_0302 20
@@ -161,10 +163,38 @@ typedef struct {
             uint8_t  masks;
         };
         struct {
-            uint8_t data[Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client];
+            uint8_t data[Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client_Data];
         };
     };
 } client_custom_data_t;
+
+typedef struct {
+    union {
+        struct {
+            uint16_t data_cmd_id;
+            uint16_t send_id;
+            uint16_t receiver_id;
+            uint8_t  operate_tpye;
+            uint8_t  graphic_tpye;
+            uint8_t  graphic_name[5];
+            uint8_t  layer;
+            uint8_t  color;
+            uint8_t  width;
+            uint16_t start_x;
+            uint16_t start_y;
+            uint16_t radius;
+            uint16_t end_x;
+            uint16_t end_y;
+            int16_t  start_angle;
+            int16_t  end_angle;
+            uint8_t  text_lenght;
+            uint8_t  text[30];
+        };
+        struct {
+            uint8_t data[Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client_Graph];
+        };
+    };
+} client_graphic_draw_t;
 
 typedef struct {
     union {
@@ -207,6 +237,12 @@ typedef enum {
     STEP_DATA_CRC16  = 5,
 } unpack_step_e;
 
+typedef enum {
+    MODE_CLIENT_DATA    = 0,
+    MODE_ROBOT_INTERACT = 1,
+    MODE_CLIENT_GRAPH   = 2,
+} interact_mode_e;
+
 typedef struct {
     uint8_t                   sendBuf[Protocol_Buffer_Length];
     uint8_t                   receiveBuf[Protocol_Buffer_Length];
@@ -224,8 +260,10 @@ typedef struct {
     ext_robot_hurt_t          robotHurt;
     ext_shoot_data_t          shootData;
     ext_gimal_aim_data_t      gimbalAimData;
+    interact_mode_e           mode;
     board_interactive_data_t  boardInteractiveData[2];
     client_custom_data_t      clientCustomData;
+    client_graphic_draw_t     clientGraphicDraw;
     robot_interactive_data_t  robotInteractiveData[8];
     vision_interactive_data_t visionInteractiveData;
 } Protocol_Type;
