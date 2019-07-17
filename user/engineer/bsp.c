@@ -208,13 +208,6 @@ void BSP_Optoelectronic_Input(void) {
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOI, &GPIO_InitStructure);
-    // 登岛对位
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_4 | GPIO_Pin_6 | GPIO_Pin_5 | GPIO_Pin_12;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOE, &GPIO_InitStructure);
 }
 
 void BSP_Limit_Switch(void) {
@@ -267,7 +260,7 @@ void BSP_Init(void) {
     BSP_Landing_Init();         //  PH11  多加四个IO口读取光电开关
     BSP_Rescue_Init();          // PI0
     BSP_Take_Init();            // Take: PA3 Rotate: PA2 Catapult: PA1
-    BSP_Optoelectronic_Input(); // 取弹: PI7 PI6 PI5 PI2 登岛: PE4 PE5 PE6 PE12
+    BSP_Optoelectronic_Input(); // 取弹: PI7 PI6 PI5 PI2 
     BSP_Limit_Switch();         // 限位开关: L:PC2 R:PC3
 
     // 补给舵机输出
@@ -290,4 +283,4 @@ void BSP_Init(void) {
     BSP_TIM3CH3_Init(); // PB0
     BSP_TIM9CH1_Init(); // PE5
 }
-// 空余: PH12
+// 空余: PH12 PE4 PE5 PE6 PE12 PA2

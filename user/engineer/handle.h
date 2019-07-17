@@ -35,9 +35,6 @@
 #define LANDING_OFF GPIO_ResetBits(GPIOH, GPIO_Pin_11);
 
 // Taking
-#define ROTATE_ON GPIO_SetBits(GPIOA, GPIO_Pin_2);
-#define ROTATE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_2);
-
 #define TAKE_ON GPIO_SetBits(GPIOA, GPIO_Pin_3);
 #define TAKE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3);
 
@@ -62,6 +59,7 @@ __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
 __HANDLE_EXT Motor_Type Motor_TH, Motor_TV;
 __HANDLE_EXT Motor_Type Motor_LGW, Motor_RGW;
 __HANDLE_EXT Motor_Type Motor_Upthrow1, Motor_Upthrow2;
+__HANDLE_EXT Motor_Type Motor_Rotate_Left, Motor_Rotate_Right;
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
@@ -79,10 +77,10 @@ __HANDLE_EXT ChassisData_Type ChassisData;
 
 // PID
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
-__HANDLE_EXT PID_Type PID_TH_Speed, PID_TV_Angle, PID_TV_Speed;
+__HANDLE_EXT PID_Type PID_TH_Angle, PID_TH_Speed, PID_TV_Angle, PID_TV_Speed;
 __HANDLE_EXT PID_Type PID_LGW, PID_RGW;
 __HANDLE_EXT PID_Type PID_Upthrow1_Angle, PID_Upthrow1_Speed, PID_Upthrow2_Angle, PID_Upthrow2_Speed;
-__HANDLE_EXT PID_Type PID_TH_Angle;
+__HANDLE_EXT PID_Type PID_Rotate_Left_Angle, PID_Rotate_Left_Speed, PID_Rotate_Right_Angle, PID_Rotate_Right_Speed;
 
 // 通讯协议
 __HANDLE_EXT Protocol_Type Judge, Ps;
@@ -94,7 +92,7 @@ __HANDLE_EXT int DebugA, DebugB, DebugC, DebugD, DebugE, DebugF, DebugG, DebugH,
 __HANDLE_EXT int takeMode, State;
 
 // 光电开关传感器数据
-__HANDLE_EXT int T_State1, T_State2, T_State3, T_State4, LF_State1, LF_State2, LB_State1, LB_State2, LSL_State, LSR_State;
+__HANDLE_EXT int T_State1, T_State2, T_State3, T_State4, LSR_State, LSL_State;
 
 // 距离传感器获得距离
 __HANDLE_EXT uint16_t Distance1, Distance2, Distance3, Distance4, Distance_Landing_Behind, Distance_Landing_Front, Distance_Delanding_Parallel1, Distance_Delanding_Parallel2;
@@ -106,7 +104,7 @@ __HANDLE_EXT u32 TIM5CH1_CAPTURE_VAL, TIM2CH1_CAPTURE_VAL, TIM3CH3_CAPTURE_VAL, 
 __HANDLE_EXT PWM_Type PWM_Supply1, PWM_Supply2, PWM_Image_Yaw, PWM_Image_Pitch, PWM_Rescue;
 
 // Fsm需求
-__HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, Find_Box, Detected_State, TH_Reset, Chassis_Detect, Chassis_Detect_Parallel, Detected_Direction,
+__HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, TR_Get, Find_Box, Detected_State, TH_Reset, Chassis_Detect, Chassis_Detect_Parallel, Detected_Direction,
     TV_Ready, Fsm_TIM14_Cnt, Fsm_TIM14_State, Chassis_Delanding_State, Chassis_Delanding_Parallel_Over;
 __HANDLE_EXT Fsm_t Take_Fsm;
 /**
