@@ -67,10 +67,15 @@ __HANDLE_EXT PID_Type PID_LeftFrictSpeed, PID_RightFrictSpeed, PID_Stir2006Speed
 
 // PWM 捕获
 __HANDLE_EXT u32 TIM5CH1_CAPTURE_STA, TIM5CH1_CAPTURE_VAL;
+
+//模式控制
+__HANDLE_EXT uint8_t controlMode;
+
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行
  */
-void Handle_Init(void);
+void    Handle_Init(void);
+uint8_t DBUS_CheckPush(uint16_t Key);
 
 #endif

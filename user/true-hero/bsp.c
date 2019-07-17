@@ -50,3 +50,19 @@ void BSP_Init(void) {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOE, &GPIO_InitStructure);
 }
+
+uint8_t DBUS_CheckPush(uint16_t Key) {
+    if (remoteData.keyBoard.keyCode & Key) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+void Mode_Control(void) {
+    if (remoteData.switchLeft == 2) {
+        controlMode = 1; //键鼠控制
+    } else if (remoteData.switchLeft == 1) {
+        controlMode = 0; //遥控器控制
+    }
+}

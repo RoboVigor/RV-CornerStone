@@ -44,9 +44,9 @@ void Task_Gimbal(void *Parameters) {
     float psPitchAngleTarget = 0;
 
     // 初始化云台PID
-    PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 3000, 0);
+    PID_Init(&PID_Cloud_YawAngle, 20, 0, 0, 3000, 0);
     PID_Init(&PID_Cloud_YawSpeed, 20, 0, 0, 5000, 0);
-    PID_Init(&PID_Cloud_PitchAngle, 10, 0, 0, 3000, 500);
+    PID_Init(&PID_Cloud_PitchAngle, 20, 0, 0, 3000, 500);
     PID_Init(&PID_Cloud_PitchSpeed, 30, 0, 0, 5000, 0);
 
     while (1) {
@@ -69,8 +69,14 @@ void Task_Gimbal(void *Parameters) {
         // }
 
         // 设置角度目标
+        // if (controlMode == 0) {
         if (ABS(remoteData.rx) > 20) yawAngleTarget += remoteData.rx / 660.0f * 180 * interval;
         if (ABS(remoteData.ry) > 20) pitchAngleTarget += -1 * remoteData.ry / 660.0f * 150 * interval;
+        // } else if (controlMode == 1) {
+        //     if (ABS(remoteData.mouse.x) > 100) yawAngleTarget += remoteData.mouse.x / 24000 * interval;
+        //     if (ABS(remoteData.mouse.y) > 100) pitchAngleTarget += -1 * remoteData.mouse.y / 6000 * interval;
+        // }
+
         // yawAngleTarget += psYawAngleTarget;
         // pitchAngleTarget += psPitchAngleTarget;
         // MIAO(yawAngleTarget, -50, 50); //+-20
@@ -95,10 +101,10 @@ void Task_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = yawAngle;
-        DebugData.debug2 = yawSpeed;
+        DebugData.debug1 = Motor_Yaw.position;
+        DebugData.debug2 = Motor_Yaw.angle;
         // DebugData.debug3 = ImuData.gz / GYROSCOPE_LSB;
-        DebugData.debug4 = yawAngleTarget;
+        // DebugData.debug4 = yawAngleTarget;
         // DebugData.debug5 = yawAngleTarget;
         // DebugData.debug6 = yawAngle;
         // DebugData.debug6 = PID_Cloud_PitchSpeed.output;
@@ -129,14 +135,14 @@ void Task_Chassis(void *Parameters) {
 
     // 底盘跟随PID
     float followDeadRegion = 3.0;
-    PID_Init(&PID_Follow_Angle, 10, 0, 0, 1000, 0);
-    PID_Init(&PID_Follow_Speed, 0.7, 0, 0, 1000, 0);
+    PID_Init(&PID_Follow_Angle, 50, 0, 0, 2000, 0);
+    PID_Init(&PID_Follow_Speed, 1, 0, 0, 1000, 0);
 
     // 麦轮速度PID
-    PID_Init(&PID_LFCM, 35, 0.01, 0, 15000, 7500);
-    PID_Init(&PID_LBCM, 35, 0.01, 0, 15000, 7500);
-    PID_Init(&PID_RBCM, 35, 0.01, 0, 15000, 7500);
-    PID_Init(&PID_RFCM, 35, 0.01, 0, 15000, 7500);
+    PID_Init(&PID_LFCM, 20, 0.2, 0, 15000, 7500);
+    PID_Init(&PID_LBCM, 20, 0.2, 0, 15000, 7500);
+    PID_Init(&PID_RBCM, 20, 0.2, 0, 15000, 7500);
+    PID_Init(&PID_RFCM, 20, 0.2, 0, 15000, 7500);
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
@@ -161,8 +167,14 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeedStable); // 计算航向角角速度PID
 
         // 设置底盘总体移动速度
+        // if (controlMode == 0) {
         vx = -remoteData.lx / 660.0f * 4;
+
         vy = remoteData.ly / 660.0f * 12;
+        // } else if (controlMode == 1) {
+        //     vx = (DBUS_CheckPush(KEY_D) - DBUS_CheckPush(KEY_A)) * 4;
+        //     vy = (DBUS_CheckPush(KEY_W) - DBUS_CheckPush(KEY_S)) * 12;
+        // }
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
         // 麦轮解算及限速
@@ -180,7 +192,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -248,7 +260,11 @@ void Task_Fire(void *Parameters) {
     PID_Init(&PID_Stir3510Speed, 100, 10, 0, 15000, 10000); //半径110
 
     while (1) {
-
+        // if (DBUS_CheckPush(KEY_Q)) {
+        //     shootMode = 1;
+        // } else if (DBUS_CheckPush(KEY_E)) {
+        //     shootMode = 0;
+        // }
         // 2006,3510拨弹轮
         if (shootMode == 1) {
             if (remoteData.switchLeft == 1) {

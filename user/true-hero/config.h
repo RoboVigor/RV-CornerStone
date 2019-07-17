@@ -25,4 +25,4 @@
 #define CHASSIS_MOTOR_REDUCTION_RATE 19.2f  // 底盘电机减速比
 #define CHASSIS_SIZE_K 0.53f                // 测量值, 机器人中心点到XY边缘的距离之和
 #define CHASSIS_INVERSE_WHEEL_RADIUS 13.16f // 测量值, 麦克纳姆轮半径的倒数
-#define CHASSIS_ROTOR_SPEED 550
+#define CHASSIS_ROTOR_SPEED 300
