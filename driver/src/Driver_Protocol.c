@@ -187,13 +187,13 @@ void Protocol_Load(Protocol_Type *Protocol) {
         begin_p = Protocol->shootData.data;
     } break;
 
-    case 0x0300: {
-        begin_p = Protocol->boardInteractiveData[1].data;
-    } break;
-
     case 0x0301: {
         sendRobot = Protocol->packet[PROTOCOL_HEADER_CMDID_LEN + 2] % 10;
         begin_p   = Protocol->robotInteractiveData[sendRobot].data;
+    } break;
+
+    case 0x0302: {
+        begin_p = Protocol->boardInteractiveData[1].data;
     } break;
 
     case 0x0401: {
