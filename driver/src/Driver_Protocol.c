@@ -1,13 +1,20 @@
 #include "Driver_Protocol.h"
 
 void Protocol_Init(Protocol_Type *Protocol) {
-    Protocol->index = 0;
-    Protocol->step  = STEP_HEADER_SOF;
-    Protocol->seq   = 0;
+    Protocol->state = STATE_IDLE;
+
+    Protocol->index    = 0;
+    Protocol->step     = STEP_HEADER_SOF;
+    Protocol->seq      = 0;
+    Protocol->lost     = 0;
+    Protocol->received = 0;
 }
 
 void Protocol_Update(Protocol_Type *Protocol) {
     int i = 0;
+
+    Protocol->state = STATE_WORK;
+
     for (i = 0; i < Protocol_Buffer_Length; i++) {
         Protocol_Unpack(Protocol, Protocol->receiveBuf[i]);
     }
@@ -17,13 +24,13 @@ void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
     int      i;
     uint8_t *begin_p;
     uint8_t *send_p;
-    uint16_t index;
+    uint16_t index = 0;
 
     uint8_t  CRC8_INIT  = 0xff;
     uint16_t CRC16_INIT = 0xffff;
     uint16_t dataCRC16;
 
-    index = 0;
+    Protocol->state = STATE_WORK;
 
     // Header SOF
     Protocol->sendBuf[index++] = PROTOCOL_HEADER;
@@ -88,6 +95,9 @@ void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
 }
 
 void Protocol_Unpack(Protocol_Type *Protocol, uint8_t byte) {
+
+    Protocol->state = STATE_WORK;
+
     switch (Protocol->step) {
     case STEP_HEADER_SOF: {
         if (byte == PROTOCOL_HEADER) {
@@ -161,6 +171,7 @@ void Protocol_Load(Protocol_Type *Protocol) {
         Protocol->lost += Protocol->packet[3] - Protocol->seq - 1;
     }
     Protocol->seq = Protocol->packet[3];
+    Protocol->received += 1;
 
     // id
     Protocol->id = (Protocol->packet[PROTOCOL_HEADER_SIZE + 1] << 8) + Protocol->packet[PROTOCOL_HEADER_SIZE];

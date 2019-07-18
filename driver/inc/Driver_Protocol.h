@@ -238,34 +238,40 @@ typedef enum {
 } unpack_step_e;
 
 typedef enum {
+    STATE_IDLE = 0,
+    STATE_WORK = 1,
+} protocol_state_e;
+
+typedef enum {
     MODE_CLIENT_DATA    = 0,
     MODE_ROBOT_INTERACT = 1,
     MODE_CLIENT_GRAPH   = 2,
 } interact_mode_e;
 
 typedef struct {
-    uint8_t                   sendBuf[Protocol_Buffer_Length];
-    uint8_t                   receiveBuf[Protocol_Buffer_Length];
-    uint8_t                   packet[Protocol_Buffer_Length];
-    unpack_step_e             step;
-    uint16_t                  index;
-    uint16_t                  dataLength;
-    uint16_t                  seq;
-    uint16_t                  id;
-    uint64_t                  lost;
-    uint64_t                  received;
-    ext_game_robot_state_t    robotState;
-    ext_power_heat_data_t     powerHeatData;
-    aerial_robot_energy_t     aerialRobotEnergy;
-    ext_robot_hurt_t          robotHurt;
-    ext_shoot_data_t          shootData;
-    ext_gimal_aim_data_t      gimbalAimData;
-    interact_mode_e           mode;
-    board_interactive_data_t  boardInteractiveData[2];
-    client_custom_data_t      clientCustomData;
-    client_graphic_draw_t     clientGraphicDraw;
-    robot_interactive_data_t  robotInteractiveData[8];
-    vision_interactive_data_t visionInteractiveData;
+    uint8_t                   sendBuf[Protocol_Buffer_Length];    // DMA发送缓存
+    uint8_t                   receiveBuf[Protocol_Buffer_Length]; // DMA接收缓存
+    uint8_t                   packet[Protocol_Buffer_Length];     // 有效字节数组
+    unpack_step_e             step;                               // 当前解包步骤
+    protocol_state_e          state;                              // 当前工作状态
+    uint16_t                  index;                              // 当前包字节序
+    uint16_t                  dataLength;                         // 包数据长度
+    uint16_t                  seq;                                // 包序号
+    uint16_t                  id;                                 // 包编号
+    uint64_t                  lost;                               // 包丢失计数
+    uint64_t                  received;                           // 包接收计数
+    ext_game_robot_state_t    robotState;                         // 状态数据
+    ext_power_heat_data_t     powerHeatData;                      // 热量数据
+    aerial_robot_energy_t     aerialRobotEnergy;                  // 空中机器人数据
+    ext_robot_hurt_t          robotHurt;                          // 伤害数据
+    ext_shoot_data_t          shootData;                          // 设计数据
+    ext_gimal_aim_data_t      gimbalAimData;                      // 视觉自瞄数据
+    interact_mode_e           mode;                               // 当前交互模式
+    board_interactive_data_t  boardInteractiveData[2];            // 板间交互数据 0：发送 1：接收
+    client_custom_data_t      clientCustomData;                   // 客户端自定义数据
+    client_graphic_draw_t     clientGraphicDraw;                  // 客户端自定义图像
+    robot_interactive_data_t  robotInteractiveData[8];            // 车间交互数据 0：发送 1-7：接收
+    vision_interactive_data_t visionInteractiveData;              // 视觉交互数据
 } Protocol_Type;
 
 unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength, unsigned char ucCRC8);
