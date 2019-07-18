@@ -194,8 +194,8 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeed);
 
         // 设置底盘总体移动速度
-        vx = remoteData.lx / 660.0f * 4;
-        vy = -remoteData.ly / 660.0f * 12;
+        vx = -remoteData.lx / 660.0f * 4;
+        vy = remoteData.ly / 660.0f * 12;
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
         // 麦轮解算及限速
