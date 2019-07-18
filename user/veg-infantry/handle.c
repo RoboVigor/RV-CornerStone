@@ -24,7 +24,7 @@ void Handle_Init(void) {
     Motor_Pitch.position     = 4640;
 
     // 遥控器数据初始化
-    DBUS_Init(&remoteData);
+    DBUS_Init(&remoteData, &keyboardData, &mouseData);
 
     // 初始化串口调试数据
     Magic_Init(&magic, 0);

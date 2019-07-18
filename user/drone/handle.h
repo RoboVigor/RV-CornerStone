@@ -21,7 +21,6 @@
 #include "Driver_Protocol.h"
 #include "Driver_Fsm.h"
 
-
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT
 #else
@@ -36,7 +35,9 @@ __HANDLE_EXT Motor_Type Motor_Yaw, Motor_Pitch, Motor_Stir;
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
-__HANDLE_EXT DBusData_Type remoteData;
+__HANDLE_EXT Remote_Type remoteData;
+__HANDLE_EXT Keyboard_Type keyboardData;
+__HANDLE_EXT Mouse_Type mouseData;
 
 // 陀螺仪
 __HANDLE_EXT volatile ImuData_Type       ImuData;
@@ -55,11 +56,10 @@ __HANDLE_EXT Protocol_Type Judge, Ps;
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;
 
-//PWM 捕获
-__HANDLE_EXT u32 TIM5CH1_CAPTURE_STA,TIM5CH1_CAPTURE_VAL;
+// PWM 捕获
+__HANDLE_EXT u32 TIM5CH1_CAPTURE_STA, TIM5CH1_CAPTURE_VAL;
 
-__HANDLE_EXT int debug1,debug2;
-
+__HANDLE_EXT int debug1, debug2;
 
 /**
  * @brief 初始化结构体

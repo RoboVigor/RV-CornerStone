@@ -68,7 +68,9 @@ __HANDLE_EXT Motor_Type Motor_Upthrow1, Motor_Upthrow2;
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
-__HANDLE_EXT DBusData_Type remoteData;
+__HANDLE_EXT Remote_Type remoteData;
+__HANDLE_EXT Keyboard_Type keyboardData;
+__HANDLE_EXT Mouse_Type mouseData;
 
 // 陀螺仪
 __HANDLE_EXT volatile ImuData_Type       ImuData;
@@ -84,7 +86,7 @@ __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 __HANDLE_EXT PID_Type PID_TH_Speed, PID_TV_Angle, PID_TV_Speed;
 __HANDLE_EXT PID_Type PID_LGW, PID_RGW;
-__HANDLE_EXT PID_Type PID_Upthrow1_Angle, PID_Upthrow1_Speed,PID_Upthrow2_Angle, PID_Upthrow2_Speed;
+__HANDLE_EXT PID_Type PID_Upthrow1_Angle, PID_Upthrow1_Speed, PID_Upthrow2_Angle, PID_Upthrow2_Speed;
 __HANDLE_EXT PID_Type PID_TH_Angle;
 
 // 通讯协议

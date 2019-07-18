@@ -1,50 +1,41 @@
 #include "Driver_DBUS.h"
 
-void DBUS_Init(DBusData_Type *DBusData) {
-    DBusData->state = DBusIdle;
+void DBUS_Init(Remote_Type *remote, Keyboard_Type *kb, Mouse_Type *mouse) {
+    remote->state = DBusIdle;
 
-    DBusData->ch1 = 0;
-    DBusData->ch2 = 0;
-    DBusData->ch3 = 0;
-    DBusData->ch4 = 0;
+    remote->ch1 = 0;
+    remote->ch2 = 0;
+    remote->ch3 = 0;
+    remote->ch4 = 0;
 
-    DBusData->keyBoard.keyCode = 0;
+    mouse->x = 0;
+    mouse->y = 0;
+    mouse->z = 0;
+
+    kb->keyCode = 0;
 }
 
-void DBus_Update(DBusData_Type *DBusData, uint8_t DBusBuffer[]) {
-    DBusData->state = DBusWorking;
+void DBus_Update(Remote_Type *remote, Keyboard_Type *kb, Mouse_Type *mouse, uint8_t DBusBuffer[]) {
+    remote->state = DBusWorking;
 
-    DBusData->ch1 = (DBusBuffer[0] | DBusBuffer[1] << 8) & 0x07FF;
-    DBusData->ch1 -= 1024;
-    DBusData->ch2 = (DBusBuffer[1] >> 3 | DBusBuffer[2] << 5) & 0x07FF;
-    DBusData->ch2 -= 1024;
-    DBusData->ch3 = (DBusBuffer[2] >> 6 | DBusBuffer[3] << 2 | DBusBuffer[4] << 10) & 0x07FF;
-    DBusData->ch3 -= 1024;
-    DBusData->ch4 = (DBusBuffer[4] >> 1 | DBusBuffer[5] << 7) & 0x07FF;
-    DBusData->ch4 -= 1024;
+    remote->ch1 = (DBusBuffer[0] | DBusBuffer[1] << 8) & 0x07FF;
+    remote->ch1 -= 1024;
+    remote->ch2 = (DBusBuffer[1] >> 3 | DBusBuffer[2] << 5) & 0x07FF;
+    remote->ch2 -= 1024;
+    remote->ch3 = (DBusBuffer[2] >> 6 | DBusBuffer[3] << 2 | DBusBuffer[4] << 10) & 0x07FF;
+    remote->ch3 -= 1024;
+    remote->ch4 = (DBusBuffer[4] >> 1 | DBusBuffer[5] << 7) & 0x07FF;
+    remote->ch4 -= 1024;
 
-    DBusData->switchLeft  = ((DBusBuffer[5] >> 4) & 0x000C) >> 2;
-    DBusData->switchRight = (DBusBuffer[5] >> 4) & 0x0003;
+    remote->switchLeft  = ((DBusBuffer[5] >> 4) & 0x000C) >> 2;
+    remote->switchRight = (DBusBuffer[5] >> 4) & 0x0003;
 
-    DBusData->mouse.x = DBusBuffer[6] | (DBusBuffer[7] << 8); // x axis
-    DBusData->mouse.y = DBusBuffer[8] | (DBusBuffer[9] << 8);
-    DBusData->mouse.z = DBusBuffer[10] | (DBusBuffer[11] << 8);
+    mouse->x = DBusBuffer[6] | (DBusBuffer[7] << 8);
+    mouse->y = DBusBuffer[8] | (DBusBuffer[9] << 8);
+    mouse->z = DBusBuffer[10] | (DBusBuffer[11] << 8);
 
-    DBusData->mouse.pressLeft  = DBusBuffer[12]; // is pressed?
-    DBusData->mouse.pressRight = DBusBuffer[13];
+    mouse->pressLeft  = DBusBuffer[12];
+    mouse->pressRight = DBusBuffer[13];
 
-    DBusData->keyBoard.keyCode = DBusBuffer[14] | DBusBuffer[15] << 8; // key borad code
-}
-
-void Keyboard_Init(Keyboard_Type *kb) {
-    kb->state     = 0;
-    kb->lastState = 0;
-}
-
-void Keyboard_Check(Keyboard_Type *kb, DBusData_Type *DBusData, uint16_t Key) {
-    if (DBusData->keyBoard.keyCode & Key) {
-        kb->state = 1;
-    } else {
-        kb->state = 0;
-    }
+    kb->keyCode = DBusBuffer[14] | DBusBuffer[15] << 8;
 }

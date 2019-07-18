@@ -26,7 +26,7 @@ void USART1_IRQHandler(void) {
 
   //数据量正确
   if (DMA2_Stream2->NDTR == DBUS_BACK_LENGTH) {
-    DBus_Update(&remoteData, remoteBuffer); //解码
+    DBus_Update(&remoteData, &keyboardData, &mouseData, remoteBuffer); //解码
   }
 
   //重启DMA
@@ -109,7 +109,7 @@ void CAN1_RX0_IRQHandler(void) {
 		case 0x203:
     Motor_Update(&Motor_Stir, position, speed);
     break;
-		
+
 		case 0x205:
     Motor_Update(&Motor_Yaw, position, speed);
     break;

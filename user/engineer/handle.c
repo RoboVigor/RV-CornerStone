@@ -13,7 +13,7 @@ void Handle_Init(void) {
     Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, 0);
 
     // 取弹前后左右平移
-    Motor_Init(&Motor_TH, 36, 1); // 2006
+    Motor_Init(&Motor_TH, 36, 1);    // 2006
     Motor_Init(&Motor_TV, 19.2f, 1); // 3510
 
     // 抬升
@@ -25,12 +25,11 @@ void Handle_Init(void) {
     Motor_Init(&Motor_RGW, 36, 1);
 
     // 遥控器数据初始化
-    DBUS_Init(&remoteData);
+    DBUS_Init(&remoteData, &keyboardData, &mouseData);
 
     // 初始化串口调试数据
     Magic_Init(&magic, 0);
 }
-
 
 void Take_TV_0(void) {
     TV_Out = 0;
@@ -57,7 +56,7 @@ void Take_Chassis_Detect(void) {
 }
 
 void Take_Start_Get(void) {
-    TH_Move = 0;
+    TH_Move        = 0;
     Chassis_Detect = 0;
     vTaskDelay(500);
     ROTATE_ON;
@@ -114,4 +113,3 @@ void Take_Reset(void) {
     vTaskDelay(4000);
     Chassis_State = CHASSIS_NORMAL;
 }
-
