@@ -29,8 +29,8 @@ void BSP_Init(void) {
     BSP_DMA_USART3_RX_Init(Ps.buf, Protocol_Buffer_Length);
 
     // Servo
-    // BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PORT_PD12);
-    // BSP_PWM_Init(&PWM_Magazine_Servo, 9000, 200, TIM_OCPolarity_Low);
+    BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PORT_PA0);
+    BSP_PWM_Init(&PWM_Magazine_Servo, 9000, 200, TIM_OCPolarity_Low);
 
     //微动开关
     GPIO_InitTypeDef GPIO_InitStructure;

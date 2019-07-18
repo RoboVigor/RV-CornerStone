@@ -15,13 +15,14 @@
 #define GYROSCOPE_START_UP_DELAY_ENABLED 1      // 开机解算延迟开关
 #define GYROSCOPE_START_UP_DELAY 300            // 开机解算延迟量
 #define GYROSCOPE_YAW_FILTER_THRESHOLD 0.005f   // 零飘修正阈值
-#define IMU_GX_BIAS 11                          // GX静态误差,通过平放主控板采样得到5  -5
-#define IMU_GY_BIAS -5                          // GY静态误差34    15
-#define IMU_GZ_BIAS 0                           // GZ静态误差7      0
+#define IMU_GX_BIAS -60                         // GX静态误差,通过平放主控板采样得到5  -5
+#define IMU_GY_BIAS 20                          // GY静态误差34    15
+#define IMU_GZ_BIAS 15                          // GZ静态误差7      0
 #define GYROSCOPE_LSB 16.384f                   // 陀螺仪敏感度 2^16/4000
 #define ACCELERATE_LSB 4096.0f                  // 加速度计敏感度 2^16/16
 
 // 底盘
 #define CHASSIS_MOTOR_REDUCTION_RATE 19.2f  // 底盘电机减速比
-#define CHASSIS_SIZE_K 0.385f               // 测量值, 机器人中心点到XY边缘的距离之和
+#define CHASSIS_SIZE_K 0.53f                // 测量值, 机器人中心点到XY边缘的距离之和
 #define CHASSIS_INVERSE_WHEEL_RADIUS 13.16f // 测量值, 麦克纳姆轮半径的倒数
+#define CHASSIS_ROTOR_SPEED 300
