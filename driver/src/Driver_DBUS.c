@@ -35,3 +35,16 @@ void DBus_Update(DBusData_Type *DBusData, uint8_t DBusBuffer[]) {
 
     DBusData->keyBoard.keyCode = DBusBuffer[14] | DBusBuffer[15] << 8; // key borad code
 }
+
+void Keyboard_Init(Keyboard_Type *kb) {
+    kb->state     = 0;
+    kb->lastState = 0;
+}
+
+void Keyboard_Check(Keyboard_Type *kb, DBusData_Type *DBusData, uint16_t Key) {
+    if (DBusData->keyBoard.keyCode & Key) {
+        kb->state = 1;
+    } else {
+        kb->state = 0;
+    }
+}
