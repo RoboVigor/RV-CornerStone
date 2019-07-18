@@ -42,8 +42,8 @@ void Task_Gimbal(void *Parameters) {
     float pitchAngleTargetPs        = 0; // 视觉辅助
 
     // 输出量
-    int16_t yawCurrent   = 0;
-    int16_t pitchCurrent = 0;
+    int32_t yawCurrent   = 0;
+    int32_t pitchCurrent = 0;
 
     // 视觉系统
     int16_t lastSeq = 0;
@@ -54,8 +54,8 @@ void Task_Gimbal(void *Parameters) {
     float pitchAngleTargetRamp = 0;
 
     // 初始化云台PID
-    PID_Init(&PID_Cloud_YawAngle, 6, 0, 0, 16000, 0);
-    PID_Init(&PID_Cloud_YawSpeed, 1, 0, 0, 4000, 0);
+    PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 1000, 10);
+    PID_Init(&PID_Cloud_YawSpeed, 10, 0, 0, 4000, 0);
     PID_Init(&PID_Cloud_PitchAngle, 20, 0, 0, 16000, 0);
     PID_Init(&PID_Cloud_PitchSpeed, 1, 0, 0, 2000, 0);
 
@@ -74,7 +74,7 @@ void Task_Gimbal(void *Parameters) {
         // 遥控器输入角度目标
         if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 360 * interval;
         if (ABS(remoteData.ry) > 30) pitchAngleTargetControl -= remoteData.ry / 660.0f * 360 * interval;
-        MIAO(pitchAngleTargetControl, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
+        // MIAO(pitchAngleTargetControl, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
         yawAngleTarget += yawAngleTargetControl;
         pitchAngleTarget += pitchAngleTargetControl;
 
@@ -84,7 +84,7 @@ void Task_Gimbal(void *Parameters) {
         } else if (lastSeq != Ps.autoaimData.seq) {
             lastSeq = Ps.autoaimData.seq;
             yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
-            pitchAngleTargetPs += Ps.autoaimData.pitch_angle_diff;
+            pitchAngleTargetPs -= Ps.autoaimData.pitch_angle_diff;
         }
         MIAO(pitchAngleTargetPs, GIMBAL_PITCH_MIN - pitchAngleTarget, GIMBAL_PITCH_MAX - pitchAngleTarget);
         yawAngleTarget += yawAngleTargetPs;
@@ -110,7 +110,7 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
 
         // 输出电流
-        yawCurrent   = -100 * PID_Cloud_YawSpeed.output;
+        yawCurrent   = -15 * PID_Cloud_YawSpeed.output;
         pitchCurrent = 10 * PID_Cloud_PitchSpeed.output;
         MIAO(yawCurrent, -8000, 8000);
         MIAO(pitchCurrent, -5000, 5000);
@@ -124,6 +124,7 @@ void Task_Gimbal(void *Parameters) {
         DebugData.debug4 = PID_Cloud_YawSpeed.feedback;
         DebugData.debug5 = PID_Cloud_YawSpeed.target;
         DebugData.debug6 = PID_Cloud_YawSpeed.output;
+        DebugData.debug7 = yawCurrent;
 
         //任务间隔
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -155,15 +156,15 @@ void Task_Chassis(void *Parameters) {
     int16_t swingMode  = 0;
 
     // 底盘跟随PID
-    float followDeadRegion = 2.0;
-    PID_Init(&PID_Follow_Angle, 3, 0, 0, 1000, 100);
+    float followDeadRegion = 3.0;
+    PID_Init(&PID_Follow_Angle, 1, 0, 0, 1000, 100);
     PID_Init(&PID_Follow_Speed, 10, 0, 0, 1000, 0);
 
     // 麦轮速度PID
-    PID_Init(&PID_LFCM, 28, 0, 0, 15000, 7500);
-    PID_Init(&PID_LBCM, 28, 0, 0, 15000, 7500);
-    PID_Init(&PID_RBCM, 28, 0, 0, 15000, 7500);
-    PID_Init(&PID_RFCM, 28, 0, 0, 15000, 7500);
+    PID_Init(&PID_LFCM, 28, 0.05, 0, 15000, 7500);
+    PID_Init(&PID_LBCM, 28, 0.05, 0, 15000, 7500);
+    PID_Init(&PID_RBCM, 28, 0.05, 0, 15000, 7500);
+    PID_Init(&PID_RFCM, 28, 0.05, 0, 15000, 7500);
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
@@ -186,10 +187,10 @@ void Task_Chassis(void *Parameters) {
                 Motor_Yaw.round = 0;
             }
             swingAngle       = 0;
-            followDeadRegion = 2; // 开启底盘跟随死区
+            followDeadRegion = 3; // 开启底盘跟随死区
         }
-        // PID_Calculate(&PID_Follow_Angle, swingAngle, motorAngle);
-        PID_Calculate(&PID_Follow_Angle, 0, motorAngle);
+        PID_Calculate(&PID_Follow_Angle, swingAngle, motorAngle);
+        // PID_Calculate(&PID_Follow_Angle, 0, motorAngle); // turn off swing
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeed);
 
         // 设置底盘总体移动速度
@@ -215,7 +216,7 @@ void Task_Chassis(void *Parameters) {
         Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 调试信息
-        // DebugData.debug1 = PID_Follow_Angle.output * 1000;
+        // DebugDaDebugData.debug1ta.debug1 = PID_Follow_Angle.output * 1000;
         // DebugData.debug2 = PID_Follow_Angle.error * 1000;
         // DebugData.debug3 = PID_Follow_Angle.feedback * 1000;
         // DebugData.debug5 = ChassisData.powerBuffer;
@@ -341,65 +342,52 @@ void Task_Fire_Stir(void *Parameters) {
  * @todo  使用状态机重写
  */
 void Task_Fire_Frict(void *Parameters) {
+    // snail摩擦轮任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.005;               // 任务运行间隔 s
-    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    float dutyCycleStart  = 0.376; //起始占空比为37.6
-    float dutyCycleMiddle = 0.446; //启动需要到44.6
-    float dutyCycleEnd    = 0.486; //加速到你想要的占空比
+    float dutyCycleStart  = 0.376; // 起始占空比为37.6
+    float dutyCycleMiddle = 0.446; // 启动需要到44.6
+    float dutyCycleEnd    = 0.600; // 加速到你想要的占空比
 
-    float dutyCycleRightSnailTarget = 0.376; //目标占空比
-    float dutyCycleLeftSnailTarget  = 0.376;
+    float dutyCycleSnailTarget    = dutyCycleStart; //目标占空比
+    float dutyCycleSnailProgress1 = 0;              //存储需要的两个过程（初始到启动，启动到你想要的速度）
+    float dutyCycleSnailProgress2 = 0;
 
-    float dutyCycleRightSnailProgress1 = 0; //存储需要的两个过程（初始到启动，启动到你想要的速度）
-    float dutyCycleLeftSnailProgress1  = 0;
-    float dutyCycleRightSnailProgress2 = 0;
-    float dutyCycleLeftSnailProgress2  = 0;
-
-    int snailRightState = 0; //标志启动完后需要的延时
-    int snailLeftState  = 0;
+    int snailState = 0; //标志启动完后需要的延时
 
     while (1) {
-        /*来自dji开源，两个snail不能同时启动*/
-        dutyCycleEnd = 0.526;
-
-        if (dutyCycleRightSnailProgress1 <= 1) { //初始状态
-            dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle,
-                                             dutyCycleRightSnailProgress1); //斜坡上升
-            dutyCycleRightSnailProgress1 += 0.01f;
+        LASER_ON; //打开激光
+        if (remoteData.switchLeft == 1) {
+            // 摩擦轮不转
+            dutyCycleSnailTarget    = dutyCycleStart;
+            dutyCycleSnailProgress1 = 0;
+            dutyCycleSnailProgress2 = 0;
         } else {
-            if (snailRightState == 0) { //初始状态停留100ms
-                vTaskDelay(100);
-                snailRightState = 1;
+            // 启动摩擦轮
+            if (dutyCycleSnailProgress1 <= 1) {
+                //初始状态
+                dutyCycleSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle,
+                                            dutyCycleSnailProgress1); //斜坡上升
+                dutyCycleSnailProgress1 += 0.05f;
             } else {
-                if (dutyCycleRightSnailProgress2 <= 1) { //启动状态
-                    dutyCycleRightSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd,
-                                                     dutyCycleRightSnailProgress2); //斜坡上升
-                    dutyCycleRightSnailProgress2 += 0.001f;
+                if (!snailState) { //初始状态停留100ms
+                    vTaskDelay(100);
+                    snailState = 1;
                 } else {
-                    if (dutyCycleLeftSnailProgress1 <= 1) {
-                        dutyCycleLeftSnailTarget = RAMP(dutyCycleStart,
-                                                        dutyCycleMiddle, //右摩擦轮启动完毕，左摩擦轮进入初始状态
-                                                        dutyCycleLeftSnailProgress1);
-                        dutyCycleLeftSnailProgress1 += 0.01f;
-                    } else {
-                        if (snailLeftState == 0) {
-                            vTaskDelay(100);
-                            snailLeftState = 1;
-                        } else {
-                            if (dutyCycleLeftSnailProgress2 <= 1) {
-                                dutyCycleLeftSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleLeftSnailProgress2);
-                                dutyCycleLeftSnailProgress2 += 0.001f;
-                            }
-                        }
+                    if (dutyCycleSnailProgress2 <= 1) {
+                        //启动状态
+                        dutyCycleSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd,
+                                                    dutyCycleSnailProgress2); //斜坡上升
+                        dutyCycleSnailProgress2 += 0.01f;
                     }
                 }
             }
         }
-        PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
-        PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
-        vTaskDelayUntil(&LastWakeTime, intervalms);
+        // 设置占空比
+        PWM_Set_Compare(&PWM_Snail1, dutyCycleSnailTarget * 1250);
+        PWM_Set_Compare(&PWM_Snail2, dutyCycleSnailTarget * 1250);
+        // 任务延时
+        vTaskDelayUntil(&LastWakeTime, 5);
     }
     vTaskDelete(NULL);
 }
