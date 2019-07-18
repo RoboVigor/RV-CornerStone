@@ -69,11 +69,19 @@ typedef struct {
     } keyBoard;
 } DBusData_Type;
 
+typedef struct {
+    int counter;
+    int state;
+    int lastState;
+} Keyboard_Type;
+
 /**
  * @brief DBUS解码
  *
  * @param DBusData
  */
+
 void DBus_Update(DBusData_Type *DBusData, uint8_t DBusBuffer[]);
+void Keyboard_Check(Keyboard_Type *kb, DBusData_Type *DBusData, uint16_t Key);
 
 #endif

@@ -42,6 +42,9 @@ __HANDLE_EXT PID_Type PID_Follow_Angle, PID_Follow_Speed;
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT DBusData_Type remoteData;
 
+//键鼠
+__HANDLE_EXT Keyboard_Type V, C, X, Z, G, F, R, E, Q, CTRL, SHIFT, D, A, S, W, pressRight;
+
 // 陀螺仪
 __HANDLE_EXT volatile ImuData_Type       ImuData;
 __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
@@ -75,7 +78,6 @@ __HANDLE_EXT uint8_t controlMode;
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行
  */
-void    Handle_Init(void);
-uint8_t DBUS_CheckPush(uint16_t Key);
+void Handle_Init(void);
 
 #endif

@@ -15,9 +15,9 @@
 #define GYROSCOPE_START_UP_DELAY_ENABLED 1      // 开机解算延迟开关
 #define GYROSCOPE_START_UP_DELAY 300            // 开机解算延迟量
 #define GYROSCOPE_YAW_FILTER_THRESHOLD 0.005f   // 零飘修正阈值
-#define IMU_GX_BIAS 11                          // GX静态误差,通过平放主控板采样得到5  -5
-#define IMU_GY_BIAS -5                          // GY静态误差34    15
-#define IMU_GZ_BIAS 0                           // GZ静态误差7      0
+#define IMU_GX_BIAS -60                         // GX静态误差,通过平放主控板采样得到5  -5
+#define IMU_GY_BIAS 20                          // GY静态误差34    15
+#define IMU_GZ_BIAS 15                          // GZ静态误差7      0
 #define GYROSCOPE_LSB 16.384f                   // 陀螺仪敏感度 2^16/4000
 #define ACCELERATE_LSB 4096.0f                  // 加速度计敏感度 2^16/16
 

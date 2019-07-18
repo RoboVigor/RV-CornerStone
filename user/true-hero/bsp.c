@@ -29,7 +29,7 @@ void BSP_Init(void) {
     BSP_DMA_USART3_RX_Init(Ps.buf, Protocol_Buffer_Length);
 
     // Servo
-    BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PORT_PD12);
+    BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PORT_PA0);
     BSP_PWM_Init(&PWM_Magazine_Servo, 9000, 200, TIM_OCPolarity_Low);
 
     //微动开关
@@ -49,20 +49,4 @@ void BSP_Init(void) {
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOE, &GPIO_InitStructure);
-}
-
-uint8_t DBUS_CheckPush(uint16_t Key) {
-    if (remoteData.keyBoard.keyCode & Key) {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-void Mode_Control(void) {
-    if (remoteData.switchLeft == 2) {
-        controlMode = 1; //键鼠控制
-    } else if (remoteData.switchLeft == 1) {
-        controlMode = 0; //遥控器控制
-    }
 }
