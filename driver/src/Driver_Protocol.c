@@ -1,19 +1,103 @@
 #include "Driver_Protocol.h"
 
 void Protocol_Init(Protocol_Type *Protocol) {
-    Protocol->index = 0;
-    Protocol->step  = STEP_HEADER_SOF;
-    Protocol->seq   = 0;
+    Protocol->state = STATE_IDLE;
+
+    Protocol->index    = 0;
+    Protocol->step     = STEP_HEADER_SOF;
+    Protocol->seq      = 0;
+    Protocol->lost     = 0;
+    Protocol->received = 0;
 }
 
 void Protocol_Update(Protocol_Type *Protocol) {
     int i = 0;
+
+    Protocol->state = STATE_WORK;
+
     for (i = 0; i < Protocol_Buffer_Length; i++) {
-        Protocol_Decode(Protocol, Protocol->buf[i]);
+        Protocol_Unpack(Protocol, Protocol->receiveBuf[i]);
     }
 }
 
-void Protocol_Decode(Protocol_Type *Protocol, uint8_t byte) {
+void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
+    int      i;
+    uint8_t *begin_p;
+    uint8_t *send_p;
+    uint16_t index = 0;
+
+    uint8_t  CRC8_INIT  = 0xff;
+    uint16_t CRC16_INIT = 0xffff;
+    uint16_t dataCRC16;
+
+    Protocol->state = STATE_WORK;
+
+    // Header SOF
+    Protocol->sendBuf[index++] = PROTOCOL_HEADER;
+
+    // Data Length
+    Protocol->sendBuf[index++] = (dataLength) &0xff;
+    Protocol->sendBuf[index++] = (dataLength) >> 8;
+
+    // Frame SEQ
+    Protocol->sendBuf[index++]++;
+
+    // Header CRC8
+    Protocol->sendBuf[index++] = Get_CRC8_Check_Sum(Protocol->sendBuf, PROTOCOL_HEADER_SIZE - 1, CRC8_INIT);
+
+    // Cmd ID
+    if ((id == Protocol_Interact_Id_Board) || (id == Protocol_Interact_Id_Vision)) {
+        Protocol->sendBuf[index++] = (id) &0xff;
+        Protocol->sendBuf[index++] = (id) >> 8;
+    } else {
+        Protocol->sendBuf[index++] = 0x01;
+        Protocol->sendBuf[index++] = 0x03;
+    }
+
+    // Data
+    for (i = PROTOCOL_HEADER_CMDID_LEN; i < Protocol_Buffer_Length; i++) {
+        Protocol->sendBuf[i] = 0x00;
+    }
+
+    switch (id) {
+    case Protocol_Interact_Id_Board: {
+        begin_p = Protocol->boardInteractiveData[0].data;
+    } break;
+
+    case Protocol_Interact_Id_Client_Data: {
+        begin_p = Protocol->clientCustomData.data;
+    } break;
+
+    case Protocol_Interact_Id_Client_Graph: {
+        begin_p = Protocol->clientGraphicDraw.data;
+    } break;
+
+    case Protocol_Interact_Id_Vision: {
+        begin_p = Protocol->visionInteractiveData.data;
+    } break;
+
+    default: { begin_p = Protocol->robotInteractiveData[0].data; } break;
+    }
+
+    for (i = 0; i < dataLength; i++) {
+        Protocol->sendBuf[index++] = *(begin_p + i);
+    }
+
+    // Data CRC16
+    dataCRC16                  = Get_CRC16_Check_Sum(Protocol->sendBuf, PROTOCOL_HEADER_CMDID_LEN + dataLength, CRC16_INIT);
+    Protocol->sendBuf[index++] = (dataCRC16) &0xff;
+    Protocol->sendBuf[index++] = (dataCRC16) >> 8;
+
+    send_p = Protocol->sendBuf;
+    for (i = 0; i < index; i++) {
+        *send_p++ = Protocol->sendBuf[i];
+    }
+}
+
+void Protocol_Unpack(Protocol_Type *Protocol, uint8_t byte) {
+
+    Protocol->state = STATE_WORK;
+
     switch (Protocol->step) {
     case STEP_HEADER_SOF: {
         if (byte == PROTOCOL_HEADER) {
@@ -80,6 +164,7 @@ void Protocol_Decode(Protocol_Type *Protocol, uint8_t byte) {
 void Protocol_Load(Protocol_Type *Protocol) {
     int       i;
     uint8_t * begin_p;
+    uint8_t   sendRobot;
     uint16_t *seq;
 
     // seq
@@ -87,6 +172,7 @@ void Protocol_Load(Protocol_Type *Protocol) {
         Protocol->lost += Protocol->packet[3] - Protocol->seq - 1;
     }
     Protocol->seq = Protocol->packet[3];
+    Protocol->received += 1;
 
     // id
     Protocol->id = (Protocol->packet[PROTOCOL_HEADER_SIZE + 1] << 8) + Protocol->packet[PROTOCOL_HEADER_SIZE];
@@ -116,6 +202,17 @@ void Protocol_Load(Protocol_Type *Protocol) {
     case 0x0207: {
         begin_p = Protocol->shootData.data;
         seq     = &(Protocol->shootData.seq);
+    } break;
+
+    case 0x0301: {
+        sendRobot = Protocol->packet[PROTOCOL_HEADER_CMDID_LEN + 2] % 10;
+        begin_p   = Protocol->robotInteractiveData[sendRobot].data;
+        seq       = &(Protocol->robotInteractiveData[sendRobot].seq);
+    } break;
+
+    case 0x0302: {
+        begin_p = Protocol->boardInteractiveData[1].data;
+        seq     = &(Protocol->boardInteractiveData[1].seq);
     } break;
 
     case 0x0401: {

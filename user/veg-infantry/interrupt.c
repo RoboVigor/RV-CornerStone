@@ -50,13 +50,13 @@ void USART3_IRQHandler(void) {
     tmp = USART3->DR;
     tmp = USART3->SR;
 
-    // disable DMA and decode
+    // disable DMA and Unpack
     DMA_Cmd(DMA1_Stream1, DISABLE);
     while (DMA_GetFlagStatus(DMA1_Stream1, DMA_IT_TCIF1) != SET) {
     }
     len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Stream1);
     for (i = 0; i < len; i++) {
-        Protocol_Decode(&Ps, Ps.buf[i]);
+        Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
     }
 
     // enable DMA
@@ -80,13 +80,13 @@ void USART6_IRQHandler(void) {
     tmp = USART6->DR;
     tmp = USART6->SR;
 
-    // disable DMA and decode
+    // disable DMA and Unpack
     DMA_Cmd(DMA2_Stream1, DISABLE);
     while (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != SET) {
     }
     len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA2_Stream1);
     for (i = 0; i < len; i++) {
-        Protocol_Decode(&Judge, Judge.buf[i]);
+        Protocol_Unpack(&Judge, Judge.receiveBuf[i]);
     }
 
     // enable DMA
@@ -95,14 +95,6 @@ void USART6_IRQHandler(void) {
     }
     DMA_SetCurrDataCounter(DMA2_Stream1, Protocol_Buffer_Length);
     DMA_Cmd(DMA2_Stream1, ENABLE);
-
-    // Tx
-    DMA_Cmd(DMA2_Stream6, DISABLE);
-    DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6 | DMA_FLAG_HTIF6);
-    while (DMA_GetCmdStatus(DMA2_Stream6) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA2_Stream6, Protocol_Buffer_Length);
-    DMA_Cmd(DMA2_Stream6, ENABLE);
 }
 
 /**
