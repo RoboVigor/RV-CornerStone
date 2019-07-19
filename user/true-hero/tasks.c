@@ -450,12 +450,12 @@ void Task_Fire(void *Parameters) {
 
         vTaskDelayUntil(&LastWakeTime, 10);
 
-        // DebugData.debug1 = GPIO_ReadInputDataBit(GPIOG, GPIO_Pin_13);
-        // DebugData.debug2 = keyboardData.Ctrl;
-        // DebugData.debug3 = shootState;
-        // DebugData.debug4 = mouseData.z;
-        // DebugData.debug5 = mouseData.pressLeft;
-        // DebugData.debug6 = mouseData.pressRight;
+        DebugData.debug1 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4);
+        DebugData.debug2 = PID_Stir2006Speed.output;
+        DebugData.debug3 = state;
+        DebugData.debug4 = PID_Stir2006Speed.output_I;
+        DebugData.debug5 = stop;
+        DebugData.debug6 = GPIO_ReadInputDataBit(GPIOF, GPIO_Pin_0);
         // DebugData.debug7 = keyboardData.C;
         // DebugData.debug8 = keyboardData.Z;
     }
