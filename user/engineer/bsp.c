@@ -13,28 +13,15 @@ TIM_OCInitTypeDef       TIM_OCInitStructure;
 NVIC_InitTypeDef        NVIC_InitStructure;
 TIM_ICInitTypeDef       TIM2_ICInitStructure;
 TIM_ICInitTypeDef       TIM5_ICInitStructure;
+TIM_ICInitTypeDef       TIM3_ICInitStructure;
+TIM_ICInitTypeDef       TIM9_ICInitStructure;
 
 void BSP_Landing_Init(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOI, ENABLE);
-    // Front
+    
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_11;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOH, &GPIO_InitStructure);
-    // Behind
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_2;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOI, &GPIO_InitStructure);
-    // Power
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_12;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOH, &GPIO_InitStructure);
@@ -52,7 +39,7 @@ void BSP_Rescue_Init(void) {
 
 void BSP_Take_Init(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-    // Take 
+    // Take
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_3;
@@ -143,6 +130,74 @@ void BSP_TIM2CH1_Init(void) {
     NVIC_Init(&NVIC_InitStructure);
 }
 
+void BSP_TIM3CH3_Init(void) {
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN; // 下拉
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+    GPIO_PinAFConfig(GPIOB, GPIO_PinSource0, GPIO_AF_TIM3); // PA0 复用位定时器 2
+
+    TIM_TimeBaseInitStructure.TIM_Period        = 0xFFFF; // 设置ARR
+    TIM_TimeBaseInitStructure.TIM_Prescaler     = 90 - 1; // 设置分频
+    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+    TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up; // 向上计数
+    TIM_TimeBaseInit(TIM3, &TIM_TimeBaseInitStructure);
+
+    TIM3_ICInitStructure.TIM_Channel     = TIM_Channel_3;            // TIM2通道1
+    TIM3_ICInitStructure.TIM_ICPolarity  = TIM_ICPolarity_Rising;    // 上升沿捕获
+    TIM3_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI; // 映射到TI1
+    TIM3_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
+    TIM3_ICInitStructure.TIM_ICFilter    = 0x00; // 不滤波
+    TIM_ICInit(TIM3, &TIM3_ICInitStructure);
+    TIM_ITConfig(TIM3, TIM_IT_Update | TIM_IT_CC3, ENABLE);
+    TIM_Cmd(TIM3, ENABLE);
+
+    NVIC_InitStructure.NVIC_IRQChannel                   = TIM3_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+}
+
+void BSP_TIM9CH1_Init(void) {
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM9, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_5;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN; // 下拉
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOE, &GPIO_InitStructure);
+    GPIO_PinAFConfig(GPIOE, GPIO_PinSource5, GPIO_AF_TIM9); // PA0 复用位定时器 2
+
+    TIM_TimeBaseInitStructure.TIM_Period        = 0xFFFF;  // 设置ARR
+    TIM_TimeBaseInitStructure.TIM_Prescaler     = 180 - 1; // 设置分频
+    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+    TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up; // 向上计数
+    TIM_TimeBaseInit(TIM9, &TIM_TimeBaseInitStructure);
+
+    TIM9_ICInitStructure.TIM_Channel     = TIM_Channel_1;            // TIM2通道1
+    TIM9_ICInitStructure.TIM_ICPolarity  = TIM_ICPolarity_Rising;    // 上升沿捕获
+    TIM9_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI; // 映射到TI1
+    TIM9_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
+    TIM9_ICInitStructure.TIM_ICFilter    = 0x00; // 不滤波
+    TIM_ICInit(TIM9, &TIM9_ICInitStructure);
+    TIM_ITConfig(TIM9, TIM_IT_Update | TIM_IT_CC1, ENABLE);
+    TIM_Cmd(TIM9, ENABLE);
+
+    NVIC_InitStructure.NVIC_IRQChannel                   = TIM1_BRK_TIM9_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+}
+
 void BSP_Optoelectronic_Input(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOI, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
@@ -153,13 +208,6 @@ void BSP_Optoelectronic_Input(void) {
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOI, &GPIO_InitStructure);
-    // 登岛对位
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_4 | GPIO_Pin_6 | GPIO_Pin_5 | GPIO_Pin_12;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOE, &GPIO_InitStructure);
 }
 
 void BSP_Limit_Switch(void) {
@@ -173,15 +221,24 @@ void BSP_Limit_Switch(void) {
     GPIO_Init(GPIOC, &GPIO_InitStructure);
 }
 
-void BSP_Temporary_Test(void) {
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+void BSP_Fsm_Counter_Init(void) {
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM14, ENABLE);
 
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_15;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOD, &GPIO_InitStructure);    
+    TIM_TimeBaseInitStructure.TIM_Period        = 1000 - 1;
+    TIM_TimeBaseInitStructure.TIM_Prescaler     = 90 - 1;
+    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+    TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up;
+    TIM_TimeBaseInit(TIM14, &TIM_TimeBaseInitStructure);
+
+    TIM_ITConfig(TIM14, TIM_IT_Update, ENABLE);
+
+    NVIC_InitStructure.NVIC_IRQChannel                   = TIM8_TRG_COM_TIM14_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    TIM_Cmd(TIM14, ENABLE);
 }
 
 void BSP_Init(void) {
@@ -197,20 +254,20 @@ void BSP_Init(void) {
     BSP_Beep_Init();
     BSP_LED_Init();
     BSP_User_Power_Init();
+    BSP_Fsm_Counter_Init();
 
     // GPIO输出配置
-    BSP_Landing_Init(); //  PH11  多加四个IO口读取光电开关
-    BSP_Rescue_Init();  // PI0                                  
-    BSP_Take_Init();    // Take: PA3 Rotate: PA2 Catapult: PA1
-    BSP_Optoelectronic_Input();   // 取弹: PI7 PI6 PI5 PI2 登岛: PE4 PE5 PE6 PE12
-    BSP_Limit_Switch(); // 限位开关: L:PC2 R:PC3 
+    BSP_Landing_Init();         //  PH11  多加四个IO口读取光电开关
+    BSP_Rescue_Init();          // PI0
+    BSP_Take_Init();            // Take: PA3 Rotate: PA2 Catapult: PA1
+    BSP_Optoelectronic_Input(); // 取弹: PI7 PI6 PI5 PI2 
+    BSP_Limit_Switch();         // 限位开关: L:PC2 R:PC3
 
-    // 补给舵机输出 
+    // 补给舵机输出
     BSP_PWM_Set_Port(&PWM_Supply1, PWM_PORT_PD14);
     BSP_PWM_Init(&PWM_Supply1, 9000, 200, TIM_OCPolarity_Low);
     // BSP_PWM_Set_Port(&PWM_Supply2, PWM_PORT_PD15);
     // BSP_PWM_Init(&PWM_Supply2, 9000, 200, TIM_OCPolarity_Low);
-    // BSP_Temporary_Test();
 
     // 图传舵机输出
     BSP_PWM_Set_Port(&PWM_Image_Yaw, PWM_PORT_PD13);
@@ -223,5 +280,7 @@ void BSP_Init(void) {
     // 输入捕获
     BSP_TIM5CH1_Init(); // PH10
     BSP_TIM2CH1_Init(); // PA0
+    BSP_TIM3CH3_Init(); // PB0
+    BSP_TIM9CH1_Init(); // PE5
 }
-// 空余: PH12 
+// 空余: PH12 PE4 PE5 PE6 PE12 PA2

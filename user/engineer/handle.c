@@ -20,9 +20,13 @@ void Handle_Init(void) {
     Motor_Init(&Motor_Upthrow1, 19.2f, 1);
     Motor_Init(&Motor_Upthrow2, 19.2f, 1);
 
+    // 翻转
+    Motor_Init(&Motor_Rotate_Left, 19.2f, 1);
+    Motor_Init(&Motor_Rotate_Right, 19.2f, 1);
+
     // Guide wheel
-    Motor_Init(&Motor_LGW, 36, 1);
-    Motor_Init(&Motor_RGW, 36, 1);
+    Motor_Init(&Motor_LGW, 36, 0);
+    Motor_Init(&Motor_RGW, 36, 0);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
@@ -44,22 +48,28 @@ void Take_TV_2(void) {
 }
 
 void Take_Horizontal_Right(void) {
-    TH_Move = 1;
+    TH_Move            = 1;
+    Detected_Direction = 1;
 }
 
 void Take_Horizontal_Left(void) {
-    TH_Move = 2;
+    TH_Move            = 2;
+    Detected_Direction = 2;
 }
 
-void Take_Chassis_Detect(void) {
-    Chassis_Detect = 1;
+void Take_Chassis_Detect_Right(void) {
+    Chassis_Detect     = 1;
+    Detected_Direction = 1;
+}
+
+void Take_Chassis_Detect_Left(void) {
+    Chassis_Detect     = 2;
+    Detected_Direction = 2;
 }
 
 void Take_Start_Get(void) {
-    TH_Move        = 0;
-    Chassis_Detect = 0;
-    vTaskDelay(500);
-    ROTATE_ON;
+    TH_Move = 0;
+    TR_Get = 2;
 }
 
 void Take_TV_Progress(void) {
@@ -79,37 +89,31 @@ void Take_Down(void) {
 }
 
 void Take_Rotate_OFF(void) {
-    ROTATE_OFF;
+    TR_Get = 0;
 }
 
 void Take_OFF(void) {
     TAKE_OFF;
 }
 
-void Take_Catapult(void) {
+void Take_Catapult_On(void) {
     CATAPULT_ON;
-    vTaskDelay(500);
-    CATAPULT_OFF;
-    vTaskDelay(500);
-    CATAPULT_ON;
-    vTaskDelay(500);
-    CATAPULT_OFF;
 }
 
 void Take_Reset(void) {
-    TAKE_OFF;
-    vTaskDelay(1000);
-    CATAPULT_OFF;
-    vTaskDelay(1000);
-    ROTATE_OFF;
-    vTaskDelay(1000);
-    TV_Out = 0;
-    vTaskDelay(4000);
-    TH_Move = 2;
-    vTaskDelay(4000);
-    TU_Up = 1;
-    vTaskDelay(4000);
     Chassis_Detect = 0;
-    vTaskDelay(4000);
-    Chassis_State = CHASSIS_NORMAL;
+    TAKE_OFF;
+    CATAPULT_OFF;
+    TR_Get = 0;
+    TV_Out = 0;
+    if (Detected_Direction == 2) {
+        TH_Move = 1;
+    } else if (Detected_Direction == 1) {
+        TH_Move = 2;
+    } else {
+        TH_Move = 0;
+    }
+    TU_Up          = 1;
+    Chassis_State  = CHASSIS_NORMAL;
+    Detected_State = 0;
 }

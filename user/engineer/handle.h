@@ -31,17 +31,10 @@
 #define RPM2RPS ((float) 0.104667)
 
 // Landing
-#define LANDING_SWITCH_FRONT GPIO_ResetBits(GPIOH, GPIO_Pin_11);
-#define LANDING_SWITCH_FRONT2 GPIO_ResetBits(GPIOI, GPIO_Pin_2);
-#define LANDING_SWITCH_BEHIND GPIO_SetBits(GPIOH, GPIO_Pin_11);
-#define LANDING_SWITCH_BEHIND2 GPIO_SetBits(GPIOI, GPIO_Pin_2);
-#define LANDING_POWER_ON GPIO_SetBits(GPIOH, GPIO_Pin_12);
-#define LANDING_POWER_OFF GPIO_ResetBits(GPIOH, GPIO_Pin_12);
+#define LANDING_ON GPIO_SetBits(GPIOH, GPIO_Pin_11);
+#define LANDING_OFF GPIO_ResetBits(GPIOH, GPIO_Pin_11);
 
 // Taking
-#define ROTATE_ON GPIO_SetBits(GPIOA, GPIO_Pin_2);
-#define ROTATE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_2);
-
 #define TAKE_ON GPIO_SetBits(GPIOA, GPIO_Pin_3);
 #define TAKE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3);
 
@@ -56,6 +49,7 @@
 #define CHASSIS_NORMAL 0
 #define CHASSIS_DETECT_RIGHT 1
 #define CHASSIS_DETECT_LEFT 2
+#define CHASSIS_DELANDING 3
 
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
@@ -65,6 +59,7 @@ __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
 __HANDLE_EXT Motor_Type Motor_TH, Motor_TV;
 __HANDLE_EXT Motor_Type Motor_LGW, Motor_RGW;
 __HANDLE_EXT Motor_Type Motor_Upthrow1, Motor_Upthrow2;
+__HANDLE_EXT Motor_Type Motor_Rotate_Left, Motor_Rotate_Right;
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
@@ -84,10 +79,10 @@ __HANDLE_EXT ChassisData_Type ChassisData;
 
 // PID
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
-__HANDLE_EXT PID_Type PID_TH_Speed, PID_TV_Angle, PID_TV_Speed;
+__HANDLE_EXT PID_Type PID_TH_Angle, PID_TH_Speed, PID_TV_Angle, PID_TV_Speed;
 __HANDLE_EXT PID_Type PID_LGW, PID_RGW;
 __HANDLE_EXT PID_Type PID_Upthrow1_Angle, PID_Upthrow1_Speed, PID_Upthrow2_Angle, PID_Upthrow2_Speed;
-__HANDLE_EXT PID_Type PID_TH_Angle;
+__HANDLE_EXT PID_Type PID_Rotate_Left_Angle, PID_Rotate_Left_Speed, PID_Rotate_Right_Angle, PID_Rotate_Right_Speed;
 
 // 通讯协议
 __HANDLE_EXT Protocol_Type Judge, Ps;
@@ -99,20 +94,21 @@ __HANDLE_EXT int DebugA, DebugB, DebugC, DebugD, DebugE, DebugF, DebugG, DebugH,
 __HANDLE_EXT int takeMode, State;
 
 // 光电开关传感器数据
-__HANDLE_EXT int T_State1, T_State2, T_State3, T_State4, LF_State1, LF_State2, LB_State1, LB_State2, LSL_State, LSR_State;
+__HANDLE_EXT int T_State1, T_State2, T_State3, T_State4, LSR_State, LSL_State;
 
 // 距离传感器获得距离
-__HANDLE_EXT uint16_t Distance1, Distance2;
+__HANDLE_EXT uint16_t Distance1, Distance2, Distance3, Distance4, Distance_Landing_Behind, Distance_Landing_Front, Distance_Delanding_Parallel1, Distance_Delanding_Parallel2;
 
 // 输入捕获值
-__HANDLE_EXT u32 TIM5CH1_CAPTURE_VAL, TIM2CH1_CAPTURE_VAL;
+__HANDLE_EXT u32 TIM5CH1_CAPTURE_VAL, TIM2CH1_CAPTURE_VAL, TIM3CH3_CAPTURE_VAL, TIM9CH1_CAPTURE_VAL;
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Supply1, PWM_Supply2, PWM_Image_Yaw, PWM_Image_Pitch, PWM_Rescue;
 
 // Fsm需求
-__HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, Find_Box, Detected_State, TH_Reset, Chassis_Detect, Chassis_Detect_Parallel;
-
+__HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, TR_Get, Find_Box, Detected_State, TH_Reset, Chassis_Detect, Chassis_Detect_Parallel, Detected_Direction,
+    TV_Ready, Fsm_TIM14_Cnt, Fsm_TIM14_State, Chassis_Delanding_State, Chassis_Delanding_Parallel_Over;
+__HANDLE_EXT Fsm_t Take_Fsm;
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行
@@ -124,7 +120,8 @@ void Handle_Init(void);
 void Take_Throwup(void);
 void Take_Horizontal_Right(void);
 void Take_Horizontal_Left(void);
-void Take_Chassis_Detect(void);
+void Take_Chassis_Detect_Right(void);
+void Take_Chassis_Detect_Left(void);
 void Take_Start_Get(void);
 void Take_TV_Progress(void);
 void Take_ON(void);
@@ -132,7 +129,8 @@ void Take_Up(void);
 void Take_Down(void);
 void Take_Rotate_OFF(void);
 void Take_OFF(void);
-void Take_Catapult(void);
+void Take_Catapult_On(void);
+void Take_Catapult_Off(void);
 void Take_Reset(void);
 
 #endif
