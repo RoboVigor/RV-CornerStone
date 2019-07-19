@@ -45,7 +45,7 @@ __HANDLE_EXT Keyboard_Type keyboardData;
 __HANDLE_EXT Mouse_Type mouseData;
 
 //键鼠
-__HANDLE_EXT Keyboard_Type V, C, X, Z, G, F, R, E, Q, CTRL, SHIFT, D, A, S, W, pressRight;
+// __HANDLE_EXT Keyboard_Type V, C, X, Z, G, F, R, E, Q, CTRL, SHIFT, D, A, S, W, pressRight;
 
 // 陀螺仪
 __HANDLE_EXT volatile ImuData_Type       ImuData;

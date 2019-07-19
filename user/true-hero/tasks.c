@@ -22,7 +22,7 @@ void Task_Safe_Mode(void *Parameters) {
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        Keyboard_Check(&CTRL, &remoteData, KEY_CTRL);
+        // Keyboard_Check(&CTRL, &remoteData, KEY_CTRL);
 
         if (remoteData.switchLeft == 1 || remoteData.switchLeft == 3) {
             controlMode = 1; //遥控器模式
@@ -84,13 +84,13 @@ void Task_Gimbal(void *Parameters) {
         // }
 
         // 设置角度目标
-        if (controlMode == 1) {
-            if (ABS(remoteData.rx) > 20) yawAngleTarget += remoteData.rx / 660.0f * 180 * interval;
-            if (ABS(remoteData.ry) > 20) pitchAngleTarget += -1 * remoteData.ry / 660.0f * 150 * interval;
-        } else if (controlMode == 2) {
-            yawAngleTarget += remoteData.mouse.x / 2.0f * interval;
-            pitchAngleTarget += remoteData.mouse.y / 2.0f * interval;
-        }
+        // if (controlMode == 1) {
+        //     if (ABS(remoteData.rx) > 20) yawAngleTarget += remoteData.rx / 660.0f * 180 * interval;
+        //     if (ABS(remoteData.ry) > 20) pitchAngleTarget += -1 * remoteData.ry / 660.0f * 150 * interval;
+        // } else if (controlMode == 2) {
+        //     yawAngleTarget += remoteData.mouse.x / 2.0f * interval;
+        //     pitchAngleTarget += remoteData.mouse.y / 2.0f * interval;
+        // }
 
         // yawAngleTarget += psYawAngleTarget;
         // pitchAngleTarget += psPitchAngleTarget;
@@ -111,7 +111,7 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
 
         // 输出电流
-        Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
+        // Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
@@ -171,10 +171,10 @@ void Task_Chassis(void *Parameters) {
     float yTargetRamp   = 0;
 
     while (1) {
-        Keyboard_Check(&D, &remoteData, KEY_D);
-        Keyboard_Check(&A, &remoteData, KEY_A);
-        Keyboard_Check(&S, &remoteData, KEY_S);
-        Keyboard_Check(&W, &remoteData, KEY_W);
+        //     Keyboard_Check(&D, &remoteData, KEY_D);
+        //     Keyboard_Check(&A, &remoteData, KEY_A);
+        //     Keyboard_Check(&S, &remoteData, KEY_S);
+        //     Keyboard_Check(&W, &remoteData, KEY_W);
         // 设置反馈值
         motorAngle = Motor_Yaw.angle;                   // 电机角度
         power      = Judge.powerHeatData.chassis_power; // 裁判系统功率
@@ -192,28 +192,28 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Follow_Angle, 0, motorAngle);                             // 计算航向角角度PID
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeedStable); // 计算航向角角速度PID
 
-        // 设置底盘总体移动速度
-        if (controlMode == 1) {
-            vx = -remoteData.lx / 660.0f * 4;
-            vy = remoteData.ly / 660.0f * 12;
-        } else if (controlMode == 2) {
-            xTargetRamp = RAMP(xRampStart, 660, xRampProgress);
-            if (xRampProgress < 1) {
-                xRampProgress += 0.005f;
-            }
-            yTargetRamp = RAMP(yRampStart, 660, yRampProgress);
-            if (yRampProgress < 1) {
-                yRampProgress += 0.005f;
-            }
-            vx = (A.state - D.state) * xTargetRamp / 660.0f * 4;
-            vy = (W.state - S.state) * yTargetRamp / 660.0f * 12;
+        // // 设置底盘总体移动速度
+        // if (controlMode == 1) {
+        //     vx = -remoteData.lx / 660.0f * 4;
+        //     vy = remoteData.ly / 660.0f * 12;
+        // } else if (controlMode == 2) {
+        //     xTargetRamp = RAMP(xRampStart, 660, xRampProgress);
+        //     if (xRampProgress < 1) {
+        //         xRampProgress += 0.005f;
+        //     }
+        //     yTargetRamp = RAMP(yRampStart, 660, yRampProgress);
+        //     if (yRampProgress < 1) {
+        //         yRampProgress += 0.005f;
+        //     }
+        //     vx = (A.state - D.state) * xTargetRamp / 660.0f * 4;
+        //     vy = (W.state - S.state) * yTargetRamp / 660.0f * 12;
 
-            if (W.state == 0 && S.state == 0) {
-                yRampStart = 0;
-            } else if (A.state == 0 && D.state == 0) {
-                xRampStart = 0;
-            }
-        }
+        //     if (W.state == 0 && S.state == 0) {
+        //         yRampStart = 0;
+        //     } else if (A.state == 0 && D.state == 0) {
+        //         xRampStart = 0;
+        //     }
+        // }
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
         // 麦轮解算及限速
@@ -302,24 +302,24 @@ void Task_Fire(void *Parameters) {
         // Keyboard_Check(&Z, &remoteData, KEY_Z);
         // Keyboard_Check(&G, &remoteData, KEY_G);
         // Keyboard_Check(&F, &remoteData, KEY_F);
-        Keyboard_Check(&R, &remoteData, KEY_R);
-        Keyboard_Check(&E, &remoteData, KEY_E);
+        // Keyboard_Check(&R, &remoteData, KEY_R);
+        // Keyboard_Check(&E, &remoteData, KEY_E);
         // Keyboard_Check(&Q, &remoteData, KEY_Q);
         // Keyboard_Check(&SHIFT, &remoteData, KEY_SHIFT);
-        if (remoteData.mouse.pressRight == 1 && CTRL.state == 0) {
-            pressRight.state = 1;
-        } else if (remoteData.mouse.pressRight == 1 && CTRL.state == 1) {
-            pressRight.state = 0;
-        }
-        if (controlMode == 2) {
-            if (R.state == 1 && CTRL.state == 0) {
-                shootMode = 1;
-            } else if (R.state == 1 && CTRL.state == 1) {
-                shootMode = 0;
-            }
-        } else if (controlMode == 1) {
-            shootMode = 1;
-        }
+        // if (remoteData.mouse.pressRight == 1 && CTRL.state == 0) {
+        //     pressRight.state = 1;
+        // } else if (remoteData.mouse.pressRight == 1 && CTRL.state == 1) {
+        //     pressRight.state = 0;
+        // }
+        // if (controlMode == 2) {
+        //     if (R.state == 1 && CTRL.state == 0) {
+        //         shootMode = 1;
+        //     } else if (R.state == 1 && CTRL.state == 1) {
+        //         shootMode = 0;
+        //     }
+        // } else if (controlMode == 1) {
+        //     shootMode = 1;
+        // }
         // 2006,3510拨弹轮
         if (shootMode == 1) {
             if (controlMode == 1) {
@@ -337,22 +337,22 @@ void Task_Fire(void *Parameters) {
                 }
             }
             if (controlMode == 2) {
-                if (pressRight.state == 0) {
-                    PID_LeftFrictSpeed.output_I  = 0;
-                    PID_RightFrictSpeed.output_I = 0;
-                    PID_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
-                    PID_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
+                // if (pressRight.state == 0) {
+                //     PID_LeftFrictSpeed.output_I  = 0;
+                //     PID_RightFrictSpeed.output_I = 0;
+                //     PID_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
+                //     PID_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
 
-                    LASER_OFF; // 激光关闭
-                } else if (pressRight.state == 1) {
-                    PID_Calculate(&PID_RightFrictSpeed, 230, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮
-                    PID_Calculate(&PID_LeftFrictSpeed, -230, Motor_LeftFrict.speed * rpm2rps);  // 左摩擦轮
-                    LASER_ON;                                                                   // 激光开启
-                }
+                //     LASER_OFF; // 激光关闭
+                // } else if (pressRight.state == 1) {
+                //     PID_Calculate(&PID_RightFrictSpeed, 230, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮
+                //     PID_Calculate(&PID_LeftFrictSpeed, -230, Motor_LeftFrict.speed * rpm2rps);  // 左摩擦轮
+                //     LASER_ON;                                                                   // 激光开启
+                // }
 
-                if (E.state == 1 && CTRL.state == 0) {
+                if (keyboardData.E == 1 && keyboardData.Ctrl == 0) {
                     PWM_Set_Compare(&PWM_Magazine_Servo, 17);
-                } else if (E.state == 1 && CTRL.state == 1) {
+                } else if (keyboardData.E == 1 && keyboardData.Ctrl == 1) {
                     PWM_Set_Compare(&PWM_Magazine_Servo, 10);
                 }
             }
@@ -372,16 +372,16 @@ void Task_Fire(void *Parameters) {
                         state = 0;
                     }
                 }
-                if (controlMode == 2) {
-                    if (remoteData.mouse.pressLeft == 1 && Judge.powerHeatData.shooter_heat1 < (maxShootHeat - 100)) {
-                        PID_Calculate(&PID_Stir2006Speed, speedTargetRamp, Motor_Stir2006.speed * rpm2rps);
-                        PID_Stir3510Speed.output_I = 0;
-                        PID_Stir3510Speed.output   = 0;
-                        state                      = 1;
-                    } else if (remoteData.mouse.pressLeft == 0) {
-                        state = 0;
-                    }
-                }
+                // if (controlMode == 2) {
+                //     if (remoteData.mouse.pressLeft == 1 && Judge.powerHeatData.shooter_heat1 < (maxShootHeat - 100)) {
+                //         PID_Calculate(&PID_Stir2006Speed, speedTargetRamp, Motor_Stir2006.speed * rpm2rps);
+                //         PID_Stir3510Speed.output_I = 0;
+                //         PID_Stir3510Speed.output   = 0;
+                //         state                      = 1;
+                //     } else if (remoteData.mouse.pressLeft == 0) {
+                //         state = 0;
+                //     }
+                // }
                 if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 0 && state == 0) {
                     PID_Calculate(&PID_Stir2006Speed, speedTargetRamp, Motor_Stir2006.speed * rpm2rps);
                     PID_Calculate(&PID_Stir3510Speed, 4, Motor_Stir3510.speed * rpm2rps);
@@ -423,14 +423,14 @@ void Task_Fire(void *Parameters) {
 
         vTaskDelayUntil(&LastWakeTime, 10);
 
-        // DebugData.debug1 = controlMode;
-        // DebugData.debug2 = shootMode;
-        // DebugData.debug3 = Motor_RightFrict.speed * rpm2rps;
-        // DebugData.debug4 = PID_RightFrictSpeed.output;
-        // DebugData.debug5 = GPIO_ReadInputDataBit(GPIOG, GPIO_Pin_13);
-        // DebugData.debug6 = ;
-        // DebugData.debug7 = pressRight.state;
-        // DebugData.debug8 = remoteData.mouse.pressRight;
+        DebugData.debug1 = keyboardData.keyCode;
+        DebugData.debug2 = mouseData.x;
+        DebugData.debug3 = mouseData.y;
+        DebugData.debug4 = mouseData.z;
+        DebugData.debug5 = mouseData.pressLeft;
+        DebugData.debug6 = mouseData.pressRight;
+        DebugData.debug7 = keyboardData.C;
+        DebugData.debug8 = keyboardData.Z;
     }
     vTaskDelete(NULL);
 }
@@ -467,22 +467,22 @@ void Task_Sys_Init(void *Parameters) {
     Gyroscope_Init(&Gyroscope_EulerData);
 
     //键鼠状态初始化
-    Keyboard_Init(&V);
-    Keyboard_Init(&C);
-    Keyboard_Init(&X);
-    Keyboard_Init(&Z);
-    Keyboard_Init(&G);
-    Keyboard_Init(&F);
-    Keyboard_Init(&R);
-    Keyboard_Init(&E);
-    Keyboard_Init(&Q);
-    Keyboard_Init(&CTRL);
-    Keyboard_Init(&SHIFT);
-    Keyboard_Init(&D);
-    Keyboard_Init(&A);
-    Keyboard_Init(&S);
-    Keyboard_Init(&W);
-    Keyboard_Init(&pressRight);
+    // Keyboard_Init(&V);
+    // Keyboard_Init(&C);
+    // Keyboard_Init(&X);
+    // Keyboard_Init(&Z);
+    // Keyboard_Init(&G);
+    // Keyboard_Init(&F);
+    // Keyboard_Init(&R);
+    // Keyboard_Init(&E);
+    // Keyboard_Init(&Q);
+    // Keyboard_Init(&CTRL);
+    // Keyboard_Init(&SHIFT);
+    // Keyboard_Init(&D);
+    // Keyboard_Init(&A);
+    // Keyboard_Init(&S);
+    // Keyboard_Init(&W);
+    // Keyboard_Init(&pressRight);
 
     // 调试任务
 #if DEBUG_ENABLED
@@ -503,8 +503,8 @@ void Task_Sys_Init(void *Parameters) {
     }
 
     // 运动控制任务
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 5, NULL);
 
     //模式切换任务

@@ -65,21 +65,21 @@ typedef struct {
 typedef struct {
     union {
         struct {
-            unsigned int V : 1;
-            unsigned int C : 1;
-            unsigned int X : 1;
-            unsigned int Z : 1;
-            unsigned int G : 1;
-            unsigned int F : 1;
-            unsigned int R : 1;
-            unsigned int E : 1;
-            unsigned int Q : 1;
-            unsigned int Ctrl : 1;
-            unsigned int Shift : 1;
-            unsigned int D : 1;
-            unsigned int A : 1;
-            unsigned int S : 1;
             unsigned int W : 1;
+            unsigned int S : 1;
+            unsigned int A : 1;
+            unsigned int D : 1;
+            unsigned int Shift : 1;
+            unsigned int Ctrl : 1;
+            unsigned int Q : 1;
+            unsigned int E : 1;
+            unsigned int R : 1;
+            unsigned int F : 1;
+            unsigned int G : 1;
+            unsigned int Z : 1;
+            unsigned int X : 1;
+            unsigned int C : 1;
+            unsigned int V : 1;
         };
         struct {
             uint16_t keyCode;
