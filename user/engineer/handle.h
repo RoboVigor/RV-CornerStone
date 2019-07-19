@@ -97,7 +97,8 @@ __HANDLE_EXT int takeMode, State;
 __HANDLE_EXT int T_State1, T_State2, T_State3, T_State4, LSR_State, LSL_State;
 
 // 距离传感器获得距离
-__HANDLE_EXT uint16_t Distance1, Distance2, Distance3, Distance4, Distance_Landing_Behind, Distance_Landing_Front, Distance_Delanding_Parallel1, Distance_Delanding_Parallel2;
+__HANDLE_EXT uint16_t Distance1, Distance2, Distance3, Distance4, Distance_Landing_Behind, Distance_Landing_Front, Distance_Delanding_Parallel1,
+    Distance_Delanding_Parallel2;
 
 // 输入捕获值
 __HANDLE_EXT u32 TIM5CH1_CAPTURE_VAL, TIM2CH1_CAPTURE_VAL, TIM3CH3_CAPTURE_VAL, TIM9CH1_CAPTURE_VAL;
@@ -107,7 +108,7 @@ __HANDLE_EXT PWM_Type PWM_Supply1, PWM_Supply2, PWM_Image_Yaw, PWM_Image_Pitch, 
 
 // Fsm需求
 __HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, TR_Get, Find_Box, Detected_State, TH_Reset, Chassis_Detect, Chassis_Detect_Parallel, Detected_Direction,
-    TV_Ready, Fsm_TIM14_Cnt, Fsm_TIM14_State, Chassis_Delanding_State, Chassis_Delanding_Parallel_Over;
+    TV_Ready, Fsm_TIM14_Cnt, Fsm_TIM14_State, Chassis_Delanding_State, Chassis_Delanding_Parallel_Over, TR_Ready;
 __HANDLE_EXT Fsm_t Take_Fsm;
 /**
  * @brief 初始化结构体
