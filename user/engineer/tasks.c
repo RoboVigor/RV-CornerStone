@@ -265,20 +265,20 @@ void Task_Take_Fsm(void *Parameters) {
                 }
                 break;
             case 5:
-                //     Take_Up();
+                Take_Up();
 
-                //     Fsm_TIM14_State = 1;
+                Fsm_TIM14_State = 1;
 
-                //     if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
-                //         Fsm_State = 0;
-                //     } else {
-                //         if (Fsm_TIM14_Cnt >= 2000 * a) {
-                //             Fsm_State       = 6;
-                //             Fsm_TIM14_State = 0;
-                //         }
-                //     }
-                //     break;
-                // case 6:
+                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                    Fsm_State = 0;
+                } else {
+                    if (Fsm_TIM14_Cnt >= 2000 * a) {
+                        Fsm_State       = 6;
+                        Fsm_TIM14_State = 0;
+                    }
+                }
+                break;
+            case 6:
                 Take_TV_Progress();
 
                 Fsm_TIM14_State = 1;
@@ -446,45 +446,59 @@ void Task_Take_Vertical(void *Parameters) {
 void Task_Take_Rotate(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    float rotate_angle_target = 0;
-    TR_Get                    = 0;
+    float targetspeed = 0;
+    TR_Get            = 0;
 
-    PID_Init(&PID_Rotate_Left_Angle, 0, 0, 0, 1200, 600); // 6.5 0.01  10.2 0.0035
-    PID_Init(&PID_Rotate_Left_Speed, 6.5, 0.25, 0, 12000, 6000); // 10.5 0.48  8.5 0.25
-    PID_Init(&PID_Rotate_Right_Angle, 0, 0, 0, 1000, 500);
-    PID_Init(&PID_Rotate_Right_Speed, 0, 0, 0, 12000, 6000);
+    PID_Init(&PID_Rotate_Left_Angle, 15, 0.05, 0, 2400, 1200);  // 6.5 0.01  10.2 0.0035 1200
+    PID_Init(&PID_Rotate_Left_Speed, 13, 0.53, 0, 16000, 8000); // 10.5 0.48  8.5 0.25  12000
+    PID_Init(&PID_Rotate_Right_Angle, 15, 0.05, 0, 2400, 1200);
+    PID_Init(&PID_Rotate_Right_Speed, 13, 0.53, 0, 16000, 8000);
 
     while (1) {
-        // if (remoteData.switchLeft == 2) {
-        //     TR_Get = 0;
-        // } else if (remoteData.switchLeft == 3) {
-        //     TR_Get = 1;
-        // } else if (remoteData.switchLeft == 1) {
-        //     TR_Get = 2;
-        // }
+        if (remoteData.switchLeft == 2) {
+            TR_Get = 0;
+        } else if (remoteData.switchLeft == 3) {
+            TR_Get = 1;
+        } else if (remoteData.switchLeft == 1) {
+            TR_Get = 2;
+        }
 
-        // if (TR_Get == 2) {
-        //     rotate_angle_target = 190;
-        // } else if (TR_Get == 1) {
-        //     rotate_angle_target = 100;
-        // } else {
-            rotate_angle_target = 0;
-        // }
+        if (TR_Get == 2) {
+            if (Motor_Rotate_Left.angle > -170) {
+                targetspeed = -200;
+            } else if (Motor_Rotate_Left.angle < -173) {
+                targetspeed = 200;
+            } else {
+                targetspeed = 0;
+            }
+        } else if (TR_Get == 1) {
+            if (Motor_Rotate_Left.angle > -7) {
+                targetspeed = -200;
+            } else if (Motor_Rotate_Left.angle < -13) {
+                targetspeed = 200;
+            } else {
+                targetspeed = 0;
+            }
+        } else {
+            if (Motor_Rotate_Left.angle > 3) {
+                targetspeed = -200;
+            } else if (Motor_Rotate_Left.angle < -3) {
+                targetspeed = 200;
+            } else {
+                targetspeed = 0;
+            }
+        }
 
-        PID_Calculate(&PID_Rotate_Left_Angle, rotate_angle_target, Motor_Rotate_Left.angle);
-        PID_Calculate(&PID_Rotate_Left_Speed, PID_Rotate_Left_Angle.output, Motor_Rotate_Left.speed);
-        // PID_Calculate(&PID_Rotate_Left_Angle, -Motor_Rotate_Left.angle, Motor_Rotate_Right.angle);
-        // PID_Calculate(&PID_Rotate_Left_Speed, PID_Rotate_Right_Angle.output, Motor_Rotate_Right.speed);
+        // PID_Calculate(&PID_Rotate_Left_Angle, rotate_angle_target, Motor_Rotate_Left.angle);
+        PID_Calculate(&PID_Rotate_Left_Speed, targetspeed, Motor_Rotate_Left.speed);
+        // PID_Calculate(&PID_Rotate_Right_Angle, -Motor_Rotate_Left.angle, Motor_Rotate_Right.angle);
+        // PID_Calculate(&PID_Rotate_Right_Speed, -targetspeed, Motor_Rotate_Right.speed);
 
-        // Can_Send(CAN2, 0x1FF, PID_Rotate_Left_Speed.output, PID_Rotate_Right_Speed.output, 0, 0);
-        Can_Send(CAN2, 0x1FF, PID_Rotate_Left_Speed.output, 0, 0, 0);
+        Can_Send(CAN2, 0x1FF, PID_Rotate_Left_Speed.output, -PID_Rotate_Left_Speed.output, 0, 0);
 
         DebugA = Motor_Rotate_Left.angle;
         DebugB = Motor_Rotate_Left.speed;
         DebugC = PID_Rotate_Left_Speed.output;
-        DebugD = rotate_angle_target;
-        DebugE = PID_Rotate_Left_Angle.error;
-        DebugF = PID_Rotate_Left_Angle.output;
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -892,7 +906,7 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Take_Vertical, "Task_Take_Vertical", 400, NULL, 3, NULL); // 前后伸缩
     // xTaskCreate(Task_Optoelectronic_Input_Take, "Task_Optoelectronic_Input_Take", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Upthrow_Horizontial, "Task_Upthrow_Horizontial", 400, NULL, 3, NULL); // 抬升与平移
+    xTaskCreate(Task_Upthrow_Horizontial, "Task_Upthrow_Horizontial", 400, NULL, 3, NULL); // 抬升与平移
     // xTaskCreate(Task_Limit_Switch, "Task_Limit_Switch", 400, NULL, 3, NULL);
     /* End */
 
