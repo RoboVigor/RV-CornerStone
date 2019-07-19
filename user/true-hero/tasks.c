@@ -59,8 +59,8 @@ void Task_Gimbal(void *Parameters) {
     float psPitchAngleTarget = 0;
 
     // 初始化云台PID
-    PID_Init(&PID_Cloud_YawAngle, 20, 0, 0, 3000, 0);
-    PID_Init(&PID_Cloud_YawSpeed, 20, 0, 0, 5000, 0);
+    PID_Init(&PID_Cloud_YawAngle, 5, 0, 0, 3000, 0);
+    PID_Init(&PID_Cloud_YawSpeed, 30, 0, 0, 5000, 0);
     PID_Init(&PID_Cloud_PitchAngle, 20, 0, 0, 3000, 500);
     PID_Init(&PID_Cloud_PitchSpeed, 30, 0, 0, 5000, 0);
 
@@ -150,14 +150,14 @@ void Task_Chassis(void *Parameters) {
 
     // 底盘跟随PID
     float followDeadRegion = 3.0;
-    PID_Init(&PID_Follow_Angle, 0, 0, 0, 1000, 0);
-    PID_Init(&PID_Follow_Speed, 4.5, 0, 0, 2000, 1000);
+    PID_Init(&PID_Follow_Angle, 0.02, 0, 0, 1000, 0);
+    PID_Init(&PID_Follow_Speed, 1.8, 0, 0, 2000, 1000);
 
     // 麦轮速度PID
-    PID_Init(&PID_LFCM, 20, 0.2, 0, 15000, 7500);
-    PID_Init(&PID_LBCM, 20, 0.2, 0, 15000, 7500);
-    PID_Init(&PID_RBCM, 20, 0.2, 0, 15000, 7500);
-    PID_Init(&PID_RFCM, 20, 0.2, 0, 15000, 7500);
+    PID_Init(&PID_LFCM, 18, 0.01, 0, 15000, 7500);
+    PID_Init(&PID_LBCM, 18, 0.01, 0, 15000, 7500);
+    PID_Init(&PID_RBCM, 18, 0.01, 0, 15000, 7500);
+    PID_Init(&PID_RFCM, 18, 0.01, 0, 15000, 7500);
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
@@ -190,8 +190,8 @@ void Task_Chassis(void *Parameters) {
 
         // 设置底盘总体移动速度
         if (controlMode == 1) {
-            vx = -remoteData.lx / 660.0f * 4;
-            vy = remoteData.ly / 660.0f * 12;
+            vx = -remoteData.lx / 660.0f * 2;
+            vy = remoteData.ly / 660.0f * 2;
         } else if (controlMode == 2) {
             xTargetRamp = RAMP(xRampStart, 660, xRampProgress);
             if (xRampProgress < 1) {
@@ -201,8 +201,8 @@ void Task_Chassis(void *Parameters) {
             if (yRampProgress < 1) {
                 yRampProgress += 0.005f;
             }
-            vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 4;
-            vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 12;
+            vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 2;
+            vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 2;
 
             if (keyboardData.W == 0 && keyboardData.S == 0) {
                 yRampStart = 0;
