@@ -167,9 +167,9 @@ void Task_Gimbal(void *Parameters) {
 }
 
 void Task_Fire(void *Parameters) {       //拨弹轮
-    TickType_tLastWakeTime = xTaskGetTickCount(); // 时钟
-    floatrpm2rps      = 3.14 / 60;           // 转子的转速(round/min)换算成角速度(rad/s)
-    floatr            = 0.0595;
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float rpm2rps      = 3.14 / 60;           // 转子的转速(round/min)换算成角速度(rad/s)
+    float r            = 0.0595;
     // uint8_t    startCounter = 0;                   // 启动模式计数器
 
 #define LASER_ON GPIO_SetBits(GPIOG, GPIO_Pin_13) // 激光开启

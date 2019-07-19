@@ -570,7 +570,7 @@ void Task_Supply(void *Parameters) {
 
     while (1) {
         // Controller
-        if (remoteData.keyBoard.keyCode == KEY_R) {
+        if (keyboardData.R) {
             PWM_Set_Compare(&PWM_Supply1, 15);
             PWM_Set_Compare(&PWM_Supply2, 15);
         } else {

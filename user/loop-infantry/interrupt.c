@@ -56,7 +56,7 @@ void USART3_IRQHandler(void) {
     }
     len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Stream1);
     for (i = 0; i < len; i++) {
-        Protocol_Decode(&Ps, Ps.buf[i]);
+        Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
     }
 
     // enable DMA
@@ -86,7 +86,7 @@ void USART6_IRQHandler(void) {
     }
     len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA2_Stream1);
     for (i = 0; i < len; i++) {
-        Protocol_Decode(&Judge, Judge.buf[i]);
+        Protocol_Unpack(&Judge, Judge.receiveBuf[i]);
     }
 
     // enable DMA
