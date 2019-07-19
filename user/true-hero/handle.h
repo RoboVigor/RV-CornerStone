@@ -40,10 +40,12 @@ __HANDLE_EXT PID_Type PID_Follow_Angle, PID_Follow_Speed;
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
-__HANDLE_EXT DBusData_Type remoteData;
+__HANDLE_EXT Remote_Type remoteData;
+__HANDLE_EXT Keyboard_Type keyboardData;
+__HANDLE_EXT Mouse_Type mouseData;
 
 //键鼠
-__HANDLE_EXT Keyboard_Type V, C, X, Z, G, F, R, E, Q, CTRL, SHIFT, D, A, S, W, pressRight;
+// __HANDLE_EXT Keyboard_Type V, C, X, Z, G, F, R, E, Q, CTRL, SHIFT, D, A, S, W, pressRight;
 
 // 陀螺仪
 __HANDLE_EXT volatile ImuData_Type       ImuData;

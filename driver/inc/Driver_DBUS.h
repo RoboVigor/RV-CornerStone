@@ -46,33 +46,45 @@ typedef struct {
 
     uint8_t switchLeft; // 3 value
     uint8_t switchRight;
-
-    struct {
-        int16_t x;
-        int16_t y;
-        int16_t z;
-
-        uint8_t pressLeft;
-        uint8_t pressRight;
-
-        uint8_t jumpPressLeft;
-        uint8_t jumpPressRight;
-    } mouse;
-
-    struct {
-        /**********************************************************************************
-         * 键盘通道:15   14   13   12   11   10   9   8   7   6     5     4   3   2   1
-         *          V    C    X	   Z    G    F    R   E   Q  CTRL  SHIFT  D   A   S   W
-         ************************************************************************************/
-        uint16_t keyCode;     //原始键值
-        uint16_t jumpKeyCode; //跳变后的键值
-    } keyBoard;
-} DBusData_Type;
+} Remote_Type;
 
 typedef struct {
-    int counter;
-    int state;
-    int lastState;
+    int16_t x;
+    int16_t y;
+    int16_t z;
+
+    uint8_t pressLeft;
+    uint8_t pressRight;
+} Mouse_Type;
+
+/**********************************************************************************
+ * 键盘通道:15   14   13   12   11   10   9   8   7   6     5     4   3   2   1
+ *          V    C    X	   Z    G    F    R   E   Q  CTRL  SHIFT  D   A   S   W
+ ************************************************************************************/
+
+typedef struct {
+    union {
+        struct {
+            unsigned int W : 1;
+            unsigned int S : 1;
+            unsigned int A : 1;
+            unsigned int D : 1;
+            unsigned int Shift : 1;
+            unsigned int Ctrl : 1;
+            unsigned int Q : 1;
+            unsigned int E : 1;
+            unsigned int R : 1;
+            unsigned int F : 1;
+            unsigned int G : 1;
+            unsigned int Z : 1;
+            unsigned int X : 1;
+            unsigned int C : 1;
+            unsigned int V : 1;
+        };
+        struct {
+            uint16_t keyCode;
+        };
+    };
 } Keyboard_Type;
 
 /**
@@ -81,7 +93,6 @@ typedef struct {
  * @param DBusData
  */
 
-void DBus_Update(DBusData_Type *DBusData, uint8_t DBusBuffer[]);
-void Keyboard_Check(Keyboard_Type *kb, DBusData_Type *DBusData, uint16_t Key);
+void DBus_Update(Remote_Type *remote, Keyboard_Type *kb, Mouse_Type *mouse, uint8_t DBusBuffer[]);
 
 #endif

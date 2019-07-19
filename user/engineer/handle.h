@@ -63,7 +63,9 @@ __HANDLE_EXT Motor_Type Motor_Rotate_Left, Motor_Rotate_Right;
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
-__HANDLE_EXT DBusData_Type remoteData;
+__HANDLE_EXT Remote_Type remoteData;
+__HANDLE_EXT Keyboard_Type keyboardData;
+__HANDLE_EXT Mouse_Type mouseData;
 
 // 陀螺仪
 __HANDLE_EXT volatile ImuData_Type       ImuData;
