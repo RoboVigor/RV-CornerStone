@@ -663,27 +663,27 @@ void Task_Upthrow_Horizontial(void *Parameter) {
 
     PID_Init(&PID_TH_Speed, 35, 0.5, 0, 5000, 2000); // 25 0.1
 
-    // PID_Init(&PID_Upthrow1_Angle, 18, 0.015, 0, 500, 300); //
-    PID_Init(&PID_Upthrow1_Speed, 30, 1, 0, 8000, 4000);   //
-    // PID_Init(&PID_Upthrow2_Angle, 8, 0.018, 0, 500, 300);  //
-    PID_Init(&PID_Upthrow2_Speed, 35, 0.5, 0, 8000, 4000); //
+    PID_Init(&PID_Upthrow1_Angle, 18, 0.015, 0, 500, 300); 
+    PID_Init(&PID_Upthrow1_Speed, 30, 1, 0, 8000, 4000);   
+    PID_Init(&PID_Upthrow2_Angle, 8, 0.018, 0, 500, 300);  
+    PID_Init(&PID_Upthrow2_Speed, 35, 0.5, 0, 8000, 4000); 
 
     while (1) {
         // 状态机使用
-        if (remoteData.switchRight == 1 && remoteData.switchLeft != 1) {
-            TU_Up = 1;
-        } else if (remoteData.switchRight == 3 && remoteData.switchLeft != 1) {
-            TU_Up = 0;
-        }
-
-        // // 调PID使用
-        // if (remoteData.switchRight == 2) {
-        //     TU_Up = 0;
-        // } else if (remoteData.switchRight == 3) {
+        // if (remoteData.switchRight == 1 && remoteData.switchLeft != 1) {
         //     TU_Up = 1;
-        // } else if (remoteData.switchRight == 1) {
-        //     TU_Up = 2;
+        // } else if (remoteData.switchRight == 3 && remoteData.switchLeft != 1) {
+        //     TU_Up = 0;
         // }
+
+        // 调PID使用
+        if (remoteData.switchRight == 2) {
+            TU_Up = 0;
+        } else if (remoteData.switchRight == 3) {
+            TU_Up = 1;
+        } else if (remoteData.switchRight == 1) {
+            TU_Up = 2;
+        }
 
         if (TU_Up == 1) {
             if (last_TU_state != 1) {
@@ -711,7 +711,7 @@ void Task_Upthrow_Horizontial(void *Parameter) {
                 upthrowProgress = 0;
                 TH_Ramp_Start   = Motor_Upthrow1.angle;
             }
-            upthrowAngleTarget = RAMP(TH_Ramp_Start, 670, upthrowProgress);
+            upthrowAngleTarget = RAMP(TH_Ramp_Start, 650, upthrowProgress);
             if (upthrowProgress < 1) {
                 upthrowProgress += 0.08f;
                 // upthrowProgress += 1.0f;
@@ -746,6 +746,13 @@ void Task_Upthrow_Horizontial(void *Parameter) {
         PID_Calculate(&PID_TH_Speed, TH_TargetSpeed, Motor_TH.speed * RPM2RPS);
 
         Can_Send(CAN1, 0x1FF, PID_Upthrow1_Speed.output, PID_Upthrow2_Speed.output, PID_TH_Speed.output, 0);
+
+        DebugA = Motor_Upthrow1.angle;
+        DebugB = Motor_Upthrow2.angle;
+        DebugC = Motor_Upthrow1.speed;
+        DebugD = Motor_Upthrow2.speed;
+        DebugE = PID_Upthrow1_Speed.output;
+        DebugF = PID_Upthrow2_Speed.output;
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -895,21 +902,21 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
-    // while (!remoteData.state) {
-    // }
+    while (!remoteData.state) {
+    }
 
     // Structure
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Distance_Sensor, "Task_Distance_Sensor", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Take_Fsm, "Task_Take_Fsm", 400, NULL, 4, NULL);
-    xTaskCreate(Task_Take_Rotate, "Task_Take_Rotate", 400, NULL, 4, NULL);
+    // xTaskCreate(Task_Take_Fsm, "Task_Take_Fsm", 400, NULL, 4, NULL);
+    // xTaskCreate(Task_Take_Rotate, "Task_Take_Rotate", 400, NULL, 4, NULL);
     // xTaskCreate(Task_Landing_Fsm, "Task_Landing_Fsm", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Supply, "Task_Supply", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Take_Vertical, "Task_Take_Vertical", 400, NULL, 3, NULL); // 前后伸缩
-    xTaskCreate(Task_Optoelectronic_Input_Take, "Task_Optoelectronic_Input_Take", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Take_Vertical, "Task_Take_Vertical", 400, NULL, 3, NULL); // 前后伸缩
+    // xTaskCreate(Task_Optoelectronic_Input_Take, "Task_Optoelectronic_Input_Take", 400, NULL, 3, NULL);
     xTaskCreate(Task_Upthrow_Horizontial, "Task_Upthrow_Horizontial", 400, NULL, 3, NULL); // 抬升与平移
-    xTaskCreate(Task_Limit_Switch, "Task_Limit_Switch", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Limit_Switch, "Task_Limit_Switch", 400, NULL, 3, NULL);
     /* End */
 
     // 完成使命
