@@ -88,8 +88,8 @@ void Task_Gimbal(void *Parameters) {
             if (ABS(remoteData.rx) > 20) yawAngleTarget += remoteData.rx / 660.0f * 180 * interval;
             if (ABS(remoteData.ry) > 20) pitchAngleTarget += -1 * remoteData.ry / 660.0f * 150 * interval;
         } else if (controlMode == 2) {
-            yawAngleTarget += mouseData.x / 2.0f * interval;
-            pitchAngleTarget += mouseData.y / 2.0f * interval;
+            yawAngleTarget += mouseData.x * 4.0f * interval;
+            pitchAngleTarget += mouseData.y * 4.0f * interval;
         }
 
         // yawAngleTarget += psYawAngleTarget;
@@ -150,8 +150,8 @@ void Task_Chassis(void *Parameters) {
 
     // 底盘跟随PID
     float followDeadRegion = 3.0;
-    PID_Init(&PID_Follow_Angle, 20, 0, 0, 2000, 0);
-    PID_Init(&PID_Follow_Speed, 0.3, 0, 0, 1000, 0);
+    PID_Init(&PID_Follow_Angle, 0, 0, 0, 1000, 0);
+    PID_Init(&PID_Follow_Speed, 4.5, 0, 0, 2000, 1000);
 
     // 麦轮速度PID
     PID_Init(&PID_LFCM, 20, 0.2, 0, 15000, 7500);
@@ -210,7 +210,7 @@ void Task_Chassis(void *Parameters) {
                 xRampStart = 0;
             }
         }
-        vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
+        vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS * 5);
 
         // 麦轮解算及限速
         targetPower = 80.0 - (60.0 - ChassisData.powerBuffer) / 60.0 * 80.0; // 设置目标功率
@@ -233,7 +233,7 @@ void Task_Chassis(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息T
-        // DebugData.debug1 = motorAngle;
+        DebugData.debug1 = motorSpeedStable;
         // DebugData.debug2 = -1 * PID_Follow_Speed.output;
         // DebugData.debug3 = ChassisData.powerScale * 1000;
         // DebugData.debug4 = Judge.powerHeatData.chassis_power;
@@ -319,7 +319,7 @@ void Task_Fire(void *Parameters) {
                     PID_RightFrictSpeed.output_I = 0;
                     PID_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
                     PID_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
-
+                    LASER_OFF;
                 } else if (remoteData.switchLeft == 3) {
                     PID_Calculate(&PID_RightFrictSpeed, 230, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮
                     PID_Calculate(&PID_LeftFrictSpeed, -230, Motor_LeftFrict.speed * rpm2rps);  // 左摩擦轮
@@ -333,8 +333,7 @@ void Task_Fire(void *Parameters) {
                     PID_RightFrictSpeed.output_I = 0;
                     PID_Calculate(&PID_LeftFrictSpeed, 0, Motor_LeftFrict.speed * rpm2rps);   // 左摩擦轮停止
                     PID_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
-
-                    LASER_OFF; // 激光关闭
+                    LASER_OFF;                                                                // 激光关闭
                 } else if (shootState == 2) {
                     PID_Calculate(&PID_RightFrictSpeed, 230, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮
                     PID_Calculate(&PID_LeftFrictSpeed, -230, Motor_LeftFrict.speed * rpm2rps);  // 左摩擦轮
@@ -427,11 +426,11 @@ void Task_Fire(void *Parameters) {
 
         vTaskDelayUntil(&LastWakeTime, 10);
 
-        DebugData.debug1 = mouseData.pressRight;
-        DebugData.debug2 = keyboardData.Ctrl;
-        DebugData.debug3 = shootState;
+        // DebugData.debug1 = GPIO_ReadInputDataBit(GPIOG, GPIO_Pin_13);
+        // DebugData.debug2 = keyboardData.Ctrl;
+        // DebugData.debug3 = shootState;
         // DebugData.debug4 = mouseData.z;
-        DebugData.debug5 = mouseData.pressLeft;
+        // DebugData.debug5 = mouseData.pressLeft;
         // DebugData.debug6 = mouseData.pressRight;
         // DebugData.debug7 = keyboardData.C;
         // DebugData.debug8 = keyboardData.Z;
@@ -481,7 +480,7 @@ void Task_Sys_Init(void *Parameters) {
 
     // 低级任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
@@ -489,8 +488,8 @@ void Task_Sys_Init(void *Parameters) {
     }
 
     // 运动控制任务
-    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 5, NULL);
 
     //模式切换任务
