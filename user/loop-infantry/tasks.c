@@ -112,7 +112,7 @@ void Task_Gimbal(void *Parameters) {
         // 输出电流
         yawCurrent   = -15 * PID_Cloud_YawSpeed.output;
         pitchCurrent = 10 * PID_Cloud_PitchSpeed.output;
-        MIAO(yawCurrent, -8000, 8000);
+        MIAO(yawCurrent, -12000, 12000);
         MIAO(pitchCurrent, -5000, 5000);
         Can_Send(CAN1, 0x1FF, 0, pitchCurrent, 0, 0);
         Can_Send(CAN1, 0x2FF, yawCurrent, 0, 0, 0);
