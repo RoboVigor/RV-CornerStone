@@ -374,6 +374,7 @@ void Task_Fire(void *Parameters) {
             if (stop == 0) {
                 if (controlMode == 1) {
                     if (remoteData.switchRight == 3 && Judge.powerHeatData.shooter_heat1 < (maxShootHeat - 100)) {
+                        PID_Stir2006Speed.p = 30;
                         PID_Calculate(&PID_Stir2006Speed, speedTargetRamp, Motor_Stir2006.speed * rpm2rps);
                         PID_Stir3510Speed.output_I = 0;
                         PID_Stir3510Speed.output   = 0;
@@ -384,6 +385,7 @@ void Task_Fire(void *Parameters) {
                 }
                 if (controlMode == 2) {
                     if (mouseData.pressLeft == 1 && Judge.powerHeatData.shooter_heat1 < (maxShootHeat - 100)) {
+                        PID_Stir2006Speed.p = 30;
                         PID_Calculate(&PID_Stir2006Speed, speedTargetRamp, Motor_Stir2006.speed * rpm2rps);
                         PID_Stir3510Speed.output_I = 0;
                         PID_Stir3510Speed.output   = 0;
@@ -398,6 +400,7 @@ void Task_Fire(void *Parameters) {
                 } else if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 1 && state == 0) {
                     PID_Stir2006Speed.output_I = 0;
                     PID_Stir3510Speed.output_I = 0;
+                    PID_Stir2006Speed.p        = 60;
                     PID_Calculate(&PID_Stir2006Speed, 0, Motor_Stir2006.speed * rpm2rps);
                     PID_Calculate(&PID_Stir3510Speed, 0, Motor_Stir3510.speed * rpm2rps);
                     speedRampProgress = 0;
@@ -429,11 +432,11 @@ void Task_Fire(void *Parameters) {
             stop = 0;
         }
 
-        if (stop == 1 && counter1 < 10) {
+        if (stop == 1 && counter1 < 40) {
             counter1 += 1;
             PID_Stir2006Speed.output = -800;
             PID_Stir3510Speed.output = 0;
-        } else if (counter1 == 10 && counter2 < 200) {
+        } else if (counter1 == 40 && counter2 < 200) {
             lastStop                   = 0;
             PID_Stir2006Speed.output_I = 0;
             PID_Stir2006Speed.output   = 0;
