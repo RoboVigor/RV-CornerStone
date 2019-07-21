@@ -42,60 +42,73 @@ void Task_Gimbal(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     // 反馈值
-    float yawAngle, yawSpeed, pitchAngle, pitchSpeed;
+    float yawAngle, yawSpeed, pitchAngle, pitchSpeed, chassisAngle;
 
     // 目标值
-    float yawAngleTarget   = 0;
-    float pitchAngleTarget = 0;
+    float yawAngleTarget            = 0; // 目标Yaw
+    float pitchAngleTarget          = 0; // 目标Pitch
+    float yawAngleTargetControl     = 0; // 遥控器输入
+    float pitchAngleTargetControl   = 0; // 遥控器输入
+    float pitchAngleTargetFix       = 0; // 上坡补偿
+    float pitchAngleTargetFixStable = 0; // 上坡补偿
+    float yawAngleTargetPs          = 0; // 视觉辅助
+    float pitchAngleTargetPs        = 0; // 视觉辅助
+
+    // 视觉系统
+    int16_t lastSeq = 0;
 
     // Pitch轴斜坡参数
     float pitchRampProgress    = 0;
     float pitchRampStart       = Gyroscope_EulerData.roll;
     float pitchAngleTargetRamp = 0;
 
-    // 视觉系统
-    int   lastSeq            = 0;
-    float psYawAngleTarget   = 0;
-    float psPitchAngleTarget = 0;
-
     // 初始化云台PID
     PID_Init(&PID_Cloud_YawAngle, 5, 0, 0, 3000, 0);
-    PID_Init(&PID_Cloud_YawSpeed, 30, 0, 0, 5000, 0);
+    PID_Init(&PID_Cloud_YawSpeed, 60, 0, 0, 5000, 0);
     PID_Init(&PID_Cloud_PitchAngle, 20, 0, 0, 3000, 500);
-    PID_Init(&PID_Cloud_PitchSpeed, 30, 0, 0, 5000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 60, 0, 0, 5000, 0);
 
     while (1) {
+        // 重置目标
+        yawAngleTarget   = 0;
+        pitchAngleTarget = 0;
+
         // 设置反馈
-        yawAngle   = -1 * Gyroscope_EulerData.yaw;    // 逆时针为正
-        yawSpeed   = -1 * ImuData.gz / GYROSCOPE_LSB; // 逆时针为正
-        pitchAngle = Gyroscope_EulerData.roll;        // 逆时针为正
-        pitchSpeed = ImuData.gy / GYROSCOPE_LSB;      // 逆时针为正
+        yawAngle     = -1 * Gyroscope_EulerData.yaw;    // 逆时针为正
+        yawSpeed     = -1 * ImuData.gz / GYROSCOPE_LSB; // 逆时针为正
+        pitchAngle   = Gyroscope_EulerData.roll;        // 逆时针为正
+        pitchSpeed   = ImuData.gy / GYROSCOPE_LSB;      // 逆时针为正
+        chassisAngle = Motor_Pitch.angle + pitchAngle;
 
-        // 视觉系统
-        // if (lastSeq != Ps.seq) {
-        //     lastSeq          = Ps.seq;
-        //     psYawAngleTarget = Ps.gimbalAimData.yaw_angle_diff;
-        //     psPitchAngleTarget += Ps.gimbalAimData.pitch_angle_diff;
-        //     MIAO(psYawAngleTarget, -5, 5);
-        //     MIAO(psPitchAngleTarget, -5, 5);
-        // } else {
-        //     psYawAngleTarget   = 0;
-        //     psPitchAngleTarget = 0;
-        // }
-
-        // 设置角度目标
+        // 遥控器输入角度目标
         if (controlMode == 1) {
-            if (ABS(remoteData.rx) > 20) yawAngleTarget += remoteData.rx / 660.0f * 180 * interval;
-            if (ABS(remoteData.ry) > 20) pitchAngleTarget += -1 * remoteData.ry / 660.0f * 150 * interval;
+            if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 180 * interval;
+            if (ABS(remoteData.ry) > 30) pitchAngleTargetControl += -1 * remoteData.ry / 660.0f * 150 * interval;
         } else if (controlMode == 2) {
-            yawAngleTarget += mouseData.x * 2 * interval;
-            pitchAngleTarget += mouseData.y * interval;
+            yawAngleTargetControl += mouseData.x * 2 * interval;
+            pitchAngleTargetControl += mouseData.y * interval;
         }
+        yawAngleTarget += yawAngleTargetControl;
+        pitchAngleTarget += pitchAngleTargetControl;
 
-        // yawAngleTarget += psYawAngleTarget;
-        // pitchAngleTarget += psPitchAngleTarget;
-        // MIAO(yawAngleTarget, -50, 50); //+-20
-        MIAO(pitchAngleTarget, -45, 10);
+        // 视觉辅助
+        if (remoteData.switchLeft != 3) {
+            lastSeq = 0;
+        } else if (lastSeq != Ps.autoaimData.seq) {
+            lastSeq = Ps.autoaimData.seq;
+            yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
+            pitchAngleTargetPs -= Ps.autoaimData.pitch_angle_diff;
+        }
+        MIAO(pitchAngleTargetPs, GIMBAL_PITCH_MIN - pitchAngleTarget, GIMBAL_PITCH_MAX - pitchAngleTarget);
+        yawAngleTarget += yawAngleTargetPs;
+        pitchAngleTarget += pitchAngleTargetPs;
+
+        // 上坡补偿
+        // pitchAngleTargetFixStable = FirstOrderLowPassFilter(-1 * (chassisAngle / 40.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200,
+        // 20); pitchAngleTarget += pitchAngleTargetFixStable;
+
+        // 限制云台运动范围
+        MIAO(pitchAngleTarget, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
 
         // 开机时pitch轴匀速抬起
         pitchAngleTargetRamp = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
@@ -113,18 +126,17 @@ void Task_Gimbal(void *Parameters) {
         // 输出电流
         Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
 
-        vTaskDelayUntil(&LastWakeTime, intervalms);
-
         // 调试信息
-        DebugData.debug1 = mouseData.x;
-        DebugData.debug2 = mouseData.y;
-        DebugData.debug3 = yawAngleTarget;
-        DebugData.debug4 = pitchAngleTarget;
+        DebugData.debug1 = controlMode;
+        DebugData.debug2 = yawAngleTarget;
+        DebugData.debug3 = yawAngle;
         // DebugData.debug5 = yawAngleTarget;
         // DebugData.debug6 = yawAngle;
         // DebugData.debug6 = PID_Cloud_PitchSpeed.output;
         // DebugData.debug7 = pitchRampStart;
         // DebugData.debug8 = pitchAngleTarget;
+
+        vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
 }

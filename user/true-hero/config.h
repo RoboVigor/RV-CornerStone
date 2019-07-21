@@ -9,6 +9,10 @@
 #define DEBUG_ENABLED 0 // 调试开关
 // #define SERIAL_DEBUG_PORT USART6 // 串口调试端口
 
+// 运动参数
+#define GIMBAL_PITCH_MIN -45
+#define GIMBAL_PITCH_MAX 10
+
 // 陀螺仪
 #define BOARD_FRONT_IS_UP 1                     // 板子正面朝上
 #define BOARD_SHORT_SIDE_IS_PARALLEL_TO_PITCH 1 // 板子短边朝下
