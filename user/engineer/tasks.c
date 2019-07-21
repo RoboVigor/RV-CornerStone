@@ -675,10 +675,17 @@ void Task_Upthrow_Horizontial(void *Parameter) {
 
     PID_Init(&PID_TH_Speed, 35, 0.5, 0, 5000, 2000); // 25 0.1
 
+<<<<<<< HEAD
     PID_Init(&PID_Upthrow1_Angle, 18, 0.015, 0, 500, 300);
     PID_Init(&PID_Upthrow1_Speed, 30, 1, 0, 8000, 4000);
     PID_Init(&PID_Upthrow2_Angle, 8, 0.018, 0, 500, 300);
     PID_Init(&PID_Upthrow2_Speed, 35, 0.5, 0, 8000, 4000);
+=======
+    // PID_Init(&PID_Upthrow1_Angle, 18, 0.015, 0, 500, 300); //
+    PID_Init(&PID_Upthrow1_Speed, 30, 1, 0, 8000, 4000);   //
+    // PID_Init(&PID_Upthrow2_Angle, 8, 0.018, 0, 500, 300);  //
+    PID_Init(&PID_Upthrow2_Speed, 35, 0.5, 0, 8000, 4000); //
+>>>>>>> parent of 8ac1f6b... 调试中
 
     while (1) {
         // 状态机使用
@@ -723,7 +730,11 @@ void Task_Upthrow_Horizontial(void *Parameter) {
                 upthrowProgress = 0;
                 TH_Ramp_Start   = Motor_Upthrow1.angle;
             }
+<<<<<<< HEAD
             upthrowAngleTarget = RAMP(TH_Ramp_Start, 560, upthrowProgress);
+=======
+            upthrowAngleTarget = RAMP(TH_Ramp_Start, 670, upthrowProgress);
+>>>>>>> parent of 8ac1f6b... 调试中
             if (upthrowProgress < 1) {
                 upthrowProgress += 0.08f;
                 // upthrowProgress += 1.0f;
