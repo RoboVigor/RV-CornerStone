@@ -25,6 +25,7 @@ void Task_Chassis(void *Parameters) {
     float yawAngleTarget          = 0; // 目标值
     float yawAngle, yawSpeed;          // 反馈值
     Chassis_Detect_Parallel = 0;
+    Chassis_Detect          = 0;
     Chassis_State           = -1;
 
     // 初始化麦轮角速度PID
@@ -122,7 +123,7 @@ void Task_Chassis(void *Parameters) {
                 }
             } else if (Chassis_State == CHASSIS_DETECT_RIGHT) {
                 // 读单边提高响应速度
-                if ((T_State2 == 0 && T_State1 == 1) || (T_State3 == 0 && T_State4 == 1) && TV_Ready == 1) {
+                if (((T_State2 == 0 && T_State1 == 1) || (T_State3 == 0 && T_State4 == 1)) && TV_Ready == 1) {
                     Chassis_Detect = 0;
                     Detected_State = 1;
                     // 赋返回速度
@@ -189,7 +190,6 @@ void Task_Take_Fsm(void *Parameters) {
                 Take_Reset();
                 Fsm_TIM14_State = 0;
                 six_box_cnt     = 0;
-                TV_Ready        = 0;
 
                 if (remoteData.switchLeft == 1 && remoteData.switchRight != 3) {
                     Fsm_State = 1;
@@ -203,23 +203,18 @@ void Task_Take_Fsm(void *Parameters) {
                     Take_TV_2();
                 }
 
-                Fsm_TIM14_State = 1;
+                if (TV_Ready == 1) {
+                    if (Detected_State == 1) {
+                        Fsm_State = 3;
+                    } else {
+                        Fsm_State = 2;
+                    }
+                }
 
                 if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
                     Fsm_State = 0;
-                } else {
-                    Fsm_TIM14_State = 1;
-                    if (Fsm_TIM14_Cnt >= 2000 * a) {
-                        TV_Ready        = 1;
-                        Fsm_State       = 2;
-                        Fsm_TIM14_State = 0;
-                        if (Detected_State == 1) {
-                            Fsm_State = 3;
-                        } else {
-                            Fsm_State = 2;
-                        }
-                    }
                 }
+
                 break;
             case 2:
                 if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
@@ -437,6 +432,12 @@ void Task_Take_Vertical(void *Parameters) {
             last_TV_Out = 3;
         }
 
+        if ((ABS(Motor_TV.angle - targetAngle) < 5) && (TV_Out == 1 || TV_Out == 2)) {
+            TV_Ready = 1;
+        } else {
+            TV_Ready = 0;
+        }
+
         TV_AngleTarget = RAMP(TV_Ramp_Start, targetAngle, TV_Progress);
         if (TV_Progress < 1) {
             TV_Progress += 0.05f;
@@ -446,6 +447,9 @@ void Task_Take_Vertical(void *Parameters) {
         PID_Calculate(&PID_TV_Speed, PID_TV_Angle.output, Motor_TV.speed);
 
         Can_Send(CAN2, 0x200, 0, 0, PID_TV_Speed.output, 0);
+
+        DebugA = targetAngle;
+        DebugB = Motor_TV.angle;
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -734,7 +738,7 @@ void Task_Upthrow_Horizontial(void *Parameter) {
 
         // TH
 
-        if (((T_State2 == 0 && T_State1 == 1) || (T_State3 == 0 && T_State4 == 1)) && remoteData.switchLeft == 1 && TV_Ready == 1) {
+        if (((T_State2 == 0 && T_State1 == 1) || (T_State3 == 0 && T_State4 == 1)) && TV_Ready == 1) {
             TH_Move        = 0;
             Detected_State = 1;
         }
@@ -907,17 +911,17 @@ void Task_Sys_Init(void *Parameters) {
     // }
 
     // Structure
-    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Distance_Sensor, "Task_Distance_Sensor", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Take_Fsm, "Task_Take_Fsm", 400, NULL, 4, NULL);
-    // xTaskCreate(Task_Take_Rotate, "Task_Take_Rotate", 400, NULL, 4, NULL);
+    xTaskCreate(Task_Take_Fsm, "Task_Take_Fsm", 400, NULL, 4, NULL);
+    xTaskCreate(Task_Take_Rotate, "Task_Take_Rotate", 400, NULL, 4, NULL);
     // xTaskCreate(Task_Landing_Fsm, "Task_Landing_Fsm", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Supply, "Task_Supply", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Supply, "Task_Supply", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Take_Vertical, "Task_Take_Vertical", 400, NULL, 3, NULL); // 前后伸缩
-    // xTaskCreate(Task_Optoelectronic_Input_Take, "Task_Optoelectronic_Input_Take", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Upthrow_Horizontial, "Task_Upthrow_Horizontial", 400, NULL, 3, NULL); // 抬升与平移
-    // xTaskCreate(Task_Limit_Switch, "Task_Limit_Switch", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Take_Vertical, "Task_Take_Vertical", 400, NULL, 3, NULL); // 前后伸缩
+    xTaskCreate(Task_Optoelectronic_Input_Take, "Task_Optoelectronic_Input_Take", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Upthrow_Horizontial, "Task_Upthrow_Horizontial", 400, NULL, 3, NULL); // 抬升与平移
+    xTaskCreate(Task_Limit_Switch, "Task_Limit_Switch", 400, NULL, 3, NULL);
     /* End */
 
     // 完成使命
