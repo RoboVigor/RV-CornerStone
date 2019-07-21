@@ -55,7 +55,8 @@ void Task_Gimbal(void *Parameters) {
     float pitchAngleTargetPs        = 0; // 视觉辅助
 
     // 视觉系统
-    int16_t lastSeq = 0;
+    int16_t lastSeq      = 0;
+    int     autoAimStart = 0;
 
     // Pitch轴斜坡参数
     float pitchRampProgress    = 0;
@@ -92,20 +93,27 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget += pitchAngleTargetControl;
 
         // 视觉辅助
-        if (remoteData.switchLeft != 3) {
-            lastSeq = 0;
-        } else if (lastSeq != Ps.autoaimData.seq) {
-            lastSeq = Ps.autoaimData.seq;
-            yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
-            pitchAngleTargetPs -= Ps.autoaimData.pitch_angle_diff;
+        if (controlMode == 2) {
+            if (keyboardData.Q == 1 && keyboardData.Ctrl == 1) {
+                autoAimStart = 0;
+            } else if (keyboardData.Q == 1 && keyboardData.Ctrl == 0) {
+                autoAimStart = 1;
+            }
+            if (autoAimStart == 0) {
+                lastSeq = 0;
+            } else if (lastSeq != Ps.autoaimData.seq) {
+                lastSeq = Ps.autoaimData.seq;
+                yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
+                pitchAngleTargetPs -= Ps.autoaimData.pitch_angle_diff;
+            }
         }
         MIAO(pitchAngleTargetPs, GIMBAL_PITCH_MIN - pitchAngleTarget, GIMBAL_PITCH_MAX - pitchAngleTarget);
         yawAngleTarget += yawAngleTargetPs;
         pitchAngleTarget += pitchAngleTargetPs;
 
         // 上坡补偿
-        // pitchAngleTargetFixStable = FirstOrderLowPassFilter(-1 * (chassisAngle / 40.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200,
-        // 20); pitchAngleTarget += pitchAngleTargetFixStable;
+        // pitchAngleTargetFixStable = FirstOrderLowPassFilter(-1 * (chassisAngle / 40.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix,
+        // 200, 20); pitchAngleTarget += pitchAngleTargetFixStable;
 
         // 限制云台运动范围
         MIAO(pitchAngleTarget, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
