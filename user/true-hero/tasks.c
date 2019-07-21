@@ -416,7 +416,7 @@ void Task_Fire(void *Parameters) {
                 }
                 if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 0 && state == 0) {
                     PID_Calculate(&PID_Stir2006Speed, speedTargetRamp, Motor_Stir2006.speed * rpm2rps);
-                    PID_Calculate(&PID_Stir3510Speed, 4, Motor_Stir3510.speed * rpm2rps);
+                    PID_Calculate(&PID_Stir3510Speed, 2.5, Motor_Stir3510.speed * rpm2rps);
                 } else if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 1 && state == 0) {
                     PID_Stir2006Speed.output_I = 0;
                     PID_Stir3510Speed.output_I = 0;
