@@ -19,78 +19,48 @@ void Task_Snail(void *Parameters) {
     // snail摩擦轮任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
 
-    float dutyCycleStart  = 0.376; //起始占空比为37.6
-    float dutyCycleMiddle = 0.446; //启动需要到44.6
-    float dutyCycleEnd    = 0.400; //加速到你想要的占空比
+    float dutyCycleStart  = 0.376; // 起始占空比为37.6
+    float dutyCycleMiddle = 0.446; // 启动需要到44.6
+    float dutyCycleEnd    = 0.600; // 加速到你想要的占空比
 
-    float dutyCycleRightSnailTarget = 0.376; //目标占空比
-    float dutyCycleLeftSnailTarget  = 0.376;
+    float dutyCycleSnailTarget    = dutyCycleStart; //目标占空比
+    float dutyCycleSnailProgress1 = 0;              //存储需要的两个过程（初始到启动，启动到你想要的速度）
+    float dutyCycleSnailProgress2 = 0;
 
-    float dutyCycleRightSnailProgress1 = 0; //存储需要的两个过程（初始到启动，启动到你想要的速度）
-    float dutyCycleLeftSnailProgress1  = 0;
-    float dutyCycleRightSnailProgress2 = 0;
-    float dutyCycleLeftSnailProgress2  = 0;
-
-    int snailRightState = 0; //标志启动完后需要的延时
-    int snailLeftState  = 0;
-
-    /*来自dji开源，两个snail不能同时启动*/
+    int snailState = 0; //标志启动完后需要的延时
 
     while (1) {
-
-        GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
+        LASER_ON; //打开激光
         if (remoteData.switchLeft == 1) {
             // 摩擦轮不转
-            // PWM_Set_Compare(&PWM_Snail1, dutyCycleStart * 1250);
-            // PWM_Set_Compare(&PWM_Snail2, dutyCycleStart * 1250);
-            dutyCycleRightSnailTarget    = 0.376;
-            dutyCycleLeftSnailTarget     = 0.376;
-            dutyCycleRightSnailProgress1 = 0;
-            dutyCycleRightSnailProgress2 = 0;
-            dutyCycleLeftSnailProgress1  = 0;
-            dutyCycleLeftSnailProgress2  = 0;
-        }
-
-        else if (remoteData.switchLeft != 1) {
-
-            if (dutyCycleRightSnailProgress1 <= 1) { //初始状态
-                dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle,
-                                                 dutyCycleRightSnailProgress1); //斜坡上升
-                dutyCycleRightSnailProgress1 += 0.01f;
+            dutyCycleSnailTarget    = dutyCycleStart;
+            dutyCycleSnailProgress1 = 0;
+            dutyCycleSnailProgress2 = 0;
+        } else {
+            // 启动摩擦轮
+            if (dutyCycleSnailProgress1 <= 1) {
+                //初始状态
+                dutyCycleSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle,
+                                            dutyCycleSnailProgress1); //斜坡上升
+                dutyCycleSnailProgress1 += 0.05f;
             } else {
-                if (snailRightState == 0) { //初始状态停留100ms
+                if (!snailState) { //初始状态停留100ms
                     vTaskDelay(100);
-                    snailRightState = 1;
+                    snailState = 1;
                 } else {
-                    if (dutyCycleRightSnailProgress2 <= 1) { //启动状态
-                        dutyCycleRightSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd,
-                                                         dutyCycleRightSnailProgress2); //斜坡上升
-                        dutyCycleRightSnailProgress2 += 0.001f;
-                    } else {
-                        if (dutyCycleLeftSnailProgress1 <= 1) {
-                            dutyCycleLeftSnailTarget = RAMP(dutyCycleStart,
-                                                            dutyCycleMiddle, //右摩擦轮启动完毕，左摩擦轮进入初始状态
-                                                            dutyCycleLeftSnailProgress1);
-                            dutyCycleLeftSnailProgress1 += 0.01f;
-                        } else {
-                            if (snailLeftState == 0) {
-                                vTaskDelay(100);
-                                snailLeftState = 1;
-                            } else {
-                                if (dutyCycleLeftSnailProgress2 <= 1) {
-                                    dutyCycleLeftSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleLeftSnailProgress2);
-                                    dutyCycleLeftSnailProgress2 += 0.001f;
-                                }
-                            }
-                        }
+                    if (dutyCycleSnailProgress2 <= 1) {
+                        //启动状态
+                        dutyCycleSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd,
+                                                    dutyCycleSnailProgress2); //斜坡上升
+                        dutyCycleSnailProgress2 += 0.01f;
                     }
                 }
             }
         }
-
-        PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
-        PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
-
+        // 设置占空比
+        PWM_Set_Compare(&PWM_Snail1, dutyCycleSnailTarget * 1250);
+        PWM_Set_Compare(&PWM_Snail2, dutyCycleSnailTarget * 1250);
+        // 任务延时
         vTaskDelayUntil(&LastWakeTime, 5);
     }
     vTaskDelete(NULL);
