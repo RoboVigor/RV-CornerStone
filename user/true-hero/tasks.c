@@ -22,7 +22,6 @@ void Task_Safe_Mode(void *Parameters) {
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        // Keyboard_Check(&CTRL, &remoteData, KEY_CTRL);
 
         if (remoteData.switchLeft == 1 || remoteData.switchLeft == 3) {
             controlMode = 1; //遥控器模式
@@ -136,10 +135,10 @@ void Task_Gimbal(void *Parameters) {
 
         // 调试信息
         DebugData.debug1 = controlMode;
-        DebugData.debug2 = yawAngleTarget;
-        DebugData.debug3 = yawAngle;
-        // DebugData.debug5 = yawAngleTarget;
-        // DebugData.debug6 = yawAngle;
+        DebugData.debug2 = keyboardData.Q;
+        DebugData.debug3 = keyboardData.Ctrl;
+        DebugData.debug4 = autoAimStart;
+        DebugData.debug5 = Ps.autoaimData.seq;
         // DebugData.debug6 = PID_Cloud_PitchSpeed.output;
         // DebugData.debug7 = pitchRampStart;
         // DebugData.debug8 = pitchAngleTarget;
@@ -174,10 +173,10 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_Follow_Speed, 1.8, 0, 0, 2000, 1000);
 
     // 麦轮速度PID
-    PID_Init(&PID_LFCM, 22, 0, 0, 15000, 7500);
-    PID_Init(&PID_LBCM, 22, 0, 0, 15000, 7500);
-    PID_Init(&PID_RBCM, 22, 0, 0, 15000, 7500);
-    PID_Init(&PID_RFCM, 22, 0, 0, 15000, 7500);
+    PID_Init(&PID_LFCM, 20, 0, 0, 15000, 7500);
+    PID_Init(&PID_LBCM, 20, 0, 0, 15000, 7500);
+    PID_Init(&PID_RBCM, 20, 0, 0, 15000, 7500);
+    PID_Init(&PID_RFCM, 20, 0, 0, 15000, 7500);
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
@@ -279,11 +278,11 @@ void Task_Chassis(void *Parameters) {
         // 调试信息
         // DebugData.debug1 = mouseData.x;
         // DebugData.debug2 = -1 * PID_Follow_Speed.output;
-        // DebugData.debug3 = ChassisData.powerScale * 1000;
-        // DebugData.debug4 = Judge.powerHeatData.chassis_power;
+        // DebugData.debug3 = PID_Follow_Angle.error;
+        // DebugData.debug4 = PID_LFCM.output;
         // DebugData.debug5 = motorAngle;
-        // DebugData.debug6 = -1 * PID_Follow_Speed.output;
-        // DebugData.debug6 = PID_LFCM.output;
+        // DebugData.debug6 = ChassisData.rotorSpeed[0];
+        // DebugData.debug7 = Motor_LF.speed * RPM2RPS;
         // DebugData.debug7 = ChassisData.rotorSpeed[0];
         // DebugData.debug8 = PID_Follow_Speed.output;
     }
