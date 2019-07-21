@@ -88,8 +88,8 @@ void Task_Gimbal(void *Parameters) {
             if (ABS(remoteData.rx) > 20) yawAngleTarget += remoteData.rx / 660.0f * 180 * interval;
             if (ABS(remoteData.ry) > 20) pitchAngleTarget += -1 * remoteData.ry / 660.0f * 150 * interval;
         } else if (controlMode == 2) {
-            yawAngleTarget += mouseData.x * interval;
-            pitchAngleTarget += mouseData.y / 2.0f * interval;
+            yawAngleTarget += mouseData.x * 2 * interval;
+            pitchAngleTarget += mouseData.y * interval;
         }
 
         // yawAngleTarget += psYawAngleTarget;
@@ -116,10 +116,10 @@ void Task_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = remoteData.mouse.x;
-        // DebugData.debug2 = remoteData.mouse.y;
-        // DebugData.debug3 = yawAngleTarget;
-        // DebugData.debug4 = pitchAngleTarget;
+        DebugData.debug1 = mouseData.x;
+        DebugData.debug2 = mouseData.y;
+        DebugData.debug3 = yawAngleTarget;
+        DebugData.debug4 = pitchAngleTarget;
         // DebugData.debug5 = yawAngleTarget;
         // DebugData.debug6 = yawAngle;
         // DebugData.debug6 = PID_Cloud_PitchSpeed.output;
@@ -453,12 +453,12 @@ void Task_Fire(void *Parameters) {
 
         vTaskDelayUntil(&LastWakeTime, 10);
 
-        DebugData.debug1 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4);
-        DebugData.debug2 = PID_Stir2006Speed.output;
-        DebugData.debug3 = state;
-        DebugData.debug4 = PID_Stir2006Speed.output_I;
-        DebugData.debug5 = stop;
-        DebugData.debug6 = GPIO_ReadInputDataBit(GPIOF, GPIO_Pin_0);
+        // DebugData.debug1 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4);
+        // DebugData.debug2 = PID_Stir2006Speed.output;
+        // DebugData.debug3 = state;
+        // DebugData.debug4 = PID_Stir2006Speed.output_I;
+        // DebugData.debug5 = stop;
+        // DebugData.debug6 = GPIO_ReadInputDataBit(GPIOF, GPIO_Pin_0);
         // DebugData.debug7 = keyboardData.C;
         // DebugData.debug8 = keyboardData.Z;
     }
