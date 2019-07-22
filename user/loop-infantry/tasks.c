@@ -152,8 +152,18 @@ void Task_Gimbal(void *Parameters) {
         pitchCurrent = 10 * PID_Cloud_PitchSpeed.output;
         MIAO(yawCurrent, -12000, 12000);
         MIAO(pitchCurrent, -5000, 5000);
+#ifdef ROBOT_LOOP_ONE
         Can_Send(CAN1, 0x1FF, 0, pitchCurrent, 0, 0);
         Can_Send(CAN1, 0x2FF, yawCurrent, 0, 0, 0);
+#endif
+#ifdef ROBOT_LOOP_TWO
+        Can_Send(CAN1, 0x1FF, 0, -pitchCurrent, 0, 0);
+        Can_Send(CAN1, 0x2FF, yawCurrent, 0, 0, 0);
+#endif
+#ifdef ROBOT_LOOP_THREE
+        Can_Send(CAN1, 0x1FF, 0, pitchCurrent, 0, 0);
+        Can_Send(CAN1, 0x2FF, yawCurrent, 0, 0, 0);
+#endif
 
         // 调试信息
         // DebugData.debug1 = PID_Cloud_YawAngle.feedback;
