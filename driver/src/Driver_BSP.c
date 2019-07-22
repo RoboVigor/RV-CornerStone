@@ -845,8 +845,8 @@ void BSP_LED_Init(void) {
  * @param row 共8位表示8个灯,1为亮,0为暗
  */
 void LED_Set_Row(uint16_t row) {
-    GPIO_SetBits(GPIOG, ~(row << 1));
-    GPIO_ResetBits(GPIOG, row << 1);
+    GPIO_SetBits(GPIOG, (~(row << 1)) & 0x1FE);
+    GPIO_ResetBits(GPIOG, (row << 1));
 }
 
 /**
