@@ -12,6 +12,7 @@ void Task_Safe_Mode(void *Parameters) {
                 Can_Send(CAN1, 0x200, 0, 0, 0, 0);
                 Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
                 Can_Send(CAN1, 0x2FF, 0, 0, 0, 0);
+                Can_Send(CAN2, 0x1FF, 0, 0, 0, 0);
                 PWM_Set_Compare(&PWM_Snail1, 0.376 * 1250);
                 PWM_Set_Compare(&PWM_Snail2, 0.376 * 1250);
                 vTaskDelay(2);
@@ -275,6 +276,9 @@ void Task_Fire_Stir(void *Parameters) {
     float lastBulletSpeed = 0;
     float maxShootHeat    = 0;
 
+    // 视觉系统
+    int16_t lastSeq = 0;
+
     // PID 初始化
     PID_Init(&PID_StirAngle, 4, 0, 0, 4000, 500);   // 拨弹轮角度环
     PID_Init(&PID_StirSpeed, 20, 0, 0, 4000, 1000); // 拨弹轮速度环
@@ -284,10 +288,20 @@ void Task_Fire_Stir(void *Parameters) {
 
     while (1) {
         // 输入射击模式
-        if (remoteData.switchRight == 1) {
-            shootMode = shootIdle;
+        if (remoteData.switchLeft != 3) {
+            if (remoteData.switchRight == 1) {
+                shootMode = shootIdle;
+            } else {
+                shootMode = shootToDeath;
+            }
+        } else if (lastSeq != Ps.autoaimData.seq) {
+            shootMode = Ps.autoaimData.biu_biu_state ? shootToDeath : shootIdle;
         } else {
-            shootMode = shootToDeath;
+            if (remoteData.switchRight == 1) {
+                shootMode = shootIdle;
+            } else {
+                shootMode = shootToDeath;
+            }
         }
 
         // 热量控制
@@ -347,7 +361,7 @@ void Task_Fire_Frict(void *Parameters) {
 
     float dutyCycleStart  = 0.376; // 起始占空比为37.6
     float dutyCycleMiddle = 0.446; // 启动需要到44.6
-    float dutyCycleEnd    = 0.600; // 加速到你想要的占空比
+    float dutyCycleEnd    = 0.550; // 加速到你想要的占空比
 
     float dutyCycleSnailTarget    = dutyCycleStart; //目标占空比
     float dutyCycleSnailProgress1 = 0;              //存储需要的两个过程（初始到启动，启动到你想要的速度）
@@ -444,8 +458,8 @@ void Task_Sys_Init(void *Parameters) {
     // 运动控制任务
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
-    // xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
