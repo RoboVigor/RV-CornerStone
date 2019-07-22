@@ -100,20 +100,30 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget += pitchAngleTargetControl;
 
         // 视觉辅助
+        if (controlMode == 1) {
+            if (remoteData.switchRight == 3) {
+                autoAimStart = 1;
+            } else {
+                autoAimStart = 0;
+            }
+        }
+
         if (controlMode == 2) {
             if (keyboardData.Q == 1 && keyboardData.Ctrl == 1) {
                 autoAimStart = 0;
             } else if (keyboardData.Q == 1 && keyboardData.Ctrl == 0) {
                 autoAimStart = 1;
             }
-            if (autoAimStart == 0) {
-                lastSeq = 0;
-            } else if (lastSeq != Ps.autoaimData.seq) {
-                lastSeq = Ps.autoaimData.seq;
-                yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
-                pitchAngleTargetPs -= Ps.autoaimData.pitch_angle_diff;
-            }
         }
+
+        if (autoAimStart == 0) {
+            lastSeq = 0;
+        } else if (lastSeq != Ps.autoaimData.seq) {
+            lastSeq = Ps.autoaimData.seq;
+            yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
+            pitchAngleTargetPs -= Ps.autoaimData.pitch_angle_diff;
+        }
+
         MIAO(pitchAngleTargetPs, GIMBAL_PITCH_MIN - pitchAngleTarget, GIMBAL_PITCH_MAX - pitchAngleTarget);
         yawAngleTarget += yawAngleTargetPs;
         pitchAngleTarget += pitchAngleTargetPs;
@@ -213,11 +223,11 @@ void Task_Chassis(void *Parameters) {
         power      = Judge.powerHeatData.chassis_power; // 裁判系统功率
 
         // 小陀螺
-        if (controlMode == 2 && keyboardData.F == 1 && keyboardData.Ctrl == 0) {
+        if (controlMode == 2 && keyboardData.R == 1 && keyboardData.Ctrl == 0) {
             swingMode = 1;
             swingAngle += 360 * interval;
             followDeadRegion = 0; // 关闭底盘跟随死区
-        } else if (controlMode == 1 || (keyboardData.F == 1 && keyboardData.Ctrl == 1)) {
+        } else if (controlMode == 1 || (keyboardData.R == 1 && keyboardData.Ctrl == 1)) {
             if (swingMode) {
                 swingMode       = 0; // 圈数清零
                 Motor_Yaw.round = 0;
@@ -348,32 +358,35 @@ void Task_Fire_Stir(void *Parameters) {
     LASER_ON;
 
     while (1) {
+        // 热量控制
+        maxShootHeat = (Judge.robotState.shooter_heat0_cooling_limit - 30);
 
         // 输入射击模式
-        if (remoteData.switchLeft != 3) {
-            if (remoteData.switchRight == 1) {
-                shootMode = shootIdle;
+        if (controlMode == 1) {
+            if (remoteData.switchLeft != 3) {
+                if (remoteData.switchRight == 1) {
+                    shootMode = shootIdle;
+                } else {
+                    shootMode = shootToDeath;
+                }
+            } else if (lastSeq != Ps.autoaimData.seq) {
+                shootMode = Ps.autoaimData.biu_biu_state ? shootToDeath : shootIdle;
             } else {
-                shootMode = shootToDeath;
-            }
-        } else if (lastSeq != Ps.autoaimData.seq) {
-            shootMode = Ps.autoaimData.biu_biu_state ? shootToDeath : shootIdle;
-        } else {
-            if (remoteData.switchRight == 1) {
-                shootMode = shootIdle;
-            } else {
-                shootMode = shootToDeath;
+                if (remoteData.switchRight == 1) {
+                    shootMode = shootIdle;
+                } else {
+                    shootMode = shootToDeath;
+                }
             }
         }
 
-        // 热量控制
-        // if (lastBulletSpeed < Judge.shootData.bullet_speed) {
-        //     maxBulletSpeed  = Judge.shootData.bullet_speed;
-        //     lastBulletSpeed = Judge.shootData.bullet_speed;
-        // }
-
-        // maxShootHeat = 0.8 * Judge.robotState.shooter_heat0_cooling_limit;
-        // mayShootNum  = (Judge.robotState.shooter_heat0_cooling_limit - Judge.powerHeatData.shooter_heat0) / maxBulletSpeed;
+        if (controlMode == 2) {
+            if (mouseData.pressLeft == 1 && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
+                shootMode = shootToDeath;
+            } else if (mouseData.pressLeft == 0) {
+                shootMode = shootIdle;
+            }
+        }
 
         // if (lastBulletSpeed != Judge.shootData.bullet_speed) {
         //     shootNum += 1;
@@ -389,11 +402,11 @@ void Task_Fire_Stir(void *Parameters) {
 
         // 控制拨弹轮
         if (shootMode == shootIdle) {
-            // PWM_Set_Compare(&PWM_Magazine_Servo, 7);
+            PWM_Set_Compare(&PWM_Magazine_Servo, 7);
             Can_Send(CAN2, 0x1FF, 0, 0, 0, 0);
         } else if (shootMode == shootToDeath) {
             // 连发
-            // PWM_Set_Compare(&PWM_Magazine_Servo, 15);
+            PWM_Set_Compare(&PWM_Magazine_Servo, 15);
             PID_Calculate(&PID_StirSpeed, 65, Motor_Stir.speed * RPM2RPS);
             Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
@@ -413,53 +426,111 @@ void Task_Fire_Stir(void *Parameters) {
  * @todo  使用状态机重写
  */
 void Task_Fire_Frict(void *Parameters) {
+
     // snail摩擦轮任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
 
-    float dutyCycleStart  = 0.376; // 起始占空比为37.6
-    float dutyCycleMiddle = 0.446; // 启动需要到44.6
-    float dutyCycleEnd    = 0.550; // 加速到你想要的占空比
+    float dutyCycleStart  = 0.376; //起始占空比为37.6
+    float dutyCycleMiddle = 0.446; //启动需要到44.6
+    float dutyCycleEnd    = 0.560; //加速到你想要的占空比
 
-    float dutyCycleSnailTarget    = dutyCycleStart; //目标占空比
-    float dutyCycleSnailProgress1 = 0;              //存储需要的两个过程（初始到启动，启动到你想要的速度）
-    float dutyCycleSnailProgress2 = 0;
+    float dutyCycleRightSnailTarget = 0.376; //目标占空比
+    float dutyCycleLeftSnailTarget  = 0.376;
 
-    int snailState = 0; //标志启动完后需要的延时
+    float dutyCycleRightSnailProgress1 = 0; //存储需要的两个过程（初始到启动，启动到你想要的速度）
+    float dutyCycleLeftSnailProgress1  = 0;
+    float dutyCycleRightSnailProgress2 = 0;
+    float dutyCycleLeftSnailProgress2  = 0;
+
+    int snailState = 0;
+    int lastSnailState;
+
+    enum {
+        STEP_SNAIL_IDLE,
+        STEP_RIGHT_START_TO_MIDDLE,
+        STEP_LEFT_START_TO_MIDDLE,
+        STEP_RIGHT_MIDDLE_TO_END,
+        STEP_LEFT_MIDDLE_TO_END,
+    } Step = STEP_SNAIL_IDLE;
+
+    /*来自dji开源，两个snail不能同时启动*/
 
     while (1) {
 
-        if (remoteData.switchLeft == 1 || (mouseData.pressRight == 1 && keyboardData.Ctrl == 1)) {
-            LASER_OFF; //打开激光
-            // 摩擦轮不转
-            dutyCycleSnailTarget    = dutyCycleStart;
-            dutyCycleSnailProgress1 = 0;
-            dutyCycleSnailProgress2 = 0;
-        } else if (remoteData.switchLeft == 3 || (mouseData.pressRight == 1 && keyboardData.Ctrl == 0)) {
-            LASER_ON; //打开激光
-            // 启动摩擦轮
-            if (dutyCycleSnailProgress1 <= 1) {
-                //初始状态
-                dutyCycleSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle,
-                                            dutyCycleSnailProgress1); //斜坡上升
-                dutyCycleSnailProgress1 += 0.05f;
+        lastSnailState = snailState;
+        if (controlMode == 1) {
+            if (remoteData.switchLeft == 3) {
+                LASER_ON;
+                snailState = 1;
             } else {
-                if (!snailState) { //初始状态停留100ms
-                    vTaskDelay(100);
-                    snailState = 1;
-                } else {
-                    if (dutyCycleSnailProgress2 <= 1) {
-                        //启动状态
-                        dutyCycleSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd,
-                                                    dutyCycleSnailProgress2); //斜坡上升
-                        dutyCycleSnailProgress2 += 0.01f;
-                    }
-                }
+                LASER_OFF;
+                snailState = 0;
             }
         }
-        // 设置占空比
-        PWM_Set_Compare(&PWM_Snail1, dutyCycleSnailTarget * 1250);
-        PWM_Set_Compare(&PWM_Snail2, dutyCycleSnailTarget * 1250);
-        // 任务延时
+        if (controlMode == 2) {
+            if (mouseData.pressRight == 1 && keyboardData.Ctrl == 0) {
+                LASER_ON;
+                snailState = 1;
+            } else if (mouseData.pressRight == 1 && keyboardData.Ctrl == 1) {
+                LASER_OFF;
+                snailState = 0;
+            }
+        }
+        switch (Step) {
+        case STEP_SNAIL_IDLE:
+            if (snailState == 0) {
+
+                dutyCycleRightSnailTarget    = 0.376;
+                dutyCycleLeftSnailTarget     = 0.376;
+                dutyCycleRightSnailProgress1 = 0;
+                dutyCycleRightSnailProgress2 = 0;
+                dutyCycleLeftSnailProgress1  = 0;
+                dutyCycleLeftSnailProgress2  = 0;
+            } else if (lastSnailState == 0) {
+                Step = STEP_RIGHT_START_TO_MIDDLE;
+            }
+            break;
+
+        case STEP_RIGHT_START_TO_MIDDLE:
+            dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle, dutyCycleRightSnailProgress1);
+            dutyCycleRightSnailProgress1 += 0.1f;
+            if (dutyCycleRightSnailProgress1 > 1) {
+                Step = STEP_LEFT_START_TO_MIDDLE;
+                vTaskDelay(100);
+            }
+            break;
+
+        case STEP_LEFT_START_TO_MIDDLE:
+            dutyCycleLeftSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle, dutyCycleLeftSnailProgress1);
+            dutyCycleLeftSnailProgress1 += 0.1f;
+            if (dutyCycleLeftSnailProgress1 > 1) {
+                Step = STEP_RIGHT_MIDDLE_TO_END;
+                vTaskDelay(100);
+            }
+
+        case STEP_RIGHT_MIDDLE_TO_END:
+            dutyCycleRightSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleRightSnailProgress2);
+            dutyCycleRightSnailProgress2 += 0.01f;
+            if (dutyCycleRightSnailProgress2 > 1) {
+                Step = STEP_LEFT_MIDDLE_TO_END;
+            }
+            if (Step != STEP_RIGHT_MIDDLE_TO_END) break;
+
+        case STEP_LEFT_MIDDLE_TO_END:
+            dutyCycleLeftSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleLeftSnailProgress2);
+            dutyCycleLeftSnailProgress2 += 0.01f;
+            if (dutyCycleLeftSnailProgress2 > 1) {
+                Step = STEP_SNAIL_IDLE;
+            }
+            break;
+
+        default:
+            break;
+        }
+
+        PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
+        PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
+
         vTaskDelayUntil(&LastWakeTime, 5);
     }
     vTaskDelete(NULL);
@@ -517,8 +588,8 @@ void Task_Sys_Init(void *Parameters) {
     // 运动控制任务
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
-    // xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
 
     //模式切换任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 4, NULL);
