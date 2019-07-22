@@ -373,21 +373,28 @@ void Task_Fire_Stir(void *Parameters) {
 
         // 输入射击模式
         if (controlMode == 1) {
-            if (remoteData.switchLeft != 3) {
-                if (remoteData.switchRight == 1) {
-                    shootMode = shootIdle;
-                } else {
-                    shootMode = shootToDeath;
-                }
+            if (remoteData.switchRight == 1) {
+                shootMode = shootIdle;
+            } else if (remoteData.switchRight == 3) {
+                shootMode = shootToDeath;
             } else if (lastSeq != Ps.autoaimData.seq) {
                 shootMode = Ps.autoaimData.biu_biu_state ? shootToDeath : shootIdle;
-            } else {
-                if (remoteData.switchRight == 1) {
-                    shootMode = shootIdle;
-                } else {
-                    shootMode = shootToDeath;
-                }
             }
+            // if (remoteData.switchLeft != 3) {
+            //     if (remoteData.switchRight == 1) {
+            //         shootMode = shootIdle;
+            //     } else {
+            //         shootMode = shootToDeath;
+            //     }
+            // } else if (lastSeq != Ps.autoaimData.seq) {
+            //     shootMode = Ps.autoaimData.biu_biu_state ? shootToDeath : shootIdle;
+            // } else {
+            //     if (remoteData.switchRight == 1) {
+            //         shootMode = shootIdle;
+            //     } else {
+            //         shootMode = shootToDeath;
+            //     }
+            // }
         }
 
         if (controlMode == 2) {
