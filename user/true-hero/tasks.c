@@ -230,7 +230,8 @@ void Task_Chassis(void *Parameters) {
             if (keyboardData.W == 0 && keyboardData.S == 0) {
                 yRampProgress = 0;
                 yRampStart    = 0;
-            } else if (keyboardData.A == 0 && keyboardData.D == 0) {
+            }
+            if (keyboardData.A == 0 && keyboardData.D == 0) {
                 xRampProgress = 0;
                 xRampStart    = 0;
             }
