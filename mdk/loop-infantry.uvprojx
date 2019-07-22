@@ -333,7 +333,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--gnu</MiscControls>
-              <Define>STM32F427_437xx,USE_STDPERIPH_DRIVER</Define>
+              <Define>STM32F427_437xx,USE_STDPERIPH_DRIVER,ROBOT_LOOP_ONE</Define>
               <Undefine></Undefine>
               <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\user\loop-infantry;..\library\vegmath</IncludePath>
             </VariousControls>
