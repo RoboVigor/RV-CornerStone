@@ -26,11 +26,11 @@ void Task_Safe_Mode(void *Parameters) {
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        if (!kb->state) {
+        if (!keyboardData.state) {
             ControlMode  = 1; //遥控器模式
             SwingEnabled = remoteData.switchLeft == 2;
             FrictEnabled = remoteData.switchLeft == 3;
-            StirEnabled  = remoteData.switchRight == 1;
+            StirEnabled  = remoteData.switchRight == 3;
             // PsEnabled    = remoteData.switchRight == 3;
         } else {
             ControlMode = 2; //键鼠模式
@@ -363,7 +363,7 @@ void Task_Fire_Stir(void *Parameters) {
         maxShootHeat = (Judge.robotState.shooter_heat0_cooling_limit - 30);
 
         // 输入射击模式
-        shootMode = FrictEnabled ? shootToDeath : shootIdle;
+        shootMode = StirEnabled ? shootToDeath : shootIdle;
 
         // 控制拨弹轮
         if (shootMode == shootIdle) {
