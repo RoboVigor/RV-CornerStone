@@ -85,6 +85,8 @@ typedef struct {
             uint16_t keyCode;
         };
     };
+
+    enum DBusState state;
 } Keyboard_Type;
 
 /**
