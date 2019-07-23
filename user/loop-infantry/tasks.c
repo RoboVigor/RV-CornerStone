@@ -26,13 +26,36 @@ void Task_Safe_Mode(void *Parameters) {
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-
-        if (remoteData.switchLeft == 1 || remoteData.switchLeft == 3) {
-            controlMode = 1; //遥控器模式
-        } else if (remoteData.switchLeft == 2) {
-            controlMode = 2; //键鼠模式
+        if (!kb->state) {
+            ControlMode  = 1; //遥控器模式
+            SwingEnabled = remoteData.switchLeft == 2;
+            FrictEnabled = remoteData.switchLeft == 3;
+            StirEnabled  = remoteData.switchRight == 1;
+            // PsEnabled    = remoteData.switchRight == 3;
+        } else {
+            ControlMode = 2; //键鼠模式
+            if (mouseData.pressRight && !keyboardData.Ctrl) {
+                FrictEnabled = 1;
+            } else if (mouseData.pressRight && keyboardData.Ctrl) {
+                FrictEnabled = 0;
+            }
+            if (mouseData.pressLeft) {
+                StirEnabled = 1;
+            } else {
+                StirEnabled = 0;
+            }
+            if (keyboardData.Q && !keyboardData.Ctrl) {
+                PsEnabled = 1;
+            } else if (keyboardData.Q && keyboardData.Ctrl) {
+                PsEnabled = 0;
+            }
+            if (keyboardData.R && !keyboardData.Ctrl) {
+                SwingEnabled = 1;
+            } else if (keyboardData.R && keyboardData.Ctrl) {
+                SwingEnabled = 0;
+            }
         }
-        vTaskDelayUntil(&LastWakeTime, 10);
+        vTaskDelayUntil(&LastWakeTime, 5);
     }
     vTaskDelete(NULL);
 }
@@ -88,36 +111,17 @@ void Task_Gimbal(void *Parameters) {
         chassisAngle = Motor_Pitch.angle + pitchAngle;
 
         // 遥控器输入角度目标
-        if (controlMode == 1) {
-            if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 360 * interval;
-            if (ABS(remoteData.ry) > 30) pitchAngleTargetControl -= remoteData.ry / 660.0f * 360 * interval;
-        } else if (controlMode == 2) {
-            yawAngleTargetControl += mouseData.x * 0.5 * 0.005;
-            pitchAngleTargetControl += mouseData.y * 0.005;
-        }
-        // MIAO(pitchAngleTargetControl, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
+        if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 360 * interval;
+        if (ABS(remoteData.ry) > 30) pitchAngleTargetControl -= remoteData.ry / 660.0f * 360 * interval;
+        yawAngleTargetControl += mouseData.x * 0.5 * 0.005;
+        pitchAngleTargetControl += mouseData.y * 0.005;
+        MIAO(pitchAngleTargetControl, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
         yawAngleTarget += yawAngleTargetControl;
         pitchAngleTarget += pitchAngleTargetControl;
 
         // 视觉辅助
-        if (controlMode == 1) {
-            if (remoteData.switchRight == 3) {
-                autoAimStart = 1;
-            } else {
-                autoAimStart = 0;
-            }
-        }
-
-        if (controlMode == 2) {
-            if (keyboardData.Q == 1 && keyboardData.Ctrl == 1) {
-                autoAimStart = 0;
-            } else if (keyboardData.Q == 1 && keyboardData.Ctrl == 0) {
-                autoAimStart = 1;
-            }
-        }
-
-        if (autoAimStart == 0) {
-            lastSeq = 0;
+        if (!PsEnabled) {
+            lastSeq = Ps.autoaimData.seq;
         } else if (lastSeq != Ps.autoaimData.seq) {
             lastSeq = Ps.autoaimData.seq;
             yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
@@ -233,11 +237,11 @@ void Task_Chassis(void *Parameters) {
         power      = Judge.powerHeatData.chassis_power; // 裁判系统功率
 
         // 小陀螺
-        if (controlMode == 2 && keyboardData.R == 1 && keyboardData.Ctrl == 0) {
+        if (SwingEnabled) {
             swingMode = 1;
             swingAngle += 360 * interval;
             followDeadRegion = 0; // 关闭底盘跟随死区
-        } else if (controlMode == 1 || (keyboardData.R == 1 && keyboardData.Ctrl == 1)) {
+        } else {
             if (swingMode) {
                 swingMode       = 0; // 圈数清零
                 Motor_Yaw.round = 0;
@@ -246,14 +250,13 @@ void Task_Chassis(void *Parameters) {
             followDeadRegion = 3; // 开启底盘跟随死区
         }
         PID_Calculate(&PID_Follow_Angle, swingAngle, motorAngle);
-        // PID_Calculate(&PID_Follow_Angle, 0, motorAngle); // turn off swing
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeed);
 
         // 设置底盘总体移动速度
-        if (controlMode == 1) {
+        if (ControlMode == 1) {
             vx = -remoteData.lx / 660.0f * 4;
             vy = remoteData.ly / 660.0f * 12;
-        } else if (controlMode == 2) {
+        } else if (ControlMode == 2) {
             xTargetRamp = RAMP(xRampStart, 660, xRampProgress);
             if (xRampProgress <= 0.5) {
                 xRampProgress += 0.002f;
@@ -329,25 +332,13 @@ void Task_Debug_Magic_Send(void *Parameters) {
  * @brief 发射机构 (拨弹轮)
  */
 
-/*
-remainToShoot=0,
-counter2=0,
-最小射击周期 minDuration=20,
-任务循环周期 intervalms=5;
-while(1){
-    remainToShoot+=(counter2+intervalms)/minDuration;
-    remainToShoot-=裁判系统读到的射击数量;
-    counter2=(counter2+intervalms)%minDuration;
-}
-*/
-
 void Task_Fire_Stir(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.005;               // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     // 射击模式
-    enum shootMode_e { shootIdle = 0, shootOnce, shootToDeath }; // 停止, 单发, 连发
+    enum shootMode_e { shootIdle = 0, shootToDeath }; // 停止, 连发
     enum shootMode_e shootMode = shootIdle;
 
     // 热量控制
@@ -372,50 +363,7 @@ void Task_Fire_Stir(void *Parameters) {
         maxShootHeat = (Judge.robotState.shooter_heat0_cooling_limit - 30);
 
         // 输入射击模式
-        if (controlMode == 1) {
-            if (remoteData.switchRight == 1) {
-                shootMode = shootIdle;
-            } else if (remoteData.switchRight == 3) {
-                shootMode = shootToDeath;
-            } else if (lastSeq != Ps.autoaimData.seq) {
-                shootMode = Ps.autoaimData.biu_biu_state ? shootToDeath : shootIdle;
-            }
-            // if (remoteData.switchLeft != 3) {
-            //     if (remoteData.switchRight == 1) {
-            //         shootMode = shootIdle;
-            //     } else {
-            //         shootMode = shootToDeath;
-            //     }
-            // } else if (lastSeq != Ps.autoaimData.seq) {
-            //     shootMode = Ps.autoaimData.biu_biu_state ? shootToDeath : shootIdle;
-            // } else {
-            //     if (remoteData.switchRight == 1) {
-            //         shootMode = shootIdle;
-            //     } else {
-            //         shootMode = shootToDeath;
-            //     }
-            // }
-        }
-
-        if (controlMode == 2) {
-            if (mouseData.pressLeft == 1 && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
-                shootMode = shootToDeath;
-            } else if (mouseData.pressLeft == 0) {
-                shootMode = shootIdle;
-            }
-        }
-
-        // if (lastBulletSpeed != Judge.shootData.bullet_speed) {
-        //     shootNum += 1;
-        //     lastBulletSpeed = Judge.shootData.bullet_speed;
-        // }
-        // if (remoteData.switchRight == 3 && remoteData.switchLeft == 3 && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
-        //     shootMode = 1; //连发
-        // } else if (remoteData.switchRight == 3 && remoteData.switchLeft == 2 && (shootNum + 1) < mayShootNum) {
-        //     shootMode = 2; // n连发
-        // } else {
-        //     shootMode = 0; //停止
-        // }
+        shootMode = FrictEnabled ? shootToDeath : shootIdle;
 
         // 控制拨弹轮
         if (shootMode == shootIdle) {
@@ -428,11 +376,6 @@ void Task_Fire_Stir(void *Parameters) {
             Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
 
-        // DebugData.debug1 = Ps.autoaimData.biu_biu_state;
-        // DebugData.debug2 = Judge.powerHeatData.shooter_heat0;
-        // DebugData.debug3 = Judge.shootData.bullet_speed;
-        // DebugData.debug4 = Judge.robotState.shooter_heat0_cooling_limit;
-        // DebugData.debug5 = Judge.robotState.shooter_heat0_cooling_rate;
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
@@ -473,25 +416,12 @@ void Task_Fire_Frict(void *Parameters) {
     /*来自dji开源，两个snail不能同时启动*/
 
     while (1) {
-
         lastSnailState = snailState;
-        if (controlMode == 1) {
-            if (remoteData.switchLeft == 3) {
-                LASER_ON;
-                snailState = 1;
-            } else {
-                LASER_OFF;
-                snailState = 0;
-            }
-        }
-        if (controlMode == 2) {
-            if (mouseData.pressRight == 1 && keyboardData.Ctrl == 0) {
-                LASER_ON;
-                snailState = 1;
-            } else if (mouseData.pressRight == 1 && keyboardData.Ctrl == 1) {
-                LASER_OFF;
-                snailState = 0;
-            }
+        snailState     = FrictEnabled;
+        if (FrictEnabled) {
+            LASER_ON;
+        } else {
+            LASER_OFF;
         }
         switch (Step) {
         case STEP_SNAIL_IDLE:
@@ -602,14 +532,14 @@ void Task_Sys_Init(void *Parameters) {
     while (!remoteData.state) {
     }
 
+    //模式切换任务
+    xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
+
     // 运动控制任务
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
     xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
-
-    //模式切换任务
-    xTaskCreate(Task_Control, "Task_Control", 400, NULL, 4, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
