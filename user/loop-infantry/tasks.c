@@ -390,10 +390,15 @@ void Task_Fire_Stir(void *Parameters) {
         maxShootHeat = (Judge.robotState.shooter_heat0_cooling_limit - 30);
 
         // 输入射击模式
-        shootMode = StirEnabled ? shootToDeath : shootIdle;
+        if (StirEnabled && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
+            shootMode = shootToDeath;
+        } else {
+            shootMode = shootIdle;
+        }
 
         // 控制拨弹轮
         if (shootMode == shootIdle) {
+            // 停止
             PWM_Set_Compare(&PWM_Magazine_Servo, 7);
             Can_Send(CAN2, 0x1FF, 0, 0, 0, 0);
         } else if (shootMode == shootToDeath) {
