@@ -15,10 +15,10 @@ void Task_Safe_Mode(void *Parameters) {
                 Can_Send(CAN2, 0x1FF, 0, 0, 0, 0);
                 PWM_Set_Compare(&PWM_Snail1, 0.376 * 1250);
                 PWM_Set_Compare(&PWM_Snail2, 0.376 * 1250);
-                vTaskDelay(2);
+                vTaskDelay(5);
             }
         }
-        vTaskDelay(2);
+        vTaskDelay(5);
     }
     vTaskDelete(NULL);
 }
@@ -28,9 +28,9 @@ void Task_Control(void *Parameters) {
     while (1) {
         if (!keyboardData.state) {
             ControlMode  = 1; //遥控器模式
-            SwingEnabled = remoteData.switchLeft == 2;
-            FrictEnabled = remoteData.switchLeft == 3;
-            StirEnabled  = remoteData.switchRight == 3;
+            SwingEnabled = remoteData.switchRight == 1;
+            // FrictEnabled = remoteData.switchLeft == 3;
+            // StirEnabled  = remoteData.switchRight == 3;
             // PsEnabled    = remoteData.switchRight == 3;
         } else {
             ControlMode = 2; //键鼠模式
@@ -202,6 +202,7 @@ void Task_Chassis(void *Parameters) {
     float filter[6]      = {0, 0, 0, 0, 0, 0};
     int   filterp        = 0;
     float power          = 0;
+    float powerBuffer    = 0;
 
     // 小陀螺
     float   swingAngle = 0;
@@ -213,15 +214,15 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_Follow_Speed, 10, 0, 0, 1000, 0);
 
     // 麦轮速度PID
-    PID_Init(&PID_LFCM, 28, 0.05, 0, 15000, 7500);
-    PID_Init(&PID_LBCM, 28, 0.05, 0, 15000, 7500);
-    PID_Init(&PID_RBCM, 28, 0.05, 0, 15000, 7500);
-    PID_Init(&PID_RFCM, 28, 0.05, 0, 15000, 7500);
+    PID_Init(&PID_LFCM, 28, 0, 0, 15000, 7500);
+    PID_Init(&PID_LBCM, 28, 0, 0, 15000, 7500);
+    PID_Init(&PID_RBCM, 28, 0, 0, 15000, 7500);
+    PID_Init(&PID_RFCM, 28, 0, 0, 15000, 7500);
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
 
-    //地盘运动斜坡函数
+    // 底盘运动斜坡函数
     float xRampProgress = 0;
     float xRampStart    = 0;
     float xTargetRamp   = 0;
@@ -232,9 +233,17 @@ void Task_Chassis(void *Parameters) {
     while (1) {
 
         // 设置反馈值
-        motorAngle = Motor_Yaw.angle;                   // 电机角度
-        motorSpeed = Motor_Yaw.speed * RPM2RPS;         // 电机角速度
-        power      = Judge.powerHeatData.chassis_power; // 裁判系统功率
+        motorAngle  = Motor_Yaw.angle;                          // 电机角度
+        motorSpeed  = Motor_Yaw.speed * RPM2RPS;                // 电机角速度
+        power       = Judge.powerHeatData.chassis_power;        // 裁判系统功率
+        powerBuffer = Judge.powerHeatData.chassis_power_buffer; // 裁判系统功率缓冲
+
+        // 视觉专属follow PID
+        if (PsEnabled) {
+            PID_Follow_Angle.p = 1;
+        } else {
+            PID_Follow_Angle.p = 1.3;
+        }
 
         // 小陀螺
         if (SwingEnabled) {
@@ -283,13 +292,26 @@ void Task_Chassis(void *Parameters) {
         }
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
+        if (vx < 0.2 && vy < 0.2 && vw < 0.2) {
+            PID_LFCM.i = 0.1;
+            PID_LBCM.i = 0.1;
+            PID_RBCM.i = 0.1;
+            PID_RFCM.i = 0.1;
+        } else {
+            PID_LFCM.i = 0;
+            PID_LBCM.i = 0;
+            PID_RBCM.i = 0;
+            PID_RFCM.i = 0;
+        }
+
         // 麦轮解算及限速
-        targetPower = 80.0 - (60.0 - ChassisData.powerBuffer) / 60.0 * 80.0; // 设置目标功率
-        Chassis_Update(&ChassisData, vx, vy, vw);                            // 更新麦轮转速
-        Chassis_Fix(&ChassisData, motorAngle);                               // 修正旋转后底盘的前进方向
-        Chassis_Calculate_Rotor_Speed(&ChassisData);                         // 麦轮解算
-        Chassis_Limit_Rotor_Speed(&ChassisData, CHASSIS_ROTOR_SPEED);        // 设置转子速度上限 (rad/s)
-        Chassis_Limit_Power(&ChassisData, 80, targetPower, power, interval); // 根据功率限幅
+        targetPower =
+            80.0 - WANG(40.0 - ChassisData.powerBuffer, 0, 40) / 40.0 * 80.0; // 设置目标功率                                                // 设置目标功率
+        Chassis_Update(&ChassisData, vx, vy, vw);                             // 更新麦轮转速
+        Chassis_Fix(&ChassisData, motorAngle);                                // 修正旋转后底盘的前进方向
+        Chassis_Calculate_Rotor_Speed(&ChassisData);                          // 麦轮解算
+        Chassis_Limit_Rotor_Speed(&ChassisData, 500);                         // 设置转子速度上限 (rad/s)
+        Chassis_Limit_Power(&ChassisData, 80, targetPower, power, powerBuffer, interval); // 根据功率限幅
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
@@ -298,17 +320,22 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Can_Send(CAN1,
+                 0x200,
+                 PID_LFCM.output * ChassisData.powerScale,
+                 PID_LBCM.output * ChassisData.powerScale,
+                 PID_RBCM.output * ChassisData.powerScale,
+                 PID_RFCM.output * ChassisData.powerScale);
 
         // 调试信息
-        // DebugDaDebugData.debug1ta.debug1 = PID_Follow_Angle.output * 1000;
-        DebugData.debug2 = keyboardData.A;
-        DebugData.debug3 = keyboardData.D;
-        DebugData.debug5 = xRampProgress;
-        DebugData.debug6 = xTargetRamp;
-        // DebugData.debug6 = PID_LFCM.output;
-        // DebugData.debug7 = rotorSpeed[3];
-        // DebugData.debug8 = rotorSpeed[3];
+        // DebugData.debug1 = ChassisData.powerScale * 1000;
+        // DebugData.debug2 = power;
+        // DebugData.debug3 = Motor_LF.speed;
+        // DebugData.debug4 = Judge.powerHeatData.chassis_power_buffer;
+        // DebugData.debug5 = ChassisData.powerBuffer;
+        // DebugData.debug6 = vx * 1000;
+        // DebugData.debug7 = vy * 1000;
+        // DebugData.debug8 = vw * 1000;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);

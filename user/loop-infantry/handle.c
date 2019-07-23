@@ -27,8 +27,8 @@ void Handle_Init(void) {
 #ifdef ROBOT_LOOP_TWO
     Motor_Yaw.positionBias   = 3400;
     Motor_Yaw.position       = 3400;
-    Motor_Pitch.positionBias = 6920;
-    Motor_Pitch.position     = 6920;
+    Motor_Pitch.positionBias = 7090;
+    Motor_Pitch.position     = 7090;
 #endif
 #ifdef ROBOT_LOOP_THREE
     Motor_Yaw.positionBias   = 640;
