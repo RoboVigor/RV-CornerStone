@@ -365,7 +365,7 @@
               <MiscControls>--gnu</MiscControls>
               <Define>STM32F427_437xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\user\template;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\library\vegmath</IncludePath>
+              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\user\sentry;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\library\vegmath</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -646,62 +646,37 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_guard</GroupName>
+          <GroupName>user_sentry</GroupName>
           <Files>
             <File>
               <FileName>bsp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\guard\bsp.c</FilePath>
+              <FilePath>..\user\sentry\bsp.c</FilePath>
             </File>
             <File>
               <FileName>handle.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\guard\handle.c</FilePath>
+              <FilePath>..\user\sentry\handle.c</FilePath>
             </File>
             <File>
               <FileName>interrupt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\guard\interrupt.c</FilePath>
+              <FilePath>..\user\sentry\interrupt.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\guard\main.c</FilePath>
+              <FilePath>..\user\sentry\main.c</FilePath>
             </File>
             <File>
               <FileName>task_debug.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\guard\task_debug.c</FilePath>
+              <FilePath>..\user\sentry\task_debug.c</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\guard\tasks.c</FilePath>
-            </File>
-            <File>
-              <FileName>config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\guard\config.h</FilePath>
-            </File>
-            <File>
-              <FileName>handle.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\guard\handle.h</FilePath>
-            </File>
-            <File>
-              <FileName>main.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\guard\main.h</FilePath>
-            </File>
-            <File>
-              <FileName>rtos.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\guard\rtos.h</FilePath>
-            </File>
-            <File>
-              <FileName>tasks.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\guard\tasks.h</FilePath>
+              <FilePath>..\user\sentry\tasks.c</FilePath>
             </File>
           </Files>
         </Group>

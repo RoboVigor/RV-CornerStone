@@ -41,50 +41,58 @@ void USART1_IRQHandler(void) {
  * @brief USART3 串口中断
  */
 void USART3_IRQHandler(void) {
-    u8 res;
+    uint8_t  tmp;
+    uint16_t len;
+    int      i;
 
-    if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
-        res = USART_ReceiveData(USART3);                     // 读取数据
-        RED_LIGHT_TOGGLE;
+    // clear IDLE flag
+    tmp = USART3->DR;
+    tmp = USART3->SR;
+
+    // disable DMA and Unpack
+    DMA_Cmd(DMA1_Stream1, DISABLE);
+    while (DMA_GetFlagStatus(DMA1_Stream1, DMA_IT_TCIF1) != SET) {
+    }
+    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Stream1);
+    for (i = 0; i < len; i++) {
+        Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
     }
 
-    if ((magic.sta & 0x8000) == 0) { // 接收未完成
-        if (magic.sta & 0x4000) {    // 接收到 0x0d
-            if (res != 0x0a)         // 接收错误，重新开始
-                magic.sta = 0;
-            else // 接收完成
-                magic.sta |= 0x8000;
-        } else { // 未接收到 0x0d
-            if (res == 0x0d) {
-                magic.sta |= 0x4000;
-            } else {
-                magic.buf[magic.sta & 0X3FFF] = res;
-                magic.sta++;
-                // USART3->DR = res;
-                if (magic.sta > (MAGIC_MAX_LENGTH - 1)) magic.sta = 0; // 接收数据错误，重新开始接收
-            }
-        }
+    // enable DMA
+    DMA_ClearFlag(DMA1_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
+    while (DMA_GetCmdStatus(DMA1_Stream1) != DISABLE) {
     }
+    DMA_SetCurrDataCounter(DMA1_Stream1, Protocol_Buffer_Length);
+    DMA_Cmd(DMA1_Stream1, ENABLE);
 }
 
 /**
  * @brief USART6 串口中断
  */
 void USART6_IRQHandler(void) {
-    u8 res;
+    uint8_t  tmp;
+    uint16_t len;
+    int      i;
 
-    // 读取数据
-    res = USART_ReceiveData(USART6);
-    RED_LIGHT_TOGGLE;
+    // clear IDLE flag
+    tmp = USART6->DR;
+    tmp = USART6->SR;
 
-    //#1
-    // PsData.result[0] = res;
-    // PsData.id++;
-    // printf("[%d]", res);
-    // USART6->DR = res;
+    // disable DMA and Unpack
+    DMA_Cmd(DMA2_Stream1, DISABLE);
+    while (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != SET) {
+    }
+    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA2_Stream1);
+    for (i = 0; i < len; i++) {
+        Protocol_Unpack(&Judge, Judge.receiveBuf[i]);
+    }
 
-    //#2
-    // Ps_Update(&PsData, res);
+    // enable DMA
+    DMA_ClearFlag(DMA2_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
+    while (DMA_GetCmdStatus(DMA2_Stream1) != DISABLE) {
+    }
+    DMA_SetCurrDataCounter(DMA2_Stream1, Protocol_Buffer_Length);
+    DMA_Cmd(DMA2_Stream1, ENABLE);
 }
 
 // CAN1数据接收中断服务函数
@@ -108,11 +116,11 @@ void CAN1_RX0_IRQHandler(void) {
         Motor_Update(&Motor_Chassis_Right, position, speed);
         break;
 
-    case 0x203:
+    case 0x205:
         Motor_Update(&Motor_Stabilizer_Yaw, position, speed);
         break;
 
-    case 0x204:
+    case 0x206:
         Motor_Update(&Motor_Stabilizer_Pitch, position, speed);
         break;
 
@@ -143,13 +151,6 @@ void CAN2_RX0_IRQHandler(void) {
 
     // 安排数据
     switch (CanRxData.StdId) {
-    case 0x201:
-        Motor_Update(&Motor_LeftFrict, position, speed);
-        break;
-
-    case 0x202:
-        Motor_Update(&Motor_RightFrict, position, speed);
-        break;
 
     default:
         break;
