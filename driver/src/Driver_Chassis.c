@@ -12,8 +12,9 @@ void Chassis_Init(ChassisData_Type *cd) {
     cd->power              = 0;
     cd->referencePower     = 0;
     cd->lastReferencePower = 0;
-    cd->maxPower           = 80;
     cd->targetPower        = 80;
+    cd->maxPower           = 80;
+    cd->maxPowerBuffer     = 60;
     PID_Init(&(cd->PID_Power), 1, 0, 0, 500, 10);
 }
 
@@ -68,18 +69,17 @@ void Chassis_Scale_Rotor_Speed(ChassisData_Type *cd, float scale) {
     cd->rotorSpeed[3] = cd->rotorSpeed[3] * scale;
 }
 
-void Chassis_Limit_Power(ChassisData_Type *cd, float maxPower, float targetPower, float referencePower, float referencePowerBuffer, float interval) {
+void Chassis_Limit_Power(ChassisData_Type *cd, float targetPower, float referencePower, float referencePowerBuffer, float interval) {
     PID_Type *PID_Power = &(cd->PID_Power);
 
     // 更新状态
-    cd->maxPower       = maxPower;
     cd->targetPower    = targetPower;
     cd->referencePower = referencePower;
     cd->interval       = interval;
 
     // 功率拟合
     if (cd->referencePower != cd->lastReferencePower) {
-        // 更新功率
+        // 更新功率及缓冲
         cd->power              = cd->referencePower;
         cd->lastReferencePower = cd->referencePower;
         cd->powerBuffer        = referencePowerBuffer;
@@ -90,14 +90,13 @@ void Chassis_Limit_Power(ChassisData_Type *cd, float maxPower, float targetPower
         float stable;
         float ePow;
         cd->fittingCounter++;
-        // if (cd->fittingCounter % 1 == 0)
         stable = cd->powerScale * cd->power;
         ePow   = pow(2.71828, -(cd->interval) * (1.0 / 0.04)); // 40
         // ePow      = pow(2.71828, -(cd->interval) * ((float) cd->fittingCounter) / 0.035); // 40
         cd->power = stable + (cd->power - stable) * ePow;
         // 模拟功率缓冲
         cd->powerBuffer -= (cd->referencePower - cd->maxPower) * cd->interval;
-        MIAO(cd->powerBuffer, 0, 60);
+        MIAO(cd->powerBuffer, 0, cd->maxPowerBuffer);
     }
 
     // 功率PID

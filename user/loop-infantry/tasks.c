@@ -311,7 +311,7 @@ void Task_Chassis(void *Parameters) {
         Chassis_Fix(&ChassisData, motorAngle);                                // 修正旋转后底盘的前进方向
         Chassis_Calculate_Rotor_Speed(&ChassisData);                          // 麦轮解算
         Chassis_Limit_Rotor_Speed(&ChassisData, 500);                         // 设置转子速度上限 (rad/s)
-        Chassis_Limit_Power(&ChassisData, 80, targetPower, power, powerBuffer, interval); // 根据功率限幅
+        Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);

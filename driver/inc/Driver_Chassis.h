@@ -26,6 +26,7 @@ typedef struct {
     uint32_t fittingCounter;
     float    powerScale;
     float    powerBuffer;
+    float    maxPowerBuffer;
 } ChassisData_Type;
 
 /**
@@ -74,5 +75,5 @@ void Chassis_Scale_Rotor_Speed(ChassisData_Type *ChassisData, float scale);
  * @param referencePower 参考功率 (来源裁判系统或电流计)
  * @param interval       任务周期
  */
-void Chassis_Limit_Power(ChassisData_Type *cd, float maxPower, float targetPower, float referencePower, float referencePowerBuffer, float interval);
+void Chassis_Limit_Power(ChassisData_Type *cd, float targetPower, float referencePower, float referencePowerBuffer, float interval);
 #endif
