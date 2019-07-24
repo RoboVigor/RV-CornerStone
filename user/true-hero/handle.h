@@ -74,7 +74,7 @@ __HANDLE_EXT PID_Type PID_LeftFrictSpeed, PID_RightFrictSpeed, PID_Stir2006Speed
 __HANDLE_EXT u32 TIM5CH1_CAPTURE_STA, TIM5CH1_CAPTURE_VAL;
 
 //模式控制
-__HANDLE_EXT uint8_t controlMode;
+__HANDLE_EXT uint8_t ControlMode;
 
 /**
  * @brief 初始化结构体
