@@ -54,6 +54,11 @@ void Task_Control(void *Parameters) {
             } else if (keyboardData.R && keyboardData.Ctrl) {
                 SwingEnabled = 0;
             }
+            if (keyboardData.V && !keyboardData.Ctrl) {
+                LowEnabled = 1;
+            } else if (keyboardData.V && keyboardData.Ctrl) {
+                LowEnabled = 0;
+            }
         }
         vTaskDelayUntil(&LastWakeTime, 5);
     }
@@ -289,20 +294,25 @@ void Task_Chassis(void *Parameters) {
                 xRampProgress = 0;
                 xRampStart    = 0;
             }
+            if (LowEnabled) {
+                vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 0.5;
+                vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 0.5;
+            }
         }
+
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
-        if (vx < 0.2 && vy < 0.2 && vw < 0.2) {
-            PID_LFCM.i = 0.1;
-            PID_LBCM.i = 0.1;
-            PID_RBCM.i = 0.1;
-            PID_RFCM.i = 0.1;
-        } else {
-            PID_LFCM.i = 0;
-            PID_LBCM.i = 0;
-            PID_RBCM.i = 0;
-            PID_RFCM.i = 0;
-        }
+        // if (vx < 0.2 && vy < 0.2 && vw < 0.2) {
+        //     PID_LFCM.i = 0.1;
+        //     PID_LBCM.i = 0.1;
+        //     PID_RBCM.i = 0.1;
+        //     PID_RFCM.i = 0.1;
+        // } else {
+        //     PID_LFCM.i = 0;
+        //     PID_LBCM.i = 0;
+        //     PID_RBCM.i = 0;
+        //     PID_RFCM.i = 0;
+        // }
 
         // 麦轮解算及限速
         targetPower =
