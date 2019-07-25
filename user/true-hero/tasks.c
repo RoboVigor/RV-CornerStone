@@ -93,13 +93,13 @@ void Task_Gimbal(void *Parameters) {
 
         // 视觉辅助
         if (ControlMode == 2) {
-            if (keyboardData.Q == 1 && keyboardData.Ctrl == 1) {
+            if (keyboardData.Q && keyboardData.Ctrl) {
                 autoAimStart = 0;
-            } else if (keyboardData.Q == 1 && keyboardData.Ctrl == 0) {
+            } else if (keyboardData.Q && !keyboardData.Ctrl) {
                 autoAimStart = 1;
             }
-            if (autoAimStart == 0) {
-                lastSeq = 0;
+            if (!autoAimStart) {
+                lastSeq = Ps.autoaimData.seq;
             } else if (lastSeq != Ps.autoaimData.seq) {
                 lastSeq = Ps.autoaimData.seq;
                 yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
@@ -251,12 +251,12 @@ void Task_Chassis(void *Parameters) {
         Chassis_Calculate_Rotor_Speed(&ChassisData);                                  // 麦轮解算
         Chassis_Limit_Rotor_Speed(&ChassisData, CHASSIS_ROTOR_SPEED);                 // 设置转子速度上限 (rad/s)
         Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
-        if (keyboardData.G == 1 && keyboardData.Ctrl == 0) {
+        if (keyboardData.G && !keyboardData.Ctrl) {
             PID_LFCM.i = 0.5;
             PID_LBCM.i = 0.5;
             PID_RBCM.i = 0.5;
             PID_RFCM.i = 0.5;
-        } else if (keyboardData.G == 1 && keyboardData.Ctrl == 1) {
+        } else if (keyboardData.G && keyboardData.Ctrl) {
             PID_LFCM.i        = 0;
             PID_LBCM.i        = 0;
             PID_RBCM.i        = 0;
@@ -347,23 +347,23 @@ void Task_Fire(void *Parameters) {
         if (speedRampProgress < 1) {
             speedRampProgress += 0.1f;
         }
-        if (mouseData.pressRight == 1 && keyboardData.Ctrl == 1) {
+        if (mouseData.pressRight && keyboardData.Ctrl) {
             shootState = 1;
-        } else if (mouseData.pressRight == 1 && keyboardData.Ctrl == 0) {
+        } else if (mouseData.pressRight && !keyboardData.Ctrl) {
             shootState = 2;
         }
 
         if (ControlMode == 2) {
-            if (keyboardData.R == 1 && keyboardData.Ctrl == 0) {
+            if (keyboardData.R && !keyboardData.Ctrl) {
                 shootMode = 1;
-            } else if (keyboardData.R == 1 && keyboardData.Ctrl == 1) {
+            } else if (keyboardData.R && keyboardData.Ctrl) {
                 shootMode = 0;
             }
         } else if (ControlMode == 1) {
             shootMode = 1;
         }
         // 2006,3510拨弹轮
-        if (shootMode == 1) {
+        if (shootMode) {
             if (ControlMode == 1) {
                 if (remoteData.switchLeft == 1) {
                     PID_LeftFrictSpeed.output_I  = 0;
@@ -391,14 +391,14 @@ void Task_Fire(void *Parameters) {
                     LASER_ON;                                                                   // 激光开启
                 }
 
-                if (keyboardData.E == 1 && keyboardData.Ctrl == 0) {
+                if (keyboardData.E && !keyboardData.Ctrl) {
                     PWM_Set_Compare(&PWM_Magazine_Servo, 17);
-                } else if (keyboardData.E == 1 && keyboardData.Ctrl == 1) {
+                } else if (keyboardData.E && keyboardData.Ctrl) {
                     PWM_Set_Compare(&PWM_Magazine_Servo, 10);
                 }
             }
 
-            if (stop == 0) {
+            if (!stop) {
                 if (ControlMode == 1) {
                     if (remoteData.switchRight == 3 && Judge.powerHeatData.shooter_heat1 < (maxShootHeat - 100)) {
                         PID_Stir2006Speed.p = 30;
@@ -411,20 +411,20 @@ void Task_Fire(void *Parameters) {
                     }
                 }
                 if (ControlMode == 2) {
-                    if (mouseData.pressLeft == 1 && Judge.powerHeatData.shooter_heat1 < (maxShootHeat - 100)) {
+                    if (mouseData.pressLeft && Judge.powerHeatData.shooter_heat1 < (maxShootHeat - 100)) {
                         PID_Stir2006Speed.p = 30;
                         PID_Calculate(&PID_Stir2006Speed, speedTargetRamp, Motor_Stir2006.speed * rpm2rps);
                         PID_Stir3510Speed.output_I = 0;
                         PID_Stir3510Speed.output   = 0;
                         state                      = 1;
-                    } else if (mouseData.pressLeft == 0) {
+                    } else if (!mouseData.pressLeft) {
                         state = 0;
                     }
                 }
-                if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 0 && state == 0) {
+                if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 0 && !state) {
                     PID_Calculate(&PID_Stir2006Speed, speedTargetRamp, Motor_Stir2006.speed * rpm2rps);
                     PID_Calculate(&PID_Stir3510Speed, 2.5, Motor_Stir3510.speed * rpm2rps);
-                } else if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 1 && state == 0) {
+                } else if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 1 && !state) {
                     PID_Stir2006Speed.output_I = 0;
                     PID_Stir3510Speed.output_I = 0;
                     PID_Stir2006Speed.p        = 60;
@@ -459,7 +459,7 @@ void Task_Fire(void *Parameters) {
             stop = 0;
         }
 
-        if (stop == 1 && counter1 < 40) {
+        if (stop && counter1 < 40) {
             counter1 += 1;
             PID_Stir2006Speed.output = -800;
             PID_Stir3510Speed.output = 0;
