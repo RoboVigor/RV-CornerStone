@@ -24,9 +24,9 @@ void Task_Control(void *Parameters) {
     while (1) {
 
         if (remoteData.switchLeft == 1 || remoteData.switchLeft == 3) {
-            controlMode = 1; //遥控器模式
+            ControlMode = 1; //遥控器模式
         } else if (remoteData.switchLeft == 2) {
-            controlMode = 2; //键鼠模式
+            ControlMode = 2; //键鼠模式
         }
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -81,10 +81,10 @@ void Task_Gimbal(void *Parameters) {
         chassisAngle = Motor_Pitch.angle + pitchAngle;
 
         // 遥控器输入角度目标
-        if (controlMode == 1) {
+        if (ControlMode == 1) {
             if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 180 * interval;
             if (ABS(remoteData.ry) > 30) pitchAngleTargetControl += -1 * remoteData.ry / 660.0f * 150 * interval;
-        } else if (controlMode == 2) {
+        } else if (ControlMode == 2) {
             yawAngleTargetControl += mouseData.x * 2 * interval;
             pitchAngleTargetControl += mouseData.y * interval;
         }
@@ -92,7 +92,7 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget += pitchAngleTargetControl;
 
         // 视觉辅助
-        if (controlMode == 2) {
+        if (ControlMode == 2) {
             if (keyboardData.Q == 1 && keyboardData.Ctrl == 1) {
                 autoAimStart = 0;
             } else if (keyboardData.Q == 1 && keyboardData.Ctrl == 0) {
@@ -134,11 +134,11 @@ void Task_Gimbal(void *Parameters) {
         Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
 
         // 调试信息
-        DebugData.debug1 = controlMode;
-        DebugData.debug2 = keyboardData.Q;
-        DebugData.debug3 = keyboardData.Ctrl;
-        DebugData.debug4 = autoAimStart;
-        DebugData.debug5 = Ps.autoaimData.seq;
+        // DebugData.debug1 = ControlMode;
+        // DebugData.debug2 = keyboardData.Q;
+        // DebugData.debug3 = keyboardData.Ctrl;
+        // DebugData.debug4 = autoAimStart;
+        // DebugData.debug5 = Ps.autoaimData.seq;
         // DebugData.debug6 = PID_Cloud_PitchSpeed.output;
         // DebugData.debug7 = pitchRampStart;
         // DebugData.debug8 = pitchAngleTarget;
@@ -165,7 +165,8 @@ void Task_Chassis(void *Parameters) {
     float filter[6] = {0, 0, 0, 0, 0, 0};
     int   filterp   = 0;
     float motorSpeedStable;
-    float power = 0;
+    float power       = 0;
+    float powerBuffer = 0;
 
     // 底盘跟随PID
     float followDeadRegion = 3.0;
@@ -191,8 +192,9 @@ void Task_Chassis(void *Parameters) {
 
     while (1) {
         // 设置反馈值
-        motorAngle = Motor_Yaw.angle;                   // 电机角度
-        power      = Judge.powerHeatData.chassis_power; // 裁判系统功率
+        motorAngle  = Motor_Yaw.angle;                          // 电机角度
+        power       = Judge.powerHeatData.chassis_power;        // 裁判系统功率
+        powerBuffer = Judge.powerHeatData.chassis_power_buffer; // 裁判系统功率缓冲
 
         // 对电机角速度进行平均值滤波
         filter[filterp] = motorAngle;
@@ -208,10 +210,10 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeedStable); // 计算航向角角速度PID
 
         // 设置底盘总体移动速度
-        if (controlMode == 1) {
+        if (ControlMode == 1) {
             vx = -remoteData.lx / 660.0f * 4;
             vy = remoteData.ly / 660.0f * 12;
-        } else if (controlMode == 2) {
+        } else if (ControlMode == 2) {
             xTargetRamp = RAMP(xRampStart, 660, xRampProgress);
             if (xRampProgress < 0.5) {
                 xRampProgress += 0.004f;
@@ -243,12 +245,12 @@ void Task_Chassis(void *Parameters) {
         }
 
         // 麦轮解算及限速
-        targetPower = 80.0 - (60.0 - ChassisData.powerBuffer) / 60.0 * 80.0; // 设置目标功率
-        Chassis_Update(&ChassisData, vx, vy, vw);                            // 更新麦轮转速
+        targetPower = 80.0 - WANG(40.0 - ChassisData.powerBuffer, 0, 40) / 40.0 * 80.0; // 设置目标功率
+        Chassis_Update(&ChassisData, vx, vy, vw);                                       // 更新麦轮转速
         // Chassis_Fix(&ChassisData, motorAngle);                               // 修正旋转后底盘的前进方向
-        Chassis_Calculate_Rotor_Speed(&ChassisData);                         // 麦轮解算
-        Chassis_Limit_Rotor_Speed(&ChassisData, CHASSIS_ROTOR_SPEED);        // 设置转子速度上限 (rad/s)
-        Chassis_Limit_Power(&ChassisData, 80, targetPower, power, interval); // 根据功率限幅
+        Chassis_Calculate_Rotor_Speed(&ChassisData);                                  // 麦轮解算
+        Chassis_Limit_Rotor_Speed(&ChassisData, CHASSIS_ROTOR_SPEED);                 // 设置转子速度上限 (rad/s)
+        Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
         if (keyboardData.G == 1 && keyboardData.Ctrl == 0) {
             PID_LFCM.i = 0.5;
             PID_LBCM.i = 0.5;
@@ -271,7 +273,12 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Can_Send(CAN1,
+                 0x200,
+                 PID_LFCM.output * ChassisData.powerScale,
+                 PID_LBCM.output * ChassisData.powerScale,
+                 PID_RBCM.output * ChassisData.powerScale,
+                 PID_RFCM.output * ChassisData.powerScale);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -346,18 +353,18 @@ void Task_Fire(void *Parameters) {
             shootState = 2;
         }
 
-        if (controlMode == 2) {
+        if (ControlMode == 2) {
             if (keyboardData.R == 1 && keyboardData.Ctrl == 0) {
                 shootMode = 1;
             } else if (keyboardData.R == 1 && keyboardData.Ctrl == 1) {
                 shootMode = 0;
             }
-        } else if (controlMode == 1) {
+        } else if (ControlMode == 1) {
             shootMode = 1;
         }
         // 2006,3510拨弹轮
         if (shootMode == 1) {
-            if (controlMode == 1) {
+            if (ControlMode == 1) {
                 if (remoteData.switchLeft == 1) {
                     PID_LeftFrictSpeed.output_I  = 0;
                     PID_RightFrictSpeed.output_I = 0;
@@ -371,7 +378,7 @@ void Task_Fire(void *Parameters) {
                     LASER_ON; // 激光开启
                 }
             }
-            if (controlMode == 2) {
+            if (ControlMode == 2) {
                 if (shootState == 1) {
                     PID_LeftFrictSpeed.output_I  = 0;
                     PID_RightFrictSpeed.output_I = 0;
@@ -392,7 +399,7 @@ void Task_Fire(void *Parameters) {
             }
 
             if (stop == 0) {
-                if (controlMode == 1) {
+                if (ControlMode == 1) {
                     if (remoteData.switchRight == 3 && Judge.powerHeatData.shooter_heat1 < (maxShootHeat - 100)) {
                         PID_Stir2006Speed.p = 30;
                         PID_Calculate(&PID_Stir2006Speed, speedTargetRamp, Motor_Stir2006.speed * rpm2rps);
@@ -403,7 +410,7 @@ void Task_Fire(void *Parameters) {
                         state = 0;
                     }
                 }
-                if (controlMode == 2) {
+                if (ControlMode == 2) {
                     if (mouseData.pressLeft == 1 && Judge.powerHeatData.shooter_heat1 < (maxShootHeat - 100)) {
                         PID_Stir2006Speed.p = 30;
                         PID_Calculate(&PID_Stir2006Speed, speedTargetRamp, Motor_Stir2006.speed * rpm2rps);
