@@ -30,24 +30,29 @@ void Task_Chassis(void *Parameters) {
     uint16_t random = 0;
     float    timer  = 0.0;
     int      lastSwitch;
-    float    maxTime  = 2;   // 2
-    float    minTime  = 1;   // 1
-    int      maxSpeed = 600; // 600
-    int      minSpeed = 360; // 360
+    float    maxTime  = 2;   // 3
+    float    minTime  = 1;   // 1.5
+    int      maxSpeed = 600; // 480
+    int      minSpeed = 360; // 240
 
     // 光电开关
     int direction;
 
     // 功率限制
     float power;
+    float powerBuffer;
     float targetPower;
 
     // 初始化角速度PID
     PID_Init(&PID_Chassis_Left, 30, 0, 0, 4000, 2000);
     PID_Init(&PID_Chassis_Right, 30, 0, 0, 4000, 2000);
 
-    while (1) {
+    // 初始化底盘
+    Chassis_Init(&ChassisData);
+    ChassisData.maxPower       = 20;
+    ChassisData.maxPowerBuffer = 200;
 
+    while (1) {
         // 随机模式
         srand(Motor_Chassis_Left.position);
         random = rand();
@@ -86,9 +91,10 @@ void Task_Chassis(void *Parameters) {
         }
 
         // 功率限制
-        power       = Judge.powerHeatData.chassis_power;                       // 裁判系统功率
-        targetPower = 20.0 - (200.0 - ChassisData.powerBuffer) / 200.0 * 20.0; // 设置目标功率
-        Chassis_Limit_Power(&ChassisData, 20, targetPower, power, interval);   // 根据功率限幅
+        power       = Judge.powerHeatData.chassis_power;                                  // 裁判系统功率
+        powerBuffer = Judge.powerHeatData.chassis_power_buffer;                           // 裁判系统功率缓冲                      // 裁判系统功率
+        targetPower = 20.0 - WANG(200.0 - ChassisData.powerBuffer, 0, 40) / 200.0 * 20.0; // 设置目标功率
+        Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval);     // 根据功率限幅
 
         // 计算输出电流PID
         PID_Calculate(&PID_Chassis_Left, leftTarget, Motor_Chassis_Left.speed * RPM2RPS);
@@ -109,6 +115,7 @@ void Task_Chassis(void *Parameters) {
 
     vTaskDelete(NULL);
 }
+
 void Task_Gimbal(void *Parameters) {
     // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -116,7 +123,10 @@ void Task_Gimbal(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     // 反馈值
-    float yawAngle, yawSpeed, pitchAngle, pitchSpeed;
+    float yawAngle;
+    float yawSpeed;
+    float pitchAngle;
+    float pitchSpeed;
 
     // 目标值
     float yawAngleTarget   = 0;
@@ -298,10 +308,10 @@ void Task_Snail(void *Parameters) {
 
     while (1) {
 
-        GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
+        // GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
 
         lastSnailState = snailState;
-        snailState     = (remoteData.switchRight == 1) ? 1 : 0;
+        snailState     = (remoteData.switchRight != 3) ? 1 : 0;
 
         switch (Step) {
         case STEP_SNAIL_IDLE:
