@@ -91,10 +91,10 @@ void Task_Chassis(void *Parameters) {
         }
 
         // 功率限制
-        power       = Judge.powerHeatData.chassis_power;                                  // 裁判系统功率
-        powerBuffer = Judge.powerHeatData.chassis_power_buffer;                           // 裁判系统功率缓冲                      // 裁判系统功率
-        targetPower = 20.0 - WANG(200.0 - ChassisData.powerBuffer, 0, 40) / 200.0 * 20.0; // 设置目标功率
-        Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval);     // 根据功率限幅
+        power       = Judge.powerHeatData.chassis_power;                                   // 裁判系统功率
+        powerBuffer = Judge.powerHeatData.chassis_power_buffer;                            // 裁判系统功率缓冲
+        targetPower = 20.0 - WANG(160.0 - ChassisData.powerBuffer, 0, 160) / 160.0 * 20.0; // 设置目标功率
+        Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval);      // 根据功率限幅
 
         // 计算输出电流PID
         PID_Calculate(&PID_Chassis_Left, leftTarget, Motor_Chassis_Left.speed * RPM2RPS);
@@ -243,7 +243,7 @@ void Task_Stir(void *Parameters) {
     while (1) {
 
         // 热量限制
-        calmDown = ((Judge.powerHeatData.shooter_heat0 >= 420) || ((calmDown = 1) && (Judge.powerHeatData.shooter_heat0 >= 100))) ? 1 : 0;
+        calmDown = (Judge.powerHeatData.shooter_heat0 > 420) ? 1 : 0;
 
         // 射击模式
         shootMode = (ABS(remoteData.ly) > 30) ? 1 : 0;
