@@ -99,6 +99,10 @@ void Chassis_Limit_Power(ChassisData_Type *cd, float targetPower, float referenc
         MIAO(cd->powerBuffer, 0, cd->maxPowerBuffer);
     }
 
+    // if (referencePowerBuffer < 30) {
+    //     cd->powerBuffer = referencePowerBuffer;
+    // }
+
     // 功率PID
     PID_Calculate(PID_Power, cd->targetPower, cd->power);
     cd->powerScale = (cd->power + PID_Power->output) / cd->power;
