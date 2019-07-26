@@ -408,6 +408,7 @@ void Task_Fire_Stir(void *Parameters) {
     int   maxBulletSpeed  = 0;
     float lastBulletSpeed = 0;
     float maxShootHeat    = 0;
+    int   stirSpeed       = 0;
 
     // 视觉系统
     int16_t lastSeq = 0;
@@ -420,12 +421,18 @@ void Task_Fire_Stir(void *Parameters) {
     LASER_ON;
 
     while (1) {
-        // 热量控制
-        maxShootHeat = (Judge.robotState.shooter_heat0_cooling_limit - 30);
+        if (Judge.robotState.robot_level == 1) {
+            stirSpeed = 110;
+        } else if (Judge.robotState.robot_level == 2) {
+            stirSpeed = 140;
+        } else if (Judge.robotState.robot_level == 3) {
+            stirSpeed = 160;
+        }
+        //热量控制
+        maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit * 0.8;
 
         // 输入射击模式
-        // && Judge.powerHeatData.shooter_heat0 < maxShootHeat
-        if (StirEnabled) {
+        if (StirEnabled && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
             shootMode = shootToDeath;
         } else {
             shootMode = shootIdle;
@@ -439,12 +446,15 @@ void Task_Fire_Stir(void *Parameters) {
         } else if (shootMode == shootToDeath) {
             // 连发
             PWM_Set_Compare(&PWM_Magazine_Servo, 15);
-            PID_Calculate(&PID_StirSpeed, 65, Motor_Stir.speed * RPM2RPS);
+            PID_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * RPM2RPS);
             Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
-
+        // DebugData.debug1 = Judge.powerHeatData.shooter_heat0;
+        // DebugData.debug2 = Judge.robotState.robot_level;
+        // DebugData.debug3 = Judge.robotState.shooter_heat0_cooling_limit;
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
+
     vTaskDelete(NULL);
 }
 
@@ -459,7 +469,7 @@ void Task_Fire_Frict(void *Parameters) {
 
     float dutyCycleStart  = 0.376; //起始占空比为37.6
     float dutyCycleMiddle = 0.446; //启动需要到44.6
-    float dutyCycleEnd    = 0.560; //加速到你想要的占空比
+    float dutyCycleEnd    = 0.540; //加速到你想要的占空比
 
     float dutyCycleRightSnailTarget = 0.376; //目标占空比
     float dutyCycleLeftSnailTarget  = 0.376;
