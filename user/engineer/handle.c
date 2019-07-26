@@ -106,13 +106,13 @@ void Take_Reset(void) {
     CATAPULT_OFF;
     TR_Get = 0;
     TV_Out = 0;
-    if (Detected_Direction == 2) {
-        TH_Move = 1;
-    } else if (Detected_Direction == 1) {
-        TH_Move = 2;
-    } else {
-        TH_Move = 0;
-    }
+    // if (Detected_Direction == 2) {
+    //     TH_Move = 1;
+    // } else if (Detected_Direction == 1) {
+    //     TH_Move = 2;
+    // } else {
+    //     TH_Move = 0;
+    // }
     TU_Up          = 1;
     Chassis_State  = CHASSIS_NORMAL;
     Detected_State = 0;

@@ -22,6 +22,10 @@ void Task_Chassis(void *Parameters) {
     int   mode                    = 2; // 底盘运动模式,1直线,2转弯
     int   lastMode                = 2; // 上一次的运动模式
     int   Chassis_Parallel_Finish = 0;
+    int   last_Chassis_State      = 0;
+    int   in_parallel             = 0;
+    float vx                      = 0;
+    float vy                      = 0;
     float yawAngleTarget          = 0; // 目标值
     float yawAngle, yawSpeed;          // 反馈值
     Chassis_Detect_Parallel = 0;
@@ -29,14 +33,15 @@ void Task_Chassis(void *Parameters) {
     Chassis_State           = -1;
 
     // 初始化麦轮角速度PID
-    PID_Init(&PID_LFCM, 25, 1.2, 0, 10000, 4000);
-    PID_Init(&PID_LBCM, 25, 1.2, 0, 10000, 4000);
-    PID_Init(&PID_RBCM, 25, 1.2, 0, 10000, 4000);
-    PID_Init(&PID_RFCM, 25, 1.2, 0, 10000, 4000);
+    PID_Init(&PID_LFCM, 32, 1.2, 0, 12000, 8000);
+    PID_Init(&PID_LBCM, 32, 1.2, 0, 12000, 8000);
+    PID_Init(&PID_RBCM, 32, 1.2, 0, 12000, 8000);
+    PID_Init(&PID_RFCM, 32, 1.2, 0, 12000, 8000);
 
     // 初始化航向角角度PID和角速度PID
-    // PID_Init(&PID_YawAngle, 10, 0, 0, 1000, 1000);
-    PID_Init(&PID_YawSpeed, 3, 0.001, 0, 4000, 1000);
+    // PID_Init(&PID_YawAngle, 50, 0, 0, 1700, 850); // 50
+    PID_Init(&PID_YawAngle, 0, 0, 0, 1700, 850);
+    PID_Init(&PID_YawSpeed, 3, 0, 0, 4000, 2000); // 3  2.25 0.04
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
@@ -52,15 +57,22 @@ void Task_Chassis(void *Parameters) {
 
             // 对平行
             if (remoteData.switchLeft == 3) {
+                if (in_parallel != 1) {
+                    yawAngleTarget = yawAngle;
+                }
+                in_parallel = 1;
                 if (Distance1 > 3000 && Distance2 > 3000) {
-                    PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
+                    PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngle);
+                    PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeed); // 计算航向角角速度PID
                     // 设置底盘总体移动速度
                     Chassis_Update(&ChassisData, 0.4, 0, (float) PID_YawSpeed.output / 660.0f);
                 } else if (Chassis_Parallel_Finish == 1) {
-                    PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
+                    PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngle);
+                    PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeed); // 计算航向角角速度PID
                     Chassis_Update(&ChassisData, 0.4, 0, (float) PID_YawSpeed.output / 660.0f);
                     if (Distance1 < 150 && Distance2 < 150) {
-                        PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
+                        PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngle);
+                        PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeed); // 计算航向角角速度PID
                         Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
                     }
                 } else {
@@ -75,21 +87,39 @@ void Task_Chassis(void *Parameters) {
                     }
                 }
                 // 设置左右
-            } else if (Chassis_Detect == 1 && remoteData.switchRight == 1) {
+            } else if (Chassis_Detect == 1 && Fsm_Ready == 1) {
                 Chassis_State           = CHASSIS_DETECT_RIGHT;
+                last_Chassis_State      = CHASSIS_DETECT_RIGHT;
                 Chassis_Parallel_Finish = 0;
-            } else if (Chassis_Detect == 2 && remoteData.switchRight == 1) {
+                in_parallel             = 0;
+            } else if (Chassis_Detect == 2 && Fsm_Ready == 1) {
                 Chassis_State           = CHASSIS_DETECT_LEFT;
+                last_Chassis_State      = CHASSIS_DETECT_LEFT;
                 Chassis_Parallel_Finish = 0;
+                in_parallel             = 0;
                 // 正常运动
-            } else if (remoteData.switchRight != 1 && Chassis_Delanding_State == 1) {
-                Chassis_State = CHASSIS_DELANDING;
+            } else if (Fsm_Ready != 1 && Chassis_Delanding_State == 1) {
+                Chassis_State      = CHASSIS_DELANDING;
+                last_Chassis_State = CHASSIS_DELANDING;
+                in_parallel        = 0;
             } else {
                 Chassis_State           = CHASSIS_NORMAL;
+                last_Chassis_State      = CHASSIS_NORMAL;
                 Chassis_Parallel_Finish = 0;
+                in_parallel             = 0;
+            }
+
+            if (last_Chassis_State != Chassis_State) {
+                yawAngleTarget = yawAngle;
             }
 
             if (Chassis_State == CHASSIS_NORMAL) {
+                if (mouseData.pressLeft == 1) {
+                    PID_Init(&PID_YawAngle, 50, 0, 0, 1700, 850);
+                } else {
+                    PID_Init(&PID_YawAngle, 0, 0, 0, 1700, 850);
+                }
+
                 // 切换运动模式
                 if (mode != lastMode) {
                     PID_YawAngle.output_I = 0;        // 清空角度PID积分
@@ -100,26 +130,49 @@ void Task_Chassis(void *Parameters) {
 
                 // 根据运动模式计算PID
                 if (mode == 1) {
-                    PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
+                    PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngle);
+                    PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeed); // 计算航向角角速度PID
                 } else {
                     PID_Calculate(&PID_YawSpeed, -remoteData.rx, yawSpeed); // 计算航向角角速度PID
                 }
 
-                // 设置底盘总体移动速度
-                Chassis_Update(&ChassisData, (float) -remoteData.lx / 660.0f, (float) remoteData.ly / 660.0f, (float) PID_YawSpeed.output / 1320.0f);
+                if (Move_Mode == 1) {
+                    vx = 0;
+                    vy = 0;
+                    if (keyboardData.W == 1) {
+                        vx += 0.2;
+                    }
+                    if (keyboardData.A == 1) {
+                        vy += -0.2;
+                    }
+                    if (keyboardData.S == 1) {
+                        vx += -0.2;
+                    }
+                    if (keyboardData.D == 1) {
+                        vy += 0.2;
+                    }
+                    vx += remoteData.lx / 660.0f * 3 / 5;
+                    vy += remoteData.ly / 660.0f * 1.5 / 5;
+                    Chassis_Update(&ChassisData, vx, vy, PID_YawSpeed.output);
+                } else {
+                    Chassis_Update(
+                        &ChassisData, (float) -remoteData.lx / 660.0f * 3, (float) remoteData.ly / 660.0f * 1.5, (float) PID_YawSpeed.output / 4000.0f * 4.5);
+                }
                 // 重新赋初值
                 Chassis_State = -1;
             } else if (Chassis_State == CHASSIS_DETECT_LEFT) {
                 if (((T_State2 == 0 && T_State1 == 1) || (T_State3 == 0 && T_State4 == 1)) && TV_Ready == 1) {
                     Chassis_Detect = 0;
                     Detected_State = 1;
-                    PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
+                    PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngle);
+                    PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeed); // 计算航向角角速度PID
 
                     Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
                 } else {
-                    PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
+                    PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngle);
+                    PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeed); // 计算航向角角速度PID
 
-                    Chassis_Update(&ChassisData, 0, -0.15, (float) PID_YawSpeed.output / 660.0f);
+                    Chassis_Update(&ChassisData, 0, -0.07, (float) PID_YawSpeed.output / 660.0f);
                 }
             } else if (Chassis_State == CHASSIS_DETECT_RIGHT) {
                 // 读单边提高响应速度
@@ -129,11 +182,12 @@ void Task_Chassis(void *Parameters) {
                     // 赋返回速度
                     Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
                 } else {
-                    Chassis_Update(&ChassisData, 0, 0.15, 0);
+                    Chassis_Update(&ChassisData, 0, 0.07, 0);
                 }
             } else if (Chassis_State == CHASSIS_DELANDING) {
                 if (Distance_Delanding_Parallel1 < 2500 && Distance_Delanding_Parallel2 < 2500) {
-                    PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
+                    PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngle);
+                    PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeed); // 计算航向角角速度PID
                     Chassis_Update(&ChassisData, 0.1, 0, (float) PID_YawSpeed.output / 660.0f);
                 } else if (Distance_Delanding_Parallel1 - Distance_Delanding_Parallel2 > 50) {
                     PID_Calculate(&PID_YawSpeed, 20, yawSpeed); // 计算航向角角速度PID
@@ -142,7 +196,8 @@ void Task_Chassis(void *Parameters) {
                     PID_Calculate(&PID_YawSpeed, 20, yawSpeed); // 计算航向角角速度PID
                     Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
                 } else {
-                    PID_Calculate(&PID_YawSpeed, 0, yawSpeed); // 计算航向角角速度PID
+                    PID_Calculate(&PID_YawAngle, yawAngleTarget, yawAngle);
+                    PID_Calculate(&PID_YawSpeed, PID_YawAngle.output, yawSpeed); // 计算航向角角速度PID
                     Chassis_Update(&ChassisData, 0, 0, (float) PID_YawSpeed.output / 660.0f);
                     Chassis_Delanding_Parallel_Over = 1;
                 }
@@ -151,7 +206,7 @@ void Task_Chassis(void *Parameters) {
 
         Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
         // 麦轮解算&限幅,获得轮子转速
-        Chassis_Limit_Rotor_Speed(&ChassisData, 300);
+        Chassis_Limit_Rotor_Speed(&ChassisData, 600);
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
@@ -162,9 +217,6 @@ void Task_Chassis(void *Parameters) {
         // 输出电流值到电调(安全起见默认注释此行)
         Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
-        DebugA = yawSpeed;
-        DebugB = PID_YawSpeed.output;
-
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -172,35 +224,250 @@ void Task_Chassis(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+// void Task_Take_Fsm(void *Parameters) {
+//     TickType_t LastWakeTime = xTaskGetTickCount();
+
+//     int Fsm_State      = 0;
+//     int six_box_cnt    = 0;
+//     int a              = 1;
+//     TV_Ready           = 0;
+//     Detected_Direction = 0;
+//     Fsm_TIM14_Cnt      = 0;
+//     Fsm_TIM14_State    = 0;
+
+//     while (1) {
+//         if (remoteData.switchRight == 1) {
+//             switch (Fsm_State) {
+//             case 0:
+//                 Take_Reset();
+//                 Fsm_TIM14_State = 0;
+//                 six_box_cnt     = 0;
+
+//                 if (remoteData.switchLeft == 1 && remoteData.switchRight != 3) {
+//                     Fsm_State = 1;
+//                 }
+//                 break;
+//             case 1:
+
+//                 if (six_box_cnt < 3) {
+//                     Take_TV_1();
+//                 } else if (six_box_cnt < 6) {
+//                     Take_TV_2();
+//                 }
+
+//                 if (TV_Ready == 1) {
+//                     if (Detected_State == 1) {
+//                         Fsm_State = 3;
+//                     } else {
+//                         Fsm_State = 2;
+//                     }
+//                 }
+
+//                 if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+//                     Fsm_State = 0;
+//                 }
+
+//                 break;
+//             case 2:
+//                 if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+//                     Fsm_State = 0;
+//                 } else {
+//                     if (Detected_State == 1) {
+//                         Fsm_State = 3;
+//                     } else {
+//                         if (six_box_cnt < 2) {
+//                             Take_Chassis_Detect_Left();
+//                         } else if (six_box_cnt < 3) {
+//                             Take_Horizontal_Left();
+//                         } else if (six_box_cnt < 5) {
+//                             Take_Chassis_Detect_Right();
+//                         } else if (six_box_cnt < 6) {
+//                             Take_Horizontal_Right();
+//                         }
+//                     }
+//                 }
+//                 break;
+//             case 3:
+//                 Take_Start_Get();
+
+//                 Fsm_TIM14_State = 1;
+
+//                 if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+//                     Fsm_State = 0;
+//                 } else {
+//                     if (TR_Ready == 1) {
+//                         Fsm_State       = 4;
+//                         Fsm_TIM14_State = 0;
+//                     }
+//                 }
+//                 break;
+//             case 4:
+//                 Take_ON();
+
+//                 Fsm_TIM14_State = 1;
+
+//                 if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+//                     Fsm_State = 0;
+//                 } else {
+//                     if (Fsm_TIM14_Cnt >= 700 * a) {
+//                         Fsm_State       = 5;
+//                         Fsm_TIM14_State = 0;
+//                     }
+//                 }
+//                 break;
+//             case 5:
+//                 Take_Up();
+
+//                 Fsm_TIM14_State = 1;
+
+//                 if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+//                     Fsm_State = 0;
+//                 } else {
+//                     if (Fsm_TIM14_Cnt >= 2000 * a) {
+//                         Fsm_State       = 6;
+//                         Fsm_TIM14_State = 0;
+//                     }
+//                 }
+//                 break;
+//             case 6:
+//                 Take_TV_Progress();
+
+//                 Fsm_TIM14_State = 1;
+
+//                 if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+//                     Fsm_State = 0;
+//                 } else {
+//                     if (six_box_cnt < 3) {
+//                         if (Fsm_TIM14_Cnt >= 500 * a) {
+//                             Fsm_State       = 7;
+//                             Fsm_TIM14_State = 0;
+//                         }
+//                     } else {
+//                         if (Fsm_TIM14_Cnt >= 2000 * a) {
+//                             Fsm_State       = 7;
+//                             Fsm_TIM14_State = 0;
+//                         }
+//                     }
+//                 }
+//                 break;
+//             case 7:
+//                 Take_Rotate_OFF();
+
+//                 Fsm_TIM14_State = 1;
+
+//                 if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+//                     Fsm_State = 0;
+//                 } else {
+//                     if (TR_Ready == 0) {
+//                         Fsm_State       = 8;
+//                         Fsm_TIM14_State = 0;
+//                     }
+//                 }
+//                 break;
+//             case 8:
+//                 Take_OFF();
+
+//                 Fsm_TIM14_State = 1;
+
+//                 if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+//                     Fsm_State = 0;
+//                 } else {
+//                     if (Fsm_TIM14_Cnt >= 1500 * a) {
+//                         Fsm_State       = 9;
+//                         Fsm_TIM14_State = 0;
+//                     }
+//                 }
+//                 break;
+//             case 9:
+//                 Take_Catapult_On();
+
+//                 Fsm_TIM14_State = 1;
+
+//                 if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+//                     Fsm_State = 0;
+//                 } else {
+//                     if (Fsm_TIM14_Cnt >= 500 * a) {
+//                         Fsm_State       = 10;
+//                         Fsm_TIM14_State = 0;
+//                     }
+//                 }
+//                 break;
+//             case 10:
+//                 CATAPULT_OFF;
+//                 six_box_cnt++;
+
+//                 if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+//                     Fsm_State = 0;
+//                 } else {
+//                     Fsm_State = 11;
+//                 }
+//                 break;
+//             case 11:
+//                 Take_Down();
+
+//                 Fsm_TIM14_State = 1;
+
+//                 if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+//                     Fsm_State = 0;
+//                 } else {
+//                     if (Fsm_TIM14_Cnt >= 1000 * a) {
+//                         Fsm_State       = 1;
+//                         Fsm_TIM14_State = 0;
+//                     }
+//                 }
+
+//                 Detected_State = 0;
+//                 break;
+//             // case 12:
+//             // case 13:
+//             default:
+//                 break;
+//             }
+//         }
+
+//         vTaskDelayUntil(&LastWakeTime, 8);
+//     }
+//     vTaskDelete(NULL);
+// }
+
 void Task_Take_Fsm(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    int Fsm_State      = 0;
-    int six_box_cnt    = 0;
-    int a              = 1;
-    TV_Ready           = 0;
-    Detected_Direction = 0;
-    Fsm_TIM14_Cnt      = 0;
-    Fsm_TIM14_State    = 0;
+    int Fsm_State       = 0;
+    int a               = 1;
+    int three_box_state = 0;
+    int detect_distance = 0;
+    TV_Ready            = 0;
+    Detected_Direction  = 0;
+    Fsm_TIM14_Cnt       = 0;
+    Fsm_TIM14_State     = 0;
+    Fsm_Reset           = 1;
 
     while (1) {
-        if (remoteData.switchRight == 1) {
+        if (Fsm_Ready == 1) {
+            if (keyboardData.Z == 1) {
+                Fsm_State = 3;
+            }
+
             switch (Fsm_State) {
             case 0:
                 Take_Reset();
                 Fsm_TIM14_State = 0;
-                six_box_cnt     = 0;
+                three_box_state = 0;
+                Fsm_Reset       = 1;
 
-                if (remoteData.switchLeft == 1 && remoteData.switchRight != 3) {
+                if (keyboardData.E == 1 && keyboardData.Ctrl != 1) {
                     Fsm_State = 1;
                 }
                 break;
             case 1:
-
-                if (six_box_cnt < 3) {
+                Fsm_Reset = 0;
+                if (keyboardData.E == 1 && keyboardData.Shift != 1 && keyboardData.Ctrl != 1) {
                     Take_TV_1();
-                } else if (six_box_cnt < 6) {
+                    detect_distance = 1;
+                } else if ((keyboardData.E == 1 && keyboardData.Shift == 1 && keyboardData.Ctrl != 1) || detect_distance == 2) {
                     Take_TV_2();
+                    detect_distance = 2;
                 }
 
                 if (TV_Ready == 1) {
@@ -211,26 +478,32 @@ void Task_Take_Fsm(void *Parameters) {
                     }
                 }
 
-                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                if (keyboardData.E == 1 && keyboardData.Ctrl == 1) {
                     Fsm_State = 0;
                 }
 
                 break;
             case 2:
-                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                if (keyboardData.E == 1 && keyboardData.Ctrl == 1) {
                     Fsm_State = 0;
                 } else {
                     if (Detected_State == 1) {
                         Fsm_State = 3;
                     } else {
-                        if (six_box_cnt < 2) {
-                            Take_Chassis_Detect_Left();
-                        } else if (six_box_cnt < 3) {
-                            Take_Horizontal_Left();
-                        } else if (six_box_cnt < 5) {
-                            Take_Chassis_Detect_Right();
-                        } else if (six_box_cnt < 6) {
-                            Take_Horizontal_Right();
+                        if (detect_distance == 1) {
+                            if (three_box_state < 3) {
+                                Take_Chassis_Detect_Left();
+                                // } else if (three_box_state < 3) {
+                                //     Take_Horizontal_Left();
+                            }
+                        } else if (detect_distance == 2) {
+                            if (three_box_state < 3) {
+                                Take_Chassis_Detect_Right();
+                                // } else if (three_box_state < 3) {
+                                //     Take_Horizontal_Right();
+                            }
+                        } else {
+                            Fsm_State = 0;
                         }
                     }
                 }
@@ -238,14 +511,11 @@ void Task_Take_Fsm(void *Parameters) {
             case 3:
                 Take_Start_Get();
 
-                Fsm_TIM14_State = 1;
-
-                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                if (keyboardData.E == 1 && keyboardData.Ctrl == 1) {
                     Fsm_State = 0;
                 } else {
                     if (TR_Ready == 1) {
-                        Fsm_State       = 4;
-                        Fsm_TIM14_State = 0;
+                        Fsm_State = 4;
                     }
                 }
                 break;
@@ -254,7 +524,7 @@ void Task_Take_Fsm(void *Parameters) {
 
                 Fsm_TIM14_State = 1;
 
-                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                if (keyboardData.E == 1 && keyboardData.Ctrl == 1) {
                     Fsm_State = 0;
                 } else {
                     if (Fsm_TIM14_Cnt >= 700 * a) {
@@ -268,7 +538,7 @@ void Task_Take_Fsm(void *Parameters) {
 
                 Fsm_TIM14_State = 1;
 
-                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                if (keyboardData.E == 1 && keyboardData.Ctrl == 1) {
                     Fsm_State = 0;
                 } else {
                     if (Fsm_TIM14_Cnt >= 2000 * a) {
@@ -280,21 +550,24 @@ void Task_Take_Fsm(void *Parameters) {
             case 6:
                 Take_TV_Progress();
 
-                Fsm_TIM14_State = 1;
+                // Fsm_TIM14_State = 1;
 
-                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                if (keyboardData.E == 1 && keyboardData.Ctrl == 1) {
                     Fsm_State = 0;
                 } else {
-                    if (six_box_cnt < 3) {
-                        if (Fsm_TIM14_Cnt >= 500 * a) {
-                            Fsm_State       = 7;
-                            Fsm_TIM14_State = 0;
-                        }
-                    } else {
-                        if (Fsm_TIM14_Cnt >= 2000 * a) {
-                            Fsm_State       = 7;
-                            Fsm_TIM14_State = 0;
-                        }
+                    // if (detect_distance == 1) {
+                    //     if (Fsm_TIM14_Cnt >= 500 * a) {
+                    //         Fsm_State       = 7;
+                    //         Fsm_TIM14_State = 0;
+                    //     }
+                    // } else if (detect_distance == 2) {
+                    //     if (Fsm_TIM14_Cnt >= 2000 * a) {
+                    //         Fsm_State       = 7;
+                    //         Fsm_TIM14_State = 0;
+                    //     }
+                    // }
+                    if (TV_Ready == 1) {
+                        Fsm_State = 7;
                     }
                 }
                 break;
@@ -303,7 +576,7 @@ void Task_Take_Fsm(void *Parameters) {
 
                 Fsm_TIM14_State = 1;
 
-                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                if (keyboardData.E == 1 && keyboardData.Ctrl == 1) {
                     Fsm_State = 0;
                 } else {
                     if (TR_Ready == 0) {
@@ -317,7 +590,7 @@ void Task_Take_Fsm(void *Parameters) {
 
                 Fsm_TIM14_State = 1;
 
-                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                if (keyboardData.E == 1 && keyboardData.Ctrl == 1) {
                     Fsm_State = 0;
                 } else {
                     if (Fsm_TIM14_Cnt >= 1500 * a) {
@@ -331,7 +604,7 @@ void Task_Take_Fsm(void *Parameters) {
 
                 Fsm_TIM14_State = 1;
 
-                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                if (keyboardData.E == 1 && keyboardData.Ctrl == 1) {
                     Fsm_State = 0;
                 } else {
                     if (Fsm_TIM14_Cnt >= 500 * a) {
@@ -342,9 +615,8 @@ void Task_Take_Fsm(void *Parameters) {
                 break;
             case 10:
                 CATAPULT_OFF;
-                six_box_cnt++;
 
-                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                if (keyboardData.E == 1 && keyboardData.Ctrl == 1) {
                     Fsm_State = 0;
                 } else {
                     Fsm_State = 11;
@@ -355,7 +627,7 @@ void Task_Take_Fsm(void *Parameters) {
 
                 Fsm_TIM14_State = 1;
 
-                if (remoteData.switchLeft == 2 && remoteData.switchRight != 3) {
+                if ((keyboardData.E == 1 && keyboardData.Ctrl == 1) || three_box_state >= 3) {
                     Fsm_State = 0;
                 } else {
                     if (Fsm_TIM14_Cnt >= 1000 * a) {
@@ -366,12 +638,15 @@ void Task_Take_Fsm(void *Parameters) {
 
                 Detected_State = 0;
                 break;
-            // case 12:
-            // case 13:
             default:
+                Fsm_State = 0;
                 break;
             }
         }
+
+        DebugA = Fsm_State;
+        DebugB = detect_distance;
+        DebugC = three_box_state;
 
         vTaskDelayUntil(&LastWakeTime, 8);
     }
@@ -382,17 +657,32 @@ void Task_Take_Vertical(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
     // TV_Out 0: 初始位置 1：近排位置 2：远程位置 3：撤回补弹位置
-    int   targetAngle    = 0;
-    int   last_TV_Out    = 0;
-    float TV_Progress    = 0;
-    float TV_AngleTarget = 0;
-    float TV_Ramp_Start  = 0;
-    TV_Out               = 0; // 近排:1 远排:2
+    int   targetAngle       = 0;
+    int   last_TV_Out       = 0;
+    float TV_Progress       = 0;
+    float TV_AngleTarget    = 0;
+    float TV_Ramp_Start     = 0;
+    float guide_wheel_speed = 0;
+    TV_Out                  = 0; // 近排:1 远排:2
 
-    PID_Init(&PID_TV_Angle, 7, 0, 0, 4500, 1000);
-    PID_Init(&PID_TV_Speed, 1.5, 0.05, 0, 4500, 1000);
+    PID_Init(&PID_TV_Angle, 7, 0, 0, 6500, 3000);
+    PID_Init(&PID_TV_Speed, 1.5, 0.1, 0, 10000, 5000);
+
+    PID_Init(&PID_LGW, 5, 0, 0, 4000, 2000);
+    PID_Init(&PID_RGW, 5, 0, 0, 4000, 2000);
 
     while (1) {
+        // 登岛引导轮
+        if (ABS(remoteData.ly) > 5) {
+            guide_wheel_speed = remoteData.ry / 66;
+        } else if (Guide_Wheel_State == 1) {
+            guide_wheel_speed = 100;
+        } else if (Guide_Wheel_State == -1) {
+            guide_wheel_speed = -100;
+        } else {
+            guide_wheel_speed = 0;
+        }
+
         // // 手动调试伸出
         // if (remoteData.switchLeft == 1) {
         //     TV_Out = 0;
@@ -432,7 +722,7 @@ void Task_Take_Vertical(void *Parameters) {
             last_TV_Out = 3;
         }
 
-        if ((ABS(Motor_TV.angle - targetAngle) < 5) && (TV_Out == 1 || TV_Out == 2)) {
+        if ((ABS(Motor_TV.angle - targetAngle) < 8) && (TV_Out == 1 || TV_Out == 2 || TV_Out == 3)) {
             TV_Ready = 1;
         } else {
             TV_Ready = 0;
@@ -446,10 +736,11 @@ void Task_Take_Vertical(void *Parameters) {
         PID_Calculate(&PID_TV_Angle, TV_AngleTarget, Motor_TV.angle);
         PID_Calculate(&PID_TV_Speed, PID_TV_Angle.output, Motor_TV.speed);
 
-        Can_Send(CAN2, 0x200, 0, 0, PID_TV_Speed.output, 0);
+        PID_Calculate(&PID_LGW, guide_wheel_speed, Motor_LGW.speed);
+        PID_Calculate(&PID_RGW, -guide_wheel_speed, Motor_RGW.speed);
 
-        DebugA = targetAngle;
-        DebugB = Motor_TV.angle;
+        // Can_Send(CAN2, 0x200, PID_LGW.output, PID_RGW.output, PID_TV_Speed.output, 0);
+        Can_Send(CAN2, 0x200, PID_LGW.output, PID_RGW.output, 0, 0);
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -524,71 +815,60 @@ void Task_Landing_Fsm(void *Parameters) {
     TickType_t LastWakeTime      = xTaskGetTickCount();
     uint8_t    bangMode          = 0; // 上岛传感器切换， 0 前端， 1 后端
     uint8_t    powerMode         = 0; // 电源
-    float      guide_wheel_speed = 0;
     int        Fsm_Landing_State = 0;
-
-    // PID 初始化
-    PID_Init(&PID_LGW, 5, 0, 0, 4000, 2000);
-    PID_Init(&PID_RGW, 5, 0, 0, 4000, 2000);
+    Guide_Wheel_State            = 0;
 
     while (1) {
 
-        if (remoteData.switchRight == 3) {
-            Fsm_Landing_State = 0;
-        }
-
-        switch (Fsm_Landing_State) {
-        case 0:
-            guide_wheel_speed = 0;
-            LANDING_OFF;
-
-            if (remoteData.switchLeft == 1 && remoteData.switchRight != 1) {
-                Fsm_Landing_State = 1;
-            } else if (remoteData.switchLeft == 2 && remoteData.switchRight != 1) {
-                Fsm_Landing_State = 3;
-            }
-            break;
-        case 1:
+        if (keyboardData.Z == 1 && keyboardData.Ctrl != 1) {
             LANDING_ON;
-            guide_wheel_speed = 0.2;
-            Fsm_Landing_State = 2;
-            break;
-        case 2:
-            if (Distance_Landing_Behind < 1500) {
+        } else if (keyboardData.Z == 1 && keyboardData.Ctrl == 1) {
+            LANDING_OFF;
+        } else {
+            switch (Fsm_Landing_State) {
+            case 0:
+                Guide_Wheel_State = 0;
                 LANDING_OFF;
-                guide_wheel_speed = 0;
-                Fsm_Landing_State = 0;
-            }
-            break;
-        case 3:
-            Chassis_Delanding_State = 1;
-            if (Chassis_Delanding_Parallel_Over == 1) {
-                Chassis_Delanding_State         = 0;
-                Chassis_Delanding_Parallel_Over = 0;
-                Fsm_Landing_State               = 4;
-            }
-            break;
-        case 4:
-            guide_wheel_speed = -0.2;
-            if (Distance_Landing_Front > 2500) {
-                guide_wheel_speed = 0;
-                LANDING_OFF;
-                Fsm_Landing_State = 5;
-            }
-            break;
 
-        default:
-            break;
+                if (remoteData.switchLeft == 1 && remoteData.switchRight != 1) {
+                    Fsm_Landing_State = 1;
+                } else if (remoteData.switchLeft == 2 && remoteData.switchRight != 1) {
+                    Fsm_Landing_State = 3;
+                }
+                break;
+            case 1:
+                LANDING_ON;
+                Guide_Wheel_State = 1;
+                Fsm_Landing_State = 2;
+                break;
+            case 2:
+                if (Distance_Landing_Behind < 1500) {
+                    LANDING_OFF;
+                    Guide_Wheel_State = 0;
+                    Fsm_Landing_State = 0;
+                }
+                break;
+            case 3:
+                Chassis_Delanding_State = 1;
+                if (Chassis_Delanding_Parallel_Over == 1) {
+                    Chassis_Delanding_State         = 0;
+                    Chassis_Delanding_Parallel_Over = 0;
+                    Fsm_Landing_State               = 4;
+                }
+                break;
+            case 4:
+                Guide_Wheel_State = -1;
+                if (Distance_Landing_Front > 2500) {
+                    Guide_Wheel_State = 0;
+                    LANDING_OFF;
+                    Fsm_Landing_State = 5;
+                }
+                break;
+
+            default:
+                break;
+            }
         }
-
-        // PID 计算
-        PID_Increment_Calculate(&PID_LGW, guide_wheel_speed, Motor_LGW.speed * RPM2RPS);
-        PID_Increment_Calculate(&PID_RGW, -guide_wheel_speed, Motor_RGW.speed * RPM2RPS);
-
-        // 发送数据至电调
-        Can_Send(CAN2, 0x200, PID_LGW.output, PID_RGW.output, 0, 0);
-
-        vTaskDelayUntil(&LastWakeTime, 10);
     }
     vTaskDelete(NULL);
 }
@@ -598,13 +878,11 @@ void Task_Supply(void *Parameters) {
 
     while (1) {
         // Controller
-        // if (keyboardData.R) {
-        PWM_Set_Compare(&PWM_Supply1, 5);
-        PWM_Set_Compare(&PWM_Supply2, 5);
-        // } else {
-        //     PWM_Set_Compare(&PWM_Supply1, 5);
-        //     PWM_Set_Compare(&PWM_Supply2, 25);
-        // }
+        if (keyboardData.R == 1 && keyboardData.Ctrl != 1) {
+            TIM_SetCompare3(TIM4, 5);
+        } else if (keyboardData.R == 1 && keyboardData.Ctrl == 1) {
+            TIM_SetCompare3(TIM4, 14);
+        }
 
         vTaskDelayUntil(&LastWakeTime, 50);
     }
@@ -614,14 +892,39 @@ void Task_Supply(void *Parameters) {
 void Task_Rescue(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    uint8_t rescueMode = 0; // 0 救援爪抬起 1 救援爪放下
+    while (1) {
+
+        if (keyboardData.C == 1 && keyboardData.Ctrl != 1) {
+            RESCUE_HOOK_UP;
+        } else if (keyboardData.C == 1 && keyboardData.Ctrl == 1) {
+            RESCUE_HOOK_DOWN;
+        }
+
+        vTaskDelayUntil(&LastWakeTime, 50);
+    }
+
+    vTaskDelete(NULL);
+}
+
+void Task_Visual(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+
+    Move_Mode = 0;
 
     while (1) {
 
-        if (remoteData.switchRight == 1) {
-            RESCUE_HOOK_UP;
-        } else {
-            RESCUE_HOOK_DOWN;
+        if (keyboardData.V == 1 && keyboardData.Ctrl != 1) {
+            PWM_Set_Compare(&PWM_Image_Yaw, 18);
+            Move_Mode = 1;
+        } else if (keyboardData.V == 1 && keyboardData.Ctrl == 1) {
+            PWM_Set_Compare(&PWM_Image_Yaw, 7);
+            Move_Mode = 0;
+        }
+
+        if (keyboardData.F == 1 && keyboardData.Ctrl != 1) {
+            PWM_Set_Compare(&PWM_Visual_Rescue, 13);
+        } else if (keyboardData.F == 1 && keyboardData.Ctrl == 1) {
+            PWM_Set_Compare(&PWM_Visual_Rescue, 5);
         }
 
         vTaskDelayUntil(&LastWakeTime, 50);
@@ -634,11 +937,16 @@ void Task_Distance_Sensor(void *Parameter) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
     // 通过PWM波读取距离信息
-    uint16_t temp1         = 0;
-    uint16_t temp2         = 0;
-    uint16_t last_distance = 0;
-    Distance1              = 0;
-    Distance2              = 0;
+    uint16_t temp1               = 0;
+    uint16_t temp2               = 0;
+    uint16_t last_distance       = 0;
+    Distance1                    = 0;
+    Distance2                    = 0;
+    Distance_Delanding_Parallel1 = 0;
+    Distance_Delanding_Parallel2 = 0;
+    Distance_Delanding_Parallel3 = 0;
+    Distance_Delanding_Parallel4 = 0;
+    Distance_Delanding_Parallel5 = 0;
 
     while (1) {
         temp1     = TIM2CH1_CAPTURE_VAL; //得到总的高电平时间
@@ -647,13 +955,101 @@ void Task_Distance_Sensor(void *Parameter) {
         temp2     = TIM5CH1_CAPTURE_VAL; //得到总的高电平时间
         Distance2 = temp2;               // cm
 
+        Distance_Delanding_Parallel3 = TIM2CH1_CAPTURE_VAL;
+
+        Distance_Delanding_Parallel4 = TIM5CH1_CAPTURE_VAL;
+
         Distance_Delanding_Parallel1 = TIM3CH3_CAPTURE_VAL;
+
+        Distance_Delanding_Parallel5 = TIM4CH1_CAPTURE_VAL;
 
         Distance_Delanding_Parallel2 = TIM9CH1_CAPTURE_VAL;
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
 
+    vTaskDelete(NULL);
+}
+
+void Task_Board_Communication_Send(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.1;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    while (1) {
+        uint16_t dataLength;
+
+        // disable DMA
+        while (DMA_GetFlagStatus(DMA1_Stream1, DMA_IT_TCIF1) != SET) {
+        }
+        DMA_ClearFlag(DMA1_Stream1, DMA_FLAG_TCIF1);
+        DMA_Cmd(DMA1_Stream1, DISABLE);
+
+        // 板间通信
+        Board.boardInteractiveData[0].data1 = Distance_Delanding_Parallel1;
+        Board.boardInteractiveData[0].data2 = Distance_Delanding_Parallel2;
+        Board.boardInteractiveData[0].data3 = Distance_Delanding_Parallel3;
+        Board.boardInteractiveData[0].data4 = Distance_Delanding_Parallel4;
+        Board.boardInteractiveData[0].data5 = Distance_Delanding_Parallel5;
+
+        dataLength = Protocol_Pack_Length_0302;
+
+        Protocol_Pack(&Board, dataLength, Protocol_Interact_Id_Board);
+
+        // enable DMA
+        DMA_SetCurrDataCounter(DMA1_Stream1, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        DMA_Cmd(DMA1_Stream1, ENABLE);
+
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+
+        // 调试信息
+        DebugData.debug1 = Board.boardInteractiveData[1].data1;
+        DebugData.debug2 = Board.boardInteractiveData[1].data2;
+        DebugData.debug3 = Board.boardInteractiveData[1].data3;
+        DebugData.debug4 = Board.boardInteractiveData[1].data4;
+        DebugData.debug5 = Board.boardInteractiveData[1].data5;
+    }
+    vTaskDelete(NULL);
+}
+
+void Task_Board_Communication_Recive(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.1;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    while (1) {
+        uint16_t dataLength;
+
+        // disable DMA
+        while (DMA_GetFlagStatus(DMA1_Stream1, DMA_IT_TCIF1) != SET) {
+        }
+        DMA_ClearFlag(DMA1_Stream1, DMA_FLAG_TCIF1);
+        DMA_Cmd(DMA1_Stream1, DISABLE);
+
+        // 板间通信
+        Board.boardInteractiveData[0].data1 = Distance_Delanding_Parallel1;
+        Board.boardInteractiveData[0].data2 = Distance_Delanding_Parallel2;
+        Board.boardInteractiveData[0].data3 = Distance_Delanding_Parallel3;
+        Board.boardInteractiveData[0].data4 = Distance_Delanding_Parallel4;
+        Board.boardInteractiveData[0].data5 = Distance_Delanding_Parallel5;
+
+        dataLength = Protocol_Pack_Length_0302;
+
+        Protocol_Pack(&Board, dataLength, Protocol_Interact_Id_Board);
+
+        // enable DMA
+        DMA_SetCurrDataCounter(DMA1_Stream1, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        DMA_Cmd(DMA1_Stream1, ENABLE);
+
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+
+        // 调试信息
+        DebugData.debug1 = Board.boardInteractiveData[1].data1;
+        DebugData.debug2 = Board.boardInteractiveData[1].data2;
+        DebugData.debug3 = Board.boardInteractiveData[1].data3;
+        DebugData.debug4 = Board.boardInteractiveData[1].data4;
+        DebugData.debug5 = Board.boardInteractiveData[1].data5;
+    }
     vTaskDelete(NULL);
 }
 
@@ -672,27 +1068,29 @@ void Task_Upthrow_Horizontial(void *Parameter) {
     float TH_Ramp_Start      = 0;
     int   last_TU_state      = 0;
     TU_Up                    = 0;
+    Fsm_Ready                = 0;
 
     PID_Init(&PID_TH_Speed, 35, 0.5, 0, 5000, 2000); // 25 0.1
 
-<<<<<<< HEAD
-    PID_Init(&PID_Upthrow1_Angle, 18, 0.015, 0, 500, 300);
-    PID_Init(&PID_Upthrow1_Speed, 30, 1, 0, 8000, 4000);
-    PID_Init(&PID_Upthrow2_Angle, 8, 0.018, 0, 500, 300);
-    PID_Init(&PID_Upthrow2_Speed, 35, 0.5, 0, 8000, 4000);
-=======
-    // PID_Init(&PID_Upthrow1_Angle, 18, 0.015, 0, 500, 300); //
-    PID_Init(&PID_Upthrow1_Speed, 30, 1, 0, 8000, 4000);   //
-    // PID_Init(&PID_Upthrow2_Angle, 8, 0.018, 0, 500, 300);  //
-    PID_Init(&PID_Upthrow2_Speed, 35, 0.5, 0, 8000, 4000); //
->>>>>>> parent of 8ac1f6b... 调试中
+    PID_Init(&PID_Upthrow1_Angle, 18, 0.015, 0, 340, 170);   // 18 0.015
+    PID_Init(&PID_Upthrow1_Speed, 30, 1, 0, 10000, 5000);    // 30 1
+    PID_Init(&PID_Upthrow2_Angle, 24, 0.018, 0, 290, 145);   // 24 0.018
+    PID_Init(&PID_Upthrow2_Speed, 40, 0.85, 0, 10000, 5000); // 35 0.5
 
     while (1) {
         // 状态机使用
-        if (remoteData.switchRight == 1 && remoteData.switchLeft != 1) {
-            TU_Up = 1;
-        } else if (remoteData.switchRight == 3 && remoteData.switchLeft != 1) {
-            TU_Up = 0;
+        // if (remoteData.switchRight == 1 && remoteData.switchLeft != 1) {
+        //     TU_Up = 1;
+        // } else if (remoteData.switchRight == 3 && remoteData.switchLeft != 1) {
+        //     TU_Up = 0;
+        // }
+
+        if (keyboardData.Q == 1 && keyboardData.Ctrl != 1) {
+            TU_Up     = 1;
+            Fsm_Ready = 1;
+        } else if (keyboardData.Q == 1 && keyboardData.Ctrl == 1 && Fsm_Reset == 1) {
+            TU_Up     = 0;
+            Fsm_Ready = 0;
         }
 
         // // 调PID使用
@@ -721,7 +1119,7 @@ void Task_Upthrow_Horizontial(void *Parameter) {
             }
             upthrowAngleTarget = RAMP(TH_Ramp_Start, 0, upthrowProgress);
             if (upthrowProgress < 1) {
-                upthrowProgress += 0.01f;
+                upthrowProgress += 0.05f;
                 // upthrowProgress += 1.0f;
             }
             last_TU_state = 0;
@@ -730,11 +1128,7 @@ void Task_Upthrow_Horizontial(void *Parameter) {
                 upthrowProgress = 0;
                 TH_Ramp_Start   = Motor_Upthrow1.angle;
             }
-<<<<<<< HEAD
             upthrowAngleTarget = RAMP(TH_Ramp_Start, 560, upthrowProgress);
-=======
-            upthrowAngleTarget = RAMP(TH_Ramp_Start, 670, upthrowProgress);
->>>>>>> parent of 8ac1f6b... 调试中
             if (upthrowProgress < 1) {
                 upthrowProgress += 0.08f;
                 // upthrowProgress += 1.0f;
@@ -749,26 +1143,27 @@ void Task_Upthrow_Horizontial(void *Parameter) {
 
         // TH
 
-        if (((T_State2 == 0 && T_State1 == 1) || (T_State3 == 0 && T_State4 == 1)) && TV_Ready == 1) {
-            TH_Move        = 0;
-            Detected_State = 1;
-        }
+        // if (((T_State2 == 0 && T_State1 == 1) || (T_State3 == 0 && T_State4 == 1)) && TV_Ready == 1) {
+        //     TH_Move        = 0;
+        //     Detected_State = 1;
+        // }
 
-        if ((LSR_State == 1 && TH_Move != 2) || (LSL_State == 1 && TH_Move != 1)) {
-            TH_Move = 0;
-        }
+        // if ((LSR_State == 1 && TH_Move != 2) || (LSL_State == 1 && TH_Move != 1)) {
+        //     TH_Move = 0;
+        // }
 
-        if (TH_Move == 1) {
-            TH_TargetSpeed = 250;
-        } else if (TH_Move == 2) {
-            TH_TargetSpeed = -250;
-        } else if (TH_Move == 0) {
-            TH_TargetSpeed = 0;
-        }
+        // if (TH_Move == 1) {
+        //     TH_TargetSpeed = 250;
+        // } else if (TH_Move == 2) {
+        //     TH_TargetSpeed = -250;
+        // } else if (TH_Move == 0) {
+        TH_TargetSpeed = 0;
+        // }
 
         PID_Calculate(&PID_TH_Speed, TH_TargetSpeed, Motor_TH.speed * RPM2RPS);
 
-        Can_Send(CAN1, 0x1FF, PID_Upthrow1_Speed.output, PID_Upthrow2_Speed.output, PID_TH_Speed.output, 0);
+        // Can_Send(CAN1, 0x1FF, PID_Upthrow1_Speed.output, PID_Upthrow2_Speed.output, PID_TH_Speed.output, 0);
+        Can_Send(CAN1, 0x1FF, PID_Upthrow1_Speed.output, PID_Upthrow2_Speed.output, 0, 0);
 
         vTaskDelayUntil(&LastWakeTime, 10);
     }
@@ -787,7 +1182,6 @@ void Task_Optoelectronic_Input_Take(void *Parameter) {
     int take_state2      = 0;
     int take_state3      = 0;
     int take_state4      = 0;
-    Find_Box             = 0;
 
     while (1) {
         // 取弹
@@ -822,6 +1216,22 @@ void Task_Optoelectronic_Input_Take(void *Parameter) {
                 T_State4         = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_2);
                 last_take_state4 = take_state4;
             }
+        }
+
+        if (T_State1 == 1 && T_State2 == 0 && T_State3 == 0 && T_State4 == 1) {
+            Detected_State_1 = 1;
+        }
+
+        if ((T_State1 == 1 && T_State2 == 0) || (T_State3 == 0 && T_State4 == 1)) {
+            Detected_State_2 = 1;
+        }
+
+        if (remoteData.switchLeft == 1) {
+            Detected_State_1 = 0;
+        }
+
+        if (remoteData.switchRight == 1) {
+            Detected_State_2 = 0;
         }
 
         vTaskDelayUntil(&LastWakeTime, 5);
@@ -886,8 +1296,8 @@ void Task_Blink(void *Parameters) {
 void Task_Startup_Music(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        if (KTV_Play(Music_Earth)) break;
-        vTaskDelayUntil(&LastWakeTime, 120);
+        if (KTV_Play(Music_Sky)) break;
+        vTaskDelayUntil(&LastWakeTime, 350);
     }
 
     vTaskDelete(NULL);
@@ -915,27 +1325,32 @@ void Task_Sys_Init(void *Parameters) {
     // 低级任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
-    // while (!remoteData.state) {
-    // }
+    while (!remoteData.state) {
+    }
 
     // Structure
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Distance_Sensor, "Task_Distance_Sensor", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Take_Fsm, "Task_Take_Fsm", 400, NULL, 4, NULL);
-    xTaskCreate(Task_Take_Rotate, "Task_Take_Rotate", 400, NULL, 4, NULL);
-    // xTaskCreate(Task_Landing_Fsm, "Task_Landing_Fsm", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Take_Fsm, "Task_Take_Fsm", 400, NULL, 4, NULL);
+    // xTaskCreate(Task_Take_Rotate, "Task_Take_Rotate", 400, NULL, 4, NULL);
+    // // xTaskCreate(Task_Landing_Fsm, "Task_Landing_Fsm", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Board_Communication_Send, "Task_Board_Communication_Send", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Board_Communication_Recive, "Task_Board_Communication_Recive", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Supply, "Task_Supply", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Take_Vertical, "Task_Take_Vertical", 400, NULL, 3, NULL); // 前后伸缩
+    // xTaskCreate(Task_Visual, "Task_Visual", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Take_Vertical, "Task_Take_Vertical", 400, NULL, 3, NULL); // 前后伸缩
     xTaskCreate(Task_Optoelectronic_Input_Take, "Task_Optoelectronic_Input_Take", 400, NULL, 3, NULL);
     xTaskCreate(Task_Upthrow_Horizontial, "Task_Upthrow_Horizontial", 400, NULL, 3, NULL); // 抬升与平移
-    xTaskCreate(Task_Limit_Switch, "Task_Limit_Switch", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Limit_Switch, "Task_Limit_Switch", 400, NULL, 3, NULL);
     /* End */
 
     // 完成使命
     vTaskDelete(NULL);
     vTaskDelay(10);
 }
+
+// 补弹：R 取弹：近：E 远：Shift E 抬升：Q 救援：C

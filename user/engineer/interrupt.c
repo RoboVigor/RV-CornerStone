@@ -161,25 +161,25 @@ void CAN2_RX0_IRQHandler(void) {
 
     // 安排数据
     switch (CanRxData.StdId) {
-        case 0x201:
-            Motor_Update(&Motor_LGW, position, speed);
-            break;
+    case 0x201:
+        Motor_Update(&Motor_LGW, position, speed);
+        break;
 
-        case 0x202:
-            Motor_Update(&Motor_RGW, position, speed);
-            break;
+    case 0x202:
+        Motor_Update(&Motor_RGW, position, speed);
+        break;
 
     case 0x203:
         Motor_Update(&Motor_TV, position, speed);
         break;
 
-        case 0x205:
-            Motor_Update(&Motor_Rotate_Left, position, speed);
-            break;
+    case 0x205:
+        Motor_Update(&Motor_Rotate_Left, position, speed);
+        break;
 
-        case 0x206:
-            Motor_Update(&Motor_Rotate_Right, position, speed);
-            break;
+    case 0x206:
+        Motor_Update(&Motor_Rotate_Right, position, speed);
+        break;
 
         // case 0x206:
         //     Motor_Update(&Motor_Upthrow2, position, speed);
@@ -242,6 +242,27 @@ void TIM3_IRQHandler(void) {
     TIM_ClearITPendingBit(TIM3, TIM_IT_CC3 | TIM_IT_Update); //清除中断标志位
 }
 
+u8 TIM4CH1_CAPTURE_STA = 0;
+
+void TIM4_IRQHandler(void) {
+    if (TIM_GetITStatus(TIM4, TIM_IT_CC1) != RESET) {
+        // 捕获到一个下降沿
+        if (TIM4CH1_CAPTURE_STA == 1) {
+            TIM4CH1_CAPTURE_STA = 0;
+            //获取当前的捕获值
+            TIM4CH1_CAPTURE_VAL = TIM4->CCR1;
+            //设置上升沿捕获
+            TIM_OC1PolarityConfig(TIM4, TIM_ICPolarity_Rising);
+        } else {
+            TIM4CH1_CAPTURE_STA = 1;
+            TIM_SetCounter(TIM4, 0);                             //计数器清空
+            TIM_OC1PolarityConfig(TIM4, TIM_ICPolarity_Falling); //设置下降沿捕获
+        }
+    }
+
+    TIM_ClearITPendingBit(TIM4, TIM_IT_CC1 | TIM_IT_Update); //清除中断标志位
+}
+
 // TIM5 输入捕获初始化
 u8 TIM5CH1_CAPTURE_STA = 0; //输入捕获状态
 
@@ -268,14 +289,14 @@ void TIM5_IRQHandler(void) {
 }
 
 void TIM8_TRG_COM_TIM14_IRQHandler(void) {
-    if(TIM_GetITStatus(TIM14,TIM_IT_Update) == SET) {
+    if (TIM_GetITStatus(TIM14, TIM_IT_Update) == SET) {
         if (Fsm_TIM14_State != 1) {
             Fsm_TIM14_Cnt = 0;
         } else {
             Fsm_TIM14_Cnt++;
         }
     }
-    TIM_ClearITPendingBit(TIM14,TIM_IT_Update); 
+    TIM_ClearITPendingBit(TIM14, TIM_IT_Update);
 }
 
 u8 TIM9CH1_CAPTURE_STA = 0;
@@ -297,6 +318,35 @@ void TIM1_BRK_TIM9_IRQHandler(void) {
     }
 
     TIM_ClearITPendingBit(TIM9, TIM_IT_CC1 | TIM_IT_Update); //清除中断标志位
+}
+
+/**
+ * @brief UART7 串口中断
+ */
+void UART7_IRQHandler(void) {
+    uint8_t  tmp;
+    uint16_t len;
+    int      i;
+
+    // clear IDLE flag
+    tmp = UART7->DR;
+    tmp = UART7->SR;
+
+    // disable DMA and Unpack
+    DMA_Cmd(DMA1_Stream3, DISABLE);
+    while (DMA_GetFlagStatus(DMA1_Stream3, DMA_IT_TCIF3) != SET) {
+    }
+    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Stream3);
+    for (i = 0; i < len; i++) {
+        Protocol_Unpack(&Board, Board.receiveBuf[i]);
+    }
+
+    // enable DMA
+    DMA_ClearFlag(DMA1_Stream3, DMA_FLAG_TCIF3 | DMA_FLAG_HTIF3);
+    while (DMA_GetCmdStatus(DMA1_Stream3) != DISABLE) {
+    }
+    DMA_SetCurrDataCounter(DMA1_Stream3, Protocol_Buffer_Length);
+    DMA_Cmd(DMA1_Stream3, ENABLE);
 }
 
 /**

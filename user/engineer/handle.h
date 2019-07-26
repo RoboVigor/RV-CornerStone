@@ -73,6 +73,7 @@ __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 无线串口调试
 __HANDLE_EXT MagicHandle_Type magic;
+__HANDLE_EXT DebugData_Type DebugData;
 
 // 底盘
 __HANDLE_EXT ChassisData_Type ChassisData;
@@ -85,30 +86,28 @@ __HANDLE_EXT PID_Type PID_Upthrow1_Angle, PID_Upthrow1_Speed, PID_Upthrow2_Angle
 __HANDLE_EXT PID_Type PID_Rotate_Left_Angle, PID_Rotate_Left_Speed, PID_Rotate_Right_Angle, PID_Rotate_Right_Speed;
 
 // 通讯协议
-__HANDLE_EXT Protocol_Type Judge, Ps;
+__HANDLE_EXT Protocol_Type Judge, Ps, Board;
 
 // 调试变量
 __HANDLE_EXT int DebugA, DebugB, DebugC, DebugD, DebugE, DebugF, DebugG, DebugH, DebugI;
-
-// 取弹状态
-__HANDLE_EXT int takeMode, State;
 
 // 光电开关传感器数据
 __HANDLE_EXT int T_State1, T_State2, T_State3, T_State4, LSR_State, LSL_State;
 
 // 距离传感器获得距离
 __HANDLE_EXT uint16_t Distance1, Distance2, Distance3, Distance4, Distance_Landing_Behind, Distance_Landing_Front, Distance_Delanding_Parallel1,
-    Distance_Delanding_Parallel2;
+    Distance_Delanding_Parallel2, Distance_Delanding_Parallel3, Distance_Delanding_Parallel4, Distance_Delanding_Parallel5;
 
 // 输入捕获值
-__HANDLE_EXT u32 TIM5CH1_CAPTURE_VAL, TIM2CH1_CAPTURE_VAL, TIM3CH3_CAPTURE_VAL, TIM9CH1_CAPTURE_VAL;
+__HANDLE_EXT u32 TIM5CH1_CAPTURE_VAL, TIM2CH1_CAPTURE_VAL, TIM3CH3_CAPTURE_VAL, TIM9CH1_CAPTURE_VAL, TIM4CH1_CAPTURE_VAL;
 
 // PWM
-__HANDLE_EXT PWM_Type PWM_Supply1, PWM_Supply2, PWM_Image_Yaw, PWM_Image_Pitch, PWM_Rescue;
+__HANDLE_EXT PWM_Type PWM_Supply1, PWM_Supply2, PWM_Visual_Rescue, PWM_Image_Yaw;
 
 // Fsm需求
-__HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, TR_Get, Find_Box, Detected_State, TH_Reset, Chassis_Detect, Chassis_Detect_Parallel, Detected_Direction,
-    TV_Ready, Fsm_TIM14_Cnt, Fsm_TIM14_State, Chassis_Delanding_State, Chassis_Delanding_Parallel_Over, TR_Ready;
+__HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, TR_Get, Detected_State, TH_Reset, Chassis_Detect, Chassis_Detect_Parallel, Detected_Direction, TV_Ready,
+    Fsm_TIM14_Cnt, Fsm_TIM14_State, Chassis_Delanding_State, Chassis_Delanding_Parallel_Over, TR_Ready, Fsm_Reset, Fsm_Ready, Move_Mode, Guide_Wheel_State,
+    Detected_State_1, Detected_State_2;
 __HANDLE_EXT Fsm_t Take_Fsm;
 /**
  * @brief 初始化结构体
