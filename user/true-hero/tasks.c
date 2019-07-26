@@ -174,10 +174,10 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_Follow_Speed, 1.8, 0, 0, 2000, 1000);
 
     // 麦轮速度PID
-    PID_Init(&PID_LFCM, 20, 0, 0, 15000, 7500);
-    PID_Init(&PID_LBCM, 20, 0, 0, 15000, 7500);
-    PID_Init(&PID_RBCM, 20, 0, 0, 15000, 7500);
-    PID_Init(&PID_RFCM, 20, 0, 0, 15000, 7500);
+    PID_Init(&PID_LFCM, 16, 0, 0, 15000, 7500);
+    PID_Init(&PID_LBCM, 16, 0, 0, 15000, 7500);
+    PID_Init(&PID_RBCM, 16, 0, 0, 15000, 7500);
+    PID_Init(&PID_RFCM, 16, 0, 0, 15000, 7500);
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
@@ -222,7 +222,7 @@ void Task_Chassis(void *Parameters) {
             }
             yTargetRamp = RAMP(yRampStart, 660, yRampProgress);
             if (yRampProgress < 0.5) {
-                yRampProgress += 0.004f;
+                yRampProgress += 0.006f;
             } else if (yRampProgress > 0.5 && yRampProgress < 1) {
                 yRampProgress += 0.002f;
             }
@@ -392,9 +392,9 @@ void Task_Fire(void *Parameters) {
                 }
 
                 if (keyboardData.E && !keyboardData.Ctrl) {
-                    PWM_Set_Compare(&PWM_Magazine_Servo, 17);
-                } else if (keyboardData.E && keyboardData.Ctrl) {
                     PWM_Set_Compare(&PWM_Magazine_Servo, 10);
+                } else if (keyboardData.E && keyboardData.Ctrl) {
+                    PWM_Set_Compare(&PWM_Magazine_Servo, 17);
                 }
             }
 
