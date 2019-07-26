@@ -16,7 +16,6 @@ void Task_Safe_Mode(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-
 void Task_Snail(void *Parameters) {
     // snail摩擦轮任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -37,11 +36,10 @@ void Task_Snail(void *Parameters) {
     int snailLeftState  = 0;
 
     int snailState = 0; //标志启动完后需要的延时
-    
-    
-    int lastMouseDataRight=0;
 
-    snailStart = 0; 
+    int lastMouseDataRight = 0;
+
+    snailStart = 0;
 
     /*来自dji开源，两个snail不能同时启动*/
 
@@ -49,26 +47,26 @@ void Task_Snail(void *Parameters) {
 
         GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
 
-        if(controlMode == 1){
+        //右键开启 再摁一次关闭
+        if (controlMode == 1) {
             if (remoteData.switchLeft == 1) {
-                snailStart=0;
-            }else{
-                snailStart=1;
+                snailStart = 0;
+            } else {
+                snailStart = 1;
             }
-        }else if(controlMode == 2){
+        } else if (controlMode == 2) {
             if (mouseData.pressRight == 1 && snailStart == 0 && lastMouseDataRight == 0) {
-                snailStart=1;
+                snailStart         = 1;
                 lastMouseDataRight = mouseData.pressRight;
-            }else if(mouseData.pressRight == 1 && snailStart == 1&& lastMouseDataRight == 0){
-                snailStart=0;
+            } else if (mouseData.pressRight == 1 && snailStart == 1 && lastMouseDataRight == 0) {
+                snailStart         = 0;
                 lastMouseDataRight = mouseData.pressRight;
-            }else{
-					lastMouseDataRight = mouseData.pressRight;
-				}
-
+            } else {
+                lastMouseDataRight = mouseData.pressRight;
+            }
         }
         if (snailStart == 0) {
-            
+
             dutyCycleRightSnailTarget    = 0.376;
             dutyCycleLeftSnailTarget     = 0.376;
             dutyCycleRightSnailProgress1 = 0;
@@ -82,24 +80,24 @@ void Task_Snail(void *Parameters) {
             if (dutyCycleRightSnailProgress1 <= 1) { //初始状态
                 dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle,
                                                  dutyCycleRightSnailProgress1); //斜坡上升
-                dutyCycleRightSnailProgress1 += 0.1f;
+                dutyCycleRightSnailProgress1 += 0.05f;
             } else {
                 if (dutyCycleLeftSnailProgress1 <= 1) {
-                            dutyCycleLeftSnailTarget = RAMP(dutyCycleStart,
-                                                            dutyCycleMiddle, //右摩擦轮启动完毕，左摩擦轮进入初始状态
-                                                            dutyCycleLeftSnailProgress1);
-                            dutyCycleLeftSnailProgress1 += 0.1f;
-                        } else {
-                            if (snailLeftState == 0) {
-                                vTaskDelay(100);
-                                snailLeftState = 1;
-                            } else {
-                                if (dutyCycleLeftSnailProgress2 <= 1) {
-                                    dutyCycleLeftSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleLeftSnailProgress2);
-                                    dutyCycleLeftSnailProgress2 += 0.01f;
-                                }
-                            }
+                    dutyCycleLeftSnailTarget = RAMP(dutyCycleStart,
+                                                    dutyCycleMiddle, //右摩擦轮启动完毕，左摩擦轮进入初始状态
+                                                    dutyCycleLeftSnailProgress1);
+                    dutyCycleLeftSnailProgress1 += 0.05f;
+                } else {
+                    if (snailLeftState == 0) {
+                        vTaskDelay(100);
+                        snailLeftState = 1;
+                    } else {
+                        if (dutyCycleLeftSnailProgress2 <= 1) {
+                            dutyCycleLeftSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleLeftSnailProgress2);
+                            dutyCycleLeftSnailProgress2 += 0.005f;
                         }
+                    }
+                }
                 if (snailRightState == 0) { //初始状态停留100ms
                     vTaskDelay(100);
                     snailRightState = 1;
@@ -107,8 +105,8 @@ void Task_Snail(void *Parameters) {
                     if (dutyCycleRightSnailProgress2 <= 1) { //启动状态
                         dutyCycleRightSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd,
                                                          dutyCycleRightSnailProgress2); //斜坡上升
-                        dutyCycleRightSnailProgress2 += 0.01f;
-                    } 
+                        dutyCycleRightSnailProgress2 += 0.005f;
+                    }
                 }
             }
         }
