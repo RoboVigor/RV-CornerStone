@@ -134,7 +134,7 @@ void Task_Gimbal(void *Parameters) {
         Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
 
         // 调试信息
-        // DebugData.debug1 = ControlMode;
+        // DebugData.debug1 = Motor_Yaw.position;
         // DebugData.debug2 = keyboardData.Q;
         // DebugData.debug3 = keyboardData.Ctrl;
         // DebugData.debug4 = autoAimStart;
