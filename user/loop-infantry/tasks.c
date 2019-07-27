@@ -3,10 +3,11 @@
  * @version 1.2.0
  */
 #include "main.h"
+#include "stdlib.h"
 
 void Task_Safe_Mode(void *Parameters) {
     while (1) {
-        if (remoteData.switchRight == 2) {
+        if (SafetyMode) {
             vTaskSuspendAll();
             while (1) {
                 Can_Send(CAN1, 0x200, 0, 0, 0, 0);
@@ -27,11 +28,13 @@ void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
         if (!keyboardData.state) {
-            ControlMode = 1; //遥控器模式
-            // SwingEnabled = remoteData.switchLeft == 2;
-            // FrictEnabled = remoteData.switchLeft == 3;
-            // StirEnabled  = remoteData.switchRight == 3;
-            // PsEnabled    = remoteData.switchLeft == 3;
+            ControlMode  = 1; //遥控器模式
+            SwingEnabled = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
+            // MagzineOpened = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
+            PsEnabled    = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
+            FrictEnabled = remoteData.switchLeft == 2;
+            StirEnabled  = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
+            SafetyMode   = remoteData.switchRight == 2;
         } else {
             ControlMode = 2; //键鼠模式
             if (mouseData.pressRight && !keyboardData.Ctrl) {
@@ -55,9 +58,9 @@ void Task_Control(void *Parameters) {
                 SwingEnabled = 0;
             }
             if (keyboardData.V && !keyboardData.Ctrl) {
-                LowEnabled = 1;
+                LowSpeedMode = 1;
             } else if (keyboardData.V && keyboardData.Ctrl) {
-                LowEnabled = 0;
+                LowSpeedMode = 0;
             }
         }
         vTaskDelayUntil(&LastWakeTime, 5);
@@ -218,8 +221,10 @@ void Task_Chassis(void *Parameters) {
     float powerBuffer    = 0;
 
     // 小陀螺
-    float   swingAngle = 0;
-    int16_t swingMode  = 0;
+    float   swingAngle    = 0;
+    int16_t swingMode     = 0;
+    float   swingInterval = 0.2;
+    float   swingTimer    = swingInterval;
 
     // 底盘跟随PID
     float followDeadRegion = 3.0;
@@ -227,10 +232,10 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_Follow_Speed, 10, 0, 0, 1000, 0);
 
     // 麦轮速度PID
-    PID_Init(&PID_LFCM, 30, 0, 0, 14800, 1200);
-    PID_Init(&PID_LBCM, 30, 0, 0, 14800, 1200);
-    PID_Init(&PID_RBCM, 30, 0, 0, 14800, 1200);
-    PID_Init(&PID_RFCM, 30, 0, 0, 14800, 1200);
+    PID_Init(&PID_LFCM, 25, 0, 0, 14800, 1200);
+    PID_Init(&PID_LBCM, 25, 0, 0, 14800, 1200);
+    PID_Init(&PID_RBCM, 25, 0, 0, 14800, 1200);
+    PID_Init(&PID_RFCM, 25, 0, 0, 14800, 1200);
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
@@ -258,18 +263,28 @@ void Task_Chassis(void *Parameters) {
             PID_Follow_Angle.p = 1.3;
         }
 
+        // 底盘跟随死区
+        if (SwingEnabled) {
+            followDeadRegion = 0; // 关闭底盘跟随死区
+        } else {
+            followDeadRegion = 3; // 开启底盘跟随死区
+        }
+
         // 小陀螺
         if (SwingEnabled) {
             swingMode = 1;
+            // swingTimer += interval;
+            // if (swingTimer >= swingInterval) {
+            //     swingAngle += rand() % 30 + 30;
+            //     swingTimer = 0;
+            // }
             swingAngle += 360 * interval;
-            followDeadRegion = 0; // 关闭底盘跟随死区
         } else {
             if (swingMode) {
                 swingMode       = 0; // 圈数清零
                 Motor_Yaw.round = 0;
             }
-            swingAngle       = 0;
-            followDeadRegion = 3; // 开启底盘跟随死区
+            swingAngle = 0;
         }
         PID_Calculate(&PID_Follow_Angle, swingAngle, motorAngle);
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeed);
@@ -302,7 +317,7 @@ void Task_Chassis(void *Parameters) {
                 xRampProgress = 0;
                 xRampStart    = 0;
             }
-            if (LowEnabled) {
+            if (LowSpeedMode) {
                 vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 0.5;
                 vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 0.5;
             }
