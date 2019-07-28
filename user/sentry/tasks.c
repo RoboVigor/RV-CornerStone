@@ -439,8 +439,8 @@ void Task_Sys_Init(void *Parameters) {
     // 运动控制任务
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Stir, "Task_Stir", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Stir, "Task_Stir", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
