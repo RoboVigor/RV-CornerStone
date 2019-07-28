@@ -143,10 +143,10 @@ void Task_Gimbal(void *Parameters) {
     int directionY = 1;
 
     // 初始化云台PID
-    PID_Init(&PID_Stabilizer_Yaw_Angle, 5, 0, 0, 4000, 0);
+    PID_Init(&PID_Stabilizer_Yaw_Angle, 15, 0, 0, 4000, 0);
     PID_Init(&PID_Stabilizer_Yaw_Speed, 70, 0, 0, 10000, 0);
-    PID_Init(&PID_Stabilizer_Pitch_Angle, 8, 0, 0, 2000, 0);
-    PID_Init(&PID_Stabilizer_Pitch_Speed, 30, 0, 0, 5000, 1000);
+    PID_Init(&PID_Stabilizer_Pitch_Angle, 16, 0, 0, 2000, 0);
+    PID_Init(&PID_Stabilizer_Pitch_Speed, 20, 0, 0, 5000, 1000);
 
     while (1) {
         // 设置反馈
@@ -173,14 +173,14 @@ void Task_Gimbal(void *Parameters) {
         } else if (yawAngleTarget <= -90) {
             directionX = 1;
         }
-        if (pitchAngleTarget >= 7) {
+        if (pitchAngleTarget >= 10) {
             directionY = -1;
         } else if (pitchAngleTarget <= -35) {
             directionY = 1;
         }
         if ((counter >= 10) && (remoteData.switchLeft != 3)) {
             yawAngleTarget += directionX * 0.8;
-            pitchAngleTarget += directionY * 0.1;
+            pitchAngleTarget += directionY * 0.8;
         }
         if (counter == INT_MAX) {
             counter = 10;
@@ -192,7 +192,7 @@ void Task_Gimbal(void *Parameters) {
         yawAngleTarget += psYawAngleTarget;
         pitchAngleTarget += psPitchAngleTarget;
         MIAO(yawAngleTarget, -90, 90);
-        MIAO(pitchAngleTarget, -35, 7);
+        MIAO(pitchAngleTarget, -35, 10);
 
         // 计算PID
         PID_Calculate(&PID_Stabilizer_Yaw_Angle, yawAngleTarget, yawAngle);
@@ -208,7 +208,7 @@ void Task_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = pitchAngleTarget;
+        // DebugData.debug1 = pitchAngleTarget;
         // DebugData.debug2 = yawAngle;
         // DebugData.debug3 = pitchAngle;
         // DebugData.debug4 = directionX;
@@ -239,7 +239,7 @@ void Task_Stir(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     // PID 初始化
-    PID_Init(&PID_Stir_Speed, 1.2, 0.1, 0, 8000, 3500);
+    PID_Init(&PID_Stir_Speed, 24, 0.01, 0, 6000, 3000);
 
     // 热量限制
     int calmDown = 0; // 1:冷却
@@ -253,7 +253,7 @@ void Task_Stir(void *Parameters) {
     while (1) {
 
         // 热量限制
-        calmDown = (Judge.powerHeatData.shooter_heat0 > 420) ? 1 : 0;
+        calmDown = (Judge.powerHeatData.shooter_heat0 > 400) ? 1 : 0;
 
         // 射击模式
         shootMode = (ABS(remoteData.ly) > 30) ? 1 : 0;
@@ -269,11 +269,18 @@ void Task_Stir(void *Parameters) {
         }
 
         if ((calmDown == 0) && (shootMode == 1)) {
-            PID_Calculate(&PID_Stir_Speed, 3500.0, Motor_Stir.speed);
+            PID_Calculate(&PID_Stir_Speed, 250, Motor_Stir.speed * RPM2RPS);
         } else {
-            PID_Calculate(&PID_Stir_Speed, 0, Motor_Stir.speed);
+            PID_Calculate(&PID_Stir_Speed, 0, Motor_Stir.speed * RPM2RPS);
         }
-
+        DebugData.debug1 = PID_Stir_Speed.output;
+        DebugData.debug2 = Motor_Stir.speed * RPM2RPS;
+        DebugData.debug3 = Judge.powerHeatData.shooter_heat0;
+        DebugData.debug4 = Judge.shootData.seq;
+        // DebugData.debug5 = ImuData.gx;
+        // DebugData.debug6 = ImuData.gy;
+        // DebugData.debug7 = ImuData.gz;
+        // DebugData.debug8 = Motor_Stabilizer_Yaw.position;
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -290,7 +297,7 @@ void Task_Snail(void *Parameters) {
     // 占空比
     float dutyCycleStart  = 0.376; // 起始
     float dutyCycleMiddle = 0.446; // 启动
-    float dutyCycleEnd    = 0.560; // 加速到你想要的
+    float dutyCycleEnd    = 0.540; // 加速到你想要的
 
     // 目标占空比
     float dutyCycleRightSnailTarget = 0.376;
