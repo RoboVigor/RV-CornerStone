@@ -140,7 +140,7 @@ void Task_Gimbal(void *Parameters) {
         // DebugData.debug4 = autoAimStart;
         // DebugData.debug5 = Ps.autoaimData.seq;
         // DebugData.debug6 = PID_Cloud_PitchSpeed.output;
-        // DebugData.debug7 = pitchRampStart;
+        // DebugData.debug7 = yawAngle;
         // DebugData.debug8 = pitchAngleTarget;
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -169,7 +169,7 @@ void Task_Chassis(void *Parameters) {
     float powerBuffer = 0;
 
     // 底盘跟随PID
-    float followDeadRegion = 3.0;
+    float followDeadRegion = 5.0;
     PID_Init(&PID_Follow_Angle, 0.02, 0, 0, 1000, 0);
     PID_Init(&PID_Follow_Speed, 1.8, 0, 0, 2000, 1000);
 
@@ -238,6 +238,11 @@ void Task_Chassis(void *Parameters) {
                 xRampStart    = 0;
             }
         }
+        if (ABS(remoteData.rx) > 20 || ABS(mouseData.x) > 20) {
+            followDeadRegion = 2.0f;
+        } else {
+            followDeadRegion = 5.0f;
+        }
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS * 5);
         if (ABS(remoteData.rx) > 30 || ABS(mouseData.x) > 20) {
             vy = vy / 6.0f;
@@ -284,13 +289,13 @@ void Task_Chassis(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = mouseData.x;
-        // DebugData.debug2 = -1 * PID_Follow_Speed.output;
-        // DebugData.debug3 = PID_Follow_Angle.error;
+        // DebugData.debug1 = ChassisData.rotorSpeed[0];
+        // DebugData.debug2 = Motor_LF.speed * RPM2RPS;
+        // DebugData.debug3 = PID_LFCM.output_I;
         // DebugData.debug4 = PID_LFCM.output;
-        // DebugData.debug5 = motorAngle;
-        // DebugData.debug6 = ChassisData.rotorSpeed[0];
-        // DebugData.debug7 = Motor_LF.speed * RPM2RPS;
+        // DebugData.debug5 = followDeadRegion;
+        // DebugData.debug6 = remoteData.rx;
+        // DebugData.debug7 = remoteData.rx;
         // DebugData.debug7 = ChassisData.rotorSpeed[0];
         // DebugData.debug8 = PID_Follow_Speed.output;
     }
