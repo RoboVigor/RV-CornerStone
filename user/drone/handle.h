@@ -45,6 +45,7 @@ __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 无线串口调试
 __HANDLE_EXT MagicHandle_Type magic;
+__HANDLE_EXT DebugData_Type DebugData;
 
 // pid
 __HANDLE_EXT ChassisData_Type ChassisData;
@@ -62,7 +63,7 @@ __HANDLE_EXT u32 TIM5CH1_CAPTURE_STA, TIM5CH1_CAPTURE_VAL;
 //键鼠模式切换
 __HANDLE_EXT int controlMode;
 
-__HANDLE_EXT int snailStart; //snail 开启标志位 1为开 0为关 
+__HANDLE_EXT int snailStart; // snail 开启标志位 1为开 0为关
 
 __HANDLE_EXT int debug1, debug2;
 

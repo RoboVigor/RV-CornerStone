@@ -6,7 +6,7 @@
 
 void Task_Safe_Mode(void *Parameters) {
     while (1) {
-        if (remoteData.switchRight == 2 && remoteData.switchLeft==2) {
+        if (remoteData.switchRight == 2 && remoteData.switchLeft == 2) {
             Can_Send(CAN1, 0x200, 0, 0, 0, 0);
             Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
             vTaskSuspendAll();
@@ -134,8 +134,8 @@ void Task_Gimbal(void *Parameters) {
 
     float yawTargetAngle   = 0;
     float pitchTargetAngle = 0;
-    int yawSpeedTarget=0;
-    int pitchSpeedTarget=0;
+    int   yawSpeedTarget   = 0;
+    int   pitchSpeedTarget = 0;
 
     float yawAngleTarget   = 0;
     float pitchAngleTarget = 0;
@@ -143,15 +143,15 @@ void Task_Gimbal(void *Parameters) {
     while (1) {
         if (controlMode == 1) {
             if (ABS(remoteData.rx) > 30) yawAngleTarget += remoteData.rx / 660.0f * 180 * 0.005;
-            if (ABS(remoteData.ry) > 30) pitchAngleTarget +=  remoteData.ry / 660.0f * 100 * 0.005;
+            if (ABS(remoteData.ry) > 30) pitchAngleTarget += remoteData.ry / 660.0f * 100 * 0.005;
         } else if (controlMode == 2) {
             yawAngleTarget += mouseData.x * 0.02;
-            pitchAngleTarget += (-mouseData.y)  * 0.01;
+            pitchAngleTarget += (-mouseData.y) * 0.01;
         }
 
         MIAO(yawAngleTarget, -33, 33);
 
-        PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget,  Motor_Yaw.angle);
+        PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget, Motor_Yaw.angle);
         PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, Motor_Yaw.speed);
 
         PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTarget, Motor_Pitch.angle);
@@ -159,20 +159,18 @@ void Task_Gimbal(void *Parameters) {
 
         // 输出电流
         Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
-       
 
         vTaskDelayUntil(&LastWakeTime, 5);
     }
 }
 
-void Task_Fire(void *Parameters) {       //拨弹轮
+void Task_Fire(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float rpm2rps      = 3.14 / 60;           // 转子的转速(round/min)换算成角速度(rad/s)
-    float r            = 0.0595;
+    float      rpm2rps      = 3.14 / 60;           // 转子的转速(round/min)换算成角速度(rad/s)
+    float      r            = 0.0595;
     // uint8_t    startCounter = 0;                   // 启动模式计数器
 
-#define LASER_ON GPIO_SetBits(GPIOG, GPIO_Pin_13) // 激光开启
-    // #define LASER_OFF GPIO_ResetBits(GPIOG, GPIO_Pin_13) // 激光关闭
+    LASER_ON;
 
     // 标志位
     uint8_t frictState = 0;
@@ -189,34 +187,33 @@ void Task_Fire(void *Parameters) {       //拨弹轮
     float stirAmpre  = 0;
 
     // PID 初始化
-    
-    PID_Init(&PID_StirSpeed, 0.2, 0.003, 0, 8000, 6000); // 1.8
-    
-    int stirstate = 0; //播弹轮开启为1 关闭为0
-    u32 stircount = 0; //堵转计数器 保证反转
-    int stopstate = 0; //堵转模式 1为堵转 0为正常
-    float currentTarget=0;
-   
+
+    PID_Init(&PID_StirSpeed, 0.2, 0, 0, 8000, 6000); // 1.8
+
+    int   stirstate     = 0; //播弹轮开启为1 关闭为0
+    u32   stircount     = 0; //堵转计数器 保证反转
+    int   stopstate     = 0; //堵转模式 1为堵转 0为正常
+    float currentTarget = 0;
 
     while (1) {
-        if(controlMode == 1){
+        if (controlMode == 1) {
             if (remoteData.lx < -60) {
-                stirstate=1; //正转
-            }else if (remoteData.lx > 60){
-                stirstate=-1;
-            }else if (remoteData.lx < 60 && remoteData.lx > -60){
-                stirstate=0;
+                stirstate = 1; //正转
+            } else if (remoteData.lx > 60) {
+                stirstate = -1;
+            } else if (remoteData.lx < 60 && remoteData.lx > -60) {
+                stirstate = 0;
             }
-        }else{
-            if(mouseData.pressLeft == 1 && snailStart == 1){
-                stirstate=1;
-            }else if(mouseData.pressLeft == 0){
-                stirstate=0;
+        } else {
+            if (mouseData.pressLeft == 1 && snailStart == 1) {
+                stirstate = 1;
+            } else if (mouseData.pressLeft == 0) {
+                stirstate = 0;
             }
         }
 
         //拨弹轮 PID 控制
-       
+
         // if (stirstate == 1) { //正转
         //     PID_Calculate(&PID_StirSpeed, -6500.0, Motor_Stir.speed);
         //     Can_Send(CAN1, 0x200, 0, 0, PID_StirSpeed.output, 0);
@@ -227,47 +224,47 @@ void Task_Fire(void *Parameters) {       //拨弹轮
         //     PID_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed);
         //     Can_Send(CAN1, 0x200, 0, 0, PID_StirSpeed.output, 0);
         // }
-        if(stirstate == 1){
-            if(currentTarget <= -2300 ){
-                stopstate=1;
+        if (stirstate == 1) {
+            if (currentTarget <= -2300) {
+                stopstate = 1;
             }
-            if(stopstate == 1 && stircount < 20){
-                currentTarget =2000;
+            if (stopstate == 1 && stircount < 20) {
+                currentTarget = 2000;
                 Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
                 stircount += 1;
-            }else if(stopstate == 1 && stircount >= 20 && stircount <= 30 ){
-                //stircount = 0;
-                //stopstate = 0;
+            } else if (stopstate == 1 && stircount >= 20 && stircount <= 30) {
+                // stircount = 0;
+                // stopstate = 0;
                 PID_Calculate(&PID_StirSpeed, -1000, Motor_Stir.speed);
-                currentTarget=PID_StirSpeed.output;
+                currentTarget = PID_StirSpeed.output;
                 stircount += 1;
                 Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
-            }else if(stopstate == 1 && stircount>= 30 ){
-                currentTarget=0;
-                stircount = 0;
-                stopstate = 0;
+            } else if (stopstate == 1 && stircount >= 30) {
+                currentTarget = 0;
+                stircount     = 0;
+                stopstate     = 0;
                 Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
-            }else if(stopstate == 0){
-            PID_Calculate(&PID_StirSpeed, -7000.0, Motor_Stir.speed);
-            currentTarget=PID_StirSpeed.output;
-            
-            Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
+            } else if (stopstate == 0) {
+                PID_Calculate(&PID_StirSpeed, -7000.0, Motor_Stir.speed);
+                currentTarget = PID_StirSpeed.output;
+
+                Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
             }
-        }else if(stirstate == 0){
-            currentTarget=0;
-            
+        } else if (stirstate == 0) {
+            currentTarget = 0;
+
             Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
 
-        }
-        else if(stirstate == -1){
+        } else if (stirstate == -1) {
             currentTarget = 2000;
             Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
-            
         }
-        
-        
-        
-
+        DebugData.debug1 = PID_StirSpeed.output;
+        DebugData.debug2 = currentTarget;
+        // DebugData.debug3 = ;
+        // DebugData.debug4 = ;
+        // DebugData.debug5 = ;
+        // DebugData.debug6 = ;
         vTaskDelayUntil(&LastWakeTime, 10);
     }
 
@@ -298,7 +295,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 800, NULL, 5, NULL);
     xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
     xTaskCreate(Task_Fire, "Task_Fire", 500, NULL, 7, NULL);
-    xTaskCreate(Task_Control, "Task_Control", 500, NULL, 4,NULL);
+    xTaskCreate(Task_Control, "Task_Control", 500, NULL, 4, NULL);
     // 完成使命
     vTaskDelete(NULL);
 }
