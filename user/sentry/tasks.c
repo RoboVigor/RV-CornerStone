@@ -138,13 +138,14 @@ void Task_Gimbal(void *Parameters) {
     float psPitchAngleTarget = 0;
 
     //自动转头
-    int counter   = 0;
-    int direction = 1;
+    int counter    = 0;
+    int directionX = 1;
+    int directionY = 1;
 
     // 初始化云台PID
     PID_Init(&PID_Stabilizer_Yaw_Angle, 5, 0, 0, 4000, 0);
     PID_Init(&PID_Stabilizer_Yaw_Speed, 70, 0, 0, 10000, 0);
-    PID_Init(&PID_Stabilizer_Pitch_Angle, 10, 0, 0, 2000, 0);
+    PID_Init(&PID_Stabilizer_Pitch_Angle, 8, 0, 0, 2000, 0);
     PID_Init(&PID_Stabilizer_Pitch_Speed, 30, 0, 0, 5000, 1000);
 
     while (1) {
@@ -167,26 +168,31 @@ void Task_Gimbal(void *Parameters) {
         }
 
         // 自动转头
-        if (yawAngleTarget == 90) {
-            direction = -1;
-        } else if (yawAngleTarget == -90) {
-            direction = 1;
+        if (yawAngleTarget >= 90) {
+            directionX = -1;
+        } else if (yawAngleTarget <= -90) {
+            directionX = 1;
+        }
+        if (pitchAngleTarget >= 7) {
+            directionY = -1;
+        } else if (pitchAngleTarget <= -35) {
+            directionY = 1;
         }
         if ((counter >= 10) && (remoteData.switchLeft != 3)) {
-            yawAngleTarget += direction * 1;
-            pitchAngleTarget = -40;
+            yawAngleTarget += directionX * 0.8;
+            pitchAngleTarget += directionY * 0.1;
         }
         if (counter == INT_MAX) {
             counter = 10;
         }
 
         // 设置角度目标
-        if (ABS(remoteData.rx) > 30) yawAngleTarget += -1 * remoteData.rx / 660.0f * 200 * interval;
+        if (ABS(remoteData.rx) > 30) yawAngleTarget += remoteData.rx / 660.0f * 200 * interval;
         if (ABS(remoteData.ry) > 30) pitchAngleTarget += remoteData.ry / 660.0f * 150 * interval;
         yawAngleTarget += psYawAngleTarget;
         pitchAngleTarget += psPitchAngleTarget;
         MIAO(yawAngleTarget, -90, 90);
-        MIAO(pitchAngleTarget, -40, 15);
+        MIAO(pitchAngleTarget, -35, 7);
 
         // 计算PID
         PID_Calculate(&PID_Stabilizer_Yaw_Angle, yawAngleTarget, yawAngle);
@@ -202,14 +208,14 @@ void Task_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = yawAngleTarget;
-        DebugData.debug2 = yawAngle;
-        DebugData.debug3 = counter;
-        DebugData.debug4 = direction;
-        DebugData.debug5 = ImuData.gx;
-        DebugData.debug6 = ImuData.gy;
-        DebugData.debug7 = ImuData.gz;
-        DebugData.debug8 = Motor_Stabilizer_Yaw.position;
+        DebugData.debug1 = pitchAngleTarget;
+        // DebugData.debug2 = yawAngle;
+        // DebugData.debug3 = pitchAngle;
+        // DebugData.debug4 = directionX;
+        // DebugData.debug5 = ImuData.gx;
+        // DebugData.debug6 = ImuData.gy;
+        // DebugData.debug7 = ImuData.gz;
+        // DebugData.debug8 = Motor_Stabilizer_Yaw.position;
     }
     vTaskDelete(NULL);
 }
