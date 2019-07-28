@@ -235,40 +235,38 @@ void Task_Fire(void *Parameters) {
             } else if (stopstate == 1 && stircount >= 20 && stircount <= 30) {
                 // stircount = 0;
                 // stopstate = 0;
-                PID_Calculate(&PID_StirSpeed, -1000, Motor_Stir.speed);
-                currentTarget = PID_StirSpeed.output;
-                stircount += 1;
-                Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
-            } else if (stopstate == 1 && stircount >= 30) {
+                // PID_Calculate(&PID_StirSpeed, -1000, Motor_Stir.speed);
                 currentTarget = 0;
-                stircount     = 0;
-                stopstate     = 0;
-                Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
-            } else if (stopstate == 0) {
-                PID_Calculate(&PID_StirSpeed, -7000.0, Motor_Stir.speed);
-                currentTarget = PID_StirSpeed.output;
-
-                Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
+                stircount += 1;
             }
-        } else if (stirstate == 0) {
-            currentTarget = 0;
-
-            Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
-
-        } else if (stirstate == -1) {
-            currentTarget = 2000;
-            Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
+            //  else if (stopstate == 1 && stircount >= 30) {
+            //     currentTarget = 0;
+            //     stircount     = 0;
+            //     stopstate     = 0;
+            //     Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
+        } else if (stopstate == 0) {
+            PID_Calculate(&PID_StirSpeed, -7000.0, Motor_Stir.speed);
+            currentTarget = PID_StirSpeed.output;
         }
-        DebugData.debug1 = PID_StirSpeed.output;
-        DebugData.debug2 = currentTarget;
-        // DebugData.debug3 = ;
-        // DebugData.debug4 = ;
-        // DebugData.debug5 = ;
-        // DebugData.debug6 = ;
-        vTaskDelayUntil(&LastWakeTime, 10);
     }
+    else if (stirstate == 0) {
+        currentTarget = 0;
+    }
+    else if (stirstate == -1) {
+        currentTarget = 2000;
+    }
+    Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
 
-    vTaskDelete(NULL);
+    DebugData.debug1 = PID_StirSpeed.output;
+    DebugData.debug2 = currentTarget;
+    // DebugData.debug3 = ;
+    // DebugData.debug4 = ;
+    // DebugData.debug5 = ;
+    // DebugData.debug6 = ;
+    vTaskDelayUntil(&LastWakeTime, 10);
+}
+
+vTaskDelete(NULL);
 }
 
 void Task_Sys_Init(void *Parameters) {
