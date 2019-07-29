@@ -14,8 +14,8 @@ void Handle_Init(void) {
     Motor_Init(&Motor_Stabilizer_Yaw, 1, 1);
     Motor_Init(&Motor_Stabilizer_Pitch, 36, 1);
 
-    Motor_Stabilizer_Yaw.positionBias = 1373;
-    Motor_Stabilizer_Yaw.position     = 1373;
+    Motor_Stabilizer_Yaw.positionBias = 1550;
+    Motor_Stabilizer_Yaw.position     = 1550;
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData);

@@ -143,9 +143,9 @@ void Task_Gimbal(void *Parameters) {
     int directionY = 1;
 
     // 初始化云台PID
-    PID_Init(&PID_Stabilizer_Yaw_Angle, 15, 0, 0, 4000, 0);
+    PID_Init(&PID_Stabilizer_Yaw_Angle, 18, 0, 0, 5000, 0);
     PID_Init(&PID_Stabilizer_Yaw_Speed, 70, 0, 0, 10000, 0);
-    PID_Init(&PID_Stabilizer_Pitch_Angle, 16, 0, 0, 2000, 0);
+    PID_Init(&PID_Stabilizer_Pitch_Angle, 17, 0, 0, 2000, 0);
     PID_Init(&PID_Stabilizer_Pitch_Speed, 20, 0, 0, 5000, 1000);
 
     while (1) {
@@ -180,7 +180,7 @@ void Task_Gimbal(void *Parameters) {
         }
         if ((counter >= 10) && (remoteData.switchLeft != 3)) {
             yawAngleTarget += directionX * 0.8;
-            pitchAngleTarget += directionY * 0.8;
+            pitchAngleTarget += directionY * 0.5;
         }
         if (counter == INT_MAX) {
             counter = 10;
