@@ -22,7 +22,7 @@ void Task_Snail(void *Parameters) {
 
     float dutyCycleStart  = 0.376; //起始占空比为37.6
     float dutyCycleMiddle = 0.446; //启动需要到44.6
-    float dutyCycleEnd    = 0.560; //加速到你想要的占空比
+    float dutyCycleEnd    = 0.570; //加速到你想要的占空比
 
     float dutyCycleRightSnailTarget = 0.376; //目标占空比
     float dutyCycleLeftSnailTarget  = 0.376;
@@ -188,20 +188,23 @@ void Task_Fire(void *Parameters) {
 
     // PID 初始化
 
-    PID_Init(&PID_StirSpeed, 0.2, 0, 0, 8000, 6000); // 1.8
+    PID_Init(&PID_StirSpeed, 60, 0.2, 0, 10000, 4000); // 1.8
 
-    int   stirstate     = 0; //播弹轮开启为1 关闭为0
-    u32   stircount     = 0; //堵转计数器 保证反转
-    int   stopstate     = 0; //堵转模式 1为堵转 0为正常
-    float currentTarget = 0;
+    int      stirstate     = 0; //播弹轮开启为1 关闭为0
+    uint32_t stircount1    = 0; //堵转计数器 保证反转
+    uint32_t stircount2    = 0;
+    int      stopstate     = 0; //堵转模式 1为堵转 0为正常
+    float    currentTarget = 0;
 
     while (1) {
         if (controlMode == 1) {
             if (remoteData.lx < -60) {
                 stirstate = 1; //正转
-            } else if (remoteData.lx > 60) {
-                stirstate = -1;
-            } else if (remoteData.lx < 60 && remoteData.lx > -60) {
+            }
+            //  else if (remoteData.lx > 60) {
+            //     stirstate = -1;
+            // }
+            else if (remoteData.lx < 60 && remoteData.lx > -60) {
                 stirstate = 0;
             }
         } else {
@@ -225,48 +228,52 @@ void Task_Fire(void *Parameters) {
         //     Can_Send(CAN1, 0x200, 0, 0, PID_StirSpeed.output, 0);
         // }
         if (stirstate == 1) {
-            if (currentTarget <= -2300) {
+            if (stopstate == 0) {
+                PID_Calculate(&PID_StirSpeed, -700, Motor_Stir.speed * RPM2RPS);
+                currentTarget = PID_StirSpeed.output;
+            }
+            if (stirstate == 1 && ABS(Motor_Stir.speed * RPM2RPS) < 10 && stircount1 < 30) {
+                stircount1 += 1;
+            } else if (stirstate == 1 && currentTarget < 200) {
+                stircount1 = 0;
+            }
+            if (stircount1 == 30) {
                 stopstate = 1;
+            } else {
+                stopstate = 0;
             }
-            if (stopstate == 1 && stircount < 20) {
-                currentTarget = 2000;
-                Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
-                stircount += 1;
-            } else if (stopstate == 1 && stircount >= 20 && stircount <= 30) {
-                // stircount = 0;
-                // stopstate = 0;
-                // PID_Calculate(&PID_StirSpeed, -1000, Motor_Stir.speed);
+            if (stopstate == 1 && stircount2 < 100) {
+                currentTarget = 500;
+                stircount2 += 1;
+            } else if (stircount2 == 100) {
                 currentTarget = 0;
-                stircount += 1;
+                stircount1    = 0;
+                stircount2    = 0;
+                // stircount2 += 1;
             }
-            //  else if (stopstate == 1 && stircount >= 30) {
-            //     currentTarget = 0;
-            //     stircount     = 0;
-            //     stopstate     = 0;
-            //     Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
-        } else if (stopstate == 0) {
-            PID_Calculate(&PID_StirSpeed, -7000.0, Motor_Stir.speed);
-            currentTarget = PID_StirSpeed.output;
+            //  else if (stircount2 == 400) {
+            //     stircount1 = 0;
+            //     stircount2 = 0;
+            // }
+
+        } else if (stirstate == 0) {
+            currentTarget = 0;
         }
-    }
-    else if (stirstate == 0) {
-        currentTarget = 0;
-    }
-    else if (stirstate == -1) {
-        currentTarget = 2000;
-    }
-    Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
+        // else if (stirstate == -1) {
+        //     currentTarget = 2000;
+        // }
+        Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
 
-    DebugData.debug1 = PID_StirSpeed.output;
-    DebugData.debug2 = currentTarget;
-    // DebugData.debug3 = ;
-    // DebugData.debug4 = ;
-    // DebugData.debug5 = ;
-    // DebugData.debug6 = ;
-    vTaskDelayUntil(&LastWakeTime, 10);
-}
+        DebugData.debug1 = stircount1;
+        DebugData.debug2 = currentTarget;
+        DebugData.debug3 = stopstate;
+        DebugData.debug4 = stircount2;
+        // DebugData.debug5 = ;
+        // DebugData.debug6 = ;
+        vTaskDelayUntil(&LastWakeTime, 10);
+    }
 
-vTaskDelete(NULL);
+    vTaskDelete(NULL);
 }
 
 void Task_Sys_Init(void *Parameters) {
@@ -289,7 +296,7 @@ void Task_Sys_Init(void *Parameters) {
     // 功能任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 800, NULL, 5, NULL);
     xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
     xTaskCreate(Task_Fire, "Task_Fire", 500, NULL, 7, NULL);
