@@ -495,6 +495,8 @@ void Task_Fire_Stir(void *Parameters) {
         } else if (lastSeq != Ps.autoaimData.seq && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
             lastSeq   = Ps.autoaimData.seq;
             shootMode = Ps.autoaimData.biu_biu_state ? shootToDeath : shootIdle;
+        } else {
+            shootMode = shootIdle;
         }
 
         // 控制拨弹轮
@@ -562,7 +564,6 @@ void Task_Fire_Frict(void *Parameters) {
         switch (Step) {
         case STEP_SNAIL_IDLE:
             if (snailState == 0) {
-
                 dutyCycleRightSnailTarget    = 0.376;
                 dutyCycleLeftSnailTarget     = 0.376;
                 dutyCycleRightSnailProgress1 = 0;

@@ -24,3 +24,9 @@
 #define CHASSIS_MAX_ROTOR_SPEED 253         //最大轮子转速, 单位rad/s
 #define CHASSIS_SIZE_K 0.385f               //测量值, 机器人中心点到XY边缘的距离之和
 #define CHASSIS_INVERSE_WHEEL_RADIUS 13.16f //测量值, 麦克纳姆轮半径的倒数
+
+// 云台
+#define YAW_ANGLE_MIN -90
+#define YAW_ANGLE_MAX 90
+#define PITCH_ANGLE_MIN -35
+#define PITCH_ANGLE_MAX 10

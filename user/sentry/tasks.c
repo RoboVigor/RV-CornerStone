@@ -6,12 +6,27 @@
 
 void Task_Safe_Mode(void *Parameters) {
     while (1) {
-        if (remoteData.switchRight == 2) {
+        if (SafetyMode) {
+            vTaskSuspendAll();
             Can_Send(CAN1, 0x200, 0, 0, 0, 0);
             Can_Send(CAN1, 0x1ff, 0, 0, 0, 0);
-            vTaskSuspendAll();
+            PWM_Set_Compare(&PWM_Snail1, 0.376 * 1250);
+            PWM_Set_Compare(&PWM_Snail2, 0.376 * 1250);
         }
-        vTaskDelay(2);
+        vTaskDelay(5);
+    }
+    vTaskDelete(NULL);
+}
+
+void Task_Control(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    while (1) {
+        FrictEnabled = 1;
+        PsEnabled    = remoteData.switchLeft != 1;
+        AutoMode     = remoteData.switchLeft == 2;
+        SafetyMode   = remoteData.switchRight == 2;
+        // LASER_ON;
+        vTaskDelayUntil(&LastWakeTime, 5);
     }
     vTaskDelete(NULL);
 }
@@ -29,7 +44,7 @@ void Task_Chassis(void *Parameters) {
     // 随机模式
     uint16_t random = 0;
     float    timer  = 0.0;
-    int      lastSwitch;
+    int      lastAutoMode;
     float    maxTime  = 2;   // 3
     float    minTime  = 1;   // 1.5
     int      maxSpeed = 600; // 480
@@ -56,17 +71,20 @@ void Task_Chassis(void *Parameters) {
         // 随机模式
         srand(Motor_Chassis_Left.position);
         random = rand();
-        if ((timer <= 0.0) || (lastSwitch == 3)) {
-            lastSwitch  = remoteData.switchLeft;
-            direction   = 0;
-            timer       = ((float) (random % (int) ((maxTime - minTime) * 10 + 1))) / 10.0 + minTime;
-            leftTarget  = ((random % 2) * 2 - 1) * (random % (maxSpeed - minSpeed + 1) + minSpeed);
-            rightTarget = ((random % 2) * 2 - 1) * (random % (maxSpeed - minSpeed + 1) + minSpeed);
+
+        if ((timer <= 0.0) || (!lastAutoMode)) {
+            // 设置随机量
+            lastAutoMode = remoteData.switchLeft;
+            direction    = 0;
+            timer        = ((float) (random % (int) ((maxTime - minTime) * 10 + 1))) / 10.0 + minTime;
+            leftTarget   = ((random % 2) * 2 - 1) * (random % (maxSpeed - minSpeed + 1) + minSpeed);
+            rightTarget  = ((random % 2) * 2 - 1) * (random % (maxSpeed - minSpeed + 1) + minSpeed);
         }
-        if (remoteData.switchLeft == 3) {
-            lastSwitch  = 3;
-            leftTarget  = 0;
-            rightTarget = 0;
+        if (!AutoMode) {
+            // 关闭自动模式, 清空随机量
+            lastAutoMode = AutoMode;
+            leftTarget   = 0;
+            rightTarget  = 0;
         }
         timer -= interval;
 
@@ -121,6 +139,7 @@ void Task_Gimbal(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.005;               // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+    int        maxTimeout   = 300 / intervalms;
 
     // 反馈值
     float yawAngle;
@@ -129,13 +148,17 @@ void Task_Gimbal(void *Parameters) {
     float pitchSpeed;
 
     // 目标值
-    float yawAngleTarget   = 0;
-    float pitchAngleTarget = 0;
+    float yawAngleTarget          = 0;
+    float pitchAngleTarget        = -20;
+    float yawAngleTargetRotate    = 0;
+    float pitchAngleTargetRotate  = 0;
+    float yawAngleTargetControl   = 0;
+    float pitchAngleTargetControl = 0;
+    float yawAngleTargetPs        = 0;
+    float pitchAngleTargetPs      = 0;
 
     // 视觉系统
-    int   lastSeq            = 0;
-    float psYawAngleTarget   = 0;
-    float psPitchAngleTarget = 0;
+    int lastSeq = 0;
 
     //自动转头
     int counter    = 0;
@@ -143,61 +166,82 @@ void Task_Gimbal(void *Parameters) {
     int directionY = 1;
 
     // 初始化云台PID
-    PID_Init(&PID_Stabilizer_Yaw_Angle, 18, 0, 0, 5000, 0);
-    PID_Init(&PID_Stabilizer_Yaw_Speed, 70, 0, 0, 10000, 0);
-    PID_Init(&PID_Stabilizer_Pitch_Angle, 17, 0, 0, 2000, 0);
-    PID_Init(&PID_Stabilizer_Pitch_Speed, 20, 0, 0, 5000, 1000);
+    PID_Init(&PID_Stabilizer_Yaw_Angle, 10, 0, 0, 5000, 0);
+    PID_Init(&PID_Stabilizer_Yaw_Speed, 30, 0, 0, 12000, 0);
+    PID_Init(&PID_Stabilizer_Pitch_Angle, 10, 0, 0, 2000, 0);
+    PID_Init(&PID_Stabilizer_Pitch_Speed, 30, 0, 0, 5000, 1000);
 
     while (1) {
         // 设置反馈
-        yawAngle   = Motor_Stabilizer_Yaw.angle;
-        yawSpeed   = Motor_Stabilizer_Yaw.speed * RPM2RPS;
-        pitchAngle = -1 * Gyroscope_EulerData.pitch; // 逆时针为正
-        pitchSpeed = ImuData.gx / GYROSCOPE_LSB;     // 逆时针为正
+        yawAngle         = Motor_Stabilizer_Yaw.angle;
+        yawSpeed         = Motor_Stabilizer_Yaw.speed * RPM2RPS;
+        pitchAngle       = -1 * Gyroscope_EulerData.pitch; // 逆时针为正
+        pitchSpeed       = ImuData.gx / GYROSCOPE_LSB;     // 逆时针为正
+        yawAngleTarget   = 0;
+        pitchAngleTarget = 0;
 
-        //视觉系统
-        if (remoteData.switchLeft == 3) {
-            lastSeq = Ps.autoaimData.seq;
+        // 视觉系统
+        if (!PsEnabled) {
+            yawAngleTargetControl += yawAngleTargetPs;
+            pitchAngleTargetControl += pitchAngleTargetPs;
+            yawAngleTargetPs   = 0;
+            pitchAngleTargetPs = 0;
+            lastSeq            = Ps.autoaimData.seq;
+            counter++;
         } else if (lastSeq != Ps.autoaimData.seq) {
             lastSeq = Ps.autoaimData.seq;
-            counter = 0;
-            psYawAngleTarget += Ps.autoaimData.yaw_angle_diff;
-            psPitchAngleTarget -= Ps.autoaimData.pitch_angle_diff;
+            if (Ps.autoaimData.yaw_angle_diff == 0 && Ps.autoaimData.pitch_angle_diff == 0 && Ps.autoaimData.biu_biu_state == 0) {
+                counter++;
+            } else {
+                counter = 0;
+                yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
+                pitchAngleTargetPs += Ps.autoaimData.pitch_angle_diff;
+            }
         } else {
             counter++;
         }
+        MIAO(yawAngleTargetPs, YAW_ANGLE_MIN - yawAngleTarget, YAW_ANGLE_MAX - yawAngleTarget);
+        MIAO(pitchAngleTargetPs, PITCH_ANGLE_MIN - pitchAngleTarget, PITCH_ANGLE_MAX - pitchAngleTarget);
+        yawAngleTarget += yawAngleTargetPs;
+        pitchAngleTarget += pitchAngleTargetPs;
 
         // 自动转头
-        if (yawAngleTarget >= 90) {
-            directionX = -1;
-        } else if (yawAngleTarget <= -90) {
-            directionX = 1;
-        }
-        if (pitchAngleTarget >= 10) {
-            directionY = -1;
-        } else if (pitchAngleTarget <= -35) {
-            directionY = 1;
-        }
-        if ((counter >= 10) && (remoteData.switchLeft != 3)) {
-            yawAngleTarget += directionX * 0.8;
-            pitchAngleTarget += directionY * 0.5;
+        if ((counter >= maxTimeout) && (AutoMode)) {
+            // 丢失目标,自动旋转
+            yawAngleTargetRotate += directionX * 0.8;
+            pitchAngleTargetRotate += directionY * 0.5;
         }
         if (counter == INT_MAX) {
-            counter = 10;
+            counter = maxTimeout;
+        }
+        MIAO(yawAngleTargetRotate, YAW_ANGLE_MIN - yawAngleTarget, YAW_ANGLE_MAX - yawAngleTarget);
+        MIAO(pitchAngleTargetRotate, PITCH_ANGLE_MIN - pitchAngleTarget, PITCH_ANGLE_MAX - pitchAngleTarget);
+        yawAngleTarget += yawAngleTargetRotate;
+        pitchAngleTarget += pitchAngleTargetRotate;
+        if (yawAngleTarget >= YAW_ANGLE_MAX) {
+            directionX = -1;
+        } else if (yawAngleTarget <= YAW_ANGLE_MIN) {
+            directionX = 1;
+        }
+        if (pitchAngleTarget >= PITCH_ANGLE_MAX) {
+            directionY = -1;
+        } else if (pitchAngleTarget <= PITCH_ANGLE_MIN) {
+            directionY = 1;
         }
 
         // 设置角度目标
-        if (ABS(remoteData.rx) > 30) yawAngleTarget += remoteData.rx / 660.0f * 200 * interval;
-        if (ABS(remoteData.ry) > 30) pitchAngleTarget += remoteData.ry / 660.0f * 150 * interval;
-        yawAngleTarget += psYawAngleTarget;
-        pitchAngleTarget += psPitchAngleTarget;
-        MIAO(yawAngleTarget, -90, 90);
-        MIAO(pitchAngleTarget, -35, 10);
+        if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 90 * interval;
+        if (ABS(remoteData.ry) > 30) pitchAngleTargetControl += remoteData.ry / 660.0f * 90 * interval;
+        MIAO(yawAngleTargetControl, YAW_ANGLE_MIN - yawAngleTarget, YAW_ANGLE_MAX - yawAngleTarget);
+        MIAO(pitchAngleTargetControl, PITCH_ANGLE_MIN - pitchAngleTarget, PITCH_ANGLE_MAX - pitchAngleTarget);
+        yawAngleTarget += yawAngleTargetControl;
+        pitchAngleTarget += pitchAngleTargetControl;
+        MIAO(yawAngleTarget, YAW_ANGLE_MIN, YAW_ANGLE_MAX);
+        MIAO(pitchAngleTarget, PITCH_ANGLE_MIN, PITCH_ANGLE_MAX);
 
         // 计算PID
         PID_Calculate(&PID_Stabilizer_Yaw_Angle, yawAngleTarget, yawAngle);
         PID_Calculate(&PID_Stabilizer_Yaw_Speed, PID_Stabilizer_Yaw_Angle.output, yawSpeed);
-
         PID_Calculate(&PID_Stabilizer_Pitch_Angle, pitchAngleTarget, pitchAngle);
         PID_Calculate(&PID_Stabilizer_Pitch_Speed, PID_Stabilizer_Pitch_Angle.output, pitchSpeed);
 
@@ -208,14 +252,14 @@ void Task_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = pitchAngleTarget;
+        // DebugData.debug1 = yawAngleTarget;
         // DebugData.debug2 = yawAngle;
-        // DebugData.debug3 = pitchAngle;
-        // DebugData.debug4 = directionX;
-        // DebugData.debug5 = ImuData.gx;
-        // DebugData.debug6 = ImuData.gy;
-        // DebugData.debug7 = ImuData.gz;
-        // DebugData.debug8 = Motor_Stabilizer_Yaw.position;
+        // DebugData.debug3 = pitchAngleTarget;
+        // DebugData.debug4 = pitchAngle;
+        DebugData.debug5 = counter;
+        DebugData.debug6 = Ps.autoaimData.biu_biu_state;
+        DebugData.debug7 = yawAngleTargetRotate;
+        DebugData.debug8 = pitchAngleTargetRotate;
     }
     vTaskDelete(NULL);
 }
@@ -263,7 +307,7 @@ void Task_Stir(void *Parameters) {
             lastSeq = Ps.autoaimData.seq;
         } else if (lastSeq != Ps.autoaimData.seq) {
             lastSeq   = Ps.autoaimData.seq;
-            shootMode = 1;
+            shootMode = Ps.autoaimData.biu_biu_state;
         } else {
             shootMode = 0;
         }
@@ -273,10 +317,10 @@ void Task_Stir(void *Parameters) {
         } else {
             PID_Calculate(&PID_Stir_Speed, 0, Motor_Stir.speed * RPM2RPS);
         }
-        DebugData.debug1 = PID_Stir_Speed.output;
-        DebugData.debug2 = Motor_Stir.speed * RPM2RPS;
-        DebugData.debug3 = Judge.powerHeatData.shooter_heat0;
-        DebugData.debug4 = Judge.shootData.seq;
+        // DebugData.debug1 = PID_Stir_Speed.output;
+        // DebugData.debug2 = Motor_Stir.speed * RPM2RPS;
+        // DebugData.debug3 = Judge.powerHeatData.shooter_heat0;
+        // DebugData.debug4 = Judge.shootData.seq;
         // DebugData.debug5 = ImuData.gx;
         // DebugData.debug6 = ImuData.gy;
         // DebugData.debug7 = ImuData.gz;
@@ -328,7 +372,7 @@ void Task_Snail(void *Parameters) {
         // GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
 
         lastSnailState = snailState;
-        snailState     = (remoteData.switchRight != 3) ? 1 : 0;
+        snailState     = FrictEnabled;
 
         switch (Step) {
         case STEP_SNAIL_IDLE:
@@ -347,7 +391,7 @@ void Task_Snail(void *Parameters) {
 
         case STEP_RIGHT_START_TO_MIDDLE:
             dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle, dutyCycleRightSnailProgress1);
-            dutyCycleRightSnailProgress1 += 0.1f;
+            dutyCycleRightSnailProgress1 += 0.02f;
             if (dutyCycleRightSnailProgress1 > 1) {
                 Step = STEP_LEFT_START_TO_MIDDLE;
                 vTaskDelay(100);
@@ -356,7 +400,7 @@ void Task_Snail(void *Parameters) {
 
         case STEP_LEFT_START_TO_MIDDLE:
             dutyCycleLeftSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle, dutyCycleLeftSnailProgress1);
-            dutyCycleLeftSnailProgress1 += 0.1f;
+            dutyCycleLeftSnailProgress1 += 0.02f;
             if (dutyCycleLeftSnailProgress1 > 1) {
                 Step = STEP_RIGHT_MIDDLE_TO_END;
                 vTaskDelay(100);
@@ -442,6 +486,8 @@ void Task_Sys_Init(void *Parameters) {
     // 等待遥控器开启
     while (!remoteData.state) {
     }
+    //模式切换任务
+    xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
 
     // 运动控制任务
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
