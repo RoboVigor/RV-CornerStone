@@ -10,13 +10,25 @@
 // #define SERIAL_DEBUG_PORT USART6 // 串口调试端口
 
 // 陀螺仪校准
+#ifdef ROBOT_LOOP_ONE
+#define IMU_GX_BIAS 8  // GX静态误差,通过平放主控板采样得到
+#define IMU_GY_BIAS 11 // GY静态误差
+#define IMU_GZ_BIAS 42 // GZ静态误差
+#endif
+#ifdef ROBOT_LOOP_TWO
 #define IMU_GX_BIAS 31 // GX静态误差,通过平放主控板采样得到
 #define IMU_GY_BIAS -3 // GY静态误差
 #define IMU_GZ_BIAS -1 // GZ静态误差
+#endif
+#ifdef ROBOT_LOOP_THREE
+#define IMU_GX_BIAS 2   // GX静态误差,通过平放主控板采样得到
+#define IMU_GY_BIAS 40  // GY静态误差
+#define IMU_GZ_BIAS -12 // GZ静态误差
+#endif
 
 // 运动参数
 #define GIMBAL_PITCH_MIN -35
-#define GIMBAL_PITCH_MAX 21
+#define GIMBAL_PITCH_MAX 15
 #define CHASSIS_ROTOR_SPEED 550
 
 // 底盘配置

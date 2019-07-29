@@ -2,6 +2,7 @@
 
 void DBUS_Init(Remote_Type *remote, Keyboard_Type *kb, Mouse_Type *mouse) {
     remote->state = DBusIdle;
+    kb->state     = DBusIdle;
 
     remote->ch1 = 0;
     remote->ch2 = 0;
@@ -38,4 +39,8 @@ void DBus_Update(Remote_Type *remote, Keyboard_Type *kb, Mouse_Type *mouse, uint
     mouse->pressRight = DBusBuffer[13];
 
     kb->keyCode = DBusBuffer[14] | DBusBuffer[15] << 8;
+
+    if (kb->keyCode != 0) {
+        kb->state = DBusWorking;
+    }
 }

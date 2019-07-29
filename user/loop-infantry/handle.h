@@ -30,6 +30,10 @@
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
+// 功能开关
+__HANDLE_EXT uint8_t ControlMode;
+__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, SwingEnabled, PsEnabled, LowEnabled;
+
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
 
