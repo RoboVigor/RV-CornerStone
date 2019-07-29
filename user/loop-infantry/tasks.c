@@ -489,6 +489,14 @@ void Task_Fire_Stir(void *Parameters) {
             shootMode = shootIdle;
         }
 
+        // 视觉辅助
+        if (!PsEnabled) {
+            lastSeq = Ps.autoaimData.seq;
+        } else if (lastSeq != Ps.autoaimData.seq && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
+            lastSeq   = Ps.autoaimData.seq;
+            shootMode = Ps.autoaimData.biu_biu_state ? shootToDeath : shootIdle;
+        }
+
         // 控制拨弹轮
         if (shootMode == shootIdle) {
             // 停止
