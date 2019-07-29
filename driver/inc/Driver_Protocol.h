@@ -167,7 +167,21 @@ typedef struct {
             float    data1;
             float    data2;
             float    data3;
-            uint8_t  masks;
+            union {
+                struct {
+                    uint8_t masks;
+                };
+                struct {
+                    uint8_t bit1 : 1;
+                    uint8_t bit2 : 1;
+                    uint8_t bit3 : 1;
+                    uint8_t bit4 : 1;
+                    uint8_t bit5 : 1;
+                    uint8_t bit6 : 1;
+                    uint8_t bityoucantuse1 : 1;
+                    uint8_t bityoucantuse2 : 1;
+                };
+            };
         };
         struct {
             uint8_t data[Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client_Data];
