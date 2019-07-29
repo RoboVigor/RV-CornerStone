@@ -17,104 +17,107 @@ void Task_Safe_Mode(void *Parameters) {
 }
 
 void Task_Snail(void *Parameters) {
-    // snail摩擦轮任务
+    // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.005;               // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    float dutyCycleStart  = 0.376; //起始占空比为37.6
-    float dutyCycleMiddle = 0.446; //启动需要到44.6
-    float dutyCycleEnd    = 0.570; //加速到你想要的占空比
+    // 占空比
+    float dutyCycleStart  = 0.376; // 起始
+    float dutyCycleMiddle = 0.446; // 启动
+    float dutyCycleEnd    = 0.540; // 加速到你想要的
 
-    float dutyCycleRightSnailTarget = 0.376; //目标占空比
+    // 目标占空比
+    float dutyCycleRightSnailTarget = 0.376;
     float dutyCycleLeftSnailTarget  = 0.376;
 
-    float dutyCycleRightSnailProgress1 = 0; //存储需要的两个过程（初始到启动，启动到你想要的速度）
+    // 存储需要的两个过程（初始到启动，启动到你想要的速度）
+    float dutyCycleRightSnailProgress1 = 0;
     float dutyCycleLeftSnailProgress1  = 0;
     float dutyCycleRightSnailProgress2 = 0;
     float dutyCycleLeftSnailProgress2  = 0;
 
-    int snailRightState = 0; //标志启动完后需要的延时
-    int snailLeftState  = 0;
+    // snail电机状态
+    int snailState = 0;
+    int lastSnailState;
 
-    int snailState = 0; //标志启动完后需要的延时
-
-    int lastMouseDataRight = 0;
-
-    snailStart = 0;
+    enum {
+        STEP_SNAIL_IDLE,
+        STEP_RIGHT_START_TO_MIDDLE,
+        STEP_LEFT_START_TO_MIDDLE,
+        STEP_RIGHT_MIDDLE_TO_END,
+        STEP_LEFT_MIDDLE_TO_END,
+    } Step = STEP_SNAIL_IDLE;
 
     /*来自dji开源，两个snail不能同时启动*/
 
     while (1) {
 
-        GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
+        // GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
 
-        //右键开启 再摁一次关闭
-        if (controlMode == 1) {
-            if (remoteData.switchLeft == 1) {
-                snailStart = 0;
-            } else {
-                snailStart = 1;
+        lastSnailState = snailState;
+        snailState     = (remoteData.switchLeft != 1) ? 1 : 0;
+
+        switch (Step) {
+        case STEP_SNAIL_IDLE:
+            if (snailState == 0) {
+
+                dutyCycleRightSnailTarget    = 0.376;
+                dutyCycleLeftSnailTarget     = 0.376;
+                dutyCycleRightSnailProgress1 = 0;
+                dutyCycleRightSnailProgress2 = 0;
+                dutyCycleLeftSnailProgress1  = 0;
+                dutyCycleLeftSnailProgress2  = 0;
+            } else if (lastSnailState == 0) {
+                Step = STEP_RIGHT_START_TO_MIDDLE;
             }
-        } else if (controlMode == 2) {
-            if (mouseData.pressRight == 1 && snailStart == 0 && lastMouseDataRight == 0) {
-                snailStart         = 1;
-                lastMouseDataRight = mouseData.pressRight;
-            } else if (mouseData.pressRight == 1 && snailStart == 1 && lastMouseDataRight == 0) {
-                snailStart         = 0;
-                lastMouseDataRight = mouseData.pressRight;
-            } else {
-                lastMouseDataRight = mouseData.pressRight;
+            break;
+
+        case STEP_RIGHT_START_TO_MIDDLE:
+            dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle, dutyCycleRightSnailProgress1);
+            dutyCycleRightSnailProgress1 += 0.1f;
+            if (dutyCycleRightSnailProgress1 > 1) {
+                Step = STEP_LEFT_START_TO_MIDDLE;
+                vTaskDelay(100);
             }
-        }
-        if (snailStart == 0) {
+            break;
 
-            dutyCycleRightSnailTarget    = 0.376;
-            dutyCycleLeftSnailTarget     = 0.376;
-            dutyCycleRightSnailProgress1 = 0;
-            dutyCycleRightSnailProgress2 = 0;
-            dutyCycleLeftSnailProgress1  = 0;
-            dutyCycleLeftSnailProgress2  = 0;
-        }
-
-        else if (snailStart = 1) {
-
-            if (dutyCycleRightSnailProgress1 <= 1) { //初始状态
-                dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle,
-                                                 dutyCycleRightSnailProgress1); //斜坡上升
-                dutyCycleRightSnailProgress1 += 0.05f;
-            } else {
-                if (dutyCycleLeftSnailProgress1 <= 1) {
-                    dutyCycleLeftSnailTarget = RAMP(dutyCycleStart,
-                                                    dutyCycleMiddle, //右摩擦轮启动完毕，左摩擦轮进入初始状态
-                                                    dutyCycleLeftSnailProgress1);
-                    dutyCycleLeftSnailProgress1 += 0.05f;
-                } else {
-                    if (snailLeftState == 0) {
-                        vTaskDelay(100);
-                        snailLeftState = 1;
-                    } else {
-                        if (dutyCycleLeftSnailProgress2 <= 1) {
-                            dutyCycleLeftSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleLeftSnailProgress2);
-                            dutyCycleLeftSnailProgress2 += 0.005f;
-                        }
-                    }
-                }
-                if (snailRightState == 0) { //初始状态停留100ms
-                    vTaskDelay(100);
-                    snailRightState = 1;
-                } else {
-                    if (dutyCycleRightSnailProgress2 <= 1) { //启动状态
-                        dutyCycleRightSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd,
-                                                         dutyCycleRightSnailProgress2); //斜坡上升
-                        dutyCycleRightSnailProgress2 += 0.005f;
-                    }
-                }
+        case STEP_LEFT_START_TO_MIDDLE:
+            dutyCycleLeftSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle, dutyCycleLeftSnailProgress1);
+            dutyCycleLeftSnailProgress1 += 0.1f;
+            if (dutyCycleLeftSnailProgress1 > 1) {
+                Step = STEP_RIGHT_MIDDLE_TO_END;
+                vTaskDelay(100);
             }
+
+        case STEP_RIGHT_MIDDLE_TO_END:
+            dutyCycleRightSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleRightSnailProgress2);
+            dutyCycleRightSnailProgress2 += 0.01f;
+            if (dutyCycleRightSnailProgress2 > 1) {
+                Step = STEP_LEFT_MIDDLE_TO_END;
+            }
+            if (Step != STEP_RIGHT_MIDDLE_TO_END) break;
+
+        case STEP_LEFT_MIDDLE_TO_END:
+            dutyCycleLeftSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleLeftSnailProgress2);
+            dutyCycleLeftSnailProgress2 += 0.01f;
+            if (dutyCycleLeftSnailProgress2 > 1) {
+                Step = STEP_SNAIL_IDLE;
+            }
+            break;
+
+        default:
+            break;
         }
 
         PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
         PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
 
-        vTaskDelayUntil(&LastWakeTime, 5);
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+
+        // DebugData.debug1 = dutyCycleRightSnailTarget * 1000;
+        // DebugData.debug2 = dutyCycleLeftSnailTarget * 1000;
+        // DebugData.debug3 = Step;
     }
     vTaskDelete(NULL);
 }
@@ -242,10 +245,10 @@ void Task_Fire(void *Parameters) {
             } else {
                 stopstate = 0;
             }
-            if (stopstate == 1 && stircount2 < 100) {
-                currentTarget = 500;
+            if (stopstate == 1 && stircount2 < 50) {
+                currentTarget = 2000;
                 stircount2 += 1;
-            } else if (stircount2 == 100) {
+            } else if (stircount2 == 50) {
                 currentTarget = 0;
                 stircount1    = 0;
                 stircount2    = 0;
