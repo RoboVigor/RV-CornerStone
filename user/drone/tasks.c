@@ -167,7 +167,7 @@ void Task_Gimbal(void *Parameters) {
             pitchRampProgress += 0.002f;
         }
 
-        MIAO(yawAngleTarget, -33, 33);
+        MIAO(yawAngleTarget, -130, 130);
         MIAO(pitchAngleTarget, -30, 20);
 
         PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget, yawAngle);
