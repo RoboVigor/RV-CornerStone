@@ -98,9 +98,9 @@ void Task_Gimbal(void *Parameters) {
     float pitchAngleTargetRamp = 0;
 
     // 初始化云台PID
-    PID_Init(&PID_Cloud_YawAngle, 5, 0, 0, 3000, 0);
+    PID_Init(&PID_Cloud_YawAngle, 20, 0, 0, 3000, 0);
     PID_Init(&PID_Cloud_YawSpeed, 60, 0, 0, 5000, 0);
-    PID_Init(&PID_Cloud_PitchAngle, 20, 0, 0, 3000, 500);
+    PID_Init(&PID_Cloud_PitchAngle, 20, 0, 0, 3000, 0);
     PID_Init(&PID_Cloud_PitchSpeed, 60, 0, 0, 5000, 0);
 
     while (1) {
@@ -127,19 +127,26 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget += pitchAngleTargetControl;
 
         // 视觉辅助
+        if (ControlMode == 1) {
+            if (remoteData.switchRight == 3) {
+                PsEnabled = 1;
+            } else {
+                PsEnabled = 0;
+            }
+        }
         if (ControlMode == 2) {
             if (!mouseData.pressRight) {
                 PsEnabled = 0;
             } else if (mouseData.pressRight) {
                 PsEnabled = 1;
             }
-            if (!PsEnabled) {
-                lastSeq = Ps.autoaimData.seq;
-            } else if (lastSeq != Ps.autoaimData.seq) {
-                lastSeq = Ps.autoaimData.seq;
-                yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
-                pitchAngleTargetPs -= Ps.autoaimData.pitch_angle_diff;
-            }
+        }
+        if (!PsEnabled) {
+            lastSeq = Ps.autoaimData.seq;
+        } else if (lastSeq != Ps.autoaimData.seq) {
+            lastSeq = Ps.autoaimData.seq;
+            yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
+            pitchAngleTargetPs -= Ps.autoaimData.pitch_angle_diff;
         }
         MIAO(pitchAngleTargetPs, GIMBAL_PITCH_MIN - pitchAngleTarget, GIMBAL_PITCH_MAX - pitchAngleTarget);
         yawAngleTarget += yawAngleTargetPs;
@@ -169,8 +176,8 @@ void Task_Gimbal(void *Parameters) {
         Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
 
         // 调试信息
-        // DebugData.debug1 = ImuData.gx;
-        // DebugData.debug2 = ImuData.gy;
+        DebugData.debug1 = PsEnabled;
+        DebugData.debug2 = Ps.autoaimData.seq;
         // DebugData.debug3 = ImuData.gz;
         // DebugData.debug4 = autoAimStart;
         // DebugData.debug5 = Ps.autoaimData.seq;
@@ -536,9 +543,9 @@ void Task_Fire(void *Parameters) {
         // DebugData.debug1 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4);
         // DebugData.debug2 = counter1;
         // DebugData.debug3 = counter2;
-        DebugData.debug4 = counter3;
-        DebugData.debug5 = counter1;
-        DebugData.debug6 = stirState;
+        // DebugData.debug4 = counter3;
+        // DebugData.debug5 = counter1;
+        // DebugData.debug6 = stirState;
         // DebugData.debug7 = keyboardData.C;
         // DebugData.debug8 = keyboardData.Z;
     }
