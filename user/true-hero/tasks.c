@@ -128,9 +128,9 @@ void Task_Gimbal(void *Parameters) {
 
         // 视觉辅助
         if (ControlMode == 2) {
-            if (keyboardData.Q && keyboardData.Ctrl) {
+            if (!mouseData.pressRight) {
                 PsEnabled = 0;
-            } else if (keyboardData.Q && !keyboardData.Ctrl) {
+            } else if (mouseData.pressRight) {
                 PsEnabled = 1;
             }
             if (!PsEnabled) {
@@ -169,9 +169,9 @@ void Task_Gimbal(void *Parameters) {
         Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
 
         // 调试信息
-        DebugData.debug1 = ImuData.gx;
-        DebugData.debug2 = ImuData.gy;
-        DebugData.debug3 = ImuData.gz;
+        // DebugData.debug1 = ImuData.gx;
+        // DebugData.debug2 = ImuData.gy;
+        // DebugData.debug3 = ImuData.gz;
         // DebugData.debug4 = autoAimStart;
         // DebugData.debug5 = Ps.autoaimData.seq;
         // DebugData.debug6 = PID_Cloud_PitchSpeed.output;
@@ -389,9 +389,9 @@ void Task_Fire(void *Parameters) {
         if (speedRampProgress < 1) {
             speedRampProgress += 0.1f;
         }
-        if (mouseData.pressRight && keyboardData.Ctrl) {
+        if (keyboardData.Q && keyboardData.Ctrl) {
             shootState = 1;
-        } else if (mouseData.pressRight && !keyboardData.Ctrl) {
+        } else if (keyboardData.Q && !keyboardData.Ctrl) {
             shootState = 2;
         }
 
