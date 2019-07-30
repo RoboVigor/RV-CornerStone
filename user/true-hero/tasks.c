@@ -205,7 +205,7 @@ void Task_Chassis(void *Parameters) {
 
     // 底盘跟随PID
     float followDeadRegion = 3.0;
-    PID_Init(&PID_Follow_Angle, 0.1, 0, 0, 1000, 0);
+    PID_Init(&PID_Follow_Angle, 0.05, 0, 0, 1000, 0);
     PID_Init(&PID_Follow_Speed, 9, 0, 0, 1000, 1000);
 
     // 麦轮速度PID
@@ -506,23 +506,26 @@ void Task_Fire(void *Parameters) {
         // } else {
         //     stop = 0;
         // }
-        if (stirState && ABS(Motor_Stir2006.speed * rpm2rps) < 10 && counter3 < 50) {
+        if (stirState && ABS(Motor_Stir2006.speed * rpm2rps) < 10 && counter3 < 100) {
             counter3 += 1;
+        } else if (stirState && PID_Stir2006Speed.output > -200) {
+            counter3 = 0;
         }
 
-        if (counter3 >= 50) {
+        if (counter3 >= 100) {
             stop = 1;
         } else {
             stop = 0;
         }
 
-        if (stop && counter1 < 100) {
+        if (stop && counter1 < 50) {
             counter1 += 1;
             PID_Stir2006Speed.output = -1000;
             PID_Stir3510Speed.output = 0;
         }
-        if (counter1 >= 100) {
+        if (counter1 >= 50) {
             counter1 = 0;
+            counter3 = 0;
         }
 
         StirStop = stop;
