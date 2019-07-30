@@ -33,6 +33,42 @@ void Task_Control(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_Client_Communication(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.1;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    while (1) {
+        int      index = 0;
+        uint16_t dataLength;
+        while (DMA_GetFlagStatus(DMA2_Stream6, DMA_IT_TCIF6) != SET) {
+        }
+        DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6);
+        DMA_Cmd(DMA2_Stream6, DISABLE);
+        // 客户端自定义数据
+        Judge.clientCustomData.data_cmd_id = Protocol_Interact_Id_Client_Data;
+        Judge.clientCustomData.send_id     = Judge.robotState.robot_id;
+        Judge.clientCustomData.receiver_id = (Judge.clientCustomData.send_id % 10) | (Judge.clientCustomData.send_id / 10) << 4 | (0x01 << 8);
+        Judge.clientCustomData.data1       = 1;
+        Judge.clientCustomData.data2       = 1.1;
+        Judge.clientCustomData.data3       = 1.11;
+        Judge.clientCustomData.masks       = 0;
+        Judge.clientCustomData.bit1        = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4);
+        Judge.clientCustomData.bit2        = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4);
+        Judge.clientCustomData.bit3        = PsEnabled;
+        Judge.clientCustomData.bit4        = StirStop;
+        Judge.clientCustomData.bit5        = ServoEnabled;
+        Judge.clientCustomData.bit6        = UpEnabled;
+        dataLength                         = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client_Data;
+        Protocol_Pack(&Judge, dataLength, Protocol_Interact_Id_Client_Data);
+        DMA_SetCurrDataCounter(DMA2_Stream6, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        DMA_Cmd(DMA2_Stream6, ENABLE);
+        // 发送频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+    vTaskDelete(NULL);
+}
+
 void Task_Gimbal(void *Parameters) {
 
     // 任务
@@ -54,8 +90,7 @@ void Task_Gimbal(void *Parameters) {
     float pitchAngleTargetPs        = 0; // 视觉辅助
 
     // 视觉系统
-    int16_t lastSeq      = 0;
-    int     autoAimStart = 0;
+    int16_t lastSeq = 0;
 
     // Pitch轴斜坡参数
     float pitchRampProgress    = 0;
@@ -94,11 +129,11 @@ void Task_Gimbal(void *Parameters) {
         // 视觉辅助
         if (ControlMode == 2) {
             if (keyboardData.Q && keyboardData.Ctrl) {
-                autoAimStart = 0;
+                PsEnabled = 0;
             } else if (keyboardData.Q && !keyboardData.Ctrl) {
-                autoAimStart = 1;
+                PsEnabled = 1;
             }
-            if (!autoAimStart) {
+            if (!PsEnabled) {
                 lastSeq = Ps.autoaimData.seq;
             } else if (lastSeq != Ps.autoaimData.seq) {
                 lastSeq = Ps.autoaimData.seq;
@@ -134,9 +169,9 @@ void Task_Gimbal(void *Parameters) {
         Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
 
         // 调试信息
-        // DebugData.debug1 = Motor_Yaw.position;
-        // DebugData.debug2 = keyboardData.Q;
-        // DebugData.debug3 = keyboardData.Ctrl;
+        DebugData.debug1 = ImuData.gx;
+        DebugData.debug2 = ImuData.gy;
+        DebugData.debug3 = ImuData.gz;
         // DebugData.debug4 = autoAimStart;
         // DebugData.debug5 = Ps.autoaimData.seq;
         // DebugData.debug6 = PID_Cloud_PitchSpeed.output;
@@ -169,15 +204,15 @@ void Task_Chassis(void *Parameters) {
     float powerBuffer = 0;
 
     // 底盘跟随PID
-    float followDeadRegion = 5.0;
-    PID_Init(&PID_Follow_Angle, 0.02, 0, 0, 1000, 0);
-    PID_Init(&PID_Follow_Speed, 1.8, 0, 0, 2000, 1000);
+    float followDeadRegion = 3.0;
+    PID_Init(&PID_Follow_Angle, 0.1, 0, 0, 1000, 0);
+    PID_Init(&PID_Follow_Speed, 9, 0, 0, 1000, 1000);
 
     // 麦轮速度PID
-    PID_Init(&PID_LFCM, 16, 0, 0, 15000, 7500);
-    PID_Init(&PID_LBCM, 16, 0, 0, 15000, 7500);
-    PID_Init(&PID_RBCM, 16, 0, 0, 15000, 7500);
-    PID_Init(&PID_RFCM, 16, 0, 0, 15000, 7500);
+    PID_Init(&PID_LFCM, 18, 0, 0, 15000, 7500);
+    PID_Init(&PID_LBCM, 18, 0, 0, 15000, 7500);
+    PID_Init(&PID_RBCM, 18, 0, 0, 15000, 7500);
+    PID_Init(&PID_RFCM, 18, 0, 0, 15000, 7500);
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
@@ -224,8 +259,11 @@ void Task_Chassis(void *Parameters) {
             if (yRampProgress < 0.5) {
                 yRampProgress += 0.006f;
             } else if (yRampProgress > 0.5 && yRampProgress < 1) {
-                yRampProgress += 0.002f;
+                yRampProgress += 0.004f;
             }
+            MIAO(xRampProgress, 0, 1);
+            MIAO(yRampProgress, 0, 1);
+
             vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 4;
             vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 12;
 
@@ -238,14 +276,10 @@ void Task_Chassis(void *Parameters) {
                 xRampStart    = 0;
             }
         }
-        if (ABS(remoteData.rx) > 20 || ABS(mouseData.x) > 20) {
-            followDeadRegion = 3.0f;
-        } else {
-            followDeadRegion = 6.0f;
-        }
-        vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS * 5);
-        if (ABS(remoteData.rx) > 30 || ABS(mouseData.x) > 20) {
-            vy = vy / 6.0f;
+
+        vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
+        if (ABS(remoteData.rx) > 300 || ABS(mouseData.x) > 41) {
+            vy = vy / 5.0f;
             vx = vx / 2.0f;
         }
 
@@ -257,11 +291,13 @@ void Task_Chassis(void *Parameters) {
         Chassis_Limit_Rotor_Speed(&ChassisData, CHASSIS_ROTOR_SPEED);                 // 设置转子速度上限 (rad/s)
         Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
         if (keyboardData.G && !keyboardData.Ctrl) {
+            UpEnabled  = 1;
             PID_LFCM.i = 0.5;
             PID_LBCM.i = 0.5;
             PID_RBCM.i = 0.5;
             PID_RFCM.i = 0.5;
         } else if (keyboardData.G && keyboardData.Ctrl) {
+            UpEnabled         = 0;
             PID_LFCM.i        = 0;
             PID_LBCM.i        = 0;
             PID_RBCM.i        = 0;
@@ -289,12 +325,12 @@ void Task_Chassis(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = ChassisData.rotorSpeed[0];
-        // DebugData.debug2 = Motor_LF.speed * RPM2RPS;
-        // DebugData.debug3 = PID_LFCM.output_I;
+        // DebugData.debug1 = ABS(PID_Follow_Angle.error);
+        // DebugData.debug2 = -1 * PID_Follow_Speed.output * DPS2RPS * 5 * 1000;
+        // DebugData.debug3 = motorSpeedStable;
         // DebugData.debug4 = PID_LFCM.output;
         // DebugData.debug5 = followDeadRegion;
-        // DebugData.debug6 = remoteData.rx;
+        // DebugData.debug6 = Motor_LF.speed * RPM2RPS;
         // DebugData.debug7 = remoteData.rx;
         // DebugData.debug7 = ChassisData.rotorSpeed[0];
         // DebugData.debug8 = PID_Follow_Speed.output;
@@ -333,6 +369,7 @@ void Task_Fire(void *Parameters) {
     float speedRampStart    = 0;
     float speedTargetRamp   = 0;
     int   shootState        = 1;
+    int   stirState         = 0;
 
     //射击参数
     int maxShootHeat = Judge.robotState.shooter_heat1_cooling_limit;
@@ -397,8 +434,10 @@ void Task_Fire(void *Parameters) {
                 }
 
                 if (keyboardData.E && !keyboardData.Ctrl) {
+                    ServoEnabled = 1;
                     PWM_Set_Compare(&PWM_Magazine_Servo, 10);
                 } else if (keyboardData.E && keyboardData.Ctrl) {
+                    ServoEnabled = 0;
                     PWM_Set_Compare(&PWM_Magazine_Servo, 17);
                 }
             }
@@ -411,6 +450,7 @@ void Task_Fire(void *Parameters) {
                         PID_Stir3510Speed.output_I = 0;
                         PID_Stir3510Speed.output   = 0;
                         state                      = 1;
+                        stirState                  = 1;
                     } else if (remoteData.switchRight == 1) {
                         state = 0;
                     }
@@ -422,6 +462,7 @@ void Task_Fire(void *Parameters) {
                         PID_Stir3510Speed.output_I = 0;
                         PID_Stir3510Speed.output   = 0;
                         state                      = 1;
+                        stirState                  = 1;
                     } else if (!mouseData.pressLeft) {
                         state = 0;
                     }
@@ -429,6 +470,7 @@ void Task_Fire(void *Parameters) {
                 if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 0 && !state) {
                     PID_Calculate(&PID_Stir2006Speed, speedTargetRamp, Motor_Stir2006.speed * rpm2rps);
                     PID_Calculate(&PID_Stir3510Speed, 2.5, Motor_Stir3510.speed * rpm2rps);
+                    stirState = 1;
                 } else if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 1 && !state) {
                     PID_Stir2006Speed.output_I = 0;
                     PID_Stir3510Speed.output_I = 0;
@@ -436,6 +478,7 @@ void Task_Fire(void *Parameters) {
                     PID_Calculate(&PID_Stir2006Speed, 0, Motor_Stir2006.speed * rpm2rps);
                     PID_Calculate(&PID_Stir3510Speed, 0, Motor_Stir3510.speed * rpm2rps);
                     speedRampProgress = 0;
+                    stirState         = 0;
                 }
             }
         }
@@ -458,39 +501,41 @@ void Task_Fire(void *Parameters) {
         // }
 
         //堵转检测
-        if (PID_Stir2006Speed.output > 3000) {
+        // if (PID_Stir2006Speed.output > 3000) {
+        //     stop = 1;
+        // } else {
+        //     stop = 0;
+        // }
+        if (stirState && ABS(Motor_Stir2006.speed * rpm2rps) < 10 && counter3 < 50) {
+            counter3 += 1;
+        }
+
+        if (counter3 >= 50) {
             stop = 1;
         } else {
             stop = 0;
         }
 
-        if (stop && counter1 < 40) {
+        if (stop && counter1 < 100) {
             counter1 += 1;
-            PID_Stir2006Speed.output = -800;
+            PID_Stir2006Speed.output = -1000;
             PID_Stir3510Speed.output = 0;
-        } else if (counter1 == 40 && counter2 < 200) {
-            lastStop                   = 0;
-            PID_Stir2006Speed.output_I = 0;
-            PID_Stir2006Speed.output   = 0;
-            PID_Stir3510Speed.output   = 0;
-            counter2 += 1;
         }
-
-        if (counter2 == 200) {
+        if (counter1 >= 100) {
             counter1 = 0;
-            counter2 = 0;
         }
 
+        StirStop = stop;
         Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, PID_Stir2006Speed.output, PID_Stir3510Speed.output);
 
         vTaskDelayUntil(&LastWakeTime, 10);
 
         // DebugData.debug1 = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4);
-        // DebugData.debug2 = PID_Stir2006Speed.output;
-        // DebugData.debug3 = state;
-        // DebugData.debug4 = PID_Stir2006Speed.output_I;
-        // DebugData.debug5 = stop;
-        // DebugData.debug6 = GPIO_ReadInputDataBit(GPIOF, GPIO_Pin_0);
+        // DebugData.debug2 = counter1;
+        // DebugData.debug3 = counter2;
+        DebugData.debug4 = counter3;
+        DebugData.debug5 = counter1;
+        DebugData.debug6 = stirState;
         // DebugData.debug7 = keyboardData.C;
         // DebugData.debug8 = keyboardData.Z;
     }
@@ -553,6 +598,9 @@ void Task_Sys_Init(void *Parameters) {
 
     //模式切换任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 4, NULL);
+
+    // 通讯
+    xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
