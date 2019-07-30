@@ -242,27 +242,6 @@ void TIM3_IRQHandler(void) {
     TIM_ClearITPendingBit(TIM3, TIM_IT_CC3 | TIM_IT_Update); //清除中断标志位
 }
 
-u8 TIM4CH1_CAPTURE_STA = 0;
-
-void TIM4_IRQHandler(void) {
-    if (TIM_GetITStatus(TIM4, TIM_IT_CC1) != RESET) {
-        // 捕获到一个下降沿
-        if (TIM4CH1_CAPTURE_STA == 1) {
-            TIM4CH1_CAPTURE_STA = 0;
-            //获取当前的捕获值
-            TIM4CH1_CAPTURE_VAL = TIM4->CCR1;
-            //设置上升沿捕获
-            TIM_OC1PolarityConfig(TIM4, TIM_ICPolarity_Rising);
-        } else {
-            TIM4CH1_CAPTURE_STA = 1;
-            TIM_SetCounter(TIM4, 0);                             //计数器清空
-            TIM_OC1PolarityConfig(TIM4, TIM_ICPolarity_Falling); //设置下降沿捕获
-        }
-    }
-
-    TIM_ClearITPendingBit(TIM4, TIM_IT_CC1 | TIM_IT_Update); //清除中断标志位
-}
-
 // TIM5 输入捕获初始化
 u8 TIM5CH1_CAPTURE_STA = 0; //输入捕获状态
 

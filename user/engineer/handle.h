@@ -99,15 +99,14 @@ __HANDLE_EXT uint16_t Distance1, Distance2, Distance3, Distance4, Distance_Landi
     Distance_Delanding_Parallel2, Distance_Delanding_Parallel3, Distance_Delanding_Parallel4, Distance_Delanding_Parallel5;
 
 // 输入捕获值
-__HANDLE_EXT u32 TIM5CH1_CAPTURE_VAL, TIM2CH1_CAPTURE_VAL, TIM3CH3_CAPTURE_VAL, TIM9CH1_CAPTURE_VAL, TIM4CH1_CAPTURE_VAL;
+__HANDLE_EXT u32 TIM5CH1_CAPTURE_VAL, TIM2CH1_CAPTURE_VAL, TIM3CH3_CAPTURE_VAL, TIM9CH1_CAPTURE_VAL;
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Supply1, PWM_Supply2, PWM_Visual_Rescue, PWM_Image_Yaw;
 
 // Fsm需求
 __HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, TR_Get, Detected_State, TH_Reset, Chassis_Detect, Chassis_Detect_Parallel, Detected_Direction, TV_Ready,
-    Fsm_TIM14_Cnt, Fsm_TIM14_State, Chassis_Delanding_State, Chassis_Delanding_Parallel_Over, TR_Ready, Fsm_Reset, Fsm_Ready, Move_Mode, Guide_Wheel_State,
-    Detected_State_1, Detected_State_2;
+    Fsm_TIM14_Cnt, Fsm_TIM14_State, TR_Ready, Fsm_Reset, Fsm_Ready, Move_Mode, Guide_Wheel_State;
 __HANDLE_EXT Fsm_t Take_Fsm;
 /**
  * @brief 初始化结构体

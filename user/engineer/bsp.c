@@ -16,6 +16,7 @@ TIM_ICInitTypeDef       TIM5_ICInitStructure;
 TIM_ICInitTypeDef       TIM3_ICInitStructure;
 TIM_ICInitTypeDef       TIM9_ICInitStructure;
 TIM_ICInitTypeDef       TIM4_ICInitStructure;
+TIM_ICInitTypeDef       TIM8_ICInitStructure;
 
 void BSP_Landing_Init(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
@@ -269,6 +270,8 @@ void BSP_Supply_Init(void) {
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;      // 上拉
     GPIO_Init(GPIOD, &GPIO_InitStructure);             // 初始化
 
+    GPIO_PinAFConfig(GPIOD, GPIO_PinSource14, GPIO_AF_TIM4); // GPIO复用为定时器
+
     TIM_TimeBaseInitStructure.TIM_Prescaler     = 9000 - 1;           // 定时器分频
     TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up; // 向上计数模式
     TIM_TimeBaseInitStructure.TIM_Period        = 200 - 1;            // 自动重装载值
@@ -330,8 +333,8 @@ void BSP_Init(void) {
     BSP_Supply_Init();          // 补给舵机初始化
 
     // 补给舵机输出
-    BSP_PWM_Set_Port(&PWM_Supply1, PWM_PORT_PD14);
-    BSP_PWM_Init(&PWM_Supply1, 9000, 200, TIM_OCPolarity_Low);
+    // BSP_PWM_Set_Port(&PWM_Supply1, PWM_PORT_PD14);
+    // BSP_PWM_Init(&PWM_Supply1, 9000, 200, TIM_OCPolarity_Low);
     // BSP_PWM_Set_Port(&PWM_Supply2, PWM_PORT_PD15);
     // BSP_PWM_Init(&PWM_Supply2, 9000, 200, TIM_OCPolarity_Low);
 
@@ -353,7 +356,7 @@ void BSP_Init(void) {
     BSP_TIM5CH1_Init(); // PH10
     BSP_TIM2CH1_Init(); // PA0
     // BSP_TIM4CH1_Init(); // PD12
-    // BSP_TIM3CH3_Init(); // PB0
-    // BSP_TIM9CH1_Init(); // PE5
+    BSP_TIM3CH3_Init(); // PB0
+    BSP_TIM9CH1_Init(); // PE5
 }
 // 空余: PH12 PE4 PE5 PE6 PE12 PA2

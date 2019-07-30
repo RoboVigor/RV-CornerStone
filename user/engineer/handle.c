@@ -25,8 +25,8 @@ void Handle_Init(void) {
     Motor_Init(&Motor_Rotate_Right, 19.2f, 1);
 
     // Guide wheel
-    Motor_Init(&Motor_LGW, 36, 0);
-    Motor_Init(&Motor_RGW, 36, 0);
+    Motor_Init(&Motor_LGW, 36, 1);
+    Motor_Init(&Motor_RGW, 36, 1);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
@@ -69,7 +69,7 @@ void Take_Chassis_Detect_Left(void) {
 
 void Take_Start_Get(void) {
     TH_Move = 0;
-    TR_Get = 2;
+    TR_Get  = 2;
 }
 
 void Take_TV_Progress(void) {
