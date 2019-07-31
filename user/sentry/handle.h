@@ -30,7 +30,7 @@
 #endif
 
 // 摩擦轮
-__HANDLE_EXT uint8_t FrictEnabled, PsEnabled, AutoMode, SafetyMode;
+__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, PsEnabled, AutoMode, SafetyMode;
 
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;

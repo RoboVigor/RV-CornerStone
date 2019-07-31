@@ -11,9 +11,9 @@
 
 // 陀螺仪校准
 #ifdef ROBOT_LOOP_ONE
-#define IMU_GX_BIAS 8  // GX静态误差,通过平放主控板采样得到
-#define IMU_GY_BIAS 11 // GY静态误差
-#define IMU_GZ_BIAS 42 // GZ静态误差
+#define IMU_GX_BIAS 2  // GX静态误差,通过平放主控板采样得到
+#define IMU_GY_BIAS 18 // GY静态误差
+#define IMU_GZ_BIAS 54 // GZ静态误差
 #endif
 #ifdef ROBOT_LOOP_TWO
 #define IMU_GX_BIAS 27  // GX静态误差,通过平放主控板采样得到

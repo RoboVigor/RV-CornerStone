@@ -26,26 +26,24 @@ void Task_Safe_Mode(void *Parameters) {
 
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
+    LASER_ON;
     while (1) {
         if (!keyboardData.state) {
-            ControlMode  = 1; //遥控器模式
-            SwingEnabled = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
-            // MagzineOpened = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
-            PsEnabled    = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
-            FrictEnabled = remoteData.switchLeft == 2;
-            StirEnabled  = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
-            SafetyMode   = remoteData.switchRight == 2;
+            ControlMode = 1; //遥控器模式
+            // SwingEnabled = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
+            PsEnabled     = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
+            MagzineOpened = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
+            FrictEnabled  = remoteData.switchLeft == 2;
+            StirEnabled   = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
+            SafetyMode    = remoteData.switchRight == 2;
         } else {
             ControlMode = 2; //键鼠模式
-            if (mouseData.pressRight && !keyboardData.Ctrl) {
+            StirEnabled = mouseData.pressLeft;
+            PsEnabled   = mouseData.pressRight;
+            if (keyboardData.F && !keyboardData.Ctrl) {
                 FrictEnabled = 1;
-            } else if (mouseData.pressRight && keyboardData.Ctrl) {
+            } else if (keyboardData.F && keyboardData.Ctrl) {
                 FrictEnabled = 0;
-            }
-            if (mouseData.pressLeft) {
-                StirEnabled = 1;
-            } else {
-                StirEnabled = 0;
             }
             if (keyboardData.Q && !keyboardData.Ctrl) {
                 PsEnabled = 1;
@@ -85,8 +83,8 @@ void Task_Client_Communication(void *Parameters) {
         Judge.clientCustomData.send_id     = Judge.robotState.robot_id;
         Judge.clientCustomData.receiver_id = (Judge.clientCustomData.send_id % 10) | (Judge.clientCustomData.send_id / 10) << 4 | (0x01 << 8);
         Judge.clientCustomData.data1       = 1;
-        Judge.clientCustomData.data2       = 1.1;
-        Judge.clientCustomData.data3       = 1.11;
+        Judge.clientCustomData.data2       = Ps.seq;
+        Judge.clientCustomData.data3       = Judge.seq;
         Judge.clientCustomData.masks       = 0;
         Judge.clientCustomData.bit1        = SwingEnabled;
         Judge.clientCustomData.bit2        = PsEnabled;
@@ -268,10 +266,10 @@ void Task_Chassis(void *Parameters) {
     PID_Init(&PID_Follow_Speed, 10, 0, 0, 1000, 0);
 
     // 麦轮速度PID
-    PID_Init(&PID_LFCM, 25, 0, 0, 14800, 1200);
-    PID_Init(&PID_LBCM, 25, 0, 0, 14800, 1200);
-    PID_Init(&PID_RBCM, 25, 0, 0, 14800, 1200);
-    PID_Init(&PID_RFCM, 25, 0, 0, 14800, 1200);
+    PID_Init(&PID_LFCM, 20, 0, 0, 14800, 1200);
+    PID_Init(&PID_LBCM, 20, 0, 0, 14800, 1200);
+    PID_Init(&PID_RBCM, 20, 0, 0, 14800, 1200);
+    PID_Init(&PID_RFCM, 20, 0, 0, 14800, 1200);
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
@@ -309,12 +307,22 @@ void Task_Chassis(void *Parameters) {
         // 小陀螺
         if (SwingEnabled) {
             swingMode = 1;
+            // 先转45后90转动
             // swingTimer += interval;
-            // if (swingTimer >= swingInterval) {
-            //     swingAngle += rand() % 30 + 30;
+            // if (swingAngle == 0) {
+            //     swingAngle = 45;
+            // } else if (swingTimer >= swingInterval) {
+            //     swingAngle += 90;
             //     swingTimer = 0;
             // }
-            swingAngle += 360 * interval;
+            // 不规律旋转
+            swingTimer += interval;
+            if (swingTimer >= swingInterval) {
+                swingAngle += rand() % 30 + 30;
+                swingTimer = 0;
+            }
+            // 匀速旋转
+            // swingAngle += 360 * interval;
         } else {
             if (swingMode) {
                 swingMode       = 0; // 圈数清零
@@ -342,7 +350,7 @@ void Task_Chassis(void *Parameters) {
             } else if (yRampProgress > 0.5 && yRampProgress < 1) {
                 yRampProgress += 0.002f;
             }
-            vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 4;
+            vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 8;
             vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 12;
 
             if (keyboardData.W == 0 && keyboardData.S == 0) {
@@ -412,7 +420,7 @@ void Task_Chassis(void *Parameters) {
 
         // 调试信息
         DebugData.debug1 = PID_LFCM.output * ChassisData.powerScale;
-        // DebugData.debug2 = ChassisData.powerScale * 1000;
+        DebugData.debug2 = power;
         // DebugData.debug3 = PID_LFCM.output * ChassisData.powerScale;
         // DebugData.debug4 = vx * 1000;
         DebugData.debug4 = Judge.powerHeatData.chassis_power_buffer;
@@ -446,7 +454,7 @@ void Task_Debug_Magic_Send(void *Parameters) {
 
 void Task_Fire_Stir(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.005;               // 任务运行间隔 s
+    float      interval     = 0.05;                // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     // 射击模式
@@ -472,6 +480,17 @@ void Task_Fire_Stir(void *Parameters) {
     LASER_ON;
 
     while (1) {
+// 弹舱盖开关
+#ifdef ROBOT_LOOP_ONE
+        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 11 : 5);
+#endif
+#ifdef ROBOT_LOOP_TWO
+        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 14 : 6);
+#endif
+#ifdef ROBOT_LOOP_THREE
+        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 16 : 6);
+#endif
+        // 拨弹速度
         if (Judge.robotState.robot_level == 1) {
             stirSpeed = 110;
         } else if (Judge.robotState.robot_level == 2) {
@@ -502,11 +521,9 @@ void Task_Fire_Stir(void *Parameters) {
         // 控制拨弹轮
         if (shootMode == shootIdle) {
             // 停止
-            PWM_Set_Compare(&PWM_Magazine_Servo, 7);
             Can_Send(CAN2, 0x1FF, 0, 0, 0, 0);
         } else if (shootMode == shootToDeath) {
             // 连发
-            PWM_Set_Compare(&PWM_Magazine_Servo, 15);
             PID_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * RPM2RPS);
             Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
@@ -559,7 +576,7 @@ void Task_Fire_Frict(void *Parameters) {
         if (FrictEnabled) {
             LASER_ON;
         } else {
-            LASER_OFF;
+            // LASER_OFF;
         }
         switch (Step) {
         case STEP_SNAIL_IDLE:
@@ -676,8 +693,8 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
 
     // 运动控制任务
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
     xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
 

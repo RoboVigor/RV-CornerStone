@@ -29,4 +29,4 @@
 #define YAW_ANGLE_MIN -90
 #define YAW_ANGLE_MAX 90
 #define PITCH_ANGLE_MIN -35
-#define PITCH_ANGLE_MAX 10
+#define PITCH_ANGLE_MAX 15

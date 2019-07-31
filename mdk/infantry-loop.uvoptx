@@ -149,66 +149,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>272</LineNumber>
+          <LineNumber>181</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134234832</Address>
+          <Address>134232010</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\user\loop-infantry\tasks.c</Filename>
+          <Filename>..\driver\src\Driver_Protocol.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\Belief_exp2\../user/loop-infantry/tasks.c\272</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>612</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134240544</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\user\loop-infantry\tasks.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\Belief_exp2\../user/loop-infantry/tasks.c\612</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>608</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134240522</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\user\loop-infantry\tasks.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\Belief_exp2\../user/loop-infantry/tasks.c\608</Expression>
-        </Bp>
-        <Bp>
-          <Number>3</Number>
-          <Type>0</Type>
-          <LineNumber>595</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134240516</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\user\loop-infantry\tasks.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\Belief_exp2\../user/loop-infantry/tasks.c\595</Expression>
+          <Expression>\\Belief_exp2\../driver/src/Driver_Protocol.c\181</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -231,6 +183,11 @@
           <count>3</count>
           <WinNumber>1</WinNumber>
           <ItemText>-remoteData.lx</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Protocol-&gt;id</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>
@@ -649,7 +606,7 @@
 
   <Group>
     <GroupName>driver</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

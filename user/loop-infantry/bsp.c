@@ -30,7 +30,7 @@ void BSP_Init(void) {
     BSP_DMA_USART3_TX_Init(Ps.sendBuf, Protocol_Buffer_Length);
 
     // Servo
-    BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PORT_PD14);
+    BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PORT_PI0);
     BSP_PWM_Init(&PWM_Magazine_Servo, 9000, 200, TIM_OCPolarity_Low);
 
     // snail 电机pwm输出

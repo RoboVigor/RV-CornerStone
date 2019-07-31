@@ -21,11 +21,12 @@ void Task_Safe_Mode(void *Parameters) {
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        FrictEnabled = 1;
-        PsEnabled    = remoteData.switchLeft != 1;
-        AutoMode     = remoteData.switchLeft == 2;
+        LASER_ON;
+        FrictEnabled = remoteData.switchLeft == 3;
+        StirEnabled  = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
+        PsEnabled    = remoteData.switchLeft == 2;
+        AutoMode     = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
         SafetyMode   = remoteData.switchRight == 2;
-        // LASER_ON;
         vTaskDelayUntil(&LastWakeTime, 5);
     }
     vTaskDelete(NULL);
@@ -167,9 +168,9 @@ void Task_Gimbal(void *Parameters) {
 
     // 初始化云台PID
     PID_Init(&PID_Stabilizer_Yaw_Angle, 10, 0, 0, 5000, 0);
-    PID_Init(&PID_Stabilizer_Yaw_Speed, 30, 0, 0, 12000, 0);
-    PID_Init(&PID_Stabilizer_Pitch_Angle, 10, 0, 0, 2000, 0);
-    PID_Init(&PID_Stabilizer_Pitch_Speed, 30, 0, 0, 5000, 1000);
+    PID_Init(&PID_Stabilizer_Yaw_Speed, 250, 0, 0, 12000, 0);
+    PID_Init(&PID_Stabilizer_Pitch_Angle, 20, 0.1, 0, 2000, 0);
+    PID_Init(&PID_Stabilizer_Pitch_Speed, 40, 0, 0, 5000, 1000);
 
     while (1) {
         // 设置反馈
@@ -300,7 +301,7 @@ void Task_Stir(void *Parameters) {
         calmDown = (Judge.powerHeatData.shooter_heat0 > 400) ? 1 : 0;
 
         // 射击模式
-        shootMode = (ABS(remoteData.ly) > 30) ? 1 : 0;
+        shootMode = StirEnabled;
 
         // 视觉系统
         if (remoteData.switchLeft == 3) {
@@ -490,7 +491,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
 
     // 运动控制任务
-    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
     xTaskCreate(Task_Stir, "Task_Stir", 400, NULL, 6, NULL);
