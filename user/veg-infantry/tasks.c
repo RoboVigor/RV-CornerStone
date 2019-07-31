@@ -115,18 +115,14 @@ void Task_Gimbal(void *Parameters) {
         // Can_Send(CAN1, 0x1FF, remoteData.rx * 10, 0, 0, 0);
 
         // 调试信息
-        // DebugData.debug1 = PID_Cloud_YawSpeed.output;
-        // DebugData.debug2 = PID_Cloud_YawAngle.output;
+        DebugData.debug1 = Motor_Yaw.position;
+        DebugData.debug2 = PID_LFCM.output * ChassisData.powerScale;
         // DebugData.debug3 = PID_Cloud_YawAngle.target;
         // DebugData.debug4 = PID_Cloud_YawAngle.feedback;
         // DebugData.debug5 = PID_Cloud_PitchAngle.output;
         // DebugData.debug6 = PID_Cloud_PitchAngle.target;
         // DebugData.debug7 = PID_Cloud_PitchAngle.feedback;
         // DebugData.debug8 = chassisAngle;
-        DebugData.debug1 = Ps.seq;
-        DebugData.debug2 = Ps.autoaimData.yaw_angle_diff;
-        DebugData.debug3 = Judge.powerHeatData.chassis_power;
-        DebugData.debug4 = Ps.autoaimData.biu_biu_state;
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -197,8 +193,8 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeed);
 
         // 设置底盘总体移动速度
-        vx = remoteData.lx / 660.0f * 4;
-        vy = -remoteData.ly / 660.0f * 12;
+        vx = -remoteData.lx / 660.0f * 4;
+        vy = remoteData.ly / 660.0f * 12;
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
         // 麦轮解算及限速

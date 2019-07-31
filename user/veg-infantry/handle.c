@@ -18,8 +18,8 @@ void Handle_Init(void) {
     // 云台电机
     Motor_Init(&Motor_Yaw, 1.0, 1);   // 顺时针为正电流
     Motor_Init(&Motor_Pitch, 1.0, 1); // 逆时针为正电流
-    Motor_Yaw.positionBias   = 5147;
-    Motor_Yaw.position       = 5147;
+    Motor_Yaw.positionBias   = 4620;
+    Motor_Yaw.position       = 4620;
     Motor_Pitch.positionBias = 4640;
     Motor_Pitch.position     = 4640;
 
