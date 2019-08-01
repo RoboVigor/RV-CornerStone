@@ -127,13 +127,13 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget += pitchAngleTargetControl;
 
         // 视觉辅助
-        if (ControlMode == 1) {
-            if (remoteData.switchRight == 3) {
-                PsEnabled = 1;
-            } else {
-                PsEnabled = 0;
-            }
-        }
+        // if (ControlMode == 1) {
+        //     if (remoteData.switchRight == 3) {
+        //         PsEnabled = 1;
+        //     } else {
+        //         PsEnabled = 0;
+        //     }
+        // }
         if (ControlMode == 2) {
             if (!mouseData.pressRight) {
                 PsEnabled = 0;
@@ -176,8 +176,8 @@ void Task_Gimbal(void *Parameters) {
         Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
 
         // 调试信息
-        DebugData.debug1 = PsEnabled;
-        DebugData.debug2 = Ps.autoaimData.seq;
+        // DebugData.debug1 = PsEnabled;
+        // DebugData.debug2 = Ps.autoaimData.seq;
         // DebugData.debug3 = ImuData.gz;
         // DebugData.debug4 = autoAimStart;
         // DebugData.debug5 = Ps.autoaimData.seq;
@@ -421,8 +421,8 @@ void Task_Fire(void *Parameters) {
                     PID_Calculate(&PID_RightFrictSpeed, 0, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮停止
                     LASER_OFF;
                 } else if (remoteData.switchLeft == 3) {
-                    PID_Calculate(&PID_RightFrictSpeed, 230, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮
-                    PID_Calculate(&PID_LeftFrictSpeed, -230, Motor_LeftFrict.speed * rpm2rps);  // 左摩擦轮
+                    PID_Calculate(&PID_RightFrictSpeed, 237, Motor_RightFrict.speed * rpm2rps); // 右摩擦轮
+                    PID_Calculate(&PID_LeftFrictSpeed, -237, Motor_LeftFrict.speed * rpm2rps);  // 左摩擦轮
 
                     LASER_ON; // 激光开启
                 }
