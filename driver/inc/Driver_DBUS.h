@@ -7,6 +7,7 @@
 #define __DRIVER_DBUS_H
 
 #include "stm32f4xx.h"
+#include "vegmath.h"
 
 // DBUS接收数据帧长度
 #define DBUS_LENGTH 18     // DBUS数据帧长
@@ -85,6 +86,9 @@ typedef struct {
             uint16_t keyCode;
         };
     };
+    uint16_t keyDisabledCounter[15];
+    uint16_t keyDisabledCode;
+    uint16_t seq;
 
     enum DBusState state;
 } Keyboard_Type;
@@ -96,5 +100,14 @@ typedef struct {
  */
 
 void DBus_Update(Remote_Type *remote, Keyboard_Type *kb, Mouse_Type *mouse, uint8_t DBusBuffer[]);
+
+/**
+ * @brief 暂时禁用某键
+ *
+ * @param kb
+ * @param key 宏定义KEY_X
+ * @param duration 禁用时间 (ms)
+ */
+void Key_Disable(Keyboard_Type *kb, uint16_t key, uint16_t duration);
 
 #endif

@@ -28,14 +28,26 @@ void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     LASER_ON;
     while (1) {
-        if (!keyboardData.state) {
+        if (remoteData.switchRight != 2) {
             ControlMode = 1; //遥控器模式
-            // SwingEnabled = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
-            PsEnabled     = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
+            // if (remoteData.switchRight == 1) {
+            //     Key_Disable(KEY_CTRL, 100);
+            // }
+
+            // 视觉测试
+            PsEnabled = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
+
+            // 检录用
             MagzineOpened = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
             FrictEnabled  = remoteData.switchLeft == 2;
             StirEnabled   = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
-            SafetyMode    = remoteData.switchRight == 2;
+
+            // 小陀螺测试
+            // SwingEnabled  = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
+
+            // 安全模式
+            // SafetyMode   = remoteData.switchRight == 2;
+            FastShootMode = 0;
         } else {
             ControlMode = 2; //键鼠模式
             StirEnabled = mouseData.pressLeft;
@@ -44,21 +56,31 @@ void Task_Control(void *Parameters) {
                 FrictEnabled = 1;
             } else if (keyboardData.F && keyboardData.Ctrl) {
                 FrictEnabled = 0;
+                Key_Disable(&keyboardData, KEY_F, 50);
             }
             if (keyboardData.Q && !keyboardData.Ctrl) {
-                PsEnabled = 1;
+                MagzineOpened = 1;
             } else if (keyboardData.Q && keyboardData.Ctrl) {
-                PsEnabled = 0;
+                MagzineOpened = 0;
+                Key_Disable(&keyboardData, KEY_Q, 50);
             }
             if (keyboardData.R && !keyboardData.Ctrl) {
                 SwingEnabled = 1;
             } else if (keyboardData.R && keyboardData.Ctrl) {
                 SwingEnabled = 0;
+                Key_Disable(&keyboardData, KEY_R, 50);
             }
             if (keyboardData.V && !keyboardData.Ctrl) {
                 LowSpeedMode = 1;
             } else if (keyboardData.V && keyboardData.Ctrl) {
                 LowSpeedMode = 0;
+                Key_Disable(&keyboardData, KEY_V, 50);
+            }
+            if (keyboardData.X && !keyboardData.Ctrl) {
+                FastShootMode = 1;
+            } else if (keyboardData.X && keyboardData.Ctrl) {
+                FastShootMode = 0;
+                Key_Disable(&keyboardData, KEY_X, 50);
             }
         }
         vTaskDelayUntil(&LastWakeTime, 5);
@@ -91,7 +113,7 @@ void Task_Client_Communication(void *Parameters) {
         Judge.clientCustomData.bit3        = FrictEnabled;
         Judge.clientCustomData.bit4        = StirEnabled;
         Judge.clientCustomData.bit5        = MagzineOpened;
-        Judge.clientCustomData.bit6        = LowSpeedMode;
+        Judge.clientCustomData.bit6        = FastShootMode;
         dataLength                         = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client_Data;
         Protocol_Pack(&Judge, dataLength, Protocol_Interact_Id_Client_Data);
         DMA_SetCurrDataCounter(DMA2_Stream6, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
@@ -257,7 +279,7 @@ void Task_Chassis(void *Parameters) {
     // 小陀螺
     float   swingAngle    = 0;
     int16_t swingMode     = 0;
-    float   swingInterval = 0.2;
+    float   swingInterval = 0.45;
     float   swingTimer    = swingInterval;
 
     // 底盘跟随PID
@@ -308,19 +330,20 @@ void Task_Chassis(void *Parameters) {
         if (SwingEnabled) {
             swingMode = 1;
             // 先转45后90转动
-            // swingTimer += interval;
-            // if (swingAngle == 0) {
-            //     swingAngle = 45;
-            // } else if (swingTimer >= swingInterval) {
-            //     swingAngle += 90;
-            //     swingTimer = 0;
-            // }
-            // 不规律旋转
             swingTimer += interval;
-            if (swingTimer >= swingInterval) {
-                swingAngle += rand() % 30 + 30;
+            if (swingAngle == 0) {
+                swingAngle = 45;
+                // swingTimer = -0.2;
+            } else if (swingTimer >= swingInterval) {
+                swingAngle += 90;
                 swingTimer = 0;
             }
+            // 不规律旋转
+            // swingTimer += interval;
+            // if (swingTimer >= swingInterval) {
+            //     swingAngle += rand() % 30 + 30;
+            //     swingTimer = 0;
+            // }
             // 匀速旋转
             // swingAngle += 360 * interval;
         } else {
@@ -391,7 +414,7 @@ void Task_Chassis(void *Parameters) {
         // 开机时底盘匀速回正
         vwRamp = RAMP(0, vw, vwRampProgress);
         if (vwRampProgress < 1) {
-            vwRampProgress += 0.005f;
+            vwRampProgress += 0.002f;
         }
 
         // 麦轮解算及限速
@@ -488,7 +511,7 @@ void Task_Fire_Stir(void *Parameters) {
         PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 14 : 6);
 #endif
 #ifdef ROBOT_LOOP_THREE
-        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 16 : 6);
+        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 16 : 5);
 #endif
         // 拨弹速度
         if (Judge.robotState.robot_level == 1) {
@@ -498,8 +521,15 @@ void Task_Fire_Stir(void *Parameters) {
         } else if (Judge.robotState.robot_level == 3) {
             stirSpeed = 160;
         }
+
+        // X模式
+        if (FastShootMode) {
+            stirSpeed *= 2;
+        }
+
         //热量控制
-        maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit * 0.8;
+        // maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit * 0.8; // todo: why?
+        maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit - 60;
 
         // 输入射击模式
         if (StirEnabled && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
@@ -696,9 +726,8 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
-    xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
+    // xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
-    vTaskDelay(10);
 }

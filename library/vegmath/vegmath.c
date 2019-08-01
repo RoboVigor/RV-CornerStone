@@ -54,3 +54,14 @@ float FirstOrderLowPassFilter(float input, float *output, float sampleFrq, float
     *output = Cof1 * input + Cof2 * (*output);
     return *output;
 }
+
+int FastLog2(int x) {
+    float         fx;
+    unsigned long ix, exp;
+
+    fx  = (float) x;
+    ix  = *(unsigned long *) &fx;
+    exp = (ix >> 23) & 0xFF;
+
+    return exp - 127;
+}
