@@ -32,7 +32,7 @@ void Task_Control(void *Parameters) {
         if ((remoteData.switchLeft == 1 && remoteData.switchRight == 1) || (!remoteData.state)) {
             FrictEnabled = 1;
             LaserEnabled = 0;
-            StirEnabled  = 1;
+            StirEnabled  = 0;
             PsEnabled    = 1;
             AutoMode     = 1;
         }
@@ -311,8 +311,14 @@ void Task_Stir(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
     int        maxTimeout   = 300 / intervalms;
 
+    //堵转检测
+    int stop     = 0;
+    int lastStop = 0;
+    int counter1 = 0;
+    int counter2 = 0;
+
     // PID 初始化
-    PID_Init(&PID_Stir_Speed, 60, 0.1, 0, 6000, 3000);
+    PID_Init(&PID_Stir_Speed, 60, 0.1, 0, 6000, 3000); // 24 0.01
 
     // 摩擦轮是否开启
     Snail_State = 0;
@@ -341,11 +347,11 @@ void Task_Stir(void *Parameters) {
             counter++;
         } else if (lastSeq != Ps.autoaimData.seq) {
             lastSeq = Ps.autoaimData.seq;
-            if (Ps.autoaimData.yaw_angle_diff == 0 && Ps.autoaimData.pitch_angle_diff == 0 && Ps.autoaimData.biu_biu_state == 0) {
+            if (Ps.autoaimData.biu_biu_state == 0) {
                 counter++;
             } else {
                 counter   = 0;
-                shootMode = Ps.autoaimData.biu_biu_state;
+                shootMode = 1;
             }
         } else {
             counter++;
@@ -377,6 +383,28 @@ void Task_Stir(void *Parameters) {
         } else {
             PID_Calculate(&PID_Stir_Speed, 0, Motor_Stir.speed * RPM2RPS);
         }
+
+        // //堵转检测
+        // if (PID_Stir_Speed.output > 3000) {
+        //     stop = 1;
+        // } else {
+        //     stop = 0;
+        // }
+
+        // if (stop && counter1 < 40) {
+        //     counter1 += 1;
+        //     PID_Stir_Speed.output = -800;
+        // } else if (counter1 == 40 && counter2 < 200) {
+        //     lastStop                = 0;
+        //     PID_Stir_Speed.output_I = 0;
+        //     PID_Stir_Speed.output   = 0;
+        //     counter2 += 1;
+        // }
+
+        // if (counter2 == 200) {
+        //     counter1 = 0;
+        //     counter2 = 0;
+        // }
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -434,7 +462,6 @@ void Task_Snail(void *Parameters) {
         switch (Step) {
         case STEP_SNAIL_IDLE:
             if (snailState == 0) {
-                Snail_State                  = 0;
                 Snail_State                  = 0;
                 dutyCycleRightSnailTarget    = 0.376;
                 dutyCycleLeftSnailTarget     = 0.376;
