@@ -26,7 +26,7 @@
 #define CHASSIS_INVERSE_WHEEL_RADIUS 13.16f //测量值, 麦克纳姆轮半径的倒数
 
 // 云台
-#define YAW_ANGLE_MIN -90
-#define YAW_ANGLE_MAX 90
+#define YAW_ANGLE_MIN -110
+#define YAW_ANGLE_MAX 110
 #define PITCH_ANGLE_MIN -35
 #define PITCH_ANGLE_MAX 15

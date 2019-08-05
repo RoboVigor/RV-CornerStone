@@ -57,7 +57,7 @@ void Task_Chassis(void *Parameters) {
     float    timer  = 0.0;
     int      lastAutoMode;
     int      direction = 1;
-    float    maxTime   = 6;   // 2
+    float    maxTime   = 3;   // 2
     float    minTime   = 1;   // 1
     int      maxSpeed  = 600; // 600
     int      minSpeed  = 600; // 360
@@ -138,8 +138,8 @@ void Task_Chassis(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试数据
-        DebugData.debug1 = Left_State;
-        DebugData.debug2 = Right_State;
+        DebugData.debug1 = PID_Stir_Speed.output;
+        // DebugData.debug2 = Right_State;
         // DebugData.debug3 = PID_Chassis_Left.feedback;
         // DebugData.debug4 = timer;
     }
@@ -152,7 +152,7 @@ void Task_Gimbal(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.005;               // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
-    int        maxTimeout   = 300 / intervalms;
+    int        maxTimeout   = 500 / intervalms;
 
     // 反馈值
     float yawAngle;
@@ -200,9 +200,9 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget = 0;
 
         // 限位
-        if (pitchAngleLimit >= PITCH_ANGLE_MAX && pitchAngle < pitchAngleLimitMax) {
+        if (pitchAngleLimit >= PITCH_ANGLE_MAX && pitchAngleLimitMax == INT_MAX) {
             pitchAngleLimitMax = pitchAngle;
-        } else if (pitchAngleLimit <= PITCH_ANGLE_MIN && pitchAngle > pitchAngleLimitMin) {
+        } else if (pitchAngleLimit <= PITCH_ANGLE_MIN && pitchAngleLimitMin == INT_MIN) {
             pitchAngleLimitMin = pitchAngle;
         }
 
@@ -234,7 +234,7 @@ void Task_Gimbal(void *Parameters) {
         // 自动转头
         if ((counter >= maxTimeout) && (AutoMode)) {
             // 丢失目标,自动旋转
-            yawAngleTargetRotate += directionX * 0.8;
+            yawAngleTargetRotate += directionX * 1.2;
             pitchAngleTargetRotate += directionY * 0.5;
         }
         if (counter == INT_MAX) {
@@ -280,10 +280,10 @@ void Task_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = Ps.seq;
-        // DebugData.debug2 = counter;
-        // DebugData.debug3 = Ps.autoaimData.yaw_angle_diff;
-        // DebugData.debug4 = Ps.autoaimData.pitch_angle_diff;
+        // DebugData.debug1 = Motor_Stir.speed;
+        // DebugData.debug2 = Ps.autoaimData.biu_biu_state;
+        // DebugData.debug3 = -1 * Gyroscope_EulerData.pitch;
+        // DebugData.debug4 = pitchAngleLimitMin;
         // DebugData.debug5 = pitchAngleLimitMax;
         // DebugData.debug6 = pitchAngleTargetPs;
         // DebugData.debug7 = pitchAngleTargetControl;
@@ -309,7 +309,7 @@ void Task_Stir(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.005;               // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
-    int        maxTimeout   = 300 / intervalms;
+    int        maxTimeout   = 500 / intervalms;
 
     //堵转检测
     int stop     = 0;
@@ -318,7 +318,7 @@ void Task_Stir(void *Parameters) {
     int counter2 = 0;
 
     // PID 初始化
-    PID_Init(&PID_Stir_Speed, 60, 0.1, 0, 6000, 3000); // 24 0.01
+    PID_Init(&PID_Stir_Speed, 60, 0.1, 0, 6000, 3000); //?? 0.1
 
     // 摩擦轮是否开启
     Snail_State = 0;
@@ -327,7 +327,7 @@ void Task_Stir(void *Parameters) {
     int calmDown = 0; // 1:冷却
 
     // 射击模式
-    int shootMode = 0; // 0:停止 1:发射
+    int shootMode = 0; // 0:停止 1:发射S
 
     // 视觉系统
     int lastSeq = 0;
@@ -338,16 +338,14 @@ void Task_Stir(void *Parameters) {
         // 热量限制
         calmDown = (Judge.powerHeatData.shooter_heat0 > 400) ? 1 : 0;
 
-        // 射击模式
-        shootMode = StirEnabled;
-
         // 视觉系统
         if (!PsEnabled) {
             lastSeq = Ps.autoaimData.seq;
             counter++;
         } else if (lastSeq != Ps.autoaimData.seq) {
             lastSeq = Ps.autoaimData.seq;
-            if (Ps.autoaimData.biu_biu_state == 0) {
+            // if (Ps.autoaimData.biu_biu_state == 0) {
+            if (Ps.autoaimData.yaw_angle_diff == 0 && Ps.autoaimData.pitch_angle_diff == 0 && Ps.autoaimData.biu_biu_state == 0) {
                 counter++;
             } else {
                 counter   = 0;
@@ -357,7 +355,7 @@ void Task_Stir(void *Parameters) {
             counter++;
         }
 
-        if ((counter >= maxTimeout) && (!StirEnabled)) {
+        if ((counter >= maxTimeout)) {
             shootMode = 0;
         }
         if (counter == INT_MAX) {
@@ -373,19 +371,22 @@ void Task_Stir(void *Parameters) {
         //     shootMode = 0;
         // }
 
+        // 射击模式
+        shootMode = shootMode | StirEnabled;
+
         // 摩擦轮是否开启
         if (Snail_State == 0) {
             shootMode = 0;
         };
 
         if ((calmDown == 0) && (shootMode == 1)) {
-            PID_Calculate(&PID_Stir_Speed, 250, Motor_Stir.speed * RPM2RPS);
+            PID_Calculate(&PID_Stir_Speed, 400, Motor_Stir.speed * RPM2RPS);
         } else {
             PID_Calculate(&PID_Stir_Speed, 0, Motor_Stir.speed * RPM2RPS);
         }
 
         // //堵转检测
-        // if (PID_Stir_Speed.output > 3000) {
+        // if (PID_Stir_Speed.output > 3500) {
         //     stop = 1;
         // } else {
         //     stop = 0;
@@ -393,21 +394,26 @@ void Task_Stir(void *Parameters) {
 
         // if (stop && counter1 < 40) {
         //     counter1 += 1;
-        //     PID_Stir_Speed.output = -800;
-        // } else if (counter1 == 40 && counter2 < 200) {
+        //     PID_Stir_Speed.output = -2000;
+        // } else if (counter1 == 40 && counter2 < 150) {
         //     lastStop                = 0;
         //     PID_Stir_Speed.output_I = 0;
         //     PID_Stir_Speed.output   = 0;
         //     counter2 += 1;
         // }
 
-        // if (counter2 == 200) {
+        // if (counter2 == 150) {
         //     counter1 = 0;
         //     counter2 = 0;
         // }
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
+
+        // 调试信息
+        DebugData.debug1 = Motor_Stir.speed;
+        DebugData.debug2 = Ps.autoaimData.biu_biu_state;
+        DebugData.debug3 = shootMode;
     }
 
     vTaskDelete(NULL);
