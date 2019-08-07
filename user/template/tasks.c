@@ -364,7 +364,7 @@ void Task_Sys_Init(void *Parameters) {
     }
 
     // 运动控制任务
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    //xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
 
     // DMA发送任务
     // xTaskCreate(Task_DMA_Send, "Task_DMA_Send", 500, NULL, 6, NULL);

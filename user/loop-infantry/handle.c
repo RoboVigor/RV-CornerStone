@@ -33,8 +33,8 @@ void Handle_Init(void) {
 #ifdef ROBOT_LOOP_THREE
     Motor_Yaw.positionBias   = 640;
     Motor_Yaw.position       = 640;
-    Motor_Pitch.positionBias = 2150;
-    Motor_Pitch.position     = 2150;
+    Motor_Pitch.positionBias = 4720;
+    Motor_Pitch.position     = 4720;
 #endif
 
     // 遥控器数据初始化

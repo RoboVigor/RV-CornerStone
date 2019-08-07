@@ -101,7 +101,7 @@ void Protocol_Unpack(Protocol_Type *Protocol, uint8_t byte) {
     switch (Protocol->step) {
     case STEP_HEADER_SOF: {
         if (byte == PROTOCOL_HEADER) {
-            Protocol->packet[Protocol->index++] = byte;
+					Protocol->packet[Protocol->index++] = byte;
             Protocol->step                      = STEP_LENGTH_LOW;
         } else {
             Protocol->index = 0;

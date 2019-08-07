@@ -41,9 +41,8 @@ void Task_Control(void *Parameters) {
             MagzineOpened = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
             FrictEnabled  = remoteData.switchLeft == 2;
             StirEnabled   = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
-
             // 小陀螺测试
-            // SwingEnabled  = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
+            // SwingMode = ((remoteData.switchLeft == 2) && (remoteData.switchRight == 1)) ? 1 : 0;
 
             // 安全模式
             // SafetyMode   = remoteData.switchRight == 2;
@@ -52,36 +51,30 @@ void Task_Control(void *Parameters) {
             ControlMode = 2; //键鼠模式
             StirEnabled = mouseData.pressLeft;
             PsEnabled   = mouseData.pressRight;
-            if (keyboardData.F && !keyboardData.Ctrl) {
+            // 摩擦轮
+            if (keyboardData.G && !keyboardData.Ctrl) {
                 FrictEnabled = 1;
-            } else if (keyboardData.F && keyboardData.Ctrl) {
+            } else if (keyboardData.G && keyboardData.Ctrl) {
                 FrictEnabled = 0;
+                Key_Disable(&keyboardData, KEY_G, 50);
+            }
+            // 弹舱盖
+            if (keyboardData.F && !keyboardData.Ctrl) {
+                MagzineOpened = 1;
+            } else if (keyboardData.F && keyboardData.Ctrl) {
+                MagzineOpened = 0;
                 Key_Disable(&keyboardData, KEY_F, 50);
             }
-            if (keyboardData.Q && !keyboardData.Ctrl) {
-                MagzineOpened = 1;
-            } else if (keyboardData.Q && keyboardData.Ctrl) {
-                MagzineOpened = 0;
-                Key_Disable(&keyboardData, KEY_Q, 50);
+            // 小陀螺
+            if (keyboardData.Z) {
+                SwingMode = 3;
+            } else if (keyboardData.V) {
+                SwingMode = 0;
             }
-            if (keyboardData.R && !keyboardData.Ctrl) {
-                SwingEnabled = 1;
-            } else if (keyboardData.R && keyboardData.Ctrl) {
-                SwingEnabled = 0;
-                Key_Disable(&keyboardData, KEY_R, 50);
-            }
-            if (keyboardData.V && !keyboardData.Ctrl) {
-                LowSpeedMode = 1;
-            } else if (keyboardData.V && keyboardData.Ctrl) {
-                LowSpeedMode = 0;
-                Key_Disable(&keyboardData, KEY_V, 50);
-            }
-            if (keyboardData.X && !keyboardData.Ctrl) {
-                FastShootMode = 1;
-            } else if (keyboardData.X && keyboardData.Ctrl) {
-                FastShootMode = 0;
-                Key_Disable(&keyboardData, KEY_X, 50);
-            }
+            // 低速模式
+            LowSpeedMode = keyboardData.Shift;
+            // 高射速模式
+            FastShootMode = keyboardData.E;
         }
         vTaskDelayUntil(&LastWakeTime, 5);
     }
@@ -104,11 +97,11 @@ void Task_Client_Communication(void *Parameters) {
         Judge.clientCustomData.data_cmd_id = Protocol_Interact_Id_Client_Data;
         Judge.clientCustomData.send_id     = Judge.robotState.robot_id;
         Judge.clientCustomData.receiver_id = (Judge.clientCustomData.send_id % 10) | (Judge.clientCustomData.send_id / 10) << 4 | (0x01 << 8);
-        Judge.clientCustomData.data1       = 1;
+        Judge.clientCustomData.data1       = SwingMode;
         Judge.clientCustomData.data2       = Ps.seq;
         Judge.clientCustomData.data3       = Judge.seq;
         Judge.clientCustomData.masks       = 0;
-        Judge.clientCustomData.bit1        = SwingEnabled;
+        Judge.clientCustomData.bit1        = SwingMode;
         Judge.clientCustomData.bit2        = PsEnabled;
         Judge.clientCustomData.bit3        = FrictEnabled;
         Judge.clientCustomData.bit4        = StirEnabled;
@@ -159,7 +152,7 @@ void Task_Gimbal(void *Parameters) {
     // 初始化云台PID
     PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 1000, 10);
     PID_Init(&PID_Cloud_YawSpeed, 10, 0, 0, 4000, 0);
-    PID_Init(&PID_Cloud_PitchAngle, 20, 0, 0, 16000, 0);
+    PID_Init(&PID_Cloud_PitchAngle, 30, 0, 0, 16000, 0);
     PID_Init(&PID_Cloud_PitchSpeed, 2, 0, 0, 2000, 0);
 
     while (1) {
@@ -223,7 +216,7 @@ void Task_Gimbal(void *Parameters) {
 
         // 输出电流
         yawCurrent   = -20 * PID_Cloud_YawSpeed.output;
-        pitchCurrent = 30 * PID_Cloud_PitchSpeed.output;
+        pitchCurrent = 40 * PID_Cloud_PitchSpeed.output;
         MIAO(yawCurrent, -12000, 12000);
         MIAO(pitchCurrent, -5000, 5000);
 #ifdef ROBOT_LOOP_ONE
@@ -240,7 +233,7 @@ void Task_Gimbal(void *Parameters) {
 #endif
 
         // 调试信息
-        // DebugData.debug1 = PID_Cloud_YawAngle.feedback;
+        DebugData.debug1 = pitchCurrent;
         // DebugData.debug2 = PID_Cloud_YawAngle.target;
         // DebugData.debug3 = PID_Cloud_YawAngle.output;
         // DebugData.debug4 = PID_Cloud_YawSpeed.feedback;
@@ -320,15 +313,16 @@ void Task_Chassis(void *Parameters) {
         }
 
         // 底盘跟随死区
-        if (SwingEnabled) {
+        if (SwingMode) {
             followDeadRegion = 0; // 关闭底盘跟随死区
         } else {
             followDeadRegion = 3; // 开启底盘跟随死区
         }
 
         // 小陀螺
-        if (SwingEnabled) {
-            swingMode = 1;
+        if (SwingMode == 1) {
+            swingMode     = 1;
+            swingInterval = 0.45;
             // 先转45后90转动
             swingTimer += interval;
             if (swingAngle == 0) {
@@ -338,14 +332,19 @@ void Task_Chassis(void *Parameters) {
                 swingAngle += 90;
                 swingTimer = 0;
             }
+        } else if (SwingMode == 2) {
+            swingMode     = 1;
+            swingInterval = 0.3;
             // 不规律旋转
-            // swingTimer += interval;
-            // if (swingTimer >= swingInterval) {
-            //     swingAngle += rand() % 30 + 30;
-            //     swingTimer = 0;
-            // }
+            swingTimer += interval;
+            if (swingTimer >= swingInterval) {
+                swingAngle += rand() % 40 + 50;
+                swingTimer = 0;
+            }
+        } else if (SwingMode == 3) {
+            swingMode = 1;
             // 匀速旋转
-            // swingAngle += 360 * interval;
+            swingAngle += 1000 * interval;
         } else {
             if (swingMode) {
                 swingMode       = 0; // 圈数清零
@@ -442,16 +441,16 @@ void Task_Chassis(void *Parameters) {
                  PID_RFCM.output * ChassisData.powerScale);
 
         // 调试信息
-        DebugData.debug1 = PID_LFCM.output * ChassisData.powerScale;
-        DebugData.debug2 = power;
+        // DebugData.debug1 = PID_LFCM.output * ChassisData.powerScale;
+        // DebugData.debug2 = power;
         // DebugData.debug3 = PID_LFCM.output * ChassisData.powerScale;
         // DebugData.debug4 = vx * 1000;
-        DebugData.debug4 = Judge.powerHeatData.chassis_power_buffer;
-        DebugData.debug5 = ChassisData.powerBuffer;
-        DebugData.debug6 = targetPower;
+        // DebugData.debug4 = Judge.powerHeatData.chassis_power_buffer;
+        // DebugData.debug5 = ChassisData.powerBuffer;
+        // DebugData.debug6 = targetPower;
         // DebugData.debug7 = WANG(60.0 - ChassisData.powerBuffer, 0.0, 30.0) / 30.0 * 1000;
         // DebugData.debug7 = (1.0 - WANG(ChassisData.powerBuffer, 0.0, 30.0) / 30.0) * 70;
-        DebugData.debug8 = 80;
+        // DebugData.debug8 = 80;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -539,14 +538,14 @@ void Task_Fire_Stir(void *Parameters) {
         }
 
         // 视觉辅助
-        if (!PsEnabled) {
-            lastSeq = Ps.autoaimData.seq;
-        } else if (lastSeq != Ps.autoaimData.seq && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
-            lastSeq   = Ps.autoaimData.seq;
-            shootMode = Ps.autoaimData.biu_biu_state ? shootToDeath : shootIdle;
-        } else {
-            shootMode = shootIdle;
-        }
+        // if (!PsEnabled) {
+        //     lastSeq = Ps.autoaimData.seq;
+        // } else if (lastSeq != Ps.autoaimData.seq && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
+        //     lastSeq   = Ps.autoaimData.seq;
+        //     shootMode = Ps.autoaimData.biu_biu_state ? shootToDeath : shootIdle;
+        // } else {
+        //     shootMode = shootIdle;
+        // }
 
         // 控制拨弹轮
         if (shootMode == shootIdle) {
@@ -720,13 +719,13 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
 
     // 通讯
-    xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 7, NULL);
 
     // 运动控制任务
-    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
-    // xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

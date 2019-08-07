@@ -21,9 +21,9 @@
 #define IMU_GZ_BIAS 12 // GZ静态误差
 #endif
 #ifdef ROBOT_LOOP_THREE
-#define IMU_GX_BIAS 7  // GX静态误差,通过平放主控板采样得到
-#define IMU_GY_BIAS 11 // GY静态误差
-#define IMU_GZ_BIAS 20 // GZ静态误差
+#define IMU_GX_BIAS 29 // GX静态误差,通过平放主控板采样得到
+#define IMU_GY_BIAS 33 // GY静态误差
+#define IMU_GZ_BIAS -2 // GZ静态误差
 #endif
 
 // 运动参数

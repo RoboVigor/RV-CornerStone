@@ -49,14 +49,12 @@ void DBus_Update(Remote_Type *remote, Keyboard_Type *kb, Mouse_Type *mouse, uint
             kb->keyDisabledCode += 1 << i;
         }
     }
-    //kb->keyCode = (DBusBuffer[14] | DBusBuffer[15] << 8) & (~kb->keyDisabledCode);
-		
-		if((DBusBuffer[14] | DBusBuffer[15] << 8)!=0){
-				kb->keyCode = (DBusBuffer[14] | DBusBuffer[15] << 8);
-				kb->keyCode = kb->keyCode&(~kb->keyDisabledCode);
-				kb->keyCode = kb->keyCode;
-        kb->state = DBusWorking;
-		}
+
+    // kb->keyCode = (DBusBuffer[14] | DBusBuffer[15] << 8);
+    // kb->keyCode = kb->keyCode & (~kb->keyDisabledCode);
+    // kb->keyCode = kb->keyCode;
+
+    kb->keyCode = (DBusBuffer[14] | DBusBuffer[15] << 8) & (~kb->keyDisabledCode);
 
     if (kb->keyCode != 0 || mouse->x != 0) {
         kb->state = DBusWorking;
