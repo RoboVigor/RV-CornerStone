@@ -52,18 +52,30 @@ void Task_Chassis(void *Parameters) {
     float leftTarget  = 0;
     float rightTarget = 0;
 
-    // 随机模式
-    uint16_t random = 0;
-    float    timer  = 0.0;
-    int      lastAutoMode;
-    int      direction = 1;
-    float    maxTime   = 3;   // 2
-    float    minTime   = 1;   // 1
-    int      maxSpeed  = 600; // 600
-    int      minSpeed  = 600; // 360
+    // 视觉系统
+    int lastSeq          = 0;
+    int visionCounter    = 0;
+    int maxVisionTimeout = 500 / intervalms;
+
+    // 挨打
+    int lastBlood      = 600;
+    int hurtCounter    = 0;
+    int maxHurtTimeout = 5000 / intervalms;
+
+    // 自动运动
+    uint16_t random         = 0;
+    int      lastMotionType = 1;
+    int      motionType     = 1;
+    int      lastAutoMode   = 0;
+    int      direction      = 1;
+    float    timer          = 0.0;
+    float    maxTime;
+    float    minTime;
+    int      maxSpeed;
+    int      minSpeed;
 
     // 光电开关
-    int optoelectronicDirection;
+    int optoelectronicDirection = 0;
 
     // 功率限制
     float power;
@@ -80,29 +92,97 @@ void Task_Chassis(void *Parameters) {
     ChassisData.maxPowerBuffer = 200;
 
     while (1) {
-        // 随机模式
+        // 视觉系统
+        if (!PsEnabled) {
+            lastSeq = Ps.autoaimData.seq;
+            visionCounter++;
+        } else if (lastSeq != Ps.autoaimData.seq) {
+            lastSeq = Ps.autoaimData.seq;
+            if (Ps.autoaimData.yaw_angle_diff == 0 && Ps.autoaimData.pitch_angle_diff == 0 && Ps.autoaimData.biu_biu_state == 0) {
+                visionCounter++;
+            } else {
+                visionCounter = 0;
+                motionType    = 2;
+            }
+        } else {
+            visionCounter++;
+        }
+
+        // 挨打
+        if (Judge.robotState.remain_HP == lastBlood) {
+            hurtCounter++;
+        } else {
+            hurtCounter = 0;
+            motionType  = 2;
+        }
+        lastBlood = Judge.robotState.remain_HP;
+
+        // 巡逻
+        if ((visionCounter >= maxVisionTimeout) && (hurtCounter >= maxHurtTimeout)) {
+            motionType = 1;
+        }
+        if (visionCounter == INT_MAX) {
+            visionCounter = maxVisionTimeout;
+        }
+        if (hurtCounter == INT_MAX) {
+            hurtCounter = maxHurtTimeout;
+        }
+
+        // 随机数生成
         srand(Motor_Chassis_Left.position);
         random = rand();
 
-        if ((timer <= 0.0) || (!lastAutoMode)) {
-            // 设置随机量
-            lastAutoMode            = remoteData.switchLeft;
-            direction               = -direction;
-            timer                   = ((float) (random % (int) ((maxTime - minTime) * 10 + 1))) / 10.0 + minTime;
-            leftTarget              = direction * (random % (maxSpeed - minSpeed + 1) + minSpeed);
-            rightTarget             = direction * (random % (maxSpeed - minSpeed + 1) + minSpeed);
-            optoelectronicDirection = 0;
+        // 设置随机量
+        if ((timer <= 0.0) || (!lastAutoMode) || (lastMotionType != motionType)) {
+            switch (motionType) {
+            case 0: {
+                // 全随机模式
+                maxTime   = 6.0;
+                minTime   = 1.0;
+                maxSpeed  = 600;
+                minSpeed  = 300;
+                direction = (random % 2) * 2 - 1;
+            } break;
+
+            case 1: {
+                // 巡逻模式
+                maxTime   = 0.0;
+                minTime   = 0.0;
+                maxSpeed  = 600;
+                minSpeed  = 600;
+                direction = direction;
+            } break;
+
+            case 2: {
+                // 左右横跳
+                maxTime   = 2.0;
+                minTime   = 1.0;
+                maxSpeed  = 600;
+                minSpeed  = 600;
+                direction = -direction;
+            } break;
+
+            default:
+                break;
+            }
+
+            timer       = ((float) (random % (int) ((maxTime - minTime) * 10 + 1))) / 10.0 + minTime;
+            leftTarget  = direction * (random % (maxSpeed - minSpeed + 1) + minSpeed);
+            rightTarget = direction * (random % (maxSpeed - minSpeed + 1) + minSpeed);
         }
-        if (!AutoMode) {
-            // 关闭自动模式, 清空随机量
-            lastAutoMode = AutoMode;
-            leftTarget   = 0;
-            rightTarget  = 0;
-        }
+
         timer -= interval;
+        lastAutoMode   = AutoMode;
+        lastMotionType = motionType;
+
+        // 关闭自动运动
+        if (!AutoMode) {
+            leftTarget  = 0;
+            rightTarget = 0;
+        }
 
         // 遥控器
-        if ((ABS(remoteData.lx) > 30) && (ABS(remoteData.ly) < 30)) {
+        if (ABS(remoteData.lx) > 30) {
             leftTarget  = -1 * remoteData.lx / 660.0f * 600;
             rightTarget = -1 * remoteData.lx / 660.0f * 600;
         }
@@ -117,8 +197,10 @@ void Task_Chassis(void *Parameters) {
             optoelectronicDirection = 1;
         }
         if (optoelectronicDirection != 0) {
-            leftTarget  = optoelectronicDirection * ABS(leftTarget);
-            rightTarget = optoelectronicDirection * ABS(rightTarget);
+            direction               = optoelectronicDirection;
+            leftTarget              = optoelectronicDirection * ABS(leftTarget);
+            rightTarget             = optoelectronicDirection * ABS(rightTarget);
+            optoelectronicDirection = 0;
         }
 
         // 功率限制
@@ -152,7 +234,6 @@ void Task_Gimbal(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.005;               // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
-    int        maxTimeout   = 500 / intervalms;
 
     // 反馈值
     float yawAngle;
@@ -171,17 +252,20 @@ void Task_Gimbal(void *Parameters) {
     float yawAngleTargetPs        = 0;
     float pitchAngleTargetPs      = 0;
 
+    // 限位值
+    int pitchAngleLimitMax     = INT_MAX;
+    int pitchAngleLimitMin     = INT_MIN;
+    int autoPitchAngleLimitMax = INT_MAX;
+    int autoPitchAngleLimitMin = INT_MIN;
+
     // 视觉系统
-    int lastSeq = 0;
+    int lastSeq    = 0;
+    int counter    = 0;
+    int maxTimeout = 500 / intervalms;
 
     // 自动转头
-    int counter    = 0;
     int directionX = 1;
     int directionY = 1;
-
-    // 限位
-    int pitchAngleLimitMax = INT_MAX;
-    int pitchAngleLimitMin = INT_MIN;
 
     // 初始化云台PID
     PID_Init(&PID_Stabilizer_Yaw_Angle, 10, 0, 0, 5000, 0);
@@ -199,11 +283,18 @@ void Task_Gimbal(void *Parameters) {
         yawAngleTarget   = 0;
         pitchAngleTarget = 0;
 
-        // 限位
+        // 设置限位
         if (pitchAngleLimit >= PITCH_ANGLE_MAX && pitchAngleLimitMax == INT_MAX) {
             pitchAngleLimitMax = pitchAngle;
-        } else if (pitchAngleLimit <= PITCH_ANGLE_MIN && pitchAngleLimitMin == INT_MIN) {
+        }
+        if (pitchAngleLimit <= PITCH_ANGLE_MIN && pitchAngleLimitMin == INT_MIN) {
             pitchAngleLimitMin = pitchAngle;
+        }
+        if (pitchAngleLimit >= AUTO_PITCH_ANGLE_MAX && autoPitchAngleLimitMax == INT_MAX) {
+            autoPitchAngleLimitMax = pitchAngle;
+        }
+        if (pitchAngleLimit <= AUTO_PITCH_ANGLE_MIN && autoPitchAngleLimitMin == INT_MIN) {
+            autoPitchAngleLimitMin = pitchAngle;
         }
 
         // 视觉系统
@@ -240,24 +331,27 @@ void Task_Gimbal(void *Parameters) {
         if (counter == INT_MAX) {
             counter = maxTimeout;
         }
+
         MIAO(yawAngleTargetRotate, YAW_ANGLE_MIN - yawAngleTarget, YAW_ANGLE_MAX - yawAngleTarget);
         MIAO(pitchAngleTargetRotate, pitchAngleLimitMin - pitchAngleTarget, pitchAngleLimitMax - pitchAngleTarget);
         yawAngleTarget += yawAngleTargetRotate;
         pitchAngleTarget += pitchAngleTargetRotate;
-        if (yawAngleTarget >= YAW_ANGLE_MAX) {
+
+        if (yawAngleTarget >= AUTO_YAW_ANGLE_MAX) {
             directionX = -1;
-        } else if (yawAngleTarget <= YAW_ANGLE_MIN) {
+        } else if (yawAngleTarget <= AUTO_YAW_ANGLE_MIN) {
             directionX = 1;
         }
-        if (pitchAngleTarget >= pitchAngleLimitMax) {
+        if (pitchAngleTarget >= autoPitchAngleLimitMax) {
             directionY = -1;
-        } else if (pitchAngleTarget <= pitchAngleLimitMin) {
+        } else if (pitchAngleTarget <= autoPitchAngleLimitMin) {
             directionY = 1;
         }
 
         // 设置角度目标
         if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 90 * interval;
         if (ABS(remoteData.ry) > 30) pitchAngleTargetControl += remoteData.ry / 660.0f * 90 * interval;
+
         MIAO(yawAngleTargetControl, YAW_ANGLE_MIN - yawAngleTarget, YAW_ANGLE_MAX - yawAngleTarget);
         MIAO(pitchAngleTargetControl, pitchAngleLimitMin - pitchAngleTarget, pitchAngleLimitMax - pitchAngleTarget);
         yawAngleTarget += yawAngleTargetControl;
@@ -309,7 +403,6 @@ void Task_Stir(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.005;               // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
-    int        maxTimeout   = 500 / intervalms;
 
     //堵转检测
     int stop     = 0;
@@ -330,8 +423,9 @@ void Task_Stir(void *Parameters) {
     int shootMode = 0; // 0:停止 1:发射S
 
     // 视觉系统
-    int lastSeq = 0;
-    int counter = 0;
+    int lastSeq    = 0;
+    int counter    = 0;
+    int maxTimeout = 500 / intervalms;
 
     while (1) {
 
@@ -344,8 +438,8 @@ void Task_Stir(void *Parameters) {
             counter++;
         } else if (lastSeq != Ps.autoaimData.seq) {
             lastSeq = Ps.autoaimData.seq;
-            // if (Ps.autoaimData.biu_biu_state == 0) {
-            if (Ps.autoaimData.yaw_angle_diff == 0 && Ps.autoaimData.pitch_angle_diff == 0 && Ps.autoaimData.biu_biu_state == 0) {
+            if (Ps.autoaimData.biu_biu_state == 0) {
+                // if (Ps.autoaimData.yaw_angle_diff == 0 && Ps.autoaimData.pitch_angle_diff == 0 && Ps.autoaimData.biu_biu_state == 0) {
                 counter++;
             } else {
                 counter   = 0;
