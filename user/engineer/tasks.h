@@ -26,7 +26,7 @@ void Task_Visual(void *Parameters);
 void Task_Optoelectronic_Input_Take(void *Parameters);
 void Task_Upthrow_Horizontial(void *Parameters);
 void Task_Take_Rotate(void *Parameters);
-void Task_Take_Vertical(void *Parameters);
+void Task_Take_Vertical_GuideWheel(void *Parameters);
 void Task_Landing(void *Parameters);
 void Task_Upthrow(void *Parameter);
 void Task_Limit_Switch(void *Parameters);

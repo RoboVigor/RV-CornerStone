@@ -106,7 +106,7 @@ __HANDLE_EXT PWM_Type PWM_Supply1, PWM_Supply2, PWM_Visual_Rescue, PWM_Image_Yaw
 
 // Fsm需求
 __HANDLE_EXT int Chassis_State, TH_Move, TU_Up, TV_Out, TR_Get, Detected_State, TH_Reset, Chassis_Detect, Chassis_Detect_Parallel, Detected_Direction, TV_Ready,
-    Fsm_TIM14_Cnt, Fsm_TIM14_State, TR_Ready, Fsm_Reset, Fsm_Ready, Move_Mode, Guide_Wheel_State;
+    Fsm_TIM14_Cnt, Fsm_TIM14_State, TR_Ready, Fsm_Reset, Fsm_Ready, Move_Mode, Landing_State, TH_Angle_State, TH_Ready;
 __HANDLE_EXT Fsm_t Take_Fsm;
 /**
  * @brief 初始化结构体
