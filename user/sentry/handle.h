@@ -29,8 +29,8 @@
 #define __HANDLE_EXT extern
 #endif
 
-// 摩擦轮
-__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, PsEnabled, AutoMode, SafetyMode;
+// 键鼠
+__HANDLE_EXT uint8_t FrictEnabled, LaserEnabled, StirEnabled, PsEnabled, AutoMode, SafetyMode;
 
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
@@ -65,7 +65,7 @@ __HANDLE_EXT PID_Type PID_Chassis_Left, PID_Chassis_Right;
 // 通讯协议
 __HANDLE_EXT Protocol_Type Judge, Ps;
 
-//发射机构
+// 发射机构
 __HANDLE_EXT Motor_Type Motor_Stir;                   // 左/右 摩擦轮 拨弹轮 电机
 __HANDLE_EXT PID_Type PID_Stir_Speed, PID_Stir_Angle; // 拨弹轮 速度/角度 PID
 
@@ -74,6 +74,9 @@ __HANDLE_EXT PWM_Type PWM_Snail1, PWM_Snail2;
 
 // 光电开关传感器数据
 __HANDLE_EXT int Left_State, Right_State;
+
+// 摩擦轮
+__HANDLE_EXT int Snail_State;
 
 /**
  * @brief 初始化结构体
