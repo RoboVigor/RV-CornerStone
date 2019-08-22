@@ -27,6 +27,10 @@
 #define __HANDLE_EXT extern
 #endif
 
+// 功能开关
+__HANDLE_EXT uint8_t ControlMode;
+__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, SwingEnabled, PsEnabled, LowEnabled;
+
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
