@@ -21,7 +21,7 @@ void Task_Snail(void *Parameters) {
 
     float dutyCycleStart  = 0.376; //起始占空比为37.6
     float dutyCycleMiddle = 0.446; //启动需要到44.6
-    float dutyCycleEnd    = 0.400; //加速到你想要的占空比
+    float dutyCycleEnd    = 0.500; //加速到你想要的占空比
 
     float dutyCycleRightSnailTarget = 0.376; //目标占空比
     float dutyCycleLeftSnailTarget  = 0.376;
@@ -38,20 +38,20 @@ void Task_Snail(void *Parameters) {
 
     while (1) {
 
-        GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
-        if (remoteData.switchLeft == 1) {
-            // 摩擦轮不转
-            // PWM_Set_Compare(&PWM_Snail1, dutyCycleStart * 1250);
-            // PWM_Set_Compare(&PWM_Snail2, dutyCycleStart * 1250);
-            dutyCycleRightSnailTarget    = 0.376;
-            dutyCycleLeftSnailTarget     = 0.376;
-            dutyCycleRightSnailProgress1 = 0;
-            dutyCycleRightSnailProgress2 = 0;
-            dutyCycleLeftSnailProgress1  = 0;
-            dutyCycleLeftSnailProgress2  = 0;
-        }
+        // GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
+        // if (remoteData.switchLeft == 1) {
+        //     // 摩擦轮不转
+        //     // PWM_Set_Compare(&PWM_Snail1, dutyCycleStart * 1250);
+        //     // PWM_Set_Compare(&PWM_Snail2, dutyCycleStart * 1250);
+        //     dutyCycleRightSnailTarget    = 0.376;
+        //     dutyCycleLeftSnailTarget     = 0.376;
+        //     dutyCycleRightSnailProgress1 = 0;
+        //     dutyCycleRightSnailProgress2 = 0;
+        //     dutyCycleLeftSnailProgress1  = 0;
+        //     dutyCycleLeftSnailProgress2  = 0;
+        // }
 
-        else if (remoteData.switchLeft != 1) {
+        // else if (remoteData.switchLeft != 1) {
 
             if (dutyCycleRightSnailProgress1 <= 1) { //初始状态
                 dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle,
@@ -86,7 +86,7 @@ void Task_Snail(void *Parameters) {
                     }
                 }
             }
-        }
+        // }
 
         PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
         PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
@@ -231,18 +231,18 @@ void Task_Sys_Init(void *Parameters) {
     // Gyroscope_Init(&Gyroscope_EulerData);
 
     TIM5CH1_CAPTURE_STA = 0;
-    while (!remoteData.state) {
-        // debug1=Motor_Pitch.position;
-        // debug2=Motor_Yaw.position;
-    }
+    // while (!remoteData.state) {
+    //     // debug1=Motor_Pitch.position;
+    //     // debug2=Motor_Yaw.position;
+    // }
 
     // 功能任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Gimbal, "Task_Gimbal", 800, NULL, 5, NULL);
+    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 800, NULL, 5, NULL);
     xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
-    xTaskCreate(Task_Fire, "Task_Fire", 500, NULL, 7, NULL);
+    // xTaskCreate(Task_Fire, "Task_Fire", 500, NULL, 7, NULL);
     // 完成使命
     vTaskDelete(NULL);
 }
