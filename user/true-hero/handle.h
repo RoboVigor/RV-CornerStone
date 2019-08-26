@@ -72,7 +72,7 @@ __HANDLE_EXT u32 TIM5CH1_CAPTURE_STA, TIM5CH1_CAPTURE_VAL;
 
 // 功能开关
 __HANDLE_EXT uint8_t ControlMode;
-__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, PsEnabled, UpEnabled;
+__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, PsEnabled, UpEnabled, ServoEnabled, StirStop;
 
 /**
  * @brief 初始化结构体
