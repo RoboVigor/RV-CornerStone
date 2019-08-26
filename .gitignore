@@ -1,6 +1,10 @@
-Objects/*
-Belief exp2.map
-Belief exp2.uvguix.*
 JLinkLog.txt
-DebugConfig/*
 .vscode/*
+mdk/DebugConfig/*
+mdk/Objects/
+mdk/*.uvguix.*
+mdk/*.map
+mdk/*.lst
+user/.DS_Store
+*.exe
+script/.vscode/*
