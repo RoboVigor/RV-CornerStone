@@ -17,107 +17,107 @@ void Task_Safe_Mode(void *Parameters) {
 }
 
 void Task_Snail(void *Parameters) {
-    // 任务
+    // snail摩擦轮任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.005;               // 任务运行间隔 s
-    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    // 占空比
-    float dutyCycleStart  = 0.376; // 起始
-    float dutyCycleMiddle = 0.446; // 启动
-    float dutyCycleEnd    = 0.540; // 加速到你想要的
+    float dutyCycleStart  = 0.376; //起始占空比为37.6
+    float dutyCycleMiddle = 0.446; //启动需要到44.6
+    float dutyCycleEnd    = 0.550; //加速到你想要的占空比
 
-    // 目标占空比
-    float dutyCycleRightSnailTarget = 0.376;
+    float dutyCycleRightSnailTarget = 0.376; //目标占空比
     float dutyCycleLeftSnailTarget  = 0.376;
 
-    // 存储需要的两个过程（初始到启动，启动到你想要的速度）
-    float dutyCycleRightSnailProgress1 = 0;
+    float dutyCycleRightSnailProgress1 = 0; //存储需要的两个过程（初始到启动，启动到你想要的速度）
     float dutyCycleLeftSnailProgress1  = 0;
     float dutyCycleRightSnailProgress2 = 0;
     float dutyCycleLeftSnailProgress2  = 0;
 
-    // snail电机状态
-    int snailState = 0;
-    int lastSnailState;
+    int snailRightState = 0; //标志启动完后需要的延时
+    int snailLeftState  = 0;
 
-    enum {
-        STEP_SNAIL_IDLE,
-        STEP_RIGHT_START_TO_MIDDLE,
-        STEP_LEFT_START_TO_MIDDLE,
-        STEP_RIGHT_MIDDLE_TO_END,
-        STEP_LEFT_MIDDLE_TO_END,
-    } Step = STEP_SNAIL_IDLE;
+    int snailState = 0; //标志启动完后需要的延时
+    
+    
+    int lastMouseDataRight=0;
+
+    snailStart = 0; 
 
     /*来自dji开源，两个snail不能同时启动*/
 
     while (1) {
 
-        // GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
+        GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
 
-        lastSnailState = snailState;
-        snailState     = (remoteData.switchLeft != 1) ? 1 : 0;
-
-        switch (Step) {
-        case STEP_SNAIL_IDLE:
-            if (snailState == 0) {
-
-                dutyCycleRightSnailTarget    = 0.376;
-                dutyCycleLeftSnailTarget     = 0.376;
-                dutyCycleRightSnailProgress1 = 0;
-                dutyCycleRightSnailProgress2 = 0;
-                dutyCycleLeftSnailProgress1  = 0;
-                dutyCycleLeftSnailProgress2  = 0;
-            } else if (lastSnailState == 0) {
-                Step = STEP_RIGHT_START_TO_MIDDLE;
+        if (controlMode == 1) {
+            if (remoteData.switchLeft == 1) {
+                snailStart=0;
+            }else{
+                snailStart=1;
             }
-            break;
+        }else{
+        
+            if (mouseData.pressRight == 1) {
+                snailStart=1;
+                lastMouseDataRight = mouseData.pressRight;
+            }else if(mouseData.pressRight == 0){
+                snailStart=0;
+                lastMouseDataRight = mouseData.pressRight;
+            }else{
+					lastMouseDataRight = mouseData.pressRight;
+				}
+        }
 
-        case STEP_RIGHT_START_TO_MIDDLE:
-            dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle, dutyCycleRightSnailProgress1);
-            dutyCycleRightSnailProgress1 += 0.1f;
-            if (dutyCycleRightSnailProgress1 > 1) {
-                Step = STEP_LEFT_START_TO_MIDDLE;
-                vTaskDelay(100);
+        
+        if (snailStart == 0) {
+            
+            dutyCycleRightSnailTarget    = 0.376;
+            dutyCycleLeftSnailTarget     = 0.376;
+            dutyCycleRightSnailProgress1 = 0;
+            dutyCycleRightSnailProgress2 = 0;
+            dutyCycleLeftSnailProgress1  = 0;
+            dutyCycleLeftSnailProgress2  = 0;
+        }
+
+        else if (snailStart == 1) {
+
+            if (dutyCycleRightSnailProgress1 <= 1) { //初始状态
+                dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle,
+                                                 dutyCycleRightSnailProgress1); //斜坡上升
+                dutyCycleRightSnailProgress1 += 0.05f;
+            } else {
+                if (dutyCycleLeftSnailProgress1 <= 1) {
+                            dutyCycleLeftSnailTarget = RAMP(dutyCycleStart,
+                                                            dutyCycleMiddle, //右摩擦轮启动完毕，左摩擦轮进入初始状态
+                                                            dutyCycleLeftSnailProgress1);
+                            dutyCycleLeftSnailProgress1 += 0.05f;
+                        } else {
+                            if (snailLeftState == 0) {
+                                vTaskDelay(100);
+                                snailLeftState = 1;
+                            } else {
+                                if (dutyCycleLeftSnailProgress2 <= 1) {
+                                    dutyCycleLeftSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleLeftSnailProgress2);
+                                    dutyCycleLeftSnailProgress2 += 0.005f;
+                                }
+                            }
+                        }
+                if (snailRightState == 0) { //初始状态停留100ms
+                    vTaskDelay(100);
+                    snailRightState = 1;
+                } else {
+                    if (dutyCycleRightSnailProgress2 <= 1) { //启动状态
+                        dutyCycleRightSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd,
+                                                         dutyCycleRightSnailProgress2); //斜坡上升
+                        dutyCycleRightSnailProgress2 += 0.005f;
+                    } 
+                }
             }
-            break;
-
-        case STEP_LEFT_START_TO_MIDDLE:
-            dutyCycleLeftSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle, dutyCycleLeftSnailProgress1);
-            dutyCycleLeftSnailProgress1 += 0.1f;
-            if (dutyCycleLeftSnailProgress1 > 1) {
-                Step = STEP_RIGHT_MIDDLE_TO_END;
-                vTaskDelay(100);
-            }
-
-        case STEP_RIGHT_MIDDLE_TO_END:
-            dutyCycleRightSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleRightSnailProgress2);
-            dutyCycleRightSnailProgress2 += 0.01f;
-            if (dutyCycleRightSnailProgress2 > 1) {
-                Step = STEP_LEFT_MIDDLE_TO_END;
-            }
-            if (Step != STEP_RIGHT_MIDDLE_TO_END) break;
-
-        case STEP_LEFT_MIDDLE_TO_END:
-            dutyCycleLeftSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleLeftSnailProgress2);
-            dutyCycleLeftSnailProgress2 += 0.01f;
-            if (dutyCycleLeftSnailProgress2 > 1) {
-                Step = STEP_SNAIL_IDLE;
-            }
-            break;
-
-        default:
-            break;
         }
 
         PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
         PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
 
-        vTaskDelayUntil(&LastWakeTime, intervalms);
-
-        // DebugData.debug1 = dutyCycleRightSnailTarget * 1000;
-        // DebugData.debug2 = dutyCycleLeftSnailTarget * 1000;
-        // DebugData.debug3 = Step;
+        vTaskDelayUntil(&LastWakeTime, 5);
     }
     vTaskDelete(NULL);
 }
@@ -133,59 +133,79 @@ void Task_Gimbal(void *Parameters) {
     float yawSpeed   = 0;
     float pitchAngle = 0;
     float pitchSpeed = 0;
+    float rollAngle  = 0;
+    float rollSpeed  = 0;
 
     // 目标值
-    float yawAngleTarget       = 0;
-    float pitchAngleTarget     = -30;
+    float yawAngleTarget       = Gyroscope_EulerData.yaw;
+    float pitchAngleTarget     = -10;
     float pitchRampStart       = -1 * Gyroscope_EulerData.pitch;
     float pitchRampProgress    = 0;
     float pitchAngleTargetRamp = 0;
+    float startpitchAngle =Motor_Pitch.angle;
     //初始化云台PID
-    PID_Init(&PID_Cloud_YawAngle, 15, 0, 0, 6000, 0);
-    PID_Init(&PID_Cloud_YawSpeed, 20, 0, 0, 8000, 0);
-    PID_Init(&PID_Cloud_PitchAngle, 40, 0, 0, 6000, 0);
-    PID_Init(&PID_Cloud_PitchSpeed, 7, 0, 0, 8000, 0);
+    PID_Init(&PID_Cloud_YawAngle, 35, 0, 0, 4000, 0);
+    PID_Init(&PID_Cloud_YawSpeed, 45, 0, 0, 5000, 0);
+    PID_Init(&PID_Cloud_PitchAngle, 15, 0, 0, 5000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 18, 0, 0, 6000, 1000);
+    PID_Init(&PID_Cloud_RollAngle, 40, 3, 0, 4000, 1000);
+    PID_Init(&PID_Cloud_RollSpeed, 45, 0, 0, 8000, 0);
 
     while (1) {
         // 设置反馈
-        yawAngle   = Motor_Yaw.angle;
-        yawSpeed   = Motor_Yaw.speed * RPM2RPS;
+        yawAngle   = Gyroscope_EulerData.yaw;
+        yawSpeed   = ImuData.gz / GYROSCOPE_LSB;
         pitchAngle = -1 * Gyroscope_EulerData.pitch; // 逆时针为正
         pitchSpeed = ImuData.gx / GYROSCOPE_LSB;     // 逆时针为正
+	    //pitchAngle =Motor_Pitch.angle;
+		//pitchSpeed=Motor_Pitch.speed* RPM2RPS;
 
-        if (controlMode == 1) {
-            if (ABS(remoteData.rx) > 30) yawAngleTarget += remoteData.rx / 660.0f * 180 * 0.005;
-            if (ABS(remoteData.ry) > 30) pitchAngleTarget += remoteData.ry / 660.0f * 100 * 0.005;
-        } else if (controlMode == 2) {
-            yawAngleTarget += mouseData.x * 0.02;
-            pitchAngleTarget += (-mouseData.y) * 0.01;
-        }
+        rollAngle=Gyroscope_EulerData.roll;
+        rollSpeed=ImuData.gy / GYROSCOPE_LSB;
 
-        // 开机时pitch轴匀速抬起
-        pitchAngleTargetRamp = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
-        if (pitchRampProgress < 1) {
-            pitchRampProgress += 0.002f;
-        }
 
-        MIAO(yawAngleTarget, -130, 130);
-        MIAO(pitchAngleTarget, -30, 20);
+        // if (controlMode == 1) {
+        //     if (ABS(remoteData.rx) > 30) yawAngleTarget += remoteData.rx / 660.0f * 90 * 0.01;
+        //     if (ABS(remoteData.ry) > 30) pitchAngleTarget += remoteData.ry / 660.0f * 40 * 0.01;
+        // } else if (controlMode == 2) {
+        //     yawAngleTarget += mouseData.x * 0.01;
+        //     pitchAngleTarget += (-mouseData.y) * 0.005;
+        // }
+        if (ABS(remoteData.rx) > 30) yawAngleTarget += -remoteData.rx / 660.0f * 90 * 0.01;
+        if (ABS(remoteData.ry) > 30) pitchAngleTarget += remoteData.ry / 660.0f * 70 * 0.01;
+
+        // 开机时pitch轴匀速抬�qq�
+        // pitchAngleTargetRamp = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
+        // if (pitchRampProgress < 1) {
+        //     pitchRampProgress += 0.002f;
+        // }
+        MIAO(pitchAngleTarget,startpitchAngle-50,startpitchAngle+75);
+        //MIAO(yawAngleTarget, -130, 130);
+       // MIAO(pitchAngleTarget, -30, 40);
 
         PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget, yawAngle);
         PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawSpeed);
 
-        PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTargetRamp, pitchAngle);
+        PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTarget, pitchAngle);
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
 
-        // 输出电流
-        Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
+        PID_Calculate(&PID_Cloud_RollAngle, 0, rollAngle);
+        PID_Calculate(&PID_Cloud_RollSpeed, PID_Cloud_RollAngle.output, rollSpeed);
 
-        DebugData.debug1 = yawAngleTarget;
-        DebugData.debug2 = yawAngle;
-        DebugData.debug3 = pitchAngleTarget;
-        DebugData.debug4 = pitchAngle;
-        DebugData.debug5 = ImuData.gx;
-        DebugData.debug6 = ImuData.gy;
-        DebugData.debug7 = ImuData.gz;
+
+        // 输出电流
+        Can_Send(CAN1, 0x1FF,  -PID_Cloud_YawSpeed.output, PID_Cloud_RollSpeed.output+700, PID_Cloud_PitchSpeed.output, 0);
+
+        
+        DebugData.debug2 = -1 * Gyroscope_EulerData.pitch;;
+        DebugData.debug3 = PID_Cloud_RollSpeed.output;
+        DebugData.debug4 = PID_Cloud_RollAngle.output;
+        DebugData.debug5 = ImuData.gy / GYROSCOPE_LSB;
+        DebugData.debug6 = ImuData.gz / GYROSCOPE_LSB;
+				DebugData.debug7 = ImuData.gx / GYROSCOPE_LSB;
+
+        
+        
 
         vTaskDelayUntil(&LastWakeTime, 5);
     }
@@ -225,13 +245,13 @@ void Task_Fire(void *Parameters) {
 
     while (1) {
         if (controlMode == 1) {
-            if (remoteData.lx < -60) {
+            if (remoteData.lx < -60 && snailStart==1) {
                 stirstate = 1; //正转
             }
             //  else if (remoteData.lx > 60) {
             //     stirstate = -1;
             // }
-            else if (remoteData.lx < 60 && remoteData.lx > -60) {
+            else {
                 stirstate = 0;
             }
         } else {
@@ -239,7 +259,9 @@ void Task_Fire(void *Parameters) {
                 stirstate = 1;
             } else if (mouseData.pressLeft == 0) {
                 stirstate = 0;
-            }
+            }else if (mouseData.pressLeft == 1&&snailStart == 0) {
+                stirstate = 0;
+                }
         }
 
         //拨弹轮 PID 控制
@@ -315,17 +337,18 @@ void Task_Sys_Init(void *Parameters) {
     Gyroscope_Init(&Gyroscope_EulerData);
 
     TIM5CH1_CAPTURE_STA = 0;
-    while (!remoteData.state) {
-    }
+    //while (!remoteData.state) {
+    //    DebugData.debug1 = -1 * Gyroscope_EulerData.pitch;
+    //}
 
     // 功能任务
-    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    //xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
+    //xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
+    //xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 800, NULL, 5, NULL);
-    xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
-    xTaskCreate(Task_Fire, "Task_Fire", 500, NULL, 7, NULL);
-    xTaskCreate(Task_Control, "Task_Control", 500, NULL, 4, NULL);
+    //xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
+    //xTaskCreate(Task_Fire, "Task_Fire", 500, NULL, 7, NULL);
+    //xTaskCreate(Task_Control, "Task_Control", 500, NULL, 4, NULL);
     // 完成使命
     vTaskDelete(NULL);
 }
