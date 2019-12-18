@@ -76,16 +76,6 @@ void Task_Control(void *Parameters) {
         //         LowSpeedMode = keyboardData.Shift;
         //         // 高射速模式
         //         FastShootMode = keyboardData.E;
-        //         //单发射击切换
-        //         if (SlowShootMode == 1){
-        //          if(keyboardData.R){
-        //           SlowShootMode = 0;
-        //          }
-        //         }else{
-        //           if(keyboardData.R){
-        //           SlowShootMode = 1;
-        //            }
-        //         }
         //     }
         vTaskDelayUntil(&LastWakeTime, 5);
     }
@@ -432,11 +422,11 @@ void Task_Chassis(void *Parameters) {
         // targetPower = 70.0 - WANG(30 - ChassisData.powerBuffer, 0.0, 10.0) / 10.0 * 70.0; // 设置目标功率
         targetPower = 80.0 * (1 - WANG(60.0 - ChassisData.powerBuffer, 0.0, 40.0) / 40.0); // 设置目标功率
 
-        Chassis_Update(&ChassisData, vx, vy, vwRamp);                                 // 更新麦轮转速
-        Chassis_Fix(&ChassisData, motorAngle);                                        // 修正旋转后底盘的前进方向
-        Chassis_Calculate_Rotor_Speed(&ChassisData);                                  // 麦轮解算
-        Chassis_Limit_Rotor_Speed(&ChassisData, 600);                                 // 设置转子速度上限 (rad/s)
-        Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
+        Chassis_Update(&ChassisData, vx, vy, vwRamp);                             // 更新麦轮转速
+        Chassis_Fix(&ChassisData, motorAngle);                                    // 修正旋转后底盘的前进方向
+        Chassis_Calculate_Rotor_Speed(&ChassisData);                              // 麦轮解算
+        Chassis_Limit_Rotor_Speed(&ChassisData, 1200);                            // 设置转子速度上限 (rad/s)
+        Chassis_Limit_Power(&ChassisData, 3000000, power, powerBuffer, interval); // 根据功率限幅
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
@@ -453,13 +443,15 @@ void Task_Chassis(void *Parameters) {
                  PID_RFCM.output * ChassisData.powerScale);
 
         // 调试信息
-        // DebugData.debug1 = PID_LFCM.output * ChassisData.powerScale;
-        // DebugData.debug2 = power;
-        // DebugData.debug3 = PID_LFCM.output * ChassisData.powerScale;
+        // DebugData.debug1 = Motor_Stir.angle;
+        // DebugData.debug2 = PID_StirSpeed.output;
+        // DebugData.debug3 = PID_StirAngle.output;
+        // DebugData.debug4 = Motor_RF.position;
+        // DebugData.debug5 = Motor_RB.position;
         // DebugData.debug4 = vx * 1000;
         // DebugData.debug4 = Judge.powerHeatData.chassis_power_buffer;
         // DebugData.debug5 = ChassisData.powerBuffer;
-        // DebugData.debug6 = targetPower;
+        // DebugData.debug6 = PID_LFCM.output;
         // DebugData.debug7 = WANG(60.0 - ChassisData.powerBuffer, 0.0, 30.0) / 30.0 * 1000;
         // DebugData.debug7 = (1.0 - WANG(ChassisData.powerBuffer, 0.0, 30.0) / 30.0) * 70;
         // DebugData.debug8 = 80;
@@ -502,13 +494,15 @@ void Task_Fire_Stir(void *Parameters) {
     float lastBulletSpeed = 0;
     float maxShootHeat    = 0;
     int   stirSpeed       = 0;
+    int   stirAngle       = 0;
+    int   seconds         = 0;
 
     // 视觉系统
     int16_t lastSeq = 0;
 
     // PID 初始化
-    PID_Init(&PID_StirAngle, 4, 0, 0, 4000, 500);   // 拨弹轮角度环
-    PID_Init(&PID_StirSpeed, 18, 0, 0, 4000, 1000); // 拨弹轮速度环
+    PID_Init(&PID_StirAngle, 1, 0, 0, 9000, 6000);  // 拨弹轮角度环
+    PID_Init(&PID_StirSpeed, 18, 0, 0, 6000, 1000); // 拨弹轮速度环
 
     // 开启激光
     LASER_ON;
@@ -545,20 +539,7 @@ void Task_Fire_Stir(void *Parameters) {
         maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit - 60;
 
         // 输入射击模式
-        // if (StirEnabled && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
-        //     if (SlowShootMode) {
-        //         if (Judge.powerHeatData.shooter_heat0 < 380) {
-        //             stirSpeed = 70;
-        //         } else {
-        //             stirSpeed = 50;
-        //         }
-        //     }
-        //     shootMode = shootToDeath;
-        // } else {
-        //     shootMode = shootIdle;
-        // }
-
-        if (StirEnabled) {
+        if (StirEnabled && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
             shootMode = shootToDeath;
         } else {
             shootMode = shootIdle;
