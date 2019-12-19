@@ -1,0 +1,5 @@
+## 滑环步兵
+
+全局宏定义`ROBOT_LOOP_ONE`,`ROBOT_LOOP_TWO`,`ROBOT_LOOP_THREE`用于在MDK中编译时区分三辆车。
+
+目前`ROBOT_LOOP_ONE`因为USART3损坏暂时换成UART8读取。

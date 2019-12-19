@@ -35,7 +35,8 @@ void Task_Control(void *Parameters) {
             // }
 
             // 视觉测试
-            PsEnabled = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
+            PsAimEnabled   = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
+            PsShootEnabled = 0;
 
             // 检录用
             MagzineOpened = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
@@ -48,9 +49,10 @@ void Task_Control(void *Parameters) {
             // SafetyMode   = remoteData.switchRight == 2;
             FastShootMode = 0;
         } else {
-            ControlMode = 2; //键鼠模式
-            StirEnabled = mouseData.pressLeft;
-            PsEnabled   = mouseData.pressRight;
+            ControlMode    = 2; //键鼠模式
+            StirEnabled    = mouseData.pressLeft;
+            PsAimEnabled   = mouseData.pressRight;
+            PsShootEnabled = 0;
             // 摩擦轮
             if (keyboardData.G && !keyboardData.Ctrl) {
                 FrictEnabled = 1;
@@ -76,6 +78,10 @@ void Task_Control(void *Parameters) {
             // 高射速模式
             FastShootMode = keyboardData.E;
         }
+        // 调试视觉用
+        // FrictEnabled   = (remoteData.switchLeft == 2) || (remoteData.switchLeft == 1) && (remoteData.switchRight != 2);
+        // PsAimEnabled   = (remoteData.switchLeft == 1) && (remoteData.switchRight != 3);
+        // PsShootEnabled = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
         vTaskDelayUntil(&LastWakeTime, 5);
     }
     vTaskDelete(NULL);
@@ -102,7 +108,7 @@ void Task_Client_Communication(void *Parameters) {
         Judge.clientCustomData.data3       = Judge.seq;
         Judge.clientCustomData.masks       = 0;
         Judge.clientCustomData.bit1        = SwingMode;
-        Judge.clientCustomData.bit2        = PsEnabled;
+        Judge.clientCustomData.bit2        = PsAimEnabled;
         Judge.clientCustomData.bit3        = FrictEnabled;
         Judge.clientCustomData.bit4        = StirEnabled;
         Judge.clientCustomData.bit5        = MagzineOpened;
@@ -153,7 +159,7 @@ void Task_Gimbal(void *Parameters) {
     PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 1000, 10);
     PID_Init(&PID_Cloud_YawSpeed, 10, 0, 0, 4000, 0);
     PID_Init(&PID_Cloud_PitchAngle, 30, 0, 0, 16000, 0);
-    PID_Init(&PID_Cloud_PitchSpeed, 2, 0, 0, 2000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 1, 0, 0, 2000, 0);
 
     while (1) {
         // 重置目标
@@ -177,7 +183,7 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget += pitchAngleTargetControl;
 
         // 视觉辅助
-        if (!PsEnabled) {
+        if (!PsAimEnabled) {
             lastSeq = Ps.autoaimData.seq;
             yawAngleTargetControl += yawAngleTargetPs;
             pitchAngleTargetControl += pitchAngleTargetPs;
@@ -216,7 +222,7 @@ void Task_Gimbal(void *Parameters) {
 
         // 输出电流
         yawCurrent   = -20 * PID_Cloud_YawSpeed.output;
-        pitchCurrent = 40 * PID_Cloud_PitchSpeed.output;
+        pitchCurrent = 35 * PID_Cloud_PitchSpeed.output;
         MIAO(yawCurrent, -12000, 12000);
         MIAO(pitchCurrent, -5000, 5000);
 #ifdef ROBOT_LOOP_ONE
@@ -306,7 +312,7 @@ void Task_Chassis(void *Parameters) {
         powerBuffer = Judge.powerHeatData.chassis_power_buffer; // 裁判系统功率缓冲
 
         // 视觉专属follow PID
-        if (PsEnabled) {
+        if (PsAimEnabled) {
             PID_Follow_Angle.p = 1;
         } else {
             PID_Follow_Angle.p = 1.3;
@@ -420,11 +426,11 @@ void Task_Chassis(void *Parameters) {
         // targetPower = 70.0 - WANG(30 - ChassisData.powerBuffer, 0.0, 10.0) / 10.0 * 70.0; // 设置目标功率
         targetPower = 80.0 * (1 - WANG(60.0 - ChassisData.powerBuffer, 0.0, 40.0) / 40.0); // 设置目标功率
 
-        Chassis_Update(&ChassisData, vx, vy, vwRamp);                                 // 更新麦轮转速
-        Chassis_Fix(&ChassisData, motorAngle);                                        // 修正旋转后底盘的前进方向
-        Chassis_Calculate_Rotor_Speed(&ChassisData);                                  // 麦轮解算
-        Chassis_Limit_Rotor_Speed(&ChassisData, 600);                                 // 设置转子速度上限 (rad/s)
-        Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
+        Chassis_Update(&ChassisData, vx, vy, vwRamp);  // 更新麦轮转速
+        Chassis_Fix(&ChassisData, motorAngle);         // 修正旋转后底盘的前进方向
+        Chassis_Calculate_Rotor_Speed(&ChassisData);   // 麦轮解算
+        Chassis_Limit_Rotor_Speed(&ChassisData, 1000); // 设置转子速度上限 (rad/s)
+        // Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
@@ -504,7 +510,7 @@ void Task_Fire_Stir(void *Parameters) {
     while (1) {
 // 弹舱盖开关
 #ifdef ROBOT_LOOP_ONE
-        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 11 : 5);
+        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 19 : 9);
 #endif
 #ifdef ROBOT_LOOP_TWO
         PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 14 : 6);
@@ -531,21 +537,21 @@ void Task_Fire_Stir(void *Parameters) {
         maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit - 60;
 
         // 输入射击模式
-        if (StirEnabled && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
+        shootMode = shootIdle;
+
+        if (StirEnabled) {
             shootMode = shootToDeath;
-        } else {
-            shootMode = shootIdle;
         }
 
         // 视觉辅助
-        // if (!PsEnabled) {
-        //     lastSeq = Ps.autoaimData.seq;
-        // } else if (lastSeq != Ps.autoaimData.seq && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
-        //     lastSeq   = Ps.autoaimData.seq;
-        //     shootMode = Ps.autoaimData.biu_biu_state ? shootToDeath : shootIdle;
-        // } else {
-        //     shootMode = shootIdle;
-        // }
+        if (PsShootEnabled && lastSeq != Ps.autoaimData.seq && Ps.autoaimData.biu_biu_state) {
+            shootMode = shootToDeath;
+        }
+        lastSeq = Ps.autoaimData.seq;
+
+        if (Judge.powerHeatData.shooter_heat0 > maxShootHeat) {
+            shootMode = shootIdle;
+        }
 
         // 控制拨弹轮
         if (shootMode == shootIdle) {

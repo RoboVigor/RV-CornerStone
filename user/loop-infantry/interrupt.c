@@ -109,26 +109,58 @@ void USART6_IRQHandler(void) {
  * @brief UART7 串口中断
  */
 void UART7_IRQHandler(void) {
-    u8 res;
+    uint8_t  tmp;
+    uint16_t len;
+    int      i;
 
-    if (USART_GetITStatus(UART7, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
-        res       = USART_ReceiveData(UART7);               // 读取数据
-        UART7->DR = res;                                    // 输出数据
-        RED_LIGHT_TOGGLE;
+    // clear IDLE flag
+    tmp = UART7->DR;
+    tmp = UART7->SR;
+
+    // disable DMA and Unpack
+    DMA_Cmd(DMA1_Stream3, DISABLE);
+    while (DMA_GetFlagStatus(DMA1_Stream3, DMA_IT_TCIF3) != SET) {
     }
+    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Stream3);
+    for (i = 0; i < len; i++) {
+        // Protocol_Unpack(&Board, Board.receiveBuf[i]);
+    }
+
+    // enable DMA
+    DMA_ClearFlag(DMA1_Stream3, DMA_FLAG_TCIF3 | DMA_FLAG_HTIF3);
+    while (DMA_GetCmdStatus(DMA1_Stream3) != DISABLE) {
+    }
+    DMA_SetCurrDataCounter(DMA1_Stream3, Protocol_Buffer_Length);
+    DMA_Cmd(DMA1_Stream3, ENABLE);
 }
 
 /**
  * @brief UART8 串口中断
  */
 void UART8_IRQHandler(void) {
-    u8 res;
+    uint8_t  tmp;
+    uint16_t len;
+    int      i;
 
-    if (USART_GetITStatus(UART8, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
-        res       = USART_ReceiveData(UART8);               // 读取数据
-        UART8->DR = res;                                    // 输出数据
-        RED_LIGHT_TOGGLE;
+    // clear IDLE flag
+    tmp = UART8->DR;
+    tmp = UART8->SR;
+
+    // disable DMA and Unpack
+    DMA_Cmd(DMA1_Stream6, DISABLE);
+    while (DMA_GetFlagStatus(DMA1_Stream6, DMA_IT_TCIF6) != SET) {
     }
+    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Stream6);
+    for (i = 0; i < len; i++) {
+        Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
+    }
+
+    // enable DMA
+    DMA_ClearFlag(DMA1_Stream6, DMA_FLAG_TCIF6 | DMA_FLAG_HTIF6);
+    while (DMA_GetCmdStatus(DMA1_Stream6) != DISABLE) {
+    }
+    DMA_SetCurrDataCounter(DMA1_Stream6, Protocol_Buffer_Length);
+    DMA_Cmd(DMA1_Stream6, ENABLE);
 }
 
 // CAN1数据接收中断服务函数
