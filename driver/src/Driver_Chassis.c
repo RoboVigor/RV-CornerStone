@@ -15,6 +15,7 @@ void Chassis_Init(ChassisData_Type *cd) {
     cd->targetPower        = 80;
     cd->maxPower           = 80;
     cd->maxPowerBuffer     = 60;
+    cd->powerScale         = 1;
     PID_Init(&(cd->PID_Power), 1, 0, 0, 500, 10);
 }
 
