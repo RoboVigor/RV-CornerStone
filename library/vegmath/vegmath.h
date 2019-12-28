@@ -41,4 +41,7 @@ float FirstOrderLowPassFilter(float input, float *output, float sampleFrq, float
  */
 int FastLog2(int x);
 
+float EaseOut(float progress, float start, float stop);
+float sigmoid(float x);
+
 #endif
