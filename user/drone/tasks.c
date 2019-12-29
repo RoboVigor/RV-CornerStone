@@ -47,7 +47,7 @@ void Task_Snail(void *Parameters) {
     while (1) {
 
         GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
-
+        //遥控器模式 暂时注释
         // if (controlMode == 1) {
         //     if (remoteData.switchLeft == 1) {
         //         snailStart=0;
@@ -66,6 +66,7 @@ void Task_Snail(void *Parameters) {
 		// 			lastMouseDataRight = mouseData.pressRight;
 		// 		}
         // }
+        //启动摩擦轮
         if (remoteData.switchLeft == 1) {
                 snailStart=0;
             }else{
@@ -142,14 +143,14 @@ void Task_Gimbal(void *Parameters) {
     float rollSpeed  = 0;
 
     // 目标值
+    //（陀螺仪控制云台）初始目标角度初始化
     //float yawAngleTarget       = Gyroscope_EulerData.yaw;
+    //float pitchAngleTarget     = 0;
+
+    //（编码器控制云台）初始目标角度初始化
     float yawAngleTarget = -Motor_Yaw.angle;
-    //float pitchAngleTarget     = -10;
     float pitchAngleTarget     = -1 * Motor_Pitch.angle;
-    float pitchRampStart       = -1 * Gyroscope_EulerData.pitch;
-    float pitchRampProgress    = 0;
-    float pitchAngleTargetRamp = 0;
-    float startpitchAngle =Motor_Pitch.angle;
+
     //初始化云台PID
     PID_Init(&PID_Cloud_YawAngle, 50, 0, 0, 6000, 0);
     PID_Init(&PID_Cloud_YawSpeed, 30, 0, 0, 10000, 0);
@@ -160,22 +161,22 @@ void Task_Gimbal(void *Parameters) {
 
     while (1) {
         // 设置反馈
+        //陀螺仪模式
         //yawAngle   = Gyroscope_EulerData.yaw;
         //yawSpeed   = ImuData.gz / GYROSCOPE_LSB;
-
-         yawAngle=-Motor_Yaw.angle;
-         yawSpeed=-Motor_Yaw.speed;
         //pitchAngle = -1 * Gyroscope_EulerData.pitch; // 逆时针为正
-        pitchAngle  =-1 * Motor_Pitch.angle;
         //pitchSpeed = ImuData.gx / GYROSCOPE_LSB;     // 逆时针为正
+
+        //编码器模式
+        yawAngle=-Motor_Yaw.angle;
+        yawSpeed=-Motor_Yaw.speed;
+        pitchAngle  =-1 * Motor_Pitch.angle;
         pitchSpeed  =-Motor_Pitch.speed;
-	    //pitchAngle =Motor_Pitch.angle;
-		//pitchSpeed=Motor_Pitch.speed* RPM2RPS;
 
         rollAngle=Gyroscope_EulerData.roll;
         rollSpeed=ImuData.gy / GYROSCOPE_LSB;
 
-
+        //遥控器模式 暂时注释
         // if (controlMode == 1) {
         //     if (ABS(remoteData.rx) > 30) yawAngleTarget += remoteData.rx / 660.0f * 90 * 0.01;
         //     if (ABS(remoteData.ry) > 30) pitchAngleTarget += remoteData.ry / 660.0f * 40 * 0.01;
@@ -183,18 +184,11 @@ void Task_Gimbal(void *Parameters) {
         //     yawAngleTarget += mouseData.x * 0.01;
         //     pitchAngleTarget += (-mouseData.y) * 0.005;
         // }
+        
         if (ABS(remoteData.rx) > 30) yawAngleTarget += -remoteData.rx / 660.0f * 10 * 0.01;
         if (ABS(remoteData.ry) > 30) pitchAngleTarget += -remoteData.ry / 660.0f * 70 * 0.01;
 
-        // 开机时pitch轴匀速抬�qq�
-        // pitchAngleTargetRamp = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
-        // if (pitchRampProgress < 1) {
-        //     pitchRampProgress += 0.002f;
-        // }
-        //MIAO(pitchAngleTarget,startpitchAngle-50,startpitchAngle+75);
-        //MIAO(yawAngleTarget, -130, 130);
-       // MIAO(pitchAngleTarget, -30, 40);
-
+    
         PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget, yawAngle);
         PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawSpeed);
 
@@ -208,16 +202,6 @@ void Task_Gimbal(void *Parameters) {
         // 输出电流
         Can_Send(CAN1, 0x1FF,  -PID_Cloud_YawSpeed.output, -PID_Cloud_RollSpeed.output, -PID_Cloud_PitchSpeed.output, 0);
 
-        
-        DebugData.debug2 =  PID_Cloud_RollSpeed.output;
-        DebugData.debug3 = rollAngle;
-        DebugData.debug4 = rollSpeed;
-        DebugData.debug5 = Motor_Yaw.speed;
-        DebugData.debug6 = ImuData.gz / GYROSCOPE_LSB;
-				DebugData.debug7 = ImuData.gx / GYROSCOPE_LSB;
-
-        
-        
 
         vTaskDelayUntil(&LastWakeTime, 5);
     }
@@ -336,12 +320,7 @@ void Task_Fire(void *Parameters) {
         // }
         Can_Send(CAN1, 0x200, 0, 0, currentTarget, 0);
 
-        // DebugData.debug1 = stircount1;
-        // DebugData.debug2 = currentTarget;
-        // DebugData.debug3 = stopstate;
-        // DebugData.debug4 = stircount2;
-        // DebugData.debug5 = ;
-        // DebugData.debug6 = ;
+        
         vTaskDelayUntil(&LastWakeTime, 10);
     }
 

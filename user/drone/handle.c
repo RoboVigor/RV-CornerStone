@@ -11,8 +11,7 @@ void Handle_Init(void) {
     Motor_Init(&Motor_Pitch, 1.0, 1);
     Motor_Init(&Motor_Roll, 1.0, 1);
     Motor_Init(&Motor_Stir, 36, 1);
-    Motor_Yaw.positionBias = 5625;
-    Motor_Yaw.position     = 5625;
+    
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
