@@ -692,14 +692,29 @@ void Task_Fire_Frict(void *Parameters) {
 
     while (1) {
 
-        // if (FrictEnabled) {
-        //     LASER_ON;
-        // } else {
-        //     // LASER_OFF;
-        // }
+        if (FrictEnabled) {
+            LASER_ON;
+        } else {
+            // LASER_OFF;
+        }
 
         motorLSpeed = Motor_FL.speed / 19.2;
         motorRSpeed = Motor_FR.speed / 19.2;
+
+        if (FrictEnabled) {
+            if (remoteData.switchRight == 1) {
+                targetSpeed = -190;
+            } else if (remoteData.switchRight == 3) {
+                targetSpeed = -220;
+            } else if (remoteData.switchRight == 2) {
+                targetSpeed = -450;
+            }
+        } else
+            targetSpeed = 0;
+
+        // targetSpeed = -200;   //10m/s
+        // targetSpeed = -220;   //12m/s
+        // targetSpeed = -260;   //15m/s
 
         PID_Calculate(&PID_FireL, targetSpeed, motorLSpeed);
         PID_Calculate(&PID_FireR, (-1 * targetSpeed), motorRSpeed);
