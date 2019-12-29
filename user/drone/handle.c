@@ -8,7 +8,8 @@
 void Handle_Init(void) {
     //电机初始化
     Motor_Init(&Motor_Yaw, 1.0, 1);
-    Motor_Init(&Motor_Pitch, 36.0, 1);
+    Motor_Init(&Motor_Pitch, 1.0, 1);
+    Motor_Init(&Motor_Roll, 1.0, 1);
     Motor_Init(&Motor_Stir, 36, 1);
     Motor_Yaw.positionBias = 5625;
     Motor_Yaw.position     = 5625;

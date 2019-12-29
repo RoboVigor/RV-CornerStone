@@ -48,24 +48,29 @@ void Task_Snail(void *Parameters) {
 
         GPIO_SetBits(GPIOG, GPIO_Pin_13); //激光
 
-        if (controlMode == 1) {
-            if (remoteData.switchLeft == 1) {
+        // if (controlMode == 1) {
+        //     if (remoteData.switchLeft == 1) {
+        //         snailStart=0;
+        //     }else{
+        //         snailStart=1;
+        //     }
+        // }else{
+        
+        //     if (mouseData.pressRight == 1) {
+        //         snailStart=1;
+        //         lastMouseDataRight = mouseData.pressRight;
+        //     }else if(mouseData.pressRight == 0){
+        //         snailStart=0;
+        //         lastMouseDataRight = mouseData.pressRight;
+        //     }else{
+		// 			lastMouseDataRight = mouseData.pressRight;
+		// 		}
+        // }
+        if (remoteData.switchLeft == 1) {
                 snailStart=0;
             }else{
                 snailStart=1;
             }
-        }else{
-        
-            if (mouseData.pressRight == 1) {
-                snailStart=1;
-                lastMouseDataRight = mouseData.pressRight;
-            }else if(mouseData.pressRight == 0){
-                snailStart=0;
-                lastMouseDataRight = mouseData.pressRight;
-            }else{
-					lastMouseDataRight = mouseData.pressRight;
-				}
-        }
 
         
         if (snailStart == 0) {
@@ -137,26 +142,33 @@ void Task_Gimbal(void *Parameters) {
     float rollSpeed  = 0;
 
     // 目标值
-    float yawAngleTarget       = Gyroscope_EulerData.yaw;
-    float pitchAngleTarget     = -10;
+    //float yawAngleTarget       = Gyroscope_EulerData.yaw;
+    float yawAngleTarget = -Motor_Yaw.angle;
+    //float pitchAngleTarget     = -10;
+    float pitchAngleTarget     = -1 * Motor_Pitch.angle;
     float pitchRampStart       = -1 * Gyroscope_EulerData.pitch;
     float pitchRampProgress    = 0;
     float pitchAngleTargetRamp = 0;
     float startpitchAngle =Motor_Pitch.angle;
     //初始化云台PID
-    PID_Init(&PID_Cloud_YawAngle, 35, 0, 0, 4000, 0);
-    PID_Init(&PID_Cloud_YawSpeed, 45, 0, 0, 5000, 0);
-    PID_Init(&PID_Cloud_PitchAngle, 15, 0, 0, 5000, 0);
-    PID_Init(&PID_Cloud_PitchSpeed, 18, 0, 0, 6000, 1000);
-    PID_Init(&PID_Cloud_RollAngle, 40, 3, 0, 4000, 1000);
-    PID_Init(&PID_Cloud_RollSpeed, 45, 0, 0, 8000, 0);
+    PID_Init(&PID_Cloud_YawAngle, 50, 0, 0, 6000, 0);
+    PID_Init(&PID_Cloud_YawSpeed, 30, 0, 0, 10000, 0);
+    PID_Init(&PID_Cloud_PitchAngle, 40, 0, 0, 10000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 45, 0, 0, 12000, 1000);
+    PID_Init(&PID_Cloud_RollAngle, 55, 0, 0, 10000, 1000);
+    PID_Init(&PID_Cloud_RollSpeed, 60, 0, 0, 15000, 0);
 
     while (1) {
         // 设置反馈
-        yawAngle   = Gyroscope_EulerData.yaw;
-        yawSpeed   = ImuData.gz / GYROSCOPE_LSB;
-        pitchAngle = -1 * Gyroscope_EulerData.pitch; // 逆时针为正
-        pitchSpeed = ImuData.gx / GYROSCOPE_LSB;     // 逆时针为正
+        //yawAngle   = Gyroscope_EulerData.yaw;
+        //yawSpeed   = ImuData.gz / GYROSCOPE_LSB;
+
+         yawAngle=-Motor_Yaw.angle;
+         yawSpeed=-Motor_Yaw.speed;
+        //pitchAngle = -1 * Gyroscope_EulerData.pitch; // 逆时针为正
+        pitchAngle  =-1 * Motor_Pitch.angle;
+        //pitchSpeed = ImuData.gx / GYROSCOPE_LSB;     // 逆时针为正
+        pitchSpeed  =-Motor_Pitch.speed;
 	    //pitchAngle =Motor_Pitch.angle;
 		//pitchSpeed=Motor_Pitch.speed* RPM2RPS;
 
@@ -171,15 +183,15 @@ void Task_Gimbal(void *Parameters) {
         //     yawAngleTarget += mouseData.x * 0.01;
         //     pitchAngleTarget += (-mouseData.y) * 0.005;
         // }
-        if (ABS(remoteData.rx) > 30) yawAngleTarget += -remoteData.rx / 660.0f * 90 * 0.01;
-        if (ABS(remoteData.ry) > 30) pitchAngleTarget += remoteData.ry / 660.0f * 70 * 0.01;
+        if (ABS(remoteData.rx) > 30) yawAngleTarget += -remoteData.rx / 660.0f * 10 * 0.01;
+        if (ABS(remoteData.ry) > 30) pitchAngleTarget += -remoteData.ry / 660.0f * 70 * 0.01;
 
         // 开机时pitch轴匀速抬�qq�
         // pitchAngleTargetRamp = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
         // if (pitchRampProgress < 1) {
         //     pitchRampProgress += 0.002f;
         // }
-        MIAO(pitchAngleTarget,startpitchAngle-50,startpitchAngle+75);
+        //MIAO(pitchAngleTarget,startpitchAngle-50,startpitchAngle+75);
         //MIAO(yawAngleTarget, -130, 130);
        // MIAO(pitchAngleTarget, -30, 40);
 
@@ -194,13 +206,13 @@ void Task_Gimbal(void *Parameters) {
 
 
         // 输出电流
-        Can_Send(CAN1, 0x1FF,  -PID_Cloud_YawSpeed.output, PID_Cloud_RollSpeed.output+700, PID_Cloud_PitchSpeed.output, 0);
+        Can_Send(CAN1, 0x1FF,  -PID_Cloud_YawSpeed.output, -PID_Cloud_RollSpeed.output, -PID_Cloud_PitchSpeed.output, 0);
 
         
-        DebugData.debug2 = -1 * Gyroscope_EulerData.pitch;;
-        DebugData.debug3 = PID_Cloud_RollSpeed.output;
-        DebugData.debug4 = PID_Cloud_RollAngle.output;
-        DebugData.debug5 = ImuData.gy / GYROSCOPE_LSB;
+        DebugData.debug2 =  PID_Cloud_RollSpeed.output;
+        DebugData.debug3 = rollAngle;
+        DebugData.debug4 = rollSpeed;
+        DebugData.debug5 = Motor_Yaw.speed;
         DebugData.debug6 = ImuData.gz / GYROSCOPE_LSB;
 				DebugData.debug7 = ImuData.gx / GYROSCOPE_LSB;
 
@@ -235,7 +247,7 @@ void Task_Fire(void *Parameters) {
 
     // PID 初始化
 
-    PID_Init(&PID_StirSpeed, 60, 0.2, 0, 10000, 4000); // 1.8
+    PID_Init(&PID_StirSpeed,3, 0.01, 0, 10000, 1000); // 1.8
 
     int      stirstate     = 0; //播弹轮开启为1 关闭为0
     uint32_t stircount1    = 0; //堵转计数器 保证反转
@@ -244,8 +256,26 @@ void Task_Fire(void *Parameters) {
     float    currentTarget = 0;
 
     while (1) {
-        if (controlMode == 1) {
-            if (remoteData.lx < -60 && snailStart==1) {
+        // if (controlMode == 1) {
+        //     if (remoteData.lx < -60 && snailStart==1) {
+        //         stirstate = 1; //正转
+        //     }
+        //     //  else if (remoteData.lx > 60) {
+        //     //     stirstate = -1;
+        //     // }
+        //     else {
+        //         stirstate = 0;
+        //     }
+        // } else {
+        //     if (mouseData.pressLeft == 1 && snailStart == 1) {
+        //         stirstate = 1;
+        //     } else if (mouseData.pressLeft == 0) {
+        //         stirstate = 0;
+        //     }else if (mouseData.pressLeft == 1&&snailStart == 0) {
+        //         stirstate = 0;
+        //         }
+        // }
+        if (remoteData.lx < -60) {
                 stirstate = 1; //正转
             }
             //  else if (remoteData.lx > 60) {
@@ -254,15 +284,6 @@ void Task_Fire(void *Parameters) {
             else {
                 stirstate = 0;
             }
-        } else {
-            if (mouseData.pressLeft == 1 && snailStart == 1) {
-                stirstate = 1;
-            } else if (mouseData.pressLeft == 0) {
-                stirstate = 0;
-            }else if (mouseData.pressLeft == 1&&snailStart == 0) {
-                stirstate = 0;
-                }
-        }
 
         //拨弹轮 PID 控制
 
@@ -277,33 +298,35 @@ void Task_Fire(void *Parameters) {
         //     Can_Send(CAN1, 0x200, 0, 0, PID_StirSpeed.output, 0);
         // }
         if (stirstate == 1) {
-            if (stopstate == 0) {
-                PID_Calculate(&PID_StirSpeed, -700, Motor_Stir.speed * RPM2RPS);
-                currentTarget = PID_StirSpeed.output;
-            }
-            if (stirstate == 1 && ABS(Motor_Stir.speed * RPM2RPS) < 10 && stircount1 < 30) {
-                stircount1 += 1;
-            } else if (stirstate == 1 && currentTarget < 200) {
-                stircount1 = 0;
-            }
-            if (stircount1 == 30) {
-                stopstate = 1;
-            } else {
-                stopstate = 0;
-            }
-            if (stopstate == 1 && stircount2 < 50) {
-                currentTarget = 2000;
-                stircount2 += 1;
-            } else if (stircount2 == 50) {
-                currentTarget = 0;
-                stircount1    = 0;
-                stircount2    = 0;
-                // stircount2 += 1;
-            }
+            // if (stopstate == 0) {
+            //     PID_Calculate(&PID_StirSpeed, -700, Motor_Stir.speed * RPM2RPS);
+            //     currentTarget = PID_StirSpeed.output;
+            // }
+            // if (stirstate == 1 && ABS(Motor_Stir.speed * RPM2RPS) < 10 && stircount1 < 30) {
+            //     stircount1 += 1;
+            // } else if (stirstate == 1 && currentTarget < 200) {
+            //     stircount1 = 0;
+            // }
+            // if (stircount1 == 30) {
+            //     stopstate = 1;
+            // } else {
+            //     stopstate = 0;
+            // }
+            // if (stopstate == 1 && stircount2 < 50) {
+            //     currentTarget = 2000;
+            //     stircount2 += 1;
+            // } else if (stircount2 == 50) {
+            //     currentTarget = 0;
+            //     stircount1    = 0;
+            //     stircount2    = 0;
+            //     // stircount2 += 1;
+            // }
             //  else if (stircount2 == 400) {
             //     stircount1 = 0;
             //     stircount2 = 0;
             // }
+             PID_Calculate(&PID_StirSpeed, 3000, Motor_Stir.speed);
+                currentTarget = PID_StirSpeed.output;
 
         } else if (stirstate == 0) {
             currentTarget = 0;
@@ -346,8 +369,8 @@ void Task_Sys_Init(void *Parameters) {
     //xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     //xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 800, NULL, 5, NULL);
-    //xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
-    //xTaskCreate(Task_Fire, "Task_Fire", 500, NULL, 7, NULL);
+    xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Fire, "Task_Fire", 500, NULL, 7, NULL);
     //xTaskCreate(Task_Control, "Task_Control", 500, NULL, 4, NULL);
     // 完成使命
     vTaskDelete(NULL);
