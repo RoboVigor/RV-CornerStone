@@ -125,11 +125,11 @@ void CAN1_RX0_IRQHandler(void) {
         break;
 
     case 0x205:
-        Motor_Update(&Motor_Upthrow1, position, speed);
+        Motor_Update(&Motor_Raise_Left, position, speed);
         break;
 
     case 0x206:
-        Motor_Update(&Motor_Upthrow2, position, speed);
+        Motor_Update(&Motor_Raise_Right, position, speed);
         break;
 
     default:
@@ -160,11 +160,11 @@ void CAN2_RX0_IRQHandler(void) {
         break;
 
     case 0x202:
-        Motor_Update(&Motor_Fetch_LP, position, speed);
+        Motor_Update(&Motor_Fetch_Left_Pitch, position, speed);
         break;
 
     case 0x203:
-        Motor_Update(&Motor_Fetch_RP, position, speed);
+        Motor_Update(&Motor_Fetch_Right_Pitch, position, speed);
         break;
 
     default:

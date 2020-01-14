@@ -29,11 +29,12 @@
 #endif
 
 // Taking
-#define GO_ON GPIO_SetBits(GPIOA, GPIO_Pin_3);
-#define GO_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3);
+#define GO_ON GPIO_SetBits(GPIOA, GPIO_Pin_1);
+#define GO_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_1);
 
-#define GET_ON GPIO_SetBits(GPIOA, GPIO_Pin_1);
-#define GET_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_1);
+#define GET_ON GPIO_SetBits(GPIOA, GPIO_Pin_3);
+#define GET_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3);
+#define GET_STATUS GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_3)
 
 // Rescue
 #define RESCUE_HOOK_DOWN GPIO_SetBits(GPIOI, GPIO_Pin_0);
@@ -43,17 +44,30 @@
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 功能开关
-__HANDLE_EXT PsAimEnabled;
+__HANDLE_EXT PsAimEnabled, ChassisMode, FetchMode, RaiseMode;
 __HANDLE_EXT uint8_t ControlMode;
 __HANDLE_EXT uint8_t GoMode, GetMode, UpMode, RotateMode;
 
 // 标志们
 __HANDLE_EXT uint8_t Rotate1Finish, Rotate2Finish, Rotate3Finish, Rotate4Finish, AllFinish, EatFinish, GetFinish;
+__HANDLE_EXT uint8_t FantongRaised, FetchState, RotateDone;
+__HANDLE_EXT enum FetchStateEnum {
+    FetchReset,
+    FetchWaitRaise,
+    FetchWaitSignal,
+    FetchRotateOut,
+    FetchLock,
+    FetchRotateIn,
+    FetchChargePower,
+    FetchThrow,
+    FetchUnlock,
+    FetchDone
+};
 
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
-__HANDLE_EXT Motor_Type Motor_Fetch_X, Motor_Fetch_LP, Motor_Fetch_RP;
-__HANDLE_EXT Motor_Type Motor_Upthrow1, Motor_Upthrow2;
+__HANDLE_EXT Motor_Type Motor_Fetch_X, Motor_Fetch_Left_Pitch, Motor_Fetch_Right_Pitch;
+__HANDLE_EXT Motor_Type Motor_Raise_Left, Motor_Raise_Right;
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
@@ -78,7 +92,7 @@ __HANDLE_EXT PID_Type PID_Fetch_X;
 __HANDLE_EXT PID_Type PID_Fetch_Pitch_Left, PID_Fetch_Pitch_Right;
 
 // 上升
-__HANDLE_EXT PID_Type PID_Upthrow1_Angle, PID_Upthrow1_Speed, PID_Upthrow2_Angle, PID_Upthrow2_Speed;
+__HANDLE_EXT PID_Type PID_Raise_Left_Angle, PID_Raise_Left_Speed, PID_Raise_Right_Angle, PID_Raise_Right_Speed;
 
 // 通讯协议
 __HANDLE_EXT Protocol_Type Judge, Ps;
