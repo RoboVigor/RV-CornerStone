@@ -17,7 +17,7 @@
 #define GYROSCOPE_YAW_FILTER_THRESHOLD 0.003f   // 零飘修正阈值
 #define IMU_GX_BIAS 2                           // GX静态误差,通过平放主控板采样得到
 #define IMU_GY_BIAS 9                           // GY静态误差
-#define IMU_GZ_BIAS -6                          // GZ静态误差
+#define IMU_GZ_BIAS -9.4f                       // GZ静态误差
 #define GYROSCOPE_LSB 16.384f                   // 陀螺仪敏感度 2^16/4000
 #define ACCELERATE_LSB 4096.0f                  // 加速度计敏感度 2^16/16
 

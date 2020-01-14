@@ -26,36 +26,86 @@ void Task_Safe_Mode(void *Parameters) {
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     uint8_t    LastMode     = 0;
-    GetMode                 = 0;
-    GoMode                  = 0;
-    ControlMode             = 1;
-    UpMode                  = 0;
+    float      WastedTime   = 0;
+    float      WaitTime     = 0;
+
+    GetMode       = 0;
+    GoMode        = 0;
+    ControlMode   = 1;
+    UpMode        = 0;
+    RotateMode    = 0;
+    Rotate1Finish = 0;
+    Rotate2Finish = 0;
+    Rotate3Finish = 0;
+    Rotate4Finish = 0;
+    AllFinish     = 0;
+    EatFinish     = 0;
+    GetFinish     = 0;
     while (1) {
         if (remoteData.switchLeft == 1) {
             ControlMode = 1;
+            AllFinish   = 0;
         } else if (remoteData.switchLeft == 2 || remoteData.switchLeft == 3) {
             ControlMode = 2;
             if (remoteData.switchRight == 1 && remoteData.switchLeft == 3) {
                 UpMode = 1;
             } else if (remoteData.switchRight == 3 && remoteData.switchLeft == 3) {
-                GoMode == 1;
-            } else if (remoteData.switchRight == 2 && remoteData.switchLeft == 3) {
-                GetMode == 1;
-            } else if (remoteData.switchLeft == 2 && remoteData.switchRight == 2) {
-                GetMode = 0;
-            } else if (remoteData.switchLeft == 2 && remoteData.switchRight == 3) {
-                GoMode = 0;
-            } else if (remoteData.switchLeft == 2 && remoteData.switchRight == 1) {
-                UpMode = 0;
+                if (AllFinish == 0) {
+                    if (RotateMode < 1) {
+                        GetMode    = 0;
+                        RotateMode = 1;
+                    }
+                    if (Rotate1Finish == 1 && RotateMode == 1) {
+                        GetMode       = 1;
+                        GetFinish     = 1;
+                        Rotate1Finish = 0;
+                    }
+                    if (GetFinish == 1) {
+                        RotateMode = 2;
+                        EatFinish  = 1;
+                        GetFinish  = 0;
+                    }
+                    if (RotateMode == 2 && Rotate2Finish == 1) {
+                        WastedTime += 0.05;
+                    }
+                    if (WastedTime > 2) {
+                        WastedTime = 0;
+                        RotateMode = 3;
+                    }
+                    if (Rotate3Finish == 1) {
+                        RotateMode    = 4;
+                        Rotate3Finish = 0;
+                    }
+                    if (Rotate4Finish == 1) {
+                        WaitTime += 0.05;
+                    }
+                    if (WaitTime > 0.1) {
+                        GetMode       = 0;
+                        WaitTime      = 0;
+                        Rotate4Finish = 0;
+                    } else if (AllFinish == 1) {
+                        UpMode = 0;
+                    }
+                }
             }
+            // } else if (remoteData.switchRight == 2 && remoteData.switchLeft == 3) {
+            //     GetMode = 1;
+            // } else if (remoteData.switchLeft == 2 && remoteData.switchRight == 2) {
+            //     GetMode = 0;
+            // } else if (remoteData.switchLeft == 2 && remoteData.switchRight == 3) {
+            //     GoMode = 0;
+            // } else if (remoteData.switchLeft == 2 && remoteData.switchRight == 1) {
+            //     UpMode = 0;
         }
+
         if (LastMode != ControlMode && LastMode != 0) {
             if (LastMode == 1) {
                 Can_Send(CAN1, 0x200, 0, 0, 0, 0);
             } else if (LastMode == 2) {
-                UpMode  = 0;
-                GoMode  = 0;
-                GetMode = 0;
+                UpMode     = 0;
+                GoMode     = 0;
+                GetMode    = 0;
+                RotateMode = 0;
                 Can_Send(CAN2, 0x200, 0, 0, 0, 0);
             }
         }
@@ -87,14 +137,14 @@ void Task_Chassis(void *Parameters) {
     float vw = 0;
 
     // 初始化麦轮角速度PID
-    PID_Init(&PID_LFCM, 32, 0, 0, 12000, 4000);
-    PID_Init(&PID_LBCM, 32, 0, 0, 12000, 4000);
-    PID_Init(&PID_RBCM, 32, 0, 0, 12000, 4000);
-    PID_Init(&PID_RFCM, 32, 0, 0, 12000, 4000);
+    PID_Init(&PID_LFCM, 32, 0.1, 0, 12000, 4000);
+    PID_Init(&PID_LBCM, 32, 0.1, 0, 12000, 4000);
+    PID_Init(&PID_RBCM, 32, 0.1, 0, 12000, 4000);
+    PID_Init(&PID_RFCM, 32, 0.1, 0, 12000, 4000);
 
     // 初始化航向角角度PID和角速度PID
-    PID_Init(&PID_YawAngle, 5, 0.1, 0, 1000, 1000);
-    PID_Init(&PID_YawSpeed, 3, 0, 0, 4000, 1000);
+    PID_Init(&PID_YawAngle, 5, 0, 0, 1000, 1000);
+    PID_Init(&PID_YawSpeed, 10, 0, 0, 4000, 1000);
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
@@ -108,10 +158,11 @@ void Task_Chassis(void *Parameters) {
         yawAngle = Gyroscope_EulerData.yaw;    // 航向角角度反馈
         yawSpeed = ImuData.gz / GYROSCOPE_LSB; // 逆时针为正
 
-        vx = -remoteData.lx / 660.0f * 4;
-        vy = remoteData.ly / 660.0f * 2;
-        vw = PID_YawSpeed.output / 4000.0f * 6;
-
+        if (ControlMode != 2) {
+            vx = -remoteData.lx / 660.0f * 4;
+            vy = remoteData.ly / 660.0f * 2;
+            vw = PID_YawSpeed.output / 4000.0f * 6;
+        }
         // 切换运动模式
         if (mode != lastMode) {
             yawAngleTarget = yawAngle; // 更新角度PID目标值
@@ -148,6 +199,10 @@ void Task_Chassis(void *Parameters) {
         } else {
             Can_Send(CAN1, 0x200, 0, 0, 0, 0);
         }
+
+        // 调试信息
+        // DebugData.debug1 = GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin);
+        // DebugData.debug2 = GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_1);
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -191,12 +246,6 @@ void Task_Fetch(void *Parameters) {
         pitchLeftAngle  = Motor_Fetch_LP.angle;
         pitchRightAngle = Motor_Fetch_RP.angle;
 
-        // 斜坡
-        if (pitchAngleTargetProgress < 1) {
-            pitchAngleTargetProgress += 0.01;
-            // pitchAngleTargetProgress += CHOOSER(0.005, 0.01, 0.015);
-        }
-
         // 视觉辅助
         PsAimEnabled = (remoteData.switchRight == 1);
         if (!PsAimEnabled) {
@@ -212,21 +261,62 @@ void Task_Fetch(void *Parameters) {
             }
         }
         xSpeedTarget = xSpeedTargetPs;
+        if (ControlMode != 1) {
 
-        // 遥控器
-        if (ABS(remoteData.lx) > 30) xSpeedTarget = remoteData.lx / 660.0f * 200;
-        if (remoteData.rx > 500 && pitchAngleTargetProgress >= 1) {
-            pitchAngleTargetProgress = 0;
-            pitchAngleTargetStart    = 10;
-            pitchAngleTargetStop     = 150;
-        } else if (remoteData.rx < -500 && pitchAngleTargetProgress >= 1) {
-            pitchAngleTargetProgress = 0;
-            pitchAngleTargetStart    = 150;
-            pitchAngleTargetStop     = 10;
+            // 遥控器
+            if (ABS(remoteData.lx) > 30) xSpeedTarget = remoteData.lx / 660.0f * 200;
+            // if (remoteData.rx > 500 && pitchAngleTargetProgress >= 1) {
+            //     pitchAngleTargetProgress = 0;
+            //     pitchAngleTargetStart    = 10;
+            //     pitchAngleTargetStop     = 180;
+            // } else if (remoteData.rx < -500 && pitchAngleTargetProgress >= 1) {
+            //     pitchAngleTargetProgress = 0;
+            //     pitchAngleTargetStart    = 180;
+            //     pitchAngleTargetStop     = 10;
+            // }
+            if (RotateMode == 1) {
+                // 斜坡
+                if (pitchAngleTargetProgress < 1) {
+                    pitchAngleTargetProgress += 0.01;
+                } else if (pitchAngleTargetProgress >= 1) {
+                    pitchAngleTargetProgress = 0;
+                    pitchAngleTargetStart    = 10;
+                    pitchAngleTargetStop     = 180;
+                    Rotate1Finish            = 1;
+                }
+            } else if (RotateMode == 2) {
+                // 斜坡
+                if (pitchAngleTargetProgress < 1) {
+                    pitchAngleTargetProgress += 0.01;
+                } else if (pitchAngleTargetProgress >= 1) {
+                    pitchAngleTargetProgress = 0;
+                    pitchAngleTargetStart    = 180;
+                    pitchAngleTargetStop     = 10;
+                    Rotate2Finish            = 1;
+                }
+            } else if (RotateMode == 3) {
+                // 斜坡
+                if (pitchAngleTargetProgress < 1) {
+                    pitchAngleTargetProgress += 0.01;
+                } else if (pitchAngleTargetProgress >= 1) {
+                    pitchAngleTargetProgress = 0;
+                    pitchAngleTargetStart    = 10;
+                    pitchAngleTargetStop     = 140;
+                    Rotate3Finish            = 1;
+                }
+            } else if (RotateMode == 4) {
+                // 斜坡
+                if (pitchAngleTargetProgress < 1) {
+                    pitchAngleTargetProgress += 0.01;
+                } else if (pitchAngleTargetProgress >= 1) {
+                    pitchAngleTargetProgress = 0;
+                    pitchAngleTargetStart    = 140;
+                    pitchAngleTargetStop     = 10;
+                    Rotate4Finish            = 1;
+                }
+            }
+            pitchAngleTarget = RAMP(pitchAngleTargetStart, pitchAngleTargetStop, pitchAngleTargetProgress);
         }
-
-        pitchAngleTarget = RAMP(pitchAngleTargetStart, pitchAngleTargetStop, pitchAngleTargetProgress);
-
         // 计算PID
         PID_Calculate(&PID_Fetch_X, xSpeedTarget, xSpeed);
         PID_Calculate(&PID_Fetch_Pitch_Left, -1 * pitchAngleTarget, pitchLeftAngle);
@@ -241,6 +331,9 @@ void Task_Fetch(void *Parameters) {
         if (GetMode == 1) {
             GET_ON;
         } else if (GetMode == 0) {
+            if (EatFinish == 1) {
+                AllFinish = 1;
+            }
             GET_OFF;
         }
 
@@ -253,9 +346,6 @@ void Task_Fetch(void *Parameters) {
         // 更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
-        // 调试信息
-        DebugData.debug1 = GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_1);
-        DebugData.debug2 = GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_3);
         // DebugData.debug4 = pitchAngleTargetProgress * 1000;
         // DebugData.debug5 = Ps.autoaimData.seq;
         // DebugData.debug6 = Ps.autoaimData.yaw_angle_diff;

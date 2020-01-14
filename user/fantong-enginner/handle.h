@@ -45,7 +45,10 @@ __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 // 功能开关
 __HANDLE_EXT PsAimEnabled;
 __HANDLE_EXT uint8_t ControlMode;
-__HANDLE_EXT uint8_t GoMode, GetMode, UpMode;
+__HANDLE_EXT uint8_t GoMode, GetMode, UpMode, RotateMode;
+
+// 标志们
+__HANDLE_EXT uint8_t Rotate1Finish, Rotate2Finish, Rotate3Finish, Rotate4Finish, AllFinish, EatFinish, GetFinish;
 
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
