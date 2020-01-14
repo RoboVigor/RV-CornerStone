@@ -108,32 +108,28 @@ void CAN1_RX0_IRQHandler(void) {
 
     // 安排数据
     switch (CanRxData.StdId) {
-        // case 0x201:
-        //     Motor_Update(&Motor_LF, position, speed);
-        //     break;
+    case 0x201:
+        Motor_Update(&Motor_LF, position, speed);
+        break;
 
-        // case 0x202:
-        //     Motor_Update(&Motor_LB, position, speed);
-        //     break;
+    case 0x202:
+        Motor_Update(&Motor_LB, position, speed);
+        break;
 
-        // case 0x203:
-        //     Motor_Update(&Motor_RB, position, speed);
-        //     break;
-
-        // case 0x204:
-        //     Motor_Update(&Motor_RF, position, speed);
-        //     break;
+    case 0x203:
+        Motor_Update(&Motor_RB, position, speed);
+        break;
 
     case 0x204:
-        Motor_Update(&Motor_Fetch_X, position, speed);
+        Motor_Update(&Motor_RF, position, speed);
+        break;
+
+    case 0x205:
+        Motor_Update(&Motor_Upthrow1, position, speed);
         break;
 
     case 0x206:
-        Motor_Update(&Motor_Fetch_LP, position, speed);
-        break;
-
-    case 0x207:
-        Motor_Update(&Motor_Fetch_RP, position, speed);
+        Motor_Update(&Motor_Upthrow2, position, speed);
         break;
 
     default:
@@ -158,26 +154,22 @@ void CAN2_RX0_IRQHandler(void) {
     speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
     // 安排数据
-    // switch (CanRxData.StdId) {
-    // case 0x201:
-    //     Motor_Update(&Motor_LF, position, speed);
-    //     break;
+    switch (CanRxData.StdId) {
+    case 0x201:
+        Motor_Update(&Motor_Fetch_X, position, speed);
+        break;
 
-    // case 0x202:
-    //     Motor_Update(&Motor_LB, position, speed);
-    //     break;
+    case 0x202:
+        Motor_Update(&Motor_Fetch_LP, position, speed);
+        break;
 
-    // case 0x203:
-    //     Motor_Update(&Motor_RB, position, speed);
-    //     break;
+    case 0x203:
+        Motor_Update(&Motor_Fetch_RP, position, speed);
+        break;
 
-    // case 0x204:
-    //     Motor_Update(&Motor_RF, position, speed);
-    //     break;
-
-    // default:
-    //     break;
-    // }
+    default:
+        break;
+    }
 }
 
 // TIM2 高频计数器

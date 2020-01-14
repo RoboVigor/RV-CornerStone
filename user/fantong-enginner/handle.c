@@ -12,6 +12,10 @@ void Handle_Init(void) {
     Motor_Init(&Motor_RB, CHASSIS_MOTOR_REDUCTION_RATE, 0);
     Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, 0);
 
+    //抬升电机
+    Motor_Init(&Motor_Upthrow1, 19.2f, 1);
+    Motor_Init(&Motor_Upthrow2, 19.2f, 1);
+
     // 抓取电机
     Motor_Init(&Motor_Fetch_X, FITCH_MOTOR_REDUCTION_RATE, 0);
     Motor_Init(&Motor_Fetch_LP, FITCH_MOTOR_REDUCTION_RATE, 1);

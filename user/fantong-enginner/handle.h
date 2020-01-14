@@ -28,14 +28,29 @@
 #define __HANDLE_EXT extern
 #endif
 
+// Taking
+#define GO_ON GPIO_SetBits(GPIOA, GPIO_Pin_3);
+#define GO_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3);
+
+#define GET_ON GPIO_SetBits(GPIOA, GPIO_Pin_1);
+#define GET_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_1);
+
+// Rescue
+#define RESCUE_HOOK_DOWN GPIO_SetBits(GPIOI, GPIO_Pin_0);
+#define RESCUE_HOOK_UP GPIO_ResetBits(GPIOI, GPIO_Pin_0);
+
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 功能开关
 __HANDLE_EXT PsAimEnabled;
+__HANDLE_EXT uint8_t ControlMode;
+__HANDLE_EXT uint8_t GoMode, GetMode, UpMode;
 
 // 电机
-__HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB, Motor_Fetch_X, Motor_Fetch_LP, Motor_Fetch_RP;
+__HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
+__HANDLE_EXT Motor_Type Motor_Fetch_X, Motor_Fetch_LP, Motor_Fetch_RP;
+__HANDLE_EXT Motor_Type Motor_Upthrow1, Motor_Upthrow2;
 
 // 遥控器
 __HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
@@ -58,6 +73,9 @@ __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_
 // 抓取
 __HANDLE_EXT PID_Type PID_Fetch_X;
 __HANDLE_EXT PID_Type PID_Fetch_Pitch_Left, PID_Fetch_Pitch_Right;
+
+// 上升
+__HANDLE_EXT PID_Type PID_Upthrow1_Angle, PID_Upthrow1_Speed, PID_Upthrow2_Angle, PID_Upthrow2_Speed;
 
 // 通讯协议
 __HANDLE_EXT Protocol_Type Judge, Ps;
