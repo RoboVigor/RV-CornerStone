@@ -29,24 +29,22 @@
 #endif
 
 // Taking
-#define GO_ON GPIO_SetBits(GPIOA, GPIO_Pin_1);
-#define GO_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_1);
+#define GO_ON GPIO_SetBits(GPIOA, GPIO_Pin_1)
+#define GO_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_1)
 
-#define GET_ON GPIO_SetBits(GPIOA, GPIO_Pin_3);
-#define GET_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3);
+#define GET_ON GPIO_SetBits(GPIOA, GPIO_Pin_3)
+#define GET_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3)
 #define GET_STATUS GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_3)
 
 // Rescue
-#define RESCUE_HOOK_DOWN GPIO_SetBits(GPIOI, GPIO_Pin_0);
-#define RESCUE_HOOK_UP GPIO_ResetBits(GPIOI, GPIO_Pin_0);
+#define RESCUE_HOOK_DOWN GPIO_SetBits(GPIOI, GPIO_Pin_0)
+#define RESCUE_HOOK_UP GPIO_ResetBits(GPIOI, GPIO_Pin_0)
 
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 功能开关
-__HANDLE_EXT PsAimEnabled, ChassisMode, FetchMode, RaiseMode;
-__HANDLE_EXT uint8_t ControlMode;
-__HANDLE_EXT uint8_t GoMode, GetMode, UpMode, RotateMode;
+__HANDLE_EXT PsAimEnabled, ChassisMode, FetchMode, RaiseMode, RescueMode;
 
 // 标志们
 __HANDLE_EXT uint8_t Rotate1Finish, Rotate2Finish, Rotate3Finish, Rotate4Finish, AllFinish, EatFinish, GetFinish;

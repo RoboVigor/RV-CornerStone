@@ -26,10 +26,16 @@ void Task_Safe_Mode(void *Parameters) {
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
+    RescueMode = 0;
     while (1) {
-        ChassisMode = remoteData.switchLeft == 1;
-        FetchMode   = !ChassisMode;
-        RaiseMode   = remoteData.switchLeft == 3;
+        FetchMode   = remoteData.switchLeft == 1;
+        RaiseMode   = remoteData.switchLeft == 1;
+        ChassisMode = remoteData.switchLeft != 1;
+        if (remoteData.switchLeft == 2 && remoteData.switchRight == 1) {
+            RescueMode = 1;
+        } else if (remoteData.switchLeft == 2 && remoteData.switchRight == 2) {
+            RescueMode = 0;
+        }
 
         // 调试视觉用
         // PsAimEnabled   = (remoteData.switchLeft == 1) && (remoteData.switchRight != 3);
@@ -120,11 +126,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        if (ControlMode != 2) {
-            Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
-        } else {
-            Can_Send(CAN1, 0x200, 0, 0, 0, 0);
-        }
+        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
 
         // 调试信息
         // DebugData.debug1 = GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin);
@@ -468,6 +470,21 @@ void Task_Raise(void *Parameter) {
     vTaskDelete(NULL);
 }
 
+void Task_Rescue(void *Parameter) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+
+    while (1) {
+        if (RescueMode) {
+            RESCUE_HOOK_DOWN;
+        } else {
+            RESCUE_HOOK_UP;
+        }
+        vTaskDelayUntil(&LastWakeTime, 10);
+    }
+
+    vTaskDelete(NULL);
+}
+
 void Task_Client_Communication(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.1;                 // 任务运行间隔 s
@@ -664,7 +681,8 @@ void Task_Sys_Init(void *Parameters) {
     // 运动控制任务
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
     xTaskCreate(Task_Fetch, "Task_Fetch", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Raise, "Task_Raise", 400, NULL, 3, NULL); // 抬升
+    xTaskCreate(Task_Raise, "Task_Raise", 400, NULL, 3, NULL);   // 抬升
+    xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 3, NULL); // 抬升
 
     // DMA发送任务
     // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
