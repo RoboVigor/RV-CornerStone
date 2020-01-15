@@ -141,6 +141,8 @@ void Task_Gimbal(void *Parameters) {
     float pitchSpeed = 0;
     float rollAngle  = 0;
     float rollSpeed  = 0;
+		float lastRollAngle=0;
+		float x=0;
 
     // 目标值
     //（陀螺仪控制云台）初始目标角度初始化
@@ -151,13 +153,14 @@ void Task_Gimbal(void *Parameters) {
     float yawAngleTarget = -Motor_Yaw.angle;
     float pitchAngleTarget     = -1 * Motor_Pitch.angle;
 
+
     //初始化云台PID
-    PID_Init(&PID_Cloud_YawAngle, 50, 0, 0, 6000, 0);
-    PID_Init(&PID_Cloud_YawSpeed, 30, 0, 0, 10000, 0);
-    PID_Init(&PID_Cloud_PitchAngle, 40, 0, 0, 10000, 0);
-    PID_Init(&PID_Cloud_PitchSpeed, 45, 0, 0, 12000, 1000);
-    PID_Init(&PID_Cloud_RollAngle, 55, 0, 0, 10000, 1000);
-    PID_Init(&PID_Cloud_RollSpeed, 60, 0, 0, 15000, 0);
+    PID_Init(&PID_Cloud_YawAngle, 120, 0, 15, 1000, 0);
+    PID_Init(&PID_Cloud_YawSpeed, 30, 0, 1, 20000, 0);
+    PID_Init(&PID_Cloud_PitchAngle, 100, 0, 2, 1000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 30, 0, 1, 20000, 0);
+    PID_Init(&PID_Cloud_RollAngle, 70, 0, 0, 15000, 0);
+    PID_Init(&PID_Cloud_RollSpeed, 50, 0, 0, 20000, 0);
 
     while (1) {
         // 设置反馈
@@ -166,6 +169,7 @@ void Task_Gimbal(void *Parameters) {
         //yawSpeed   = ImuData.gz / GYROSCOPE_LSB;
         //pitchAngle = -1 * Gyroscope_EulerData.pitch; // 逆时针为正
         //pitchSpeed = ImuData.gx / GYROSCOPE_LSB;     // 逆时针为正
+        
 
         //编码器模式
         yawAngle=-Motor_Yaw.angle;
@@ -186,7 +190,7 @@ void Task_Gimbal(void *Parameters) {
         // }
         
         if (ABS(remoteData.rx) > 30) yawAngleTarget += -remoteData.rx / 660.0f * 10 * 0.01;
-        if (ABS(remoteData.ry) > 30) pitchAngleTarget += -remoteData.ry / 660.0f * 70 * 0.01;
+        if (ABS(remoteData.ry) > 30) pitchAngleTarget += -remoteData.ry / 660.0f * 30 * 0.01;
 
     
         PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget, yawAngle);
@@ -195,14 +199,17 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTarget, pitchAngle);
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
 
-        PID_Calculate(&PID_Cloud_RollAngle, 0, rollAngle);
-        PID_Calculate(&PID_Cloud_RollSpeed, PID_Cloud_RollAngle.output, rollSpeed);
+        PID_Calculate(&PID_Cloud_RollAngle, -2, rollAngle);
+        PID_Calculate(&PID_Cloud_RollSpeed, PID_Cloud_RollAngle.output, -Motor_Roll.speed);
 
 
         // 输出电流
         Can_Send(CAN1, 0x1FF,  -PID_Cloud_YawSpeed.output, -PID_Cloud_RollSpeed.output, -PID_Cloud_PitchSpeed.output, 0);
-
-
+        DebugData.debug1=PID_Cloud_YawAngle.output;
+        DebugData.debug2=PID_Cloud_YawSpeed.output;
+        DebugData.debug3=PID_Cloud_PitchAngle.output;
+        DebugData.debug4=PID_Cloud_PitchSpeed.output;
+        
         vTaskDelayUntil(&LastWakeTime, 5);
     }
 }
@@ -339,9 +346,9 @@ void Task_Sys_Init(void *Parameters) {
     Gyroscope_Init(&Gyroscope_EulerData);
 
     TIM5CH1_CAPTURE_STA = 0;
-    //while (!remoteData.state) {
-    //    DebugData.debug1 = -1 * Gyroscope_EulerData.pitch;
-    //}
+    while (!remoteData.state) {
+       
+    }
 
     // 功能任务
     //xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
