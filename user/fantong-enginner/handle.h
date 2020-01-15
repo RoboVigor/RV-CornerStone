@@ -58,7 +58,7 @@ __HANDLE_EXT enum FetchStateEnum {
     FetchRotateOut,
     FetchLock,
     FetchRotateIn,
-    FetchChargePower,
+    FetchEating,
     FetchThrow,
     FetchUnlock,
     FetchDone
