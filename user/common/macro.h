@@ -46,6 +46,8 @@
  *   只需要调用该函数就可以动态赋值,实现一次烧写测试三个数值等效果
  */
 #define CHOOSE(a, b, c) (remoteData.switchLeft == 1?(a):(remoteData.switchLeft == 3?(b):(c)))
+#define CHOOSEL(a, b, c) (remoteData.switchLeft == 1?(a):(remoteData.switchLeft == 3?(b):(c)))
+#define CHOOSER(a, b, c) (remoteData.switchRight == 1?(a):(remoteData.switchRight == 3?(b):(c)))
 
 
 /**

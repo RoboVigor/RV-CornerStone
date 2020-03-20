@@ -65,3 +65,17 @@ int FastLog2(int x) {
 
     return exp - 127;
 }
+
+float sigmoid(float x) {
+    return 1.0f / (1.0f + exp(-1 * x));
+}
+
+float EaseOut(float progress, float start, float stop) {
+    if (progress >= 1) {
+        return stop;
+    } else if (progress <= 0) {
+        return start;
+    } else {
+        return (2 * sigmoid(6 * progress) - 1) * (stop - start) + start;
+    }
+}
