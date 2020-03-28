@@ -15,6 +15,8 @@
 #include "Driver_PID.h"
 #include "Driver_DBUS.h"
 #include "Driver_CAN.h"
+#include "Driver_DMA.h"
+#include "Driver_Protocol.h"
 #include "Driver_Motor.h"
 #include "Driver_Chassis.h"
 #include "mpu6500_driver.h"

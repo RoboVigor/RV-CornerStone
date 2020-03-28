@@ -103,11 +103,6 @@ void Task_DMA_Send(void *Parameters) {
         int      index = 0;
         uint8_t *send_p;
 
-        while (DMA_GetFlagStatus(DMA1_Stream0, DMA_IT_TCIF0) != SET) {
-        }
-        DMA_ClearFlag(DMA1_Stream0, DMA_FLAG_TCIF0);
-        DMA_Cmd(DMA1_Stream0, DISABLE);
-
         DMA_Send_Buffer[index++] = 1;
         DMA_Send_Buffer[index++] = 2;
         DMA_Send_Buffer[index++] = 3;
@@ -117,8 +112,8 @@ void Task_DMA_Send(void *Parameters) {
             *send_p++ = DMA_Send_Buffer[i];
         }
 
-        DMA_SetCurrDataCounter(DMA1_Stream0, index);
-        DMA_Cmd(DMA1_Stream0, ENABLE);
+        // DMA 重启
+        DMA_Restart(UART8, 1, index);
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -139,11 +134,6 @@ void Task_Client_Communication(void *Parameters) {
     while (1) {
         int      index = 0;
         uint16_t dataLength;
-
-        while (DMA_GetFlagStatus(DMA2_Stream6, DMA_IT_TCIF6) != SET) {
-        }
-        DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6);
-        DMA_Cmd(DMA2_Stream6, DISABLE);
 
         switch (Judge.mode) {
         case MODE_CLIENT_DATA: {
@@ -216,8 +206,8 @@ void Task_Client_Communication(void *Parameters) {
             break;
         }
 
-        DMA_SetCurrDataCounter(DMA2_Stream6, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-        DMA_Cmd(DMA2_Stream6, ENABLE);
+        // DMA 重启
+        DMA_Restart(USART3, 1, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -239,26 +229,17 @@ void Task_Board_Communication(void *Parameters) {
     while (1) {
         uint16_t dataLength;
 
-        // disable DMA
-        while (DMA_GetFlagStatus(DMA1_Stream1, DMA_IT_TCIF1) != SET) {
-        }
-        DMA_ClearFlag(DMA1_Stream1, DMA_FLAG_TCIF1);
-        DMA_Cmd(DMA1_Stream1, DISABLE);
-
         // 板间通信
-        Board.boardInteractiveData[0].data1 = 1.11;
-        Board.boardInteractiveData[0].data2 = 2.22;
-        Board.boardInteractiveData[0].data3 = 3.33;
-        Board.boardInteractiveData[0].data4 = 4.44;
-        Board.boardInteractiveData[0].data5 = 5.55;
+        Board.boardInteractiveData[0].transformer[1].F = 1.11;
+        Board.boardInteractiveData[0].transformer[2].F = 2.22;
+        Board.boardInteractiveData[0].transformer[3].F = 3.33;
+        Board.boardInteractiveData[0].transformer[4].F = 4.44;
+        Board.boardInteractiveData[0].transformer[5].F = 5.55;
 
         dataLength = Protocol_Pack_Length_0302;
 
-        Protocol_Pack(&Board, dataLength, Protocol_Interact_Id_Board);
-
-        // enable DMA
-        DMA_SetCurrDataCounter(DMA1_Stream1, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-        DMA_Cmd(DMA1_Stream1, ENABLE);
+        // DMA重启
+        DMA_Restart(UART7, 1, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
@@ -281,12 +262,6 @@ void Task_Vision_Communication(void *Parameters) {
         int      index = 0;
         uint16_t dataLength;
 
-        // disable DMA
-        while (DMA_GetFlagStatus(DMA1_Stream3, DMA_IT_TCIF3) != SET) {
-        }
-        DMA_ClearFlag(DMA1_Stream3, DMA_FLAG_TCIF3);
-        DMA_Cmd(DMA1_Stream3, DISABLE);
-
         // 视觉通信
         Ps.visionInteractiveData.transformer[index].U16[1]   = 0x6666;
         Ps.visionInteractiveData.transformer[index++].U16[2] = 0x6666;
@@ -295,9 +270,8 @@ void Task_Vision_Communication(void *Parameters) {
 
         Protocol_Pack(&Ps, dataLength, Protocol_Interact_Id_Vision);
 
-        // enable DMA
-        DMA_SetCurrDataCounter(DMA1_Stream3, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-        DMA_Cmd(DMA1_Stream3, ENABLE);
+        // DMA重启
+        DMA_Restart(USART6, 1, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -364,7 +338,7 @@ void Task_Sys_Init(void *Parameters) {
     }
 
     // 运动控制任务
-    //xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
 
     // DMA发送任务
     // xTaskCreate(Task_DMA_Send, "Task_DMA_Send", 500, NULL, 6, NULL);

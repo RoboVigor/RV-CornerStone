@@ -49,21 +49,10 @@ void USART3_IRQHandler(void) {
     tmp = USART3->DR;
     tmp = USART3->SR;
 
-    // disable DMA and Unpack
-    DMA_Cmd(DMA1_Stream1, DISABLE);
-    while (DMA_GetFlagStatus(DMA1_Stream1, DMA_IT_TCIF1) != SET) {
-    }
-    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Stream1);
+    len = DMA_Restart(USART3, 0, Protocol_Buffer_Length);
     for (i = 0; i < len; i++) {
         Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
     }
-
-    // enable DMA
-    DMA_ClearFlag(DMA1_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
-    while (DMA_GetCmdStatus(DMA1_Stream1) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA1_Stream1, Protocol_Buffer_Length);
-    DMA_Cmd(DMA1_Stream1, ENABLE);
 }
 
 /**
@@ -78,21 +67,10 @@ void USART6_IRQHandler(void) {
     tmp = USART6->DR;
     tmp = USART6->SR;
 
-    // disable DMA and Unpack
-    DMA_Cmd(DMA2_Stream1, DISABLE);
-    while (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != SET) {
-    }
-    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA2_Stream1);
+    len = DMA_Restart(USART6, 0, Protocol_Buffer_Length);
     for (i = 0; i < len; i++) {
         Protocol_Unpack(&Judge, Judge.receiveBuf[i]);
     }
-
-    // enable DMA
-    DMA_ClearFlag(DMA2_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
-    while (DMA_GetCmdStatus(DMA2_Stream1) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA2_Stream1, Protocol_Buffer_Length);
-    DMA_Cmd(DMA2_Stream1, ENABLE);
 }
 
 /**
@@ -107,21 +85,10 @@ void UART7_IRQHandler(void) {
     tmp = UART7->DR;
     tmp = UART7->SR;
 
-    // disable DMA and Unpack
-    DMA_Cmd(DMA1_Stream3, DISABLE);
-    while (DMA_GetFlagStatus(DMA1_Stream3, DMA_IT_TCIF3) != SET) {
-    }
-    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Stream3);
+    len = DMA_Restart(UART7, 0, Protocol_Buffer_Length);
     for (i = 0; i < len; i++) {
         Protocol_Unpack(&Board, Board.receiveBuf[i]);
     }
-
-    // enable DMA
-    DMA_ClearFlag(DMA1_Stream3, DMA_FLAG_TCIF3 | DMA_FLAG_HTIF3);
-    while (DMA_GetCmdStatus(DMA1_Stream3) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA1_Stream3, Protocol_Buffer_Length);
-    DMA_Cmd(DMA1_Stream3, ENABLE);
 }
 
 /**

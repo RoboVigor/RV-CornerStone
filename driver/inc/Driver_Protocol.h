@@ -2,6 +2,7 @@
 #define __DRIVER_PROTOCOL_H
 
 #include "stm32f4xx.h"
+#include "config.h"
 
 #pragma pack(1)
 
@@ -29,7 +30,7 @@
 #define Protocol_Pack_Length_0301_Client_Graph 61
 #define Protocol_Pack_Length_0301_Header 6
 #define Protocol_Pack_Length_0301_Robot 112
-#define Protocol_Pack_Length_0302 20
+#define Protocol_Pack_Length_0302 BORAD_PACK_NUM * sizeof(float)
 #define Protocol_Pack_Length_0401 9
 #define Protocol_Pack_Length_0402 32
 
@@ -146,11 +147,7 @@ typedef struct {
     uint16_t seq;
     union {
         struct {
-            float data1;
-            float data2;
-            float data3;
-            float data4;
-            float data5;
+            format_trans_t transformer[Protocol_Pack_Length_0302 / sizeof(float)];
         };
         struct {
             uint8_t data[Protocol_Pack_Length_0302];

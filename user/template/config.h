@@ -28,3 +28,4 @@
 
 // DMA
 #define DMA_BUFFER_LENGTH 128 // DMA发送接收长度
+#define BORAD_PACK_NUM 8      //板件通讯数据数量
