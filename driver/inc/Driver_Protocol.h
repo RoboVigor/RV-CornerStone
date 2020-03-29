@@ -30,7 +30,7 @@
 #define Protocol_Pack_Length_0301_Client_Graph 61
 #define Protocol_Pack_Length_0301_Header 6
 #define Protocol_Pack_Length_0301_Robot 112
-#define Protocol_Pack_Length_0302 BORAD_DATA_NUM * sizeof(float)
+#define Protocol_Pack_Length_0302 PROTOCOL_DATA_NUM * sizeof(float)
 #define Protocol_Pack_Length_0401 9
 #define Protocol_Pack_Length_0402 32
 
@@ -142,18 +142,6 @@ typedef struct {
         };
     };
 } ext_gimal_aim_data_t;
-
-typedef struct {
-    uint16_t seq;
-    union {
-        struct {
-            float data_f[Protocol_Pack_Length_0302 / sizeof(float)];
-        };
-        struct {
-            uint8_t data[Protocol_Pack_Length_0302];
-        };
-    };
-} board_interactive_data_t;
 
 typedef struct {
     union {
@@ -268,6 +256,18 @@ typedef enum {
 } interact_mode_e;
 
 typedef struct {
+    uint16_t seq;
+    union {
+        struct {
+            float data_f[PROTOCOL_DATA_NUM];
+        };
+        struct {
+            uint8_t data[PROTOCOL_DATA_NUM * sizeof(float)];
+        };
+    };
+} Protocol_Data_Type;
+
+typedef struct {
     uint8_t                   sendBuf[Protocol_Buffer_Length];    // DMA发送缓存
     uint8_t                   receiveBuf[Protocol_Buffer_Length]; // DMA接收缓存
     uint8_t                   packet[Protocol_Buffer_Length];     // 有效字节数组
@@ -286,11 +286,11 @@ typedef struct {
     ext_shoot_data_t          shootData;                          // 设计数据
     ext_gimal_aim_data_t      autoaimData;                        // 视觉自瞄数据
     interact_mode_e           mode;                               // 当前交互模式
-    board_interactive_data_t  boardInteractiveData[2];            // 板间交互数据 0：发送 1：接收
     client_custom_data_t      clientCustomData;                   // 客户端自定义数据
     client_graphic_draw_t     clientGraphicDraw;                  // 客户端自定义图像
     robot_interactive_data_t  robotInteractiveData[8];            // 车间交互数据 0：发送 1-7：接收
     vision_interactive_data_t visionInteractiveData;              // 视觉交互数据
+    Protocol_Data_Type        boardInteractiveData[2];            // 板间交互数据 0：发送 1：接收
 } Protocol_Type;
 
 unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength, unsigned char ucCRC8);

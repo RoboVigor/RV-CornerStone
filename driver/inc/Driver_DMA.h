@@ -22,6 +22,15 @@ typedef struct {
     uint32_t            DMA_FLAG_HTIFx;
 } DMA_Type;
 
+/**
+ * @brief DMA重启和解包（打包）
+ *
+ * @param USARTx 指定一个USART口,USART3/6,UART7/8
+ * @param TRX 发送接收标志位
+ * @param Protocol 通讯协议
+ * @param id 发送时打包所需的id
+ * @param length 缓存区长度
+ */
 void DMA_Restart(USART_TypeDef *USARTx, trx_e TRX, Protocol_Type *Protocol, uint16_t id, uint16_t length);
 
 #endif

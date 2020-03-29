@@ -10,6 +10,7 @@
 #define __DRIVER_CAN_H
 
 #include "stm32f4xx.h"
+#include "Driver_Protocol.h"
 
 /**
  * @brief CAN发送数据给电调
@@ -22,5 +23,15 @@
  * @param i_204 0x204地址电机给定电流值,范围-32768~32768
  */
 void Can_Send(CAN_TypeDef *CANx, int16_t stdId, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204);
+
+/**
+ * @brief CAN发送数据
+ *
+ * @param CANx  指定一个CAN口,CAN1或CAN2
+ * @param Msg 需要传输的数据
+ * @param id 标识符
+ * @param dataLength 数据长度
+ */
+void Can_Send_Msg(CAN_TypeDef *CANx, Protocol_Data_Type *Msg, uint16_t id, uint16_t dataLength);
 
 #endif
