@@ -10,36 +10,42 @@ DMA_Type DMA_Table[8] = {{USART3, 1, DMA1_Stream3, DMA_IT_TCIF3, DMA_FLAG_TCIF3,
                          {UART8, 0, DMA1_Stream6, DMA_IT_TCIF6, DMA_FLAG_TCIF6, DMA_FLAG_HTIF6}};
 
 void DMA_Select_Stream(DMA_Type *DMAx) {
-    int i;
-
-    for (i = 0; i < 7; i++) {
-        if (DMAx->USARTx == DMA_Table[i].USARTx && DMAx->IS_SEND == DMA_Table[i].IS_SEND) {
-            *DMAx = DMA_Table[i];
-        }
-    }
 }
 
-uint16_t DMA_Restart(USART_TypeDef *USARTx, uint8_t IS_SEND, uint16_t length) {
-    DMA_Type DMAx;
-    uint16_t len;
+void DMA_Restart(USART_TypeDef *USARTx, trx_e TRX, Protocol_Type *Protocol, uint16_t id, uint16_t length) {
+    DMA_Type DMA;
+    uint16_t dataLength;
+    int      i;
 
     // select stream
-    DMAx.USARTx  = USARTx;
-    DMAx.IS_SEND = IS_SEND;
-    DMA_Select_Stream(&DMAx);
+    DMA.USARTx = USARTx;
+    DMA.TRX    = TRX;
+    for (i = 0; i < 7; i++) {
+        if (DMA.USARTx == DMA_Table[i].USARTx && DMA.TRX == DMA_Table[i].TRX) {
+            DMA = DMA_Table[i];
+        }
+    }
 
     // disable DMA
-    DMA_Cmd(DMAx.DMAx_Streamy, DISABLE);
-    while (DMA_GetFlagStatus(DMAx.DMAx_Streamy, DMAx.DMA_IT_TCIFx) != SET) {
+    while (DMA_GetFlagStatus(DMA.DMAx_Streamy, DMA.DMA_IT_TCIFx) != SET) {
     }
-    len = length - DMA_GetCurrDataCounter(DMAx.DMAx_Streamy);
+    DMA_Cmd(DMA.DMAx_Streamy, DISABLE);
+
+    // pack/unpack
+    if (DMA.TRX == TX) {
+        dataLength = length - PROTOCOL_HEADER_CRC_CMDID_LEN;
+        Protocol_Pack(Protocol, dataLength, id);
+    } else {
+        dataLength = length - DMA_GetCurrDataCounter(DMA.DMAx_Streamy);
+        for (i = 0; i < length; i++) {
+            Protocol_Unpack(Protocol, Protocol->receiveBuf[i]);
+        }
+    }
 
     // enable DMA
-    DMA_ClearFlag(DMAx.DMAx_Streamy, DMAx.DMA_FLAG_TCIFx | DMAx.DMA_FLAG_HTIFx);
-    while (DMA_GetCmdStatus(DMAx.DMAx_Streamy) != DISABLE) {
+    DMA_ClearFlag(DMA.DMAx_Streamy, DMA.DMA_FLAG_TCIFx | DMA.DMA_FLAG_HTIFx);
+    while (DMA_GetCmdStatus(DMA.DMAx_Streamy) != DISABLE) {
     }
-    DMA_SetCurrDataCounter(DMAx.DMAx_Streamy, length);
-    DMA_Cmd(DMAx.DMAx_Streamy, ENABLE);
-
-    return len;
+    DMA_SetCurrDataCounter(DMA.DMAx_Streamy, length);
+    DMA_Cmd(DMA.DMAx_Streamy, ENABLE);
 }

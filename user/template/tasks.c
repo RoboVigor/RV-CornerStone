@@ -93,39 +93,6 @@ void Task_Chassis(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_DMA_Send(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.1;                 // 任务运行间隔 s
-    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
-
-    while (1) {
-        int      i;
-        int      index = 0;
-        uint8_t *send_p;
-
-        DMA_Send_Buffer[index++] = 1;
-        DMA_Send_Buffer[index++] = 2;
-        DMA_Send_Buffer[index++] = 3;
-
-        send_p = DMA_Send_Buffer;
-        for (i = 0; i < index; i++) {
-            *send_p++ = DMA_Send_Buffer[i];
-        }
-
-        // DMA 重启
-        DMA_Restart(UART8, 1, index);
-
-        // 发送频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
-
-        // 调试信息
-        // DebugData.debug1 = DMA_Receive_Buffer[0];
-        // DebugData.debug2 = DMA_Receive_Buffer[1];
-        // DebugData.debug3 = DMA_Receive_Buffer[2];
-    }
-    vTaskDelete(NULL);
-}
-
 void Task_Client_Communication(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.1;                 // 任务运行间隔 s
@@ -149,7 +116,8 @@ void Task_Client_Communication(void *Parameters) {
 
             dataLength = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client_Data;
 
-            Protocol_Pack(&Judge, dataLength, Protocol_Interact_Id_Client_Data);
+            // DMA重启
+            DMA_Restart(USART6, TX, &Judge, Protocol_Interact_Id_Client_Data, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
             Judge.mode = MODE_ROBOT_INTERACT;
         } break;
@@ -167,7 +135,8 @@ void Task_Client_Communication(void *Parameters) {
 
             dataLength = Protocol_Pack_Length_0301_Header + index * sizeof(float);
 
-            Protocol_Pack(&Judge, dataLength, 0x0200);
+            // DMA重启
+            DMA_Restart(USART6, TX, &Judge, 0x0200, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
             Judge.mode = MODE_CLIENT_GRAPH;
         } break;
@@ -197,7 +166,8 @@ void Task_Client_Communication(void *Parameters) {
 
             dataLength = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client_Graph;
 
-            Protocol_Pack(&Judge, dataLength, Protocol_Interact_Id_Client_Graph);
+            // DMA重启
+            DMA_Restart(USART6, TX, &Judge, Protocol_Interact_Id_Client_Graph, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
             Judge.mode = MODE_CLIENT_DATA;
         } break;
@@ -205,9 +175,6 @@ void Task_Client_Communication(void *Parameters) {
         default:
             break;
         }
-
-        // DMA 重启
-        DMA_Restart(USART3, 1, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -230,16 +197,16 @@ void Task_Board_Communication(void *Parameters) {
         uint16_t dataLength;
 
         // 板间通信
-        Board.boardInteractiveData[0].transformer[1].F = 1.11;
-        Board.boardInteractiveData[0].transformer[2].F = 2.22;
-        Board.boardInteractiveData[0].transformer[3].F = 3.33;
-        Board.boardInteractiveData[0].transformer[4].F = 4.44;
-        Board.boardInteractiveData[0].transformer[5].F = 5.55;
+        Board.boardInteractiveData[0].data_f[1] = 1.11;
+        Board.boardInteractiveData[0].data_f[2] = 2.22;
+        Board.boardInteractiveData[0].data_f[2] = 3.33;
+        Board.boardInteractiveData[0].data_f[2] = 4.44;
+        Board.boardInteractiveData[0].data_f[2] = 5.55;
 
         dataLength = Protocol_Pack_Length_0302;
 
         // DMA重启
-        DMA_Restart(UART7, 1, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        DMA_Restart(UART7, TX, &Board, Protocol_Interact_Id_Board, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
@@ -268,10 +235,8 @@ void Task_Vision_Communication(void *Parameters) {
 
         dataLength = index * sizeof(float);
 
-        Protocol_Pack(&Ps, dataLength, Protocol_Interact_Id_Vision);
-
         // DMA重启
-        DMA_Restart(USART6, 1, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        DMA_Restart(UART8, TX, &Ps, Protocol_Interact_Id_Vision, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -341,7 +306,6 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
 
     // DMA发送任务
-    // xTaskCreate(Task_DMA_Send, "Task_DMA_Send", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);

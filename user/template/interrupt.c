@@ -41,36 +41,25 @@ void USART1_IRQHandler(void) {
  * @brief USART3 串口中断
  */
 void USART3_IRQHandler(void) {
-    uint8_t  tmp;
-    uint16_t len;
-    int      i;
+    uint8_t tmp;
 
     // clear IDLE flag
     tmp = USART3->DR;
     tmp = USART3->SR;
-
-    len = DMA_Restart(USART3, 0, Protocol_Buffer_Length);
-    for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
-    }
 }
 
 /**
  * @brief USART6 串口中断
  */
 void USART6_IRQHandler(void) {
-    uint8_t  tmp;
-    uint16_t len;
-    int      i;
+    uint8_t tmp;
 
     // clear IDLE flag
     tmp = USART6->DR;
     tmp = USART6->SR;
 
-    len = DMA_Restart(USART6, 0, Protocol_Buffer_Length);
-    for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Judge, Judge.receiveBuf[i]);
-    }
+    // restart DMA and unpack
+    DMA_Restart(USART6, RX, &Judge, NULL, Protocol_Buffer_Length);
 }
 
 /**
@@ -85,35 +74,22 @@ void UART7_IRQHandler(void) {
     tmp = UART7->DR;
     tmp = UART7->SR;
 
-    len = DMA_Restart(UART7, 0, Protocol_Buffer_Length);
-    for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Board, Board.receiveBuf[i]);
-    }
+    // restart DMA and unpack
+    DMA_Restart(UART7, RX, &Board, NULL, Protocol_Buffer_Length);
 }
 
 /**
  * @brief UART8 串口中断
  */
 void UART8_IRQHandler(void) {
-    uint8_t  tmp;
-    uint16_t len;
-    int      i;
+    uint8_t tmp;
 
     // clear IDLE flag
     tmp = UART8->DR;
     tmp = UART8->SR;
 
-    // disable DMA and Unpack
-    DMA_Cmd(DMA1_Stream6, DISABLE);
-    while (DMA_GetFlagStatus(DMA1_Stream6, DMA_IT_TCIF6) != SET) {
-    }
-
-    // enable DMA
-    DMA_ClearFlag(DMA1_Stream6, DMA_FLAG_TCIF6 | DMA_FLAG_HTIF6);
-    while (DMA_GetCmdStatus(DMA1_Stream6) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA1_Stream6, DMA_BUFFER_LENGTH);
-    DMA_Cmd(DMA1_Stream6, ENABLE);
+    // restart DMA and unpack
+    DMA_Restart(UART8, RX, &Ps, NULL, Protocol_Buffer_Length);
 }
 
 // CAN1数据接收中断服务函数
