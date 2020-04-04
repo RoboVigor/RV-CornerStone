@@ -66,7 +66,8 @@ __HANDLE_EXT DebugData_Type   DebugData;
 // 底盘
 __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type         PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
-__HANDLE_EXT uint8_t PigeonCurrent, PigeonVoltage, PigeonEnergy; //超级电容的电压和裁判系统输出电流，为AD转换后的电压值。后面的是剩余电量
+__HANDLE_EXT uint8_t          PigeonCurrent, PigeonVoltage, PigeonEnergy, PigeonChargeEnable;
+//超级电容的电压和裁判系统输出电流，为AD转换后的电压值。后面的是剩余电量,以及通过底盘功率对充电时间进行限制
 
 // 通讯协议
 __HANDLE_EXT Protocol_Type Judge, Ps;

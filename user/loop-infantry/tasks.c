@@ -27,6 +27,7 @@ void Task_Safe_Mode(void *Parameters) {
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     LASER_ON;
+    PigeonNeedCharge = 0;
     while (1) {
         if (remoteData.switchRight != 2) {
             ControlMode = 1; //遥控器模式
@@ -432,6 +433,11 @@ void Task_Chassis(void *Parameters) {
         Chassis_Limit_Rotor_Speed(&ChassisData, 1000); // 设置转子速度上限 (rad/s)
         // Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
 
+        //超级电容充电功率限制
+        if (power <= 60) {
+            PigeonChargeEnable = 1;
+        }
+
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
         PID_Calculate(&PID_LBCM, ChassisData.rotorSpeed[1], Motor_LB.speed * RPM2RPS);
@@ -680,9 +686,12 @@ void Task_Capacitor(void *Parameters) {
     float      maxvoltage   = 4096;
 
     while (1) {
-        if (PigeonVoltage <= 853) {
+        if (PigeonChargeEnable && PigeonVoltage <= 800) {
             DISCHARGE_OFF;
             CHARGE_ON;
+        }
+        if (PigeonVoltage >= 4000) {
+            CHARGE_OFF;
         }
         if (PigeonMode) {
             if (!lastmode) {
@@ -690,7 +699,7 @@ void Task_Capacitor(void *Parameters) {
                 DISCHARGE_ON;
             }
             lastmode = PigeonMode;
-        } else {
+        } else if (!PigeonMode && PigeonChargeEnable) {
             if (lastmode) {
                 DISCHARGE_OFF;
                 CHARGE_ON;
