@@ -103,7 +103,7 @@ void Task_Client_Communication(void *Parameters) {
         Judge.clientCustomData.data_cmd_id = Protocol_Interact_Id_Client_Data;
         Judge.clientCustomData.send_id     = Judge.robotState.robot_id;
         Judge.clientCustomData.receiver_id = (Judge.clientCustomData.send_id % 10) | (Judge.clientCustomData.send_id / 10) << 4 | (0x01 << 8);
-        Judge.clientCustomData.data1       = SwingMode;
+        Judge.clientCustomData.data1       = SurplusEnergy;
         Judge.clientCustomData.data2       = Ps.seq;
         Judge.clientCustomData.data3       = Judge.seq;
         Judge.clientCustomData.masks       = 0;
@@ -306,10 +306,10 @@ void Task_Chassis(void *Parameters) {
     while (1) {
 
         // 设置反馈值
-        motorAngle  = Motor_Yaw.angle;                          // 电机角度
-        motorSpeed  = Motor_Yaw.speed * RPM2RPS;                // 电机角速度
-        power       = Judge.powerHeatData.chassis_power;        // 裁判系统功率
-        powerBuffer = Judge.powerHeatData.chassis_power_buffer; // 裁判系统功率缓冲
+        motorAngle  = Motor_Yaw.angle;                                // 电机角度
+        motorSpeed  = Motor_Yaw.speed * RPM2RPS;                      // 电机角速度
+        power       = 24 * ((CCurrent * 4.5 / 4096) - 0.5 * 5) / 0.1; // 电流计测得功率
+        powerBuffer = Judge.powerHeatData.chassis_power_buffer;       // 裁判系统功率缓冲
 
         // 视觉专属follow PID
         if (PsAimEnabled) {
@@ -672,6 +672,38 @@ void Task_Fire_Frict(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_Capacitor(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.1;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+    int        lastmode     = 0;
+    float      maxvoltage   = 4096;
+
+    while (1) {
+        if (CVoltage == 853) {
+            DISCHARGE_OFF;
+            CHARGE_ON;
+        }
+        if (PigeonMode) {
+            if (!lastmode) {
+                CHARGE_OFF;
+                DISCHARGE_ON;
+            }
+            lastmode = PigeonMode;
+        } else {
+            if (lastmode) {
+                DISCHARGE_OFF;
+                CHARGE_ON;
+            }
+            lastmode = PigeonMode;
+        }
+        SurplusEnergy = 100 * CVoltage / maxvoltage;
+
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+    vTaskDelete(NULL);
+}
+
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
@@ -732,6 +764,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
     xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Capacitor, "Task_Capacitor", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

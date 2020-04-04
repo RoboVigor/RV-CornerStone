@@ -27,12 +27,19 @@
 #define __HANDLE_EXT extern
 #endif
 
+#define CHARGE_ON GPIO_SetBits(GPIOA, GPIO_Pin_1)
+#define CHARGE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_1)
+
+#define DISCHARGE_ON GPIO_SetBits(GPIOA, GPIO_Pin_3)
+#define DISCHARGE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3)
+
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 功能开关
 __HANDLE_EXT uint8_t ControlMode;
-__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, SwingMode, PsAimEnabled, PsShootEnabled, LowSpeedMode, MagzineOpened, FastShootMode, SafetyMode;
+__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, SwingMode, PsAimEnabled, PsShootEnabled, LowSpeedMode, MagzineOpened, FastShootMode, SafetyMode, PigeonMode;
+//鸽子模式是开超级电容的模式（鸽子是世界上跑的最快的生物！逃）万一武工不同意，备选名称：WuwuwuMode，XiuxiuMode
 
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
@@ -59,6 +66,7 @@ __HANDLE_EXT DebugData_Type DebugData;
 // 底盘
 __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
+__HANDLE_EXT uint8_t CCurrent, CVoltage, SurplusEnergy; //超级电容的电压和裁判系统输出电流，为AD转换后的电压值。后面的是剩余电量
 
 // 通讯协议
 __HANDLE_EXT Protocol_Type Judge, Ps;

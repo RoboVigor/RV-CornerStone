@@ -6,11 +6,31 @@
 #include "bsp.h"
 #include "handle.h"
 
+void BSP_Capacitor_Init(void) {
+    GPIO_InitTypeDef GPIO_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+    // Discharge
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_3;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    // Charge
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_1;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+}
+
 void BSP_Init(void) {
     BSP_CAN_Init();
     BSP_DBUS_Init(remoteBuffer);
     BSP_TIM2_Init();
     BSP_IMU_Init();
+    BSP_Capacitor_Init();
     BSP_Laser_Init();
     BSP_Beep_Init();
     BSP_LED_Init();
