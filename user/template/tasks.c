@@ -208,6 +208,9 @@ void Task_Board_Communication(void *Parameters) {
         // DMA重启
         DMA_Restart(UART7, TX, &Board, Protocol_Interact_Id_Board, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
+        // Can发送
+        Can_Send_Msg(CAN1, &Board.boardInteractiveData[0], dataLength);
+
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息

@@ -27,34 +27,29 @@ void Can_Send(CAN_TypeDef *CANx, int16_t id, int16_t i_201, int16_t i_202, int16
     CAN_Transmit(CANx, &message);
 }
 
-void Can_Send_Msg(CAN_TypeDef *CANx, Protocol_Data_Type *Msg, uint16_t id, uint16_t dataLength) {
-    CanTxMsg Txmessage;
-    int      i;
-    uint8_t  mbox;
+void Can_Send_Msg(CAN_TypeDef *CANx, Protocol_Data_Type *Msg, uint16_t dataLength) {
+    int data[4];
+    int id = 0x300;
+    int i;
 
-    Txmessage.StdId = id;
-    Txmessage.IDE   = CAN_Id_Standard;
-    Txmessage.RTR   = CAN_RTR_Data;
-    Txmessage.DLC   = dataLength;
-
-    for (i = 0; i < dataLength - 1; i++) {
-        Txmessage.Data[i] = Msg->data[i];
-    }
-
-    mbox = CAN_Transmit(CANx, &message);
-
-    while (CAN_TransmitStatus(CANx, mbox) == CAN_TxStatus_Failed) {
+    for (i = 0; i < dataLength / 4; i++) {
+        data[0] = id;
+        data[1] = dataLength;
+        data[2] = Msg->data_i[2 * i];
+        data[3] = Msg->data_i[2 * i + 1];
+        Can_Send(CANx, id, data[0], data[1], data[2], data[3]);
+        id++;
     }
 }
 
-uint16_t Can_Receive_Msg(CAN_TypeDef *CANx, Protocol_Data_Type *Msg) {
-    CanRxMsg RxMessage;
-    int      i;
+void Can_Receive_Msg(CanRxMsg *CanRxData, Protocol_Data_Type *Msg) {
+    int id;
+    int dataLength;
+    int i;
 
-    if (CAN_MessagePending(CANx, CAN_FIFO0) == 0) return 0;
-    CAN_Receive(CANx, CAN_FIFO0, &RxMessage);
-    for (i = 0; i < RxMessage.DLC; i++)
-        Msg->data[i] = RxMessage.Data[i];
-
-    return RxMessage.DLC;
+    id         = (short) ((int) CanRxData->Data[0] << 8 | CanRxData->Data[1]);
+    dataLength = (short) ((int) CanRxData->Data[2] << 8 | CanRxData->Data[3]);
+    for (i = 0; i < 4; i++) {
+        Msg->data[4 * (id - 0x300) + i] = CanRxData->Data[4 + i];
+    }
 }

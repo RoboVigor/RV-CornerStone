@@ -262,6 +262,9 @@ typedef struct {
             float data_f[PROTOCOL_DATA_NUM];
         };
         struct {
+            int data_i[PROTOCOL_DATA_NUM * (sizeof(float) / sizeof(int))];
+        };
+        struct {
             uint8_t data[PROTOCOL_DATA_NUM * sizeof(float)];
         };
     };

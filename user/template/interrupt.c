@@ -122,6 +122,7 @@ void CAN1_RX0_IRQHandler(void) {
         break;
 
     default:
+        Can_Receive_Msg(&CanRxData, &Board.boardInteractiveData[1]);
         break;
     }
 }
