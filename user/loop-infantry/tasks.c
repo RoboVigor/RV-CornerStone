@@ -103,7 +103,7 @@ void Task_Client_Communication(void *Parameters) {
         Judge.clientCustomData.data_cmd_id = Protocol_Interact_Id_Client_Data;
         Judge.clientCustomData.send_id     = Judge.robotState.robot_id;
         Judge.clientCustomData.receiver_id = (Judge.clientCustomData.send_id % 10) | (Judge.clientCustomData.send_id / 10) << 4 | (0x01 << 8);
-        Judge.clientCustomData.data1       = SurplusEnergy;
+        Judge.clientCustomData.data1       = PigeonEnergy;
         Judge.clientCustomData.data2       = Ps.seq;
         Judge.clientCustomData.data3       = Judge.seq;
         Judge.clientCustomData.masks       = 0;
@@ -306,10 +306,10 @@ void Task_Chassis(void *Parameters) {
     while (1) {
 
         // 设置反馈值
-        motorAngle  = Motor_Yaw.angle;                                // 电机角度
-        motorSpeed  = Motor_Yaw.speed * RPM2RPS;                      // 电机角速度
-        power       = 24 * ((CCurrent * 4.5 / 4096) - 0.5 * 5) / 0.1; // 电流计测得功率
-        powerBuffer = Judge.powerHeatData.chassis_power_buffer;       // 裁判系统功率缓冲
+        motorAngle  = Motor_Yaw.angle;                                     // 电机角度
+        motorSpeed  = Motor_Yaw.speed * RPM2RPS;                           // 电机角速度
+        power       = 24 * ((PigeonCurrent * 4.5 / 4096) - 0.5 * 5) / 0.1; // 电流计测得功率
+        powerBuffer = Judge.powerHeatData.chassis_power_buffer;            // 裁判系统功率缓冲
 
         // 视觉专属follow PID
         if (PsAimEnabled) {
@@ -680,7 +680,7 @@ void Task_Capacitor(void *Parameters) {
     float      maxvoltage   = 4096;
 
     while (1) {
-        if (CVoltage == 853) {
+        if (PigeonVoltage <= 853) {
             DISCHARGE_OFF;
             CHARGE_ON;
         }
@@ -697,7 +697,7 @@ void Task_Capacitor(void *Parameters) {
             }
             lastmode = PigeonMode;
         }
-        SurplusEnergy = 100 * CVoltage / maxvoltage;
+        PigeonEnergy = 100 * PigeonVoltage / maxvoltage;
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
