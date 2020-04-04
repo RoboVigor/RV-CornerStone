@@ -97,6 +97,7 @@ void CAN1_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
     int      position;
     int      speed;
+    int      i;
 
     // 读取数据
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
@@ -122,7 +123,9 @@ void CAN1_RX0_IRQHandler(void) {
         break;
 
     default:
-        Can_Receive_Msg(&CanRxData, &Board.boardInteractiveData[1]);
+        for (i = 0; i < 7; i++) {
+            Protocol_Unpack(&Board, CanRxData.Data[i]);
+        }
         break;
     }
 }

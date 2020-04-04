@@ -100,7 +100,8 @@ void Task_Client_Communication(void *Parameters) {
 
     while (1) {
         int      index = 0;
-        uint16_t dataLength;
+        uint16_t id;
+        uint16_t length;
 
         switch (Judge.mode) {
         case MODE_CLIENT_DATA: {
@@ -114,10 +115,8 @@ void Task_Client_Communication(void *Parameters) {
             Judge.clientCustomData.data3 = 1.11;
             Judge.clientCustomData.masks = 0x3c;
 
-            dataLength = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client_Data;
-
-            // DMA重启
-            DMA_Restart(USART6, TX, &Judge, Protocol_Interact_Id_Client_Data, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+            id     = Protocol_Interact_Id_Client_Data;
+            length = PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client_Data;
 
             Judge.mode = MODE_ROBOT_INTERACT;
         } break;
@@ -133,10 +132,8 @@ void Task_Client_Communication(void *Parameters) {
             Judge.robotInteractiveData[0].transformer[index++].F = 1.11;
             Judge.robotInteractiveData[0].transformer[index++].F = 1.111;
 
-            dataLength = Protocol_Pack_Length_0301_Header + index * sizeof(float);
-
-            // DMA重启
-            DMA_Restart(USART6, TX, &Judge, 0x0200, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+            id     = 0x200;
+            length = PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol_Pack_Length_0301_Header + index * sizeof(float);
 
             Judge.mode = MODE_CLIENT_GRAPH;
         } break;
@@ -164,10 +161,8 @@ void Task_Client_Communication(void *Parameters) {
             Judge.clientGraphicDraw.start_y = 540;
             Judge.clientGraphicDraw.radius  = 100;
 
-            dataLength = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client_Graph;
-
-            // DMA重启
-            DMA_Restart(USART6, TX, &Judge, Protocol_Interact_Id_Client_Graph, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+            id     = Protocol_Interact_Id_Client_Graph;
+            length = PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client_Graph;
 
             Judge.mode = MODE_CLIENT_DATA;
         } break;
@@ -175,6 +170,9 @@ void Task_Client_Communication(void *Parameters) {
         default:
             break;
         }
+
+        // DMA重启
+        DMA_Restart(USART6, TX, &Judge, id, length);
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -194,7 +192,8 @@ void Task_Board_Communication(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
-        uint16_t dataLength;
+        uint16_t id;
+        uint16_t length;
 
         // 板间通信
         Board.boardInteractiveData[0].data_f[1] = 1.11;
@@ -203,13 +202,14 @@ void Task_Board_Communication(void *Parameters) {
         Board.boardInteractiveData[0].data_f[2] = 4.44;
         Board.boardInteractiveData[0].data_f[2] = 5.55;
 
-        dataLength = Protocol_Pack_Length_0302;
+        id     = Protocol_Interact_Id_Board;
+        length = PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol_Pack_Length_0302;
 
         // DMA重启
-        DMA_Restart(UART7, TX, &Board, Protocol_Interact_Id_Board, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        DMA_Restart(UART7, TX, &Board, id, length);
 
         // Can发送
-        Can_Send_Msg(CAN1, &Board.boardInteractiveData[0], dataLength);
+        Can_Send_Msg(CAN1, &Board, id, length);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
@@ -230,16 +230,18 @@ void Task_Vision_Communication(void *Parameters) {
 
     while (1) {
         int      index = 0;
-        uint16_t dataLength;
+        uint16_t id;
+        uint16_t length;
 
         // 视觉通信
         Ps.visionInteractiveData.transformer[index].U16[1]   = 0x6666;
         Ps.visionInteractiveData.transformer[index++].U16[2] = 0x6666;
 
-        dataLength = index * sizeof(float);
+        id     = Protocol_Interact_Id_Vision;
+        length = PROTOCOL_HEADER_CRC_CMDID_LEN + index * sizeof(float);
 
         // DMA重启
-        DMA_Restart(UART8, TX, &Ps, Protocol_Interact_Id_Vision, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        DMA_Restart(UART8, TX, &Ps, id, length);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }

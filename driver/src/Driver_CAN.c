@@ -2,6 +2,7 @@
 
 void Can_Send(CAN_TypeDef *CANx, int16_t id, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204) {
     CanTxMsg message;
+    uint8_t  mailBox;
     message.StdId = id;
     message.IDE   = CAN_Id_Standard;
     message.RTR   = CAN_RTR_Data;
@@ -24,32 +25,24 @@ void Can_Send(CAN_TypeDef *CANx, int16_t id, int16_t i_201, int16_t i_202, int16
         }
     } while (!(CANx->TSR & 0x1C000000));
 
-    CAN_Transmit(CANx, &message);
-}
+    mailBox = CAN_Transmit(CANx, &message);
 
-void Can_Send_Msg(CAN_TypeDef *CANx, Protocol_Data_Type *Msg, uint16_t dataLength) {
-    int data[4];
-    int id = 0x300;
-    int i;
-
-    for (i = 0; i < dataLength / 4; i++) {
-        data[0] = id;
-        data[1] = dataLength;
-        data[2] = Msg->data_i[2 * i];
-        data[3] = Msg->data_i[2 * i + 1];
-        Can_Send(CANx, id, data[0], data[1], data[2], data[3]);
-        id++;
+    while (CAN_TransmitStatus(CANx, mailBox) == CAN_TxStatus_Failed) {
     }
 }
 
-void Can_Receive_Msg(CanRxMsg *CanRxData, Protocol_Data_Type *Msg) {
-    int id;
-    int dataLength;
-    int i;
+void Can_Send_Msg(CAN_TypeDef *CANx, Protocol_Type *Protocol, uint16_t id, uint16_t length) {
+    int      data[4];
+    uint16_t dataLength;
+    int      i;
 
-    id         = (short) ((int) CanRxData->Data[0] << 8 | CanRxData->Data[1]);
-    dataLength = (short) ((int) CanRxData->Data[2] << 8 | CanRxData->Data[3]);
-    for (i = 0; i < 4; i++) {
-        Msg->data[4 * (id - 0x300) + i] = CanRxData->Data[4 + i];
+    dataLength = length - PROTOCOL_HEADER_CRC_CMDID_LEN;
+    Protocol_Pack(Protocol, dataLength, id);
+    for (i = 0; i < length / 8 + 1; i++) {
+        data[0] = Protocol->sendBuf[8 * i] << 8 | Protocol->sendBuf[8 * i + 1];
+        data[1] = Protocol->sendBuf[8 * i + 2] << 8 | Protocol->sendBuf[8 * i + 3];
+        data[2] = Protocol->sendBuf[8 * i + 4] << 8 | Protocol->sendBuf[8 * i + 5];
+        data[3] = Protocol->sendBuf[8 * i + 6] << 8 | Protocol->sendBuf[8 * i + 7];
+        Can_Send(CANx, id, data[0], data[1], data[2], data[3]);
     }
 }
