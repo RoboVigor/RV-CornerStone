@@ -308,7 +308,7 @@ void Task_Chassis(void *Parameters) {
         // 设置反馈值
         motorAngle  = Motor_Yaw.angle;                                     // 电机角度
         motorSpeed  = Motor_Yaw.speed * RPM2RPS;                           // 电机角速度
-        power       = 24 * ((PigeonCurrent * 4.5 / 4096) - 0.5 * 5) / 0.1; // 电流计测得功率
+        power       = 24 * ((PigeonCurrent * 4.5 / 4096) - 0.5 * 5) / 0.1; // 电流计测得功率：利用霍尔元件Vout=0.5*5+I*0.1。最大电压为4.5V
         powerBuffer = Judge.powerHeatData.chassis_power_buffer;            // 裁判系统功率缓冲
 
         // 视觉专属follow PID
