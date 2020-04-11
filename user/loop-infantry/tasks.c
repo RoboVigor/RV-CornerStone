@@ -713,6 +713,26 @@ void Task_Capacitor(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_ADC_Get(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.1;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+    while (1) {
+
+        ADC_SoftwareStartConv(ADC1);    //使能指定的 ADC1 的软件转换启动功能
+        DMA_Cmd(DMA2_Channel0, ENABLE); //启动DMA通道
+        while (!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC)) {
+        } //等待转换结束
+
+        for (int count = 0; count < 20; count++) {
+            PigeonVoltage += ADC_Value[count][0];
+            PigeonCurrent += ADC_Value[count][1];
+        }
+
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+    vTaskDelete(NULL);
+}
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
@@ -774,6 +794,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
     xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
     xTaskCreate(Task_Capacitor, "Task_Capacitor", 400, NULL, 6, NULL);
+    xTaskCreate(Task_ADC_Get, "Task_ADC_Get", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

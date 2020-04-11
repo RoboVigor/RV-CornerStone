@@ -971,6 +971,33 @@ uint8_t KTV_Play(Song_Type song) {
     return 0;
 }
 
+void BSP_ADC_Init(void) {
+
+    ADC_CommonInitTypeDef ADC_CommonInitStructure;
+    ADC_InitTypeDef       ADC_InitStructure;
+
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE); //使能 ADC1 时钟
+    // ADC通用配置
+    ADC_CommonInitStructure.ADC_DMAAccessMode    = ADC_DMAAccessMode_Disabled; //对于多通道所以不用？
+    ADC_CommonInitStructure.ADC_Mode             = ADC_Mode_Independent;       //独立采样
+    ADC_CommonInitStructure.ADC_Prescaler        = ADC_Prescaler_Div4;         //最好不要小于3
+    ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
+    ADC_CommonInit(&ADC_CommonInitStructure);
+    // ADC1配置
+    ADC_InitStructyre.ADC_ContinuousConvMode = DISABLE;
+    ADC_InitStructyre.ADC_DataAlign          = ADC_DataAlign_Right;
+    ADC_InitStructyre.ADC_ExternalTrigConv   = ADC_ExternalTrigConvEdge_None; //使用软件触发（暂定）
+    ADC_InitStructyre.ADC_NbrOfConversion    = 2;                             //一共进行两个转换
+    ADC_InitStructyre.ADC_Resolution         = ADC_Resolution_12b;
+    ADC_InitStructyre.ADC_ScanConvMode       = DISABLE;
+    ADC_Init(ADC1, &ADC_InitStructyre);
+
+    ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_144Cycles);
+    ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 2, ADC_SampleTime_144Cycles);
+    ADC_DMACmd(ADC1, ENABLE);
+    ADC_Cmd(ADC1, ENABLE);
+}
+
 void BSP_I2C2_Init(void) {
     //占坑
 }

@@ -27,11 +27,11 @@
 #define __HANDLE_EXT extern
 #endif
 
-#define CHARGE_ON GPIO_SetBits(GPIOA, GPIO_Pin_1)
-#define CHARGE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_1)
+#define CHARGE_ON GPIO_SetBits(GPIOA, GPIO_Pin_4)
+#define CHARGE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_4)
 
-#define DISCHARGE_ON GPIO_SetBits(GPIOA, GPIO_Pin_3)
-#define DISCHARGE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3)
+#define DISCHARGE_ON GPIO_SetBits(GPIOA, GPIO_Pin_5)
+#define DISCHARGE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_5)
 
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
@@ -81,6 +81,9 @@ __HANDLE_EXT PID_Type   PID_StirSpeed, PID_StirAngle; // 拨弹轮 速度/角度
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;
+
+// ADC
+__HANDLE_EXT uint8_t ADC_Value[20][2]; // 20次，两个通道,1为电压，2为电流
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行

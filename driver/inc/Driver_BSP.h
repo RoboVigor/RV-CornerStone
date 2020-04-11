@@ -84,4 +84,6 @@ void LED_Run_Horse_XP();
 void    BSP_Beep_Init(void);
 uint8_t KTV_Play(Song_Type song);
 
+// ADC
+void BSP_ADC_Init(void);
 #endif
