@@ -44,3 +44,8 @@
 #define GYROSCOPE_YAW_FILTER_THRESHOLD 0.005f   // 零飘修正阈值
 #define GYROSCOPE_LSB 16.384f                   // 陀螺仪敏感度 2^16/4000
 #define ACCELERATE_LSB 4096.0f                  // 加速度计敏感度 2^16/16
+
+// 数模转化参数
+#define ADC_CHANNEL_NUM 2        // 数模转化通道数
+#define ADC_COLLECT_TIME 20      // 数模转化采集次数
+#define ADC_BUFFER_LENGTH 2 * 20 //数模转化缓存区长度

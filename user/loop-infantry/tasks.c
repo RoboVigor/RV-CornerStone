@@ -27,7 +27,7 @@ void Task_Safe_Mode(void *Parameters) {
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     LASER_ON;
-    PigeonNeedCharge = 0;
+    PigeonChargeEnable = 0;
     while (1) {
         if (remoteData.switchRight != 2) {
             ControlMode = 1; //遥控器模式
@@ -718,16 +718,21 @@ void Task_ADC_Get(void *Parameters) {
     float      interval     = 0.1;                 // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
     while (1) {
+        int count;
 
-        ADC_SoftwareStartConv(ADC1);    //使能指定的 ADC1 的软件转换启动功能
-        DMA_Cmd(DMA2_Channel0, ENABLE); //启动DMA通道
+        ADC_SoftwareStartConv(ADC1);   //使能指定的 ADC1 的软件转换启动功能
+        DMA_Cmd(DMA2_Stream0, ENABLE); //启动DMA通道
         while (!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC)) {
         } //等待转换结束
 
-        for (int count = 0; count < 20; count++) {
+        PigeonVoltage = 0;
+        PigeonCurrent = 0;
+        for (count = 0; count < 20; count++) {
             PigeonVoltage += ADC_Value[count][0];
             PigeonCurrent += ADC_Value[count][1];
         }
+        PigeonVoltage /= count;
+        PigeonCurrent /= count;
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }

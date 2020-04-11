@@ -8,6 +8,7 @@
 #include "key.h"
 #include "rtos.h"
 #include "vegmath.h"
+#include "config.h"
 #include "Driver_BSP.h"
 #include "Driver_Filter.h"
 #include "Driver_Magic.h"
@@ -83,7 +84,7 @@ __HANDLE_EXT PID_Type   PID_StirSpeed, PID_StirAngle; // 拨弹轮 速度/角度
 __HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;
 
 // ADC
-__HANDLE_EXT uint8_t ADC_Value[20][2]; // 20次，两个通道,1为电压，2为电流
+__HANDLE_EXT uint32_t ADC_Value[ADC_CHANNEL_NUM][ADC_CHANNEL_NUM]; // 20次，两个通道,1为电压，2为电流
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行

@@ -29,6 +29,26 @@
 #define PWM_PORT_PI7 0x21331007
 #define PWM_PORT_PI2 0x21341002
 
+#define ADC_Channel0 0x00000001
+#define ADC_Channel1 0x00000002
+#define ADC_Channel2 0x00000004
+#define ADC_Channel3 0x00000008
+#define ADC_Channel4 0x00000010
+#define ADC_Channel5 0x00000020
+#define ADC_Channel6 0x00000040
+#define ADC_Channel7 0x00000080
+#define ADC_Channel8 0x00000100
+#define ADC_Channel9 0x00000200
+#define ADC_Channel10 0x00000400
+#define ADC_Channel11 0x00000800
+#define ADC_Channel12 0x00001000
+#define ADC_Channel13 0x00002000
+#define ADC_Channel14 0x00004000
+#define ADC_Channel15 0x00008000
+#define ADC_Channel16 0x00010000
+#define ADC_Channel17 0x00020000
+#define ADC_Channel18 0x00040000
+
 typedef struct {
     uint32_t      RCC_APBxPeriph_TIMx;
     TIM_TypeDef * TIMx;
@@ -58,6 +78,13 @@ void BSP_TIM2_Init(void);
 // DMA
 void BSP_DMA_USART3_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
 void BSP_DMA_USART6_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
+void BSP_DMA_UART7_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
+void BSP_DMA_UART8_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
+void BSP_DMA_USART3_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
+void BSP_DMA_USART6_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
+void BSP_DMA_UART7_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
+void BSP_DMA_UART8_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
+void BSP_DMA_ADC1_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
 
 // USART
 void BSP_USART_Init(
@@ -85,5 +112,6 @@ void    BSP_Beep_Init(void);
 uint8_t KTV_Play(Song_Type song);
 
 // ADC
-void BSP_ADC_Init(void);
+void BSP_ADC_Init(ADC_TypeDef *, uint16_t, uint32_t, uint32_t, uint32_t, uint16_t, uint16_t);
+void BSP_ADC1_Init(uint32_t ADC_NbrOfConversion, uint32_t ADC_Channel, uint16_t interruptFlag);
 #endif

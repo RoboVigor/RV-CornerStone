@@ -971,31 +971,105 @@ uint8_t KTV_Play(Song_Type song) {
     return 0;
 }
 
-void BSP_ADC_Init(void) {
-
+void BSP_ADC_Init(ADC_TypeDef *ADCx,
+                  uint16_t     RCC_APBx,
+                  uint32_t     RCC_APBxPeriph_ADCx,
+                  uint32_t     ADC_NbrOfConversion,
+                  uint32_t     ADC_Channel,
+                  uint16_t     priority,
+                  uint16_t     interruptFlag) {
+    uint8_t               ADC_Channelx;
+    uint8_t               Rank = 1;
     ADC_CommonInitTypeDef ADC_CommonInitStructure;
     ADC_InitTypeDef       ADC_InitStructure;
 
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE); //使能 ADC1 时钟
-    // ADC通用配置
-    ADC_CommonInitStructure.ADC_DMAAccessMode    = ADC_DMAAccessMode_Disabled; //对于多通道所以不用？
-    ADC_CommonInitStructure.ADC_Mode             = ADC_Mode_Independent;       //独立采样
-    ADC_CommonInitStructure.ADC_Prescaler        = ADC_Prescaler_Div4;         //最好不要小于3
-    ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
-    ADC_CommonInit(&ADC_CommonInitStructure);
-    // ADC1配置
-    ADC_InitStructyre.ADC_ContinuousConvMode = DISABLE;
-    ADC_InitStructyre.ADC_DataAlign          = ADC_DataAlign_Right;
-    ADC_InitStructyre.ADC_ExternalTrigConv   = ADC_ExternalTrigConvEdge_None; //使用软件触发（暂定）
-    ADC_InitStructyre.ADC_NbrOfConversion    = 2;                             //一共进行两个转换
-    ADC_InitStructyre.ADC_Resolution         = ADC_Resolution_12b;
-    ADC_InitStructyre.ADC_ScanConvMode       = DISABLE;
-    ADC_Init(ADC1, &ADC_InitStructyre);
+    if (RCC_APBx == RCC_APB1)
+        RCC_APB1PeriphClockCmd(RCC_APBxPeriph_ADCx, ENABLE); // 使能时钟
+    else if (RCC_APBx == RCC_APB2)
+        RCC_APB2PeriphClockCmd(RCC_APBxPeriph_ADCx, ENABLE); // 使能时钟
 
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_144Cycles);
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 2, ADC_SampleTime_144Cycles);
-    ADC_DMACmd(ADC1, ENABLE);
-    ADC_Cmd(ADC1, ENABLE);
+    // ADC通用配置
+    ADC_CommonInitStructure.ADC_Mode             = ADC_Mode_Independent;          // 独立模式
+    ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_10Cycles; // 两个采样阶段之间的延迟x个时钟
+    ADC_CommonInitStructure.ADC_DMAAccessMode    = ADC_DMAAccessMode_1;           // DMA使能（DMA传输下要设置使能）
+    ADC_CommonInitStructure.ADC_Prescaler        = ADC_Prescaler_Div4;            // 预分频4分频
+    ADC_CommonInit(&ADC_CommonInitStructure);
+
+    // ADCx配置
+    ADC_InitStructure.ADC_DataAlign          = ADC_DataAlign_Right;           // 右对齐
+    ADC_InitStructure.ADC_ExternalTrigConv   = ADC_ExternalTrigConvEdge_None; // 使用软件触发（暂定）
+    ADC_InitStructure.ADC_NbrOfConversion    = ADC_NbrOfConversion;           // 转换数量
+    ADC_InitStructure.ADC_Resolution         = ADC_Resolution_12b;            // 12位模式
+    ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;                        // 开启连续转换（开启DMA传输要设置连续转换）
+    ADC_InitStructure.ADC_ScanConvMode       = ENABLE;                        // 扫描（开启DMA传输要设置扫描）
+    ADC_Init(ADCx, &ADC_InitStructure);
+
+    for (ADC_Channelx = ADC_Channel_0; ADC_Channelx <= ADC_Channel_18; ADC_Channelx++) {
+        if (ADC_Channel >> ADC_Channelx & 0x01 == 1) {
+            ADC_RegularChannelConfig(ADCx, ADC_Channelx, Rank, ADC_SampleTime_144Cycles);
+            Rank++;
+        }
+    }
+
+    ADC_DMACmd(ADCx, ENABLE);
+    ADC_Cmd(ADCx, ENABLE);
+
+    // NVIC
+    if (interruptFlag != 0) {
+        NVIC_InitTypeDef NVIC_InitStructure;
+        NVIC_InitStructure.NVIC_IRQChannel                   = ADC_IRQn; // 串口中断通道
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = priority; // 抢占优先级
+        NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;        // 子优先级
+        NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;   // IRQ通道使能
+        NVIC_Init(&NVIC_InitStructure);                                  // 根据指定的参数初始化VIC寄存器
+    }
+}
+
+/**
+ * @brief ADC1初始化
+ * @param ADC_NbrOfConversion 转换数量
+ * @param ADC_Channel 通道选择
+ * @param interruptFlag 有无中断
+ */
+void BSP_ADC1_Init(uint32_t ADC_NbrOfConversion, uint32_t ADC_Channel, uint16_t interruptFlag) {
+    BSP_ADC_Init(ADC1, RCC_APB2, RCC_APB2Periph_ADC1, ADC_NbrOfConversion, ADC_Channel, 2, interruptFlag);
+}
+
+/**
+ * @brief ADC1的DMA初始化
+ *
+ * @param DMA_Memory0BaseAddr    复制到哪里
+ * @param DMA_BufferSize         长度
+ */
+void BSP_DMA_ADC1_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+    // NVIC
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA2_Stream0_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    // DMA
+    DMA_InitTypeDef DMA_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+    DMA_InitStructure.DMA_Channel            = DMA_Channel_0;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &ADC1->DR;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
+    DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
+    DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Disable;
+    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOStatus_Full;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA2_Stream0, &DMA_InitStructure);
+    DMA_Cmd(DMA2_Stream0, ENABLE);
 }
 
 void BSP_I2C2_Init(void) {
