@@ -32,7 +32,7 @@ __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 功能开关
 __HANDLE_EXT uint8_t ControlMode;
-__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, SwingMode, PsAimEnabled, PsShootEnabled, LowSpeedMode, MagzineOpened, FastShootMode, SafetyMode;
+__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, SwingMode, PsAimEnabled, PsShootEnabled, LowSpeedMode, HighSpeedMode, MagzineOpened, FastShootMode, SafetyMode;
 
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;

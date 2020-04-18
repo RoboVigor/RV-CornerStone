@@ -43,8 +43,10 @@ void Task_Control(void *Parameters) {
             FrictEnabled  = remoteData.switchLeft == 2;
             StirEnabled   = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
             // 小陀螺测试
-            // SwingMode = ((remoteData.switchLeft == 2) && (remoteData.switchRight == 1)) ? 1 : 0;
-
+            // SwingMode = ((remoteData.switchLeft == 2) && (remoteData.switchRight == 1))?3:0;
+            // 超级电容
+            // HighSpeedMode = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
+            HighSpeedMode = 0;
             // 安全模式
             // SafetyMode   = remoteData.switchRight == 2;
             FastShootMode = 0;
@@ -61,20 +63,17 @@ void Task_Control(void *Parameters) {
                 Key_Disable(&keyboardData, KEY_G, 50);
             }
             // 弹舱盖
-            if (keyboardData.F && !keyboardData.Ctrl) {
-                MagzineOpened = 1;
-            } else if (keyboardData.F && keyboardData.Ctrl) {
-                MagzineOpened = 0;
-                Key_Disable(&keyboardData, KEY_F, 50);
-            }
+            MagzineOpened = keyboardData.F;
             // 小陀螺
-            if (keyboardData.Z) {
+            if (keyboardData.C) {
                 SwingMode = 3;
             } else if (keyboardData.V) {
                 SwingMode = 0;
             }
             // 低速模式
-            LowSpeedMode = keyboardData.Shift;
+            // LowSpeedMode = keyboardData.Shift;
+            // 高速模式
+            HighSpeedMode = 0;
             // 高射速模式
             FastShootMode = keyboardData.E;
         }
@@ -176,7 +175,7 @@ void Task_Gimbal(void *Parameters) {
         // 遥控器输入角度目标
         if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 360 * interval;
         if (ABS(remoteData.ry) > 30) pitchAngleTargetControl -= remoteData.ry / 660.0f * 360 * interval;
-        yawAngleTargetControl += mouseData.x * 0.5 * 0.005;
+        yawAngleTargetControl += mouseData.x * 0.5 * 0.005; // 0.005
         pitchAngleTargetControl += mouseData.y * 0.005;
         MIAO(pitchAngleTargetControl, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
         yawAngleTarget += yawAngleTargetControl;
@@ -363,8 +362,8 @@ void Task_Chassis(void *Parameters) {
 
         // 设置底盘总体移动速度
         if (ControlMode == 1) {
-            vx = -remoteData.lx / 660.0f * 4.0;
-            vy = remoteData.ly / 660.0f * 12;
+            vx = -remoteData.lx / 660.0f * 8.0;
+            vy = remoteData.ly / 660.0f * 12.0;
         } else if (ControlMode == 2) {
             xTargetRamp = RAMP(xRampStart, 660, xRampProgress);
             if (xRampProgress <= 0.5) {
@@ -424,13 +423,19 @@ void Task_Chassis(void *Parameters) {
 
         // 麦轮解算及限速
         // targetPower = 70.0 - WANG(30 - ChassisData.powerBuffer, 0.0, 10.0) / 10.0 * 70.0; // 设置目标功率
-        targetPower = 80.0 * (1 - WANG(60.0 - ChassisData.powerBuffer, 0.0, 40.0) / 40.0); // 设置目标功率
+        targetPower = 100.0 * (1 - WANG(60.0 - ChassisData.powerBuffer, 0.0, 40.0) / 40.0); // 设置目标功率
 
-        Chassis_Update(&ChassisData, vx, vy, vwRamp);  // 更新麦轮转速
-        Chassis_Fix(&ChassisData, motorAngle);         // 修正旋转后底盘的前进方向
-        Chassis_Calculate_Rotor_Speed(&ChassisData);   // 麦轮解算
-        Chassis_Limit_Rotor_Speed(&ChassisData, 1000); // 设置转子速度上限 (rad/s)
-        // Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
+        Chassis_Update(&ChassisData, vx, vy, vwRamp); // 更新麦轮转速
+        Chassis_Fix(&ChassisData, motorAngle);        // 修正旋转后底盘的前进方向
+        Chassis_Calculate_Rotor_Speed(&ChassisData);  // 麦轮解算
+        if (HighSpeedMode) {
+            Chassis_Limit_Rotor_Speed(&ChassisData, 1000);                                // 设置转子速度上限 (rad/s)
+            Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
+            ChassisData.powerScale = 1;
+        } else {
+            Chassis_Limit_Rotor_Speed(&ChassisData, 800);                                 // 设置转子速度上限 (rad/s)
+            Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
+        }
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
@@ -510,7 +515,7 @@ void Task_Fire_Stir(void *Parameters) {
     while (1) {
 // 弹舱盖开关
 #ifdef ROBOT_LOOP_ONE
-        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 19 : 9);
+        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 14 : 9);
 #endif
 #ifdef ROBOT_LOOP_TWO
         PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 14 : 6);
