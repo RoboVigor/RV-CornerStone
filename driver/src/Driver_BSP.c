@@ -750,7 +750,7 @@ void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px) {
     PWMx->RCC_AHB1Periph_GPIOx = 1 << ((PWM_Px >> 4 & 0xFF) / 4);
     PWMx->GPIO_Pin_x           = 1 << (PWM_Px & 0x0F);
     PWMx->CCRx                 = PWMx->Channel * 4 + 0x30;
-    PWMx->GPIOx                = (GPIO_TypeDef *) PWMx->GPIOx_Base;
+    PWMx->GPIOx                = (GPIO_TypeDef *) PWMx->GPIOx_BASE;
     PWMx->TIMx                 = (TIM_TypeDef *) PWMx->TIMx_BASE;
 }
 
