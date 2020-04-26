@@ -139,7 +139,7 @@ void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px) {
 }
 
 void testPortCode(string portName, PWM_Type *PWMx, uint32_t PWM_Px) {
-    cout << "Testing " << portName << ":";
+    cout << "Testing " << portName << ": ";
     PWM_Type PWM_Test_struct;
     PWM_Type * PWM_Test = &PWM_Test_struct;
     BSP_PWM_Set_Port(PWM_Test, PWM_Px);
