@@ -1,6 +1,14 @@
 /**
  * @brief 无人机代码
  * @version 1.2.0
+ * 写在最开始：飞机云台遥控器模式：左2 右2 全部停止
+ * 左1 右1 初始状态
+ * 左2 右1 启动snail
+ * lx 控制拨弹轮
+ * rx ry 控制云台
+ * 由于要抑制roll轴在摩擦轮开启高频振动的问题 调高陀螺仪读取频率至1000
+ * 所以开机时最好扶住云台，否则陀螺仪一开机会出现梯度上类似pid的过调现象
+ * 有任何问题请联系qq：740670513
  */
 #include "main.h"
 
@@ -127,7 +135,7 @@ void Task_Snail(void *Parameters) {
     }
     vTaskDelete(NULL);
 }
-
+// 云台任务关于角度使用的是陀螺仪
 void Task_Gimbal(void *Parameters) {
     // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -141,8 +149,8 @@ void Task_Gimbal(void *Parameters) {
     float pitchSpeed = 0;
     float rollAngle  = 0;
     float rollSpeed  = 0;
-		float lastRollAngle=0;
-		float x=0;
+	float lastRollAngle=0;
+	float x=0;
 
     // 目标值
     //（陀螺仪控制云台）初始目标角度初始化
@@ -155,6 +163,7 @@ void Task_Gimbal(void *Parameters) {
 
 
     //初始化云台PID
+    //加d抑制抖动 但是在起飞时由于高速震动会导致云台抖动
     PID_Init(&PID_Cloud_YawAngle, 120, 0, 15, 1000, 0);
     PID_Init(&PID_Cloud_YawSpeed, 30, 0, 1, 20000, 0);
     PID_Init(&PID_Cloud_PitchAngle, 100, 0, 2, 1000, 0);
@@ -213,7 +222,7 @@ void Task_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, 5);
     }
 }
-
+//射击看不懂就重写一下吧 有一部分是代码限制拨弹盘卡死的代码
 void Task_Fire(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      rpm2rps      = 3.14 / 60;           // 转子的转速(round/min)换算成角速度(rad/s)
