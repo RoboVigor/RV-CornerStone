@@ -198,9 +198,9 @@ void Task_Board_Communication(void *Parameters) {
         // 板间通信
         Board.boardInteractiveData[0].data_f[1] = 1.11;
         Board.boardInteractiveData[0].data_f[2] = 2.22;
-        Board.boardInteractiveData[0].data_f[2] = 3.33;
-        Board.boardInteractiveData[0].data_f[2] = 4.44;
-        Board.boardInteractiveData[0].data_f[2] = 5.55;
+        Board.boardInteractiveData[0].data_f[3] = 3.33;
+        Board.boardInteractiveData[0].data_f[4] = 4.44;
+        Board.boardInteractiveData[0].data_f[5] = 5.55;
 
         id     = Protocol_Interact_Id_Board;
         length = PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol_Pack_Length_0302;
@@ -212,13 +212,6 @@ void Task_Board_Communication(void *Parameters) {
         Can_Send_Msg(CAN1, &Board, id, length);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
-
-        // 调试信息
-        // DebugData.debug1 = Board.boardInteractiveData[1].data1 * 1000;
-        // DebugData.debug2 = Board.boardInteractiveData[1].data2 * 1000;
-        // DebugData.debug3 = Board.boardInteractiveData[1].data3 * 1000;
-        // DebugData.debug4 = Board.boardInteractiveData[1].data4 * 1000;
-        // DebugData.debug5 = Board.boardInteractiveData[1].data5 * 1000;
     }
     vTaskDelete(NULL);
 }
@@ -299,21 +292,21 @@ void Task_Sys_Init(void *Parameters) {
 #endif
 
     // 低级任务
-    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
+    // xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
-    while (!remoteData.state) {
-    }
+    // while (!remoteData.state) {
+    // }
 
     // 运动控制任务
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
 
     // DMA发送任务
-    // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

@@ -3,6 +3,8 @@
 void Can_Send(CAN_TypeDef *CANx, int16_t id, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204) {
     CanTxMsg message;
     uint8_t  mailBox;
+    uint16_t i = 0;
+
     message.StdId = id;
     message.IDE   = CAN_Id_Standard;
     message.RTR   = CAN_RTR_Data;
@@ -17,17 +19,10 @@ void Can_Send(CAN_TypeDef *CANx, int16_t id, int16_t i_201, int16_t i_202, int16
     message.Data[6] = (uint8_t)(i_204 >> 8);
     message.Data[7] = (uint8_t) i_204;
 
-    do {
-        if (CANx->ESR) {
-            // 可以在这里输出ESR来查看CAN错误
-            CANx->MCR |= 0x02;
-            CANx->MCR &= 0xFD;
-        }
-    } while (!(CANx->TSR & 0x1C000000));
-
     mailBox = CAN_Transmit(CANx, &message);
 
-    while (CAN_TransmitStatus(CANx, mailBox) == CAN_TxStatus_Failed) {
+    while (CAN_TransmitStatus(CANx, mailBox) == CAN_TxStatus_Failed && i != 0xff) {
+        i++;
     }
 }
 

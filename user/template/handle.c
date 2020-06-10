@@ -7,10 +7,10 @@
 
 void Handle_Init(void) {
     // 底盘电机
-    Motor_Init(&Motor_LF, CHASSIS_MOTOR_REDUCTION_RATE, 0);
-    Motor_Init(&Motor_LB, CHASSIS_MOTOR_REDUCTION_RATE, 0);
-    Motor_Init(&Motor_RB, CHASSIS_MOTOR_REDUCTION_RATE, 0);
-    Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, 0);
+    // Motor_Init(&Motor_LF, CHASSIS_MOTOR_REDUCTION_RATE, 0);
+    // Motor_Init(&Motor_LB, CHASSIS_MOTOR_REDUCTION_RATE, 0);
+    // Motor_Init(&Motor_RB, CHASSIS_MOTOR_REDUCTION_RATE, 0);
+    // Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, 0);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);

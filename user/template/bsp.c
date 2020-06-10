@@ -31,8 +31,8 @@ void BSP_Init(void) {
 
     // PS (UART8)
     BSP_UART8_Init(115200, USART_IT_IDLE);
-    BSP_DMA_UART8_RX_Init(Ps.receiveBuf, DMA_BUFFER_LENGTH);
-    BSP_DMA_UART8_TX_Init(Ps.sendBuf, DMA_BUFFER_LENGTH);
+    BSP_DMA_UART8_RX_Init(Ps.receiveBuf, Protocol_Buffer_Length);
+    BSP_DMA_UART8_TX_Init(Ps.sendBuf, Protocol_Buffer_Length);
 
     // PWM
     // BSP_PWM_Set_Port(&PWM_Test, PWM_PORT_PD12);

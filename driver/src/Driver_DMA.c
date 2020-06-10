@@ -1,13 +1,13 @@
 #include "Driver_DMA.h"
 
-DMA_Type DMA_Table[8] = {{USART3, 1, DMA1_Stream3, DMA_IT_TCIF3, DMA_FLAG_TCIF3, DMA_FLAG_HTIF3},
-                         {USART3, 0, DMA1_Stream1, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
-                         {USART6, 1, DMA2_Stream6, DMA_IT_TCIF6, DMA_FLAG_TCIF6, DMA_FLAG_HTIF6},
-                         {USART6, 0, DMA2_Stream1, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
-                         {UART7, 1, DMA1_Stream1, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
-                         {UART7, 0, DMA1_Stream3, DMA_IT_TCIF3, DMA_FLAG_TCIF3, DMA_FLAG_HTIF3},
-                         {UART8, 1, DMA1_Stream0, DMA_IT_TCIF0, DMA_FLAG_TCIF0, DMA_FLAG_HTIF0},
-                         {UART8, 0, DMA1_Stream6, DMA_IT_TCIF6, DMA_FLAG_TCIF6, DMA_FLAG_HTIF6}};
+DMA_Type DMA_Table[8] = {{USART3, TX, DMA1_Stream3, DMA_IT_TCIF3, DMA_FLAG_TCIF3, DMA_FLAG_HTIF3},
+                         {USART3, RX, DMA1_Stream1, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
+                         {USART6, TX, DMA2_Stream6, DMA_IT_TCIF6, DMA_FLAG_TCIF6, DMA_FLAG_HTIF6},
+                         {USART6, RX, DMA2_Stream1, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
+                         {UART7, TX, DMA1_Stream1, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
+                         {UART7, RX, DMA1_Stream3, DMA_IT_TCIF3, DMA_FLAG_TCIF3, DMA_FLAG_HTIF3},
+                         {UART8, TX, DMA1_Stream0, DMA_IT_TCIF0, DMA_FLAG_TCIF0, DMA_FLAG_HTIF0},
+                         {UART8, RX, DMA1_Stream6, DMA_IT_TCIF6, DMA_FLAG_TCIF6, DMA_FLAG_HTIF6}};
 
 void DMA_Select_Stream(DMA_Type *DMAx) {
 }
