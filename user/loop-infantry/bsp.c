@@ -46,12 +46,12 @@ void BSP_Init(void) {
     BSP_DMA_USART6_TX_Init(Judge.sendBuf, Protocol_Buffer_Length);
 
     // Servo
-    BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PORT_PI0);
+    BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PI0);
     BSP_PWM_Init(&PWM_Magazine_Servo, 9000, 200, TIM_OCPolarity_Low);
 
     // snail 电机pwm输出
-    BSP_PWM_Set_Port(&PWM_Snail1, PWM_PORT_PD12);
+    BSP_PWM_Set_Port(&PWM_Snail1, PWM_PD12);
     BSP_PWM_Init(&PWM_Snail1, 180, 1250, TIM_OCPolarity_Low);
-    BSP_PWM_Set_Port(&PWM_Snail2, PWM_PORT_PD13);
+    BSP_PWM_Set_Port(&PWM_Snail2, PWM_PD13);
     BSP_PWM_Init(&PWM_Snail2, 180, 1250, TIM_OCPolarity_Low);
 }

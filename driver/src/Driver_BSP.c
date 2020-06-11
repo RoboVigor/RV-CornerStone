@@ -738,7 +738,7 @@ void BSP_DMA_UART8_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize
 /**
  * @brief 设置PWM所使用的端口
  * @param PWMx   PWM结构体
- * @param PWM_Px 使用的端口,如PWM_PORT_PD12
+ * @param PWM_Px 使用的端口,如PWM_PD12
  */
 void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px) {
     PWMx->RCC_APBxPeriph_TIMx  = PWM_Px >> 28;

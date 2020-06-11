@@ -82,7 +82,7 @@ void BSP_UART7_Init(uint32_t baudRate, uint16_t interruptFlag);
 void BSP_UART8_Init(uint32_t baudRate, uint16_t interruptFlag);
 
 // PWM
-void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_PORT_Px);
+void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px);
 void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t polarity);
 void PWM_Set_Compare(PWM_Type *PWMx, uint32_t compare);
 

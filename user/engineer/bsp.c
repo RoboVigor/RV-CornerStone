@@ -333,17 +333,17 @@ void BSP_Init(void) {
     BSP_Supply_Init();          // 补给舵机初始化
 
     // 补给舵机输出
-    // BSP_PWM_Set_Port(&PWM_Supply1, PWM_PORT_PD14);
+    // BSP_PWM_Set_Port(&PWM_Supply1, PWM_PD14);
     // BSP_PWM_Init(&PWM_Supply1, 9000, 200, TIM_OCPolarity_Low);
-    // BSP_PWM_Set_Port(&PWM_Supply2, PWM_PORT_PD15);
+    // BSP_PWM_Set_Port(&PWM_Supply2, PWM_PD15);
     // BSP_PWM_Init(&PWM_Supply2, 9000, 200, TIM_OCPolarity_Low);
 
     // 图传舵机输出
-    BSP_PWM_Set_Port(&PWM_Image_Yaw, PWM_PORT_PD13);
+    BSP_PWM_Set_Port(&PWM_Image_Yaw, PWM_PD13);
     BSP_PWM_Init(&PWM_Image_Yaw, 9000, 200, TIM_OCPolarity_Low);
 
     // 救援摄像头舵机输出
-    BSP_PWM_Set_Port(&PWM_Visual_Rescue, PWM_PORT_PD12);
+    BSP_PWM_Set_Port(&PWM_Visual_Rescue, PWM_PD12);
     BSP_PWM_Init(&PWM_Visual_Rescue, 9000, 200, TIM_OCPolarity_Low);
 
     // 板间通信

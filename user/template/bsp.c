@@ -40,6 +40,6 @@ void BSP_Init(void) {
     BSP_DMA_UART8_TX_Init(DMA_Send_Buffer, DMA_BUFFER_LENGTH);
 
     // PWM
-    // BSP_PWM_Set_Port(&PWM_Test, PWM_PORT_PD12);
+    // BSP_PWM_Set_Port(&PWM_Test, PWM_PD12);
     // BSP_PWM_Init(&PWM_Test, 9000, 200, TIM_OCPolarity_Low);
 }
