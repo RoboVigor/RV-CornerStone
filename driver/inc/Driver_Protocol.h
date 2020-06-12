@@ -140,7 +140,7 @@ typedef struct {
             uint8_t data[Protocol_Pack_Length_0401];
         };
     };
-} ext_gimal_aim_data_t;
+} ext_gimbal_aim_data_t;
 
 typedef struct {
     uint16_t seq;
@@ -287,7 +287,7 @@ typedef struct {
     aerial_robot_energy_t     aerialRobotEnergy;                  // 空中机器人数据
     ext_robot_hurt_t          robotHurt;                          // 伤害数据
     ext_shoot_data_t          shootData;                          // 设计数据
-    ext_gimal_aim_data_t      autoaimData;                        // 视觉自瞄数据
+    ext_gimbal_aim_data_t     autoaimData;                        // 视觉自瞄数据
     interact_mode_e           mode;                               // 当前交互模式
     board_interactive_data_t  boardInteractiveData[2];            // 板间交互数据 0：发送 1：接收
     client_custom_data_t      clientCustomData;                   // 客户端自定义数据
