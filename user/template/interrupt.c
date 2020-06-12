@@ -101,10 +101,8 @@ void CAN1_RX0_IRQHandler(void) {
 
     // 读取数据
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
-    DebugData.debug2 = CanRxData.Data[0] << 24 | CanRxData.Data[1] << 16 | CanRxData.Data[2] << 8 | CanRxData.Data[3];
-    DebugData.debug3 = CanRxData.Data[4] << 24 | CanRxData.Data[5] << 16 | CanRxData.Data[6] << 8 | CanRxData.Data[7];
-    position         = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-    speed            = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+    speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
     // 安排数据
     switch (CanRxData.StdId) {
@@ -125,50 +123,57 @@ void CAN1_RX0_IRQHandler(void) {
         break;
 
     default:
-        for (i = 0; i < 7; i++) {
+        for (i = 0; i < 8; i++) {
+            // Ps.sendBuf[i] = CanRxData.Data[i];
             Protocol_Unpack(&Board, CanRxData.Data[i]);
         }
         break;
     }
+
+    // DMA_Restart(UART8, TX, &Ps, NULL, 8);
 }
 
-void CAN1_SCE_IRQHandler(void) {
-    RED_LIGHT_ON;
-    CAN_ClearITPendingBit(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR);
-}
+// void CAN1_SCE_IRQHandler(void) {
+//     RED_LIGHT_ON;
+//     CAN_ClearITPendingBit(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR);
+// }
 
 // CAN2数据接收中断服务函数
 void CAN2_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
     int      position;
     int      speed;
+    int      i;
 
     // 读取数据
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
     position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
     speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
-    // 安排数据
-    // switch (CanRxData.StdId) {
-    // case 0x201:
-    //     Motor_Update(&Motor_LF, position, speed);
-    //     break;
+    //安排数据
+    switch (CanRxData.StdId) {
+    case 0x201:
+        Motor_Update(&Motor_LF, position, speed);
+        break;
 
-    // case 0x202:
-    //     Motor_Update(&Motor_LB, position, speed);
-    //     break;
+    case 0x202:
+        Motor_Update(&Motor_LB, position, speed);
+        break;
 
-    // case 0x203:
-    //     Motor_Update(&Motor_RB, position, speed);
-    //     break;
+    case 0x203:
+        Motor_Update(&Motor_RB, position, speed);
+        break;
 
-    // case 0x204:
-    //     Motor_Update(&Motor_RF, position, speed);
-    //     break;
+    case 0x204:
+        Motor_Update(&Motor_RF, position, speed);
+        break;
 
-    // default:
-    //     break;
-    // }
+    default:
+        for (i = 0; i < 8; i++) {
+            Protocol_Unpack(&Board, CanRxData.Data[i]);
+            break;
+        }
+    }
 }
 
 // TIM2 高频计数器

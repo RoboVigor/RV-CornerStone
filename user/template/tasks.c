@@ -196,6 +196,7 @@ void Task_Board_Communication(void *Parameters) {
         uint16_t length;
 
         // 板间通信
+        Board.boardInteractiveData[0].data_f[0] = 0.00;
         Board.boardInteractiveData[0].data_f[1] = 1.11;
         Board.boardInteractiveData[0].data_f[2] = 2.22;
         Board.boardInteractiveData[0].data_f[3] = 3.33;
@@ -214,7 +215,9 @@ void Task_Board_Communication(void *Parameters) {
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
-        DebugData.debug1 = Board.boardInteractiveData[1].data_f[1];
+        // 调试信息
+        // DebugData.debug1 = Board.boardInteractiveData[1].data_f[1] * 1000;
+        ;
     }
     vTaskDelete(NULL);
 }

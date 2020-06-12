@@ -6,6 +6,7 @@
 #define __DRIVER_DMA_H
 
 #include "stm32f4xx.h"
+#include "stddef.h"
 #include "Driver_Protocol.h"
 
 typedef enum {

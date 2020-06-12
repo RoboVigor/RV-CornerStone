@@ -14,14 +14,14 @@
 #include "Driver_Magic.h"
 #include "Driver_PID.h"
 #include "Driver_DBUS.h"
-#include "Driver_CAN.h"
-#include "Driver_DMA.h"
-#include "Driver_Protocol.h"
 #include "Driver_Motor.h"
 #include "Driver_Chassis.h"
 #include "mpu6500_driver.h"
 #include "Driver_Gyroscope.h"
 #include "Driver_Fsm.h"
+#include "Driver_Protocol.h"
+#include "Driver_CAN.h"
+#include "Driver_DMA.h"
 
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT

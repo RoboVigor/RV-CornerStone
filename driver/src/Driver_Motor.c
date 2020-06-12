@@ -1,7 +1,7 @@
 #include "Driver_Motor.h"
 
 void Motor_Init(volatile Motor_Type *motor, float reductionRate, int8_t angleEnabled) {
-    motor->positionBias  = -1; // -1为未赋值状
+    motor->positionBias  = -1; // -1为未赋值状态
     motor->reductionRate = reductionRate;
     motor->angleEnabled  = angleEnabled;
     motor->position      = 0;
