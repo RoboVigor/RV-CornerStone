@@ -43,7 +43,7 @@ void Task_Control(void *Parameters) {
         FrictEnabled  = (remoteData.switchLeft != 1);
         StirEnabled   = (remoteData.switchLeft == 2);
         // 小陀螺测试
-        SwingMode = ((remoteData.switchLeft == 3) && (remoteData.switchRight == 3)) ? 3 : 0;
+        // SwingMode = ((remoteData.switchLeft == 3) && (remoteData.switchRight == 3)) ? 3 : 0;
 
         // 安全模式
         // SafetyMode    = remoteData.switchRight == 2;
@@ -153,8 +153,8 @@ void Task_Gimbal(void *Parameters) {
     // 初始化云台PID
     PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 1000, 10);
     PID_Init(&PID_Cloud_YawSpeed, 10, 0, 0, 4000, 0);
-    PID_Init(&PID_Cloud_PitchAngle, 30, 0, 0, 16000, 0);
-    PID_Init(&PID_Cloud_PitchSpeed, 1, 0, 0, 2000, 0);
+    PID_Init(&PID_Cloud_PitchAngle, 10, 0, 0, 16000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 195, 0, 0, 4000, 0);
 
     while (1) {
         // 重置目标
@@ -197,8 +197,8 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget += pitchAngleTargetPs;
 
         // 上坡补偿
-        pitchAngleTargetFixStable = FirstOrderLowPassFilter(-1 * (chassisAngle / 40.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200, 20);
-        pitchAngleTarget += pitchAngleTargetFixStable;
+        // pitchAngleTargetFixStable = FirstOrderLowPassFilter(-1 * (chassisAngle / 40.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200,
+        // 20); pitchAngleTarget += pitchAngleTargetFixStable;
 
         // 限制云台运动范围
         MIAO(pitchAngleTarget, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
@@ -217,9 +217,9 @@ void Task_Gimbal(void *Parameters) {
 
         // 输出电流
         yawCurrent   = -20 * PID_Cloud_YawSpeed.output;
-        pitchCurrent = 30 * PID_Cloud_PitchSpeed.output;
+        pitchCurrent = PID_Cloud_PitchSpeed.output;
         MIAO(yawCurrent, -12000, 12000);
-        MIAO(pitchCurrent, -5000, 5000);
+        MIAO(pitchCurrent, -12000, 12000);
 #ifdef ROBOT_LOOP_ONE
         Can_Send(CAN1, 0x1FF, 0, pitchCurrent, 0, 0);
         Can_Send(CAN1, 0x2FF, yawCurrent, 0, 0, 0);
@@ -235,10 +235,10 @@ void Task_Gimbal(void *Parameters) {
 
         // 调试信息
         //
-        // DebugData.debug1 = ImuData.gx;
-        // DebugData.debug2 = ImuData.gy;
-        // DebugData.debug3 = ImuData.gz;
-        // DebugData.debug4 = PID_Cloud_YawSpeed.feedback;
+        DebugData.debug1 = PID_Cloud_PitchSpeed.output;
+        DebugData.debug2 = ImuData.gx;
+        DebugData.debug3 = pitchAngleTarget;
+        DebugData.debug4 = ImuData.gy;
         // DebugData.debug5 = PID_Cloud_YawSpeed.target;
         // DebugData.debug6 = PID_Cloud_YawSpeed.output;
         // DebugData.debug7 = yawCurrent;
@@ -505,7 +505,7 @@ void Task_Fire_Stir(void *Parameters) {
     PID_Init(&PID_StirSpeed, 18, 0, 0, 6000, 1000); // 拨弹轮速度环
 
     // 开启激光
-    LASER_ON;
+    // LASER_ON;
 
     while (1) {
 // 弹舱盖开关
@@ -695,7 +695,7 @@ void Task_Fire_Frict(void *Parameters) {
         if (FrictEnabled) {
             LASER_ON;
         } else {
-            // LASER_OFF;
+            LASER_OFF;
         }
 
         motorLSpeed = Motor_FL.speed / 19.2;
@@ -703,29 +703,32 @@ void Task_Fire_Frict(void *Parameters) {
 
         if (FrictEnabled) {
             if (remoteData.switchRight == 1) {
-                targetSpeed = -190;
+                targetSpeed = -200;
             } else if (remoteData.switchRight == 3) {
                 targetSpeed = -220;
             } else if (remoteData.switchRight == 2) {
-                targetSpeed = -450;
+                targetSpeed = -600;
             }
-        } else
+        } else {
             targetSpeed = 0;
+        }
 
         // targetSpeed = -200;   //10m/s
         // targetSpeed = -220;   //12m/s
         // targetSpeed = -260;   //15m/s
+        // targetspped = -400;   //
 
         PID_Calculate(&PID_FireL, targetSpeed, motorLSpeed);
         PID_Calculate(&PID_FireR, (-1 * targetSpeed), motorRSpeed);
-        Can_Send(CAN1, 0x1FF, 0, 0, PID_FireL.output, PID_FireR.output);
 
-        DebugData.debug1 = -1 * Motor_FL.speed / 19.2;
-        DebugData.debug2 = Motor_FR.speed / 19.2;
-        DebugData.debug3 = PID_FireL.output;
-        DebugData.debug4 = PID_FireR.output;
-        DebugData.debug5 = -1 * targetSpeed;
-        DebugData.debug6 = Judge.shootData.bullet_speed;
+        Can_Send(CAN2, 0x200, PID_FireL.output, PID_FireR.output, 0, 0);
+
+        // DebugData.debug1 = Motor_FL.speed;
+        // DebugData.debug2 = Motor_FR.speed;
+        // DebugData.debug3 = Motor_Pitch.position;
+        // DebugData.debug4 = PID_FireR.output;
+        // DebugData.debug5 = -1 * targetSpeed;
+        // DebugData.debug6 = Judge.shootData.bullet_speed;
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
@@ -787,8 +790,8 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 7, NULL);
 
     // 运动控制任务
-    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
     xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
 
