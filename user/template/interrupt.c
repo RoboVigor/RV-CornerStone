@@ -101,8 +101,10 @@ void CAN1_RX0_IRQHandler(void) {
 
     // 读取数据
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
-    position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-    speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    DebugData.debug2 = CanRxData.Data[0] << 24 | CanRxData.Data[1] << 16 | CanRxData.Data[2] << 8 | CanRxData.Data[3];
+    DebugData.debug3 = CanRxData.Data[4] << 24 | CanRxData.Data[5] << 16 | CanRxData.Data[6] << 8 | CanRxData.Data[7];
+    position         = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+    speed            = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
     // 安排数据
     switch (CanRxData.StdId) {

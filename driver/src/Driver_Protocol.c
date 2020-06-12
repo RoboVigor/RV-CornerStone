@@ -23,7 +23,6 @@ void Protocol_Update(Protocol_Type *Protocol) {
 void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
     int      i;
     uint8_t *begin_p;
-    uint8_t *send_p;
     uint16_t index = 0;
 
     uint8_t  CRC8_INIT  = 0xff;
@@ -76,7 +75,9 @@ void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
         begin_p = Protocol->visionInteractiveData.data;
     } break;
 
-    default: { begin_p = Protocol->robotInteractiveData[0].data; } break;
+    default: {
+        begin_p = Protocol->robotInteractiveData[0].data;
+    } break;
     }
 
     for (i = 0; i < dataLength; i++) {
@@ -87,11 +88,6 @@ void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
     dataCRC16                  = Get_CRC16_Check_Sum(Protocol->sendBuf, PROTOCOL_HEADER_CMDID_LEN + dataLength, CRC16_INIT);
     Protocol->sendBuf[index++] = (dataCRC16) &0xff;
     Protocol->sendBuf[index++] = (dataCRC16) >> 8;
-
-    send_p = Protocol->sendBuf;
-    for (i = 0; i < index; i++) {
-        *send_p++ = Protocol->sendBuf[i];
-    }
 }
 
 void Protocol_Unpack(Protocol_Type *Protocol, uint8_t byte) {
@@ -101,7 +97,7 @@ void Protocol_Unpack(Protocol_Type *Protocol, uint8_t byte) {
     switch (Protocol->step) {
     case STEP_HEADER_SOF: {
         if (byte == PROTOCOL_HEADER) {
-					Protocol->packet[Protocol->index++] = byte;
+            Protocol->packet[Protocol->index++] = byte;
             Protocol->step                      = STEP_LENGTH_LOW;
         } else {
             Protocol->index = 0;
@@ -220,7 +216,9 @@ void Protocol_Load(Protocol_Type *Protocol) {
         seq     = &(Protocol->autoaimData.seq);
     } break;
 
-    default: { return; } break;
+    default: {
+        return;
+    } break;
     }
 
     // packet seq

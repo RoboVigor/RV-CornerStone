@@ -16,6 +16,7 @@ void DMA_Restart(USART_TypeDef *USARTx, trx_e TRX, Protocol_Type *Protocol, uint
     DMA_Type DMA;
     uint16_t dataLength;
     int      i;
+    uint8_t *send_p;
 
     // select stream
     DMA.USARTx = USARTx;
@@ -35,6 +36,10 @@ void DMA_Restart(USART_TypeDef *USARTx, trx_e TRX, Protocol_Type *Protocol, uint
     if (DMA.TRX == TX) {
         dataLength = length - PROTOCOL_HEADER_CRC_CMDID_LEN;
         Protocol_Pack(Protocol, dataLength, id);
+        send_p = Protocol->sendBuf;
+        for (i = 0; i < length; i++) {
+            *send_p++ = Protocol->sendBuf[i];
+        }
     } else {
         dataLength = length - DMA_GetCurrDataCounter(DMA.DMAx_Streamy);
         for (i = 0; i < length; i++) {

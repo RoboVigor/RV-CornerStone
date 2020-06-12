@@ -211,7 +211,10 @@ void Task_Board_Communication(void *Parameters) {
         // Can发送
         Can_Send_Msg(CAN1, &Board, id, length);
 
+        // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
+
+        DebugData.debug1 = Board.boardInteractiveData[1].data_f[1];
     }
     vTaskDelete(NULL);
 }
@@ -236,6 +239,7 @@ void Task_Vision_Communication(void *Parameters) {
         // DMA重启
         DMA_Restart(UART8, TX, &Ps, id, length);
 
+        // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
@@ -304,9 +308,9 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
 
     // DMA发送任务
-    xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
+    // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
     xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
-    xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
+    // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

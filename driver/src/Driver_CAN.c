@@ -1,29 +1,31 @@
 #include "Driver_CAN.h"
 
 void Can_Send(CAN_TypeDef *CANx, int16_t id, int16_t i_201, int16_t i_202, int16_t i_203, int16_t i_204) {
-    CanTxMsg message;
-    uint8_t  mailBox;
-    uint16_t i = 0;
+    CanTxMsg CanTxData;
 
-    message.StdId = id;
-    message.IDE   = CAN_Id_Standard;
-    message.RTR   = CAN_RTR_Data;
-    message.DLC   = 0x08;
+    CanTxData.StdId = id;
+    CanTxData.IDE   = CAN_Id_Standard;
+    CanTxData.RTR   = CAN_RTR_Data;
+    CanTxData.DLC   = 0x08;
 
-    message.Data[0] = (uint8_t)(i_201 >> 8);
-    message.Data[1] = (uint8_t) i_201;
-    message.Data[2] = (uint8_t)(i_202 >> 8);
-    message.Data[3] = (uint8_t) i_202;
-    message.Data[4] = (uint8_t)(i_203 >> 8);
-    message.Data[5] = (uint8_t) i_203;
-    message.Data[6] = (uint8_t)(i_204 >> 8);
-    message.Data[7] = (uint8_t) i_204;
+    CanTxData.Data[0] = (uint8_t)(i_201 >> 8);
+    CanTxData.Data[1] = (uint8_t) i_201;
+    CanTxData.Data[2] = (uint8_t)(i_202 >> 8);
+    CanTxData.Data[3] = (uint8_t) i_202;
+    CanTxData.Data[4] = (uint8_t)(i_203 >> 8);
+    CanTxData.Data[5] = (uint8_t) i_203;
+    CanTxData.Data[6] = (uint8_t)(i_204 >> 8);
+    CanTxData.Data[7] = (uint8_t) i_204;
 
-    mailBox = CAN_Transmit(CANx, &message);
+    do {
+        if (CANx->ESR) {
+            // 可以在这里输出ESR来查看CAN错误
+            CANx->MCR |= 0x02;
+            CANx->MCR &= 0xFD;
+        }
+    } while (!(CANx->TSR & 0x1C000000));
 
-    while (CAN_TransmitStatus(CANx, mailBox) == CAN_TxStatus_Failed && i != 0xff) {
-        i++;
-    }
+    CAN_Transmit(CANx, &CanTxData);
 }
 
 void Can_Send_Msg(CAN_TypeDef *CANx, Protocol_Type *Protocol, uint16_t id, uint16_t length) {
