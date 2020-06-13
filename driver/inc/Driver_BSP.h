@@ -97,4 +97,6 @@ void LED_Run_Horse_XP();
 void    BSP_Beep_Init(void);
 uint8_t KTV_Play(Song_Type song);
 
+// OLED
+void BSP_OLED_init(void);
 #endif

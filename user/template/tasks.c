@@ -335,6 +335,18 @@ void Task_Startup_Music(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_OLED(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    oled_init();
+    while (1) {
+        oled_clear(Pen_Clear);
+        oled_showstring(2, 8, "Hello WJZ");
+        oled_refresh_gram();
+        vTaskDelayUntil(&LastWakeTime, 500);
+    }
+    vTaskDelete(NULL);
+}
+
 void Task_Sys_Init(void *Parameters) {
 
     // 初始化全局变量
@@ -357,21 +369,22 @@ void Task_Sys_Init(void *Parameters) {
     // 低级任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
+    xTaskCreate(Task_OLED, "Task_OLED", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
-    while (!remoteData.state) {
-    }
+    // while (!remoteData.state) {
+    // }
 
     // 运动控制任务
-    //xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
 
     // DMA发送任务
     // xTaskCreate(Task_DMA_Send, "Task_DMA_Send", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
-
+    
     // 完成使命
     vTaskDelete(NULL);
 }

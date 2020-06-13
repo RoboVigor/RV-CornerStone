@@ -976,3 +976,57 @@ void BSP_I2C2_Init(void) {
 void BSP_Button_Init(void) {
     //占坑
 }
+
+void BSP_OLED_Init(void) {
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE); //开启时钟
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;         //引脚初始化
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_3 | GPIO_Pin_4;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE); //开启时钟
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;         //引脚初始化
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_7;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_SPI1); //打开引脚的复用功能
+    GPIO_PinAFConfig(GPIOB, GPIO_PinSource3, GPIO_AF_SPI1);
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE); //开启时钟
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;        //引脚初始化
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_9 | GPIO_Pin_10;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+    SPI_InitTypeDef SPI_InitStructure;
+
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE); //时钟
+    SPI_Cmd(SPI1, DISABLE);
+
+    SPI_InitStructure.SPI_Direction         = SPI_Direction_2Lines_FullDuplex; //全双工模式
+    SPI_InitStructure.SPI_Mode              = SPI_Mode_Master;                 //作为主机使用
+    SPI_InitStructure.SPI_DataSize          = SPI_DataSize_8b;                 //数据长度8
+    SPI_InitStructure.SPI_CPOL              = SPI_CPOL_Low;
+    SPI_InitStructure.SPI_CPHA              = SPI_CPHA_1Edge;
+    SPI_InitStructure.SPI_NSS               = SPI_NSS_Soft; //软件设置NSS功能
+    SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;
+    SPI_InitStructure.SPI_FirstBit          = SPI_FirstBit_MSB;
+
+    SPI_InitStructure.SPI_CRCPolynomial = 10;
+
+    SPI_Init(SPI1, &SPI_InitStructure);
+    SPI_TIModeCmd(SPI1, DISABLE);
+    SPI_CalculateCRC(SPI1, DISABLE);
+    SPI_Cmd(SPI1, ENABLE);
+    SPI_TIModeCmd(SPI1, DISABLE);
+    SPI_CalculateCRC(SPI1, DISABLE);
+}
