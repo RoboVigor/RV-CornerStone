@@ -29,11 +29,19 @@
 
 static uint8_t OLED_GRAM[130][8];
 
+MenuItem subMenu[3]  = {{"Func3", NULL, NULL}, {"Func4", NULL, NULL}, {"Back To Main", NULL, NULL}};
+MenuItem mainMenu[3] = {{"Func1", NULL, NULL}, {"Func2", NULL, NULL}, {"SubMenu1", NULL, NULL}};
+
+uint8_t currentIndex = 0;
+MenuItem (*currentMenu)[3];
+MenuItem *currentItem;
+MenuItem *renderingItem;
+
 /**
  * @brief   write data/command to OLED
  * @param   dat: the data ready to write
  * @param   cmd: 0x00,command 0x01,data
- * @retval
+ * @retvals
  */
 void oled_write_byte(uint8_t dat, uint8_t cmd) {
     if (cmd != 0)
@@ -42,7 +50,6 @@ void oled_write_byte(uint8_t dat, uint8_t cmd) {
         OLED_CMD_Clr();
 
     SPI_SendData(SPI1, dat); //通过外设SPIx发送一个byte数据
-
     while (SPI_GetFlagStatus(SPI1, SPI_FLAG_TXE) == RESET)
         ; //等待发送区空
 }
@@ -339,26 +346,37 @@ void oled_LOGO(void) {
  * @retval  None
  */
 void oled_menu(uint16_t joystickValue) {
-    oled_shownum(1, 8, joystickValue, 0, 6);
+    currentItem = &((*currentMenu)[currentIndex]);
+
+    int8_t i, j;
+    for (i = 0; i < 3; i++) {
+        renderingItem = &((*currentMenu)[i]);
+        oled_showstring(i + 1, 4, i == currentIndex ? "> " : "  ");
+        oled_showstring(i + 1, 7, renderingItem->title);
+    }
 
     if (joystickValue < CLICK_LIMIT) {
         /* click */
-        oled_showstring(2, 8, "click");
+        if (currentItem->next) {
+            currentMenu  = currentItem->next;
+            currentIndex = 0;
+        }
+        if (currentItem->func) {
+            currentItem->func();
+        }
+
     } else if (joystickValue < LEFT_LIMIT) {
         /* left */
-        oled_showstring(2, 8, "left");
     } else if (joystickValue < RIGHT_LIMIT) {
         /* right */
-        oled_showstring(2, 8, "right");
     } else if (joystickValue < UP_LIMIT) {
         /* up */
-        oled_showstring(2, 8, "up");
+        currentIndex = currentIndex > 0 ? currentIndex - 1 : 0;
     } else if (joystickValue < DOWN_LIMIT) {
         /* down */
-        oled_showstring(2, 8, "down");
+        currentIndex = currentIndex < 2 ? currentIndex + 1 : 2;
     } else {
         /* release */
-        oled_showstring(2, 8, "release");
     }
 }
 
@@ -405,4 +423,9 @@ void oled_init(void) {
 
     oled_clear(Pen_Clear);
     oled_set_pos(0, 0);
+
+    mainMenu[2].next = &subMenu;
+    subMenu[2].next  = &mainMenu;
+    currentMenu      = mainMenu;
+    currentItem      = &((*currentMenu)[currentIndex]);
 }

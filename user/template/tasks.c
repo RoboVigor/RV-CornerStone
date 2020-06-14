@@ -336,15 +336,15 @@ void Task_Startup_Music(void *Parameters) {
 }
 
 void Task_OLED(void *Parameters) {
-    uint16_t JoystickValue = -1;
-    TickType_t LastWakeTime = xTaskGetTickCount();
+    uint16_t   JoystickValue = -1;
+    TickType_t LastWakeTime  = xTaskGetTickCount();
     oled_init();
     while (1) {
         JoystickValue = ADC_GetConversionValue(ADC1);
         oled_clear(Pen_Clear);
         oled_menu(JoystickValue);
         oled_refresh_gram();
-        vTaskDelayUntil(&LastWakeTime, 50);
+        vTaskDelayUntil(&LastWakeTime, 125);
     }
     vTaskDelete(NULL);
 }

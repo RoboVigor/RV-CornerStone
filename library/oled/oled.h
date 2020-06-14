@@ -16,10 +16,10 @@
 #include "stm32f4xx_spi.h"
 #include <stdint.h>
 
-#define Max_Column 128
+#define Max_Column 130
 #define Max_Row 64
 
-#define X_WIDTH 128
+#define X_WIDTH 130
 #define Y_WIDTH 64
 
 #define OLED_CMD 0x00
@@ -47,6 +47,17 @@
 #define OLED_RST_Set() GPIO_SetBits(OLED_RST_GPIO_Port, OLED_RST_Pin)
 #define OLED_RST_Clr() GPIO_ResetBits(OLED_RST_GPIO_Port, OLED_RST_Pin)
 
+/* type define */
+typedef void (*MenuFunction)();
+
+/* struct define */
+typedef struct {
+    char         title[20];
+    void *       next;
+    MenuFunction func;
+} MenuItem;
+
+/* enum define */
 typedef enum {
     Pen_Clear     = 0x00,
     Pen_Write     = 0x01,
