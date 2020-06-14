@@ -334,6 +334,35 @@ void oled_LOGO(void) {
 }
 
 /**
+ * @brief   show the oled menu
+ * @param   joystick: The value from ADC for Joystick.
+ * @retval  None
+ */
+void oled_menu(uint16_t joystickValue) {
+    oled_shownum(1, 8, joystickValue, 0, 6);
+
+    if (joystickValue < CLICK_LIMIT) {
+        /* click */
+        oled_showstring(2, 8, "click");
+    } else if (joystickValue < LEFT_LIMIT) {
+        /* left */
+        oled_showstring(2, 8, "left");
+    } else if (joystickValue < RIGHT_LIMIT) {
+        /* right */
+        oled_showstring(2, 8, "right");
+    } else if (joystickValue < UP_LIMIT) {
+        /* up */
+        oled_showstring(2, 8, "up");
+    } else if (joystickValue < DOWN_LIMIT) {
+        /* down */
+        oled_showstring(2, 8, "down");
+    } else {
+        /* release */
+        oled_showstring(2, 8, "release");
+    }
+}
+
+/**
  * @brief   initialize the oled module
  * @param   None
  * @retval  None

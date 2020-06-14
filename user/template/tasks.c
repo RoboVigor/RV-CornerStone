@@ -336,13 +336,15 @@ void Task_Startup_Music(void *Parameters) {
 }
 
 void Task_OLED(void *Parameters) {
+    uint16_t JoystickValue = -1;
     TickType_t LastWakeTime = xTaskGetTickCount();
     oled_init();
     while (1) {
+        JoystickValue = ADC_GetConversionValue(ADC1);
         oled_clear(Pen_Clear);
-        oled_showstring(2, 8, "Hello WJZ");
+        oled_menu(JoystickValue);
         oled_refresh_gram();
-        vTaskDelayUntil(&LastWakeTime, 500);
+        vTaskDelayUntil(&LastWakeTime, 50);
     }
     vTaskDelete(NULL);
 }
@@ -384,7 +386,7 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
-    
+
     // 完成使命
     vTaskDelete(NULL);
 }

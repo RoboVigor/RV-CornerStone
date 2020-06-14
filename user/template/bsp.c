@@ -42,4 +42,7 @@ void BSP_Init(void) {
     // PWM
     // BSP_PWM_Set_Port(&PWM_Test, PWM_PD12);
     // BSP_PWM_Init(&PWM_Test, 9000, 200, TIM_OCPolarity_Low);
+
+    // ADC
+    BSP_ADC1_Init(ADC_CHANNEL_NUM, ADC_Channel6, 0);
 }
