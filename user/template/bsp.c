@@ -34,6 +34,11 @@ void BSP_Init(void) {
     BSP_DMA_UART8_RX_Init(Ps.receiveBuf, Protocol_Buffer_Length);
     BSP_DMA_UART8_TX_Init(Ps.sendBuf, Protocol_Buffer_Length);
 
+    // Debug
+    // BSP_DMA_USART6_TX_Init(Debug.sendBuf, Protocol_Buffer_Length);
+    // BSP_DMA_UART7_TX_Init(Debug.sendBuf, Protocol_Buffer_Length);
+    // BSP_DMA_UART8_TX_Init(Debug.sendBuf, Protocol_Buffer_Length);
+
     // PWM
     // BSP_PWM_Set_Port(&PWM_Test, PWM_PORT_PD12);
     // BSP_PWM_Init(&PWM_Test, 9000, 200, TIM_OCPolarity_Low);

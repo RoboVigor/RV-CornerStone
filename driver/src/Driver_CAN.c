@@ -53,5 +53,6 @@ void Can_Send_Msg(CAN_TypeDef *CANx, Protocol_Type *Protocol, uint16_t id, uint1
         data[2] = Protocol->sendBuf[8 * i + 4] << 8 | Protocol->sendBuf[8 * i + 5];
         data[3] = Protocol->sendBuf[8 * i + 6] << 8 | Protocol->sendBuf[8 * i + 7];
         Can_Send(CANx, id, data[0], data[1], data[2], data[3]);
+        // delay_ms(100); //调试时用，防止发送太快，串口读取不到
     }
 }

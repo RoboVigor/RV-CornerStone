@@ -124,13 +124,16 @@ void CAN1_RX0_IRQHandler(void) {
 
     default:
         for (i = 0; i < 8; i++) {
-            // Ps.sendBuf[i] = CanRxData.Data[i];
             Protocol_Unpack(&Board, CanRxData.Data[i]);
         }
         break;
     }
 
-    // DMA_Restart(UART8, TX, &Ps, NULL, 8);
+    // Debug
+    // for (i = 0; i < 8; i++) {
+    //     Debug.sendBuf[i] = CanRxData.Data[i];
+    // }
+    // DMA_Restart(USART6, TX, &Debug, NULL, 8);
 }
 
 // void CAN1_SCE_IRQHandler(void) {
@@ -174,6 +177,12 @@ void CAN2_RX0_IRQHandler(void) {
             break;
         }
     }
+
+    // Debug
+    // for (i = 0; i < 8; i++) {
+    //     Debug.sendBuf[i] = CanRxData.Data[i];
+    // }
+    // DMA_Restart(UART8, TX, &Debug, NULL, 8);
 }
 
 // TIM2 高频计数器
