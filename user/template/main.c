@@ -12,7 +12,7 @@ int main(void) {
     Beep_Init();     // 初始化蜂鸣器
 
     //创建系统初始化任务
-    xTaskCreate(Task_Sys_Init, "Task_Sys_Init", 4000, NULL, 1, NULL);
+    xTaskCreate(Task_Sys_Init, "Task_Sys_Init", 400, NULL, 1, NULL);
 
     //启动调度,开始执行任务
     vTaskStartScheduler();
