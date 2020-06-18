@@ -6,20 +6,19 @@
 #include "config.h"
 
 void Handle_Init(void) {
-    //电机初始化
-    Motor_Init(&Motor_Yaw, 1.0, 1);
-    Motor_Init(&Motor_Pitch, 1.0, 1);
-    Motor_Init(&Motor_Roll, 1.0, 1);
-    Motor_Init(&Motor_Stir, 36, 1);
-    
+  //电机初始化
+  Motor_Init(&Motor_Yaw, 1.0, 1);
+  Motor_Init(&Motor_Pitch, 1.0, 1);
+  Motor_Init(&Motor_Roll, 1.0, 1);
+  Motor_Init(&Motor_Stir, 36, 1);
 
-    // 遥控器数据初始化
-    DBUS_Init(&remoteData, &keyboardData, &mouseData);
+  // 遥控器数据初始化
+  DBUS_Init(&remoteData, &keyboardData, &mouseData);
 
-    // 初始化串口调试数据
-    Magic_Init(&magic, 0);
+  // 初始化串口调试数据
+  Magic_Init(&magic, 0);
 
-    // 通讯协议初始化
-    Protocol_Init(&Judge);
-    Protocol_Init(&Ps);
+  // 通讯协议初始化
+  Protocol_Init(&Judge);
+  Protocol_Init(&Ps);
 }
