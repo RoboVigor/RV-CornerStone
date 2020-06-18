@@ -131,6 +131,7 @@ void BSP_USART_Init(USART_TypeDef *USARTx,
     USART_InitTypeDef USART_InitStructure;
     USART_InitStructure.USART_BaudRate            = baudRate;                       // 波特率设置
     USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None; // 无硬件数据流控制
+
     USART_InitStructure.USART_Mode                = USART_Mode;                     // 收发模式
     USART_InitStructure.USART_WordLength          = USART_WordLength_8b;            // 字长为8位数据格式
     USART_InitStructure.USART_StopBits            = USART_StopBits_1;               // 一个停止位

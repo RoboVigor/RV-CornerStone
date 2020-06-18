@@ -92,7 +92,9 @@ void Protocol_Load(Protocol_Type *Protocol) {
         begin_p = Protocol->gimbalAimData.data;
     } break;
 
-    default: { return; } break;
+    default: {
+        return;
+    } break;
     }
     // load
     for (i = 0; i < Protocol->dataLength; i++) {
@@ -103,16 +105,12 @@ void Protocol_Load(Protocol_Type *Protocol) {
 int main() {
     // unpack
     int           input;
-    uint8_t       data1[23] = {0xA5, 0x0E, 0x00, 0x40, 0x71, 0x02, 0x02, 0x33, 0x56, 0xCA, 0x00, 0xFC,
-                         0xA7, 0x8E, 0x40, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x6F, 0xD7};
-    uint8_t       data2[17] = {0xA5, 0x08, 0x00, 0x00, 0xE6, 0x01, 0x04, 0x00, 0x00, 0x40, 0x40, 0x48, 0xE1, 0x78, 0xC1, 0x6F, 0xEF};
+    uint8_t       data1[25] = {0xA5, 0x10, 0x00, 0xD6, 0x03, 0x02, 0x02, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00,
+                         0x00, 0x00, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x54, 0x62};
     Protocol_Type Judge;
     Protocol_Init(&Judge);
-    for (int i = 0; i < 23; i++) {
+    for (int i = 0; i < 25; i++) {
         Protocol_Decode(&Judge, data1[i]);
-    }
-    for (int i = 0; i < 17; i++) {
-        Protocol_Decode(&Judge, data2[i]);
     }
     cout << "chassis_volt: " << Judge.powerHeatData.chassis_volt << "\n";
     cout << "chassis_power: " << Judge.powerHeatData.chassis_power << "\n";

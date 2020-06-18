@@ -39,14 +39,15 @@ void Task_Control(void *Parameters) {
         // PsEnabled = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
 
         // 检录用
-        MagzineOpened = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
+        MagzineOpened = (remoteData.switchLeft == 1);
         FrictEnabled  = (remoteData.switchLeft != 1);
-        StirEnabled   = (remoteData.switchLeft == 2);
+        StirEnabled   = (remoteData.switchLeft != 1);
+        SwingMode     = (remoteData.switchLeft == 2);
         // 小陀螺测试
         // SwingMode = ((remoteData.switchLeft == 3) && (remoteData.switchRight == 3)) ? 3 : 0;
 
         // 安全模式
-        // SafetyMode    = remoteData.switchRight == 2;
+        SafetyMode    = remoteData.switchRight == 1;
         FastShootMode = 0;
         //     } else {
         //         ControlMode = 2; //键鼠模式
@@ -153,8 +154,8 @@ void Task_Gimbal(void *Parameters) {
     // 初始化云台PID
     PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 1000, 10);
     PID_Init(&PID_Cloud_YawSpeed, 10, 0, 0, 4000, 0);
-    PID_Init(&PID_Cloud_PitchAngle, 10, 0, 0, 16000, 0);
-    PID_Init(&PID_Cloud_PitchSpeed, 195, 0, 0, 4000, 0);
+    PID_Init(&PID_Cloud_PitchAngle, 15, 0, 0, 16000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 100, 0, 0, 16000, 0);
 
     while (1) {
         // 重置目标
@@ -235,10 +236,10 @@ void Task_Gimbal(void *Parameters) {
 
         // 调试信息
         //
-        DebugData.debug1 = PID_Cloud_PitchSpeed.output;
-        DebugData.debug2 = ImuData.gx;
-        DebugData.debug3 = pitchAngleTarget;
-        DebugData.debug4 = ImuData.gy;
+        // DebugData.debug1 = PID_Cloud_PitchSpeed.output;
+        // DebugData.debug2 = ImuData.gx;
+        // DebugData.debug3 = pitchAngleTarget;
+        // DebugData.debug4 = ImuData.gy;
         // DebugData.debug5 = PID_Cloud_YawSpeed.target;
         // DebugData.debug6 = PID_Cloud_YawSpeed.output;
         // DebugData.debug7 = yawCurrent;
@@ -250,6 +251,9 @@ void Task_Gimbal(void *Parameters) {
 }
 
 void Task_Chassis(void *Parameters) {
+    DebugData.debug1 = 0;
+    DebugData.debug2 = 0;
+
     // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.005;               // 任务运行间隔 s
@@ -300,12 +304,13 @@ void Task_Chassis(void *Parameters) {
     float yTargetRamp   = 0;
 
     while (1) {
-
         // 设置反馈值
         motorAngle  = Motor_Yaw.angle;                          // 电机角度
         motorSpeed  = Motor_Yaw.speed * RPM2RPS;                // 电机角速度
         power       = Judge.powerHeatData.chassis_power;        // 裁判系统功率
         powerBuffer = Judge.powerHeatData.chassis_power_buffer; // 裁判系统功率缓冲
+
+        DebugData.debug3 = 0;
 
         // 视觉专属follow PID
         if (PsEnabled) {
@@ -422,11 +427,11 @@ void Task_Chassis(void *Parameters) {
         // targetPower = 70.0 - WANG(30 - ChassisData.powerBuffer, 0.0, 10.0) / 10.0 * 70.0; // 设置目标功率
         targetPower = 80.0 * (1 - WANG(60.0 - ChassisData.powerBuffer, 0.0, 40.0) / 40.0); // 设置目标功率
 
-        Chassis_Update(&ChassisData, vx, vy, vwRamp);                             // 更新麦轮转速
-        Chassis_Fix(&ChassisData, motorAngle);                                    // 修正旋转后底盘的前进方向
-        Chassis_Calculate_Rotor_Speed(&ChassisData);                              // 麦轮解算
-        Chassis_Limit_Rotor_Speed(&ChassisData, 1200);                            // 设置转子速度上限 (rad/s)
-        Chassis_Limit_Power(&ChassisData, 3000000, power, powerBuffer, interval); // 根据功率限幅
+        Chassis_Update(&ChassisData, vx, vy, vwRamp);                                 // 更新麦轮转速
+        Chassis_Fix(&ChassisData, motorAngle);                                        // 修正旋转后底盘的前进方向
+        Chassis_Calculate_Rotor_Speed(&ChassisData);                                  // 麦轮解算
+        Chassis_Limit_Rotor_Speed(&ChassisData, 1200);                                // 设置转子速度上限 (rad/s)
+        Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
@@ -434,6 +439,8 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RBCM, ChassisData.rotorSpeed[2], Motor_RB.speed * RPM2RPS);
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
+        DebugData.debug1 = PID_Cloud_PitchAngle.output;
+        DebugData.debug2 = PID_Cloud_PitchSpeed.output;
         // 输出电流值到电调
         Can_Send(CAN1,
                  0x200,
@@ -455,7 +462,7 @@ void Task_Chassis(void *Parameters) {
         // DebugData.debug7 = WANG(60.0 - ChassisData.powerBuffer, 0.0, 30.0) / 30.0 * 1000;
         // DebugData.debug7 = (1.0 - WANG(ChassisData.powerBuffer, 0.0, 30.0) / 30.0) * 70;
         // DebugData.debug8 = 80;
-
+        DebugData.debug3 = Judge.powerHeatData.chassis_power;
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -510,7 +517,7 @@ void Task_Fire_Stir(void *Parameters) {
     while (1) {
 // 弹舱盖开关
 #ifdef ROBOT_LOOP_ONE
-        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 11 : 5);
+        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 10 : 4);
 #endif
 #ifdef ROBOT_LOOP_TWO
         PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 14 : 6);
@@ -702,12 +709,10 @@ void Task_Fire_Frict(void *Parameters) {
         motorRSpeed = Motor_FR.speed / 19.2;
 
         if (FrictEnabled) {
-            if (remoteData.switchRight == 1) {
-                targetSpeed = -200;
-            } else if (remoteData.switchRight == 3) {
-                targetSpeed = -220;
+            if (remoteData.switchRight == 3) {
+                targetSpeed = 0;
             } else if (remoteData.switchRight == 2) {
-                targetSpeed = -600;
+                targetSpeed = -200;
             }
         } else {
             targetSpeed = 0;
@@ -718,8 +723,8 @@ void Task_Fire_Frict(void *Parameters) {
         // targetSpeed = -260;   //15m/s
         // targetspped = -400;   //
 
-        PID_Calculate(&PID_FireL, targetSpeed, motorLSpeed);
-        PID_Calculate(&PID_FireR, (-1 * targetSpeed), motorRSpeed);
+        PID_Calculate(&PID_FireL, -1 * targetSpeed, motorLSpeed);
+        PID_Calculate(&PID_FireR, targetSpeed, motorRSpeed);
 
         Can_Send(CAN2, 0x200, PID_FireL.output, PID_FireR.output, 0, 0);
 
@@ -748,8 +753,8 @@ void Task_Blink(void *Parameters) {
 void Task_Startup_Music(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        if (KTV_Play(Music_Soul)) break;
-        vTaskDelayUntil(&LastWakeTime, 60);
+        if (KTV_Play(Music_Earth)) break;
+        vTaskDelayUntil(&LastWakeTime, 120);
     }
     vTaskDelete(NULL);
 }

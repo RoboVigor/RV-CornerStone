@@ -19,7 +19,7 @@
 #define Protocol_Pack_Length_0102 3
 #define Protocol_Pack_Length_0103 2
 #define Protocol_Pack_Length_0201 15
-#define Protocol_Pack_Length_0202 14
+#define Protocol_Pack_Length_0202 16
 #define Protocol_Pack_Length_0203 16
 #define Protocol_Pack_Length_0204 1
 #define Protocol_Pack_Length_0205 3
@@ -81,6 +81,7 @@ typedef struct {
             uint16_t chassis_power_buffer;
             uint16_t shooter_heat0;
             uint16_t shooter_heat1;
+            uint16_t mobile_shooter_heat2;
         };
         struct {
             uint8_t data[Protocol_Pack_Length_0202];
