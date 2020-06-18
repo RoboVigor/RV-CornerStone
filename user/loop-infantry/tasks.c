@@ -83,42 +83,6 @@ void Task_Control(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_Client_Communication(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.1;                 // 任务运行间隔 s
-    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
-
-    while (1) {
-        int      index = 0;
-        uint16_t dataLength;
-        while (DMA_GetFlagStatus(DMA2_Stream6, DMA_IT_TCIF6) != SET) {
-        }
-        DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6);
-        DMA_Cmd(DMA2_Stream6, DISABLE);
-        // 客户端自定义数据
-        Judge.clientCustomData.data_cmd_id = Protocol_Interact_Id_Client_Data;
-        Judge.clientCustomData.send_id     = Judge.robotState.robot_id;
-        Judge.clientCustomData.receiver_id = (Judge.clientCustomData.send_id % 10) | (Judge.clientCustomData.send_id / 10) << 4 | (0x01 << 8);
-        Judge.clientCustomData.data1       = SwingMode;
-        Judge.clientCustomData.data2       = Ps.seq;
-        Judge.clientCustomData.data3       = Judge.seq;
-        Judge.clientCustomData.masks       = 0;
-        Judge.clientCustomData.bit1        = SwingMode;
-        Judge.clientCustomData.bit2        = PsEnabled;
-        Judge.clientCustomData.bit3        = FrictEnabled;
-        Judge.clientCustomData.bit4        = StirEnabled;
-        Judge.clientCustomData.bit5        = MagzineOpened;
-        Judge.clientCustomData.bit6        = FastShootMode;
-        dataLength                         = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client_Data;
-        Protocol_Pack(&Judge, dataLength, Protocol_Interact_Id_Client_Data);
-        DMA_SetCurrDataCounter(DMA2_Stream6, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-        DMA_Cmd(DMA2_Stream6, ENABLE);
-        // 发送频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
-    }
-    vTaskDelete(NULL);
-}
-
 void Task_Gimbal(void *Parameters) {
     // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -310,8 +274,6 @@ void Task_Chassis(void *Parameters) {
         power       = Judge.powerHeatData.chassis_power;        // 裁判系统功率
         powerBuffer = Judge.powerHeatData.chassis_power_buffer; // 裁判系统功率缓冲
 
-        DebugData.debug3 = 0;
-
         // 视觉专属follow PID
         if (PsEnabled) {
             PID_Follow_Angle.p = 1;
@@ -439,8 +401,6 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RBCM, ChassisData.rotorSpeed[2], Motor_RB.speed * RPM2RPS);
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
-        DebugData.debug1 = PID_Cloud_PitchAngle.output;
-        DebugData.debug2 = PID_Cloud_PitchSpeed.output;
         // 输出电流值到电调
         Can_Send(CAN1,
                  0x200,
@@ -462,7 +422,6 @@ void Task_Chassis(void *Parameters) {
         // DebugData.debug7 = WANG(60.0 - ChassisData.powerBuffer, 0.0, 30.0) / 30.0 * 1000;
         // DebugData.debug7 = (1.0 - WANG(ChassisData.powerBuffer, 0.0, 30.0) / 30.0) * 70;
         // DebugData.debug8 = 80;
-        DebugData.debug3 = Judge.powerHeatData.chassis_power;
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -575,9 +534,10 @@ void Task_Fire_Stir(void *Parameters) {
             PID_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * RPM2RPS);
             Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
-        // DebugData.debug1 = Judge.powerHeatData.shooter_heat0;
-        // DebugData.debug2 = Judge.robotState.robot_level;
-        // DebugData.debug3 = Judge.robotState.shooter_heat0_cooling_limit;
+        DebugData.debug1 = Judge.receiveBuf[0];
+        DebugData.debug2 = Judge.powerHeatData.shooter_heat0;
+        DebugData.debug3 = Judge.robotState.robot_level;
+        DebugData.debug4 = Judge.robotState.shooter_heat0_cooling_limit;
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
 
@@ -790,9 +750,6 @@ void Task_Sys_Init(void *Parameters) {
 
     //模式切换任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
-
-    // 通讯
-    xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 7, NULL);
 
     // 运动控制任务
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
