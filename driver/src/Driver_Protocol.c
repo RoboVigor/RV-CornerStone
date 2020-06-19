@@ -64,19 +64,37 @@ void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
         begin_p = Protocol->boardInteractiveData[0].data;
     } break;
 
-    case Protocol_Interact_Id_Client_Data: {
-        begin_p = Protocol->clientCustomData.data;
+    case Protocol_Interact_Id_Client_Delete: {
+        begin_p = Protocol->clientGraphicDelete.data;
     } break;
 
-    case Protocol_Interact_Id_Client_Graph: {
-        begin_p = Protocol->clientGraphicDraw.data;
+    case Protocol_Interact_Id_Client_Single: {
+        begin_p = Protocol->clientGraphicSingle.data;
+    } break;
+
+    case Protocol_Interact_Id_Client_Double: {
+        begin_p = Protocol->clientGraphicDouble.data;
+    } break;
+
+    case Protocol_Interact_Id_Client_Five: {
+        begin_p = Protocol->clientGraphicFive.data;
+    } break;
+
+    case Protocol_Interact_Id_Client_Seven: {
+        begin_p = Protocol->clientGraphicSeven.data;
+    } break;
+
+    case Protocol_Interact_Id_Client_Character: {
+        begin_p = Protocol->clientGraphicCharacter.data;
     } break;
 
     case Protocol_Interact_Id_Vision: {
         begin_p = Protocol->visionInteractiveData.data;
     } break;
 
-    default: { begin_p = Protocol->robotInteractiveData[0].data; } break;
+    default: {
+        begin_p = Protocol->robotInteractiveData[0].data;
+    } break;
     }
 
     for (i = 0; i < dataLength; i++) {
@@ -101,7 +119,7 @@ void Protocol_Unpack(Protocol_Type *Protocol, uint8_t byte) {
     switch (Protocol->step) {
     case STEP_HEADER_SOF: {
         if (byte == PROTOCOL_HEADER) {
-					Protocol->packet[Protocol->index++] = byte;
+            Protocol->packet[Protocol->index++] = byte;
             Protocol->step                      = STEP_LENGTH_LOW;
         } else {
             Protocol->index = 0;
@@ -220,7 +238,9 @@ void Protocol_Load(Protocol_Type *Protocol) {
         seq     = &(Protocol->autoaimData.seq);
     } break;
 
-    default: { return; } break;
+    default: {
+        return;
+    } break;
     }
 
     // packet seq
