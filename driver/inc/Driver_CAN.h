@@ -11,13 +11,12 @@
 
 #include "stm32f4xx.h"
 #include "stm32f4xx_conf.h"
-#include "Driver_Protocol.h"
 
 /**
  * @brief CAN发送8字节数据
  *
  * @param CANx  指定一个CAN口,CAN1或CAN2
- * @param id ID，值越低优先级越高(电调ID,0x200/0x1ff)
+ * @param id ID，值越低优先级越高(电调ID,0x200/0x1ff/0x2ff)
  * @param i_201 第1、2个字节(0x201地址电机给定电流值,范围-32768~32768)
  * @param i_202 第3、4个字节(0x202地址电机给定电流值,范围-32768~32768)
  * @param i_203 第5、6个字节(0x203地址电机给定电流值,范围-32768~32768)
@@ -29,9 +28,9 @@ void Can_Send(CAN_TypeDef *CANx, int16_t stdId, int16_t i_201, int16_t i_202, in
  * @brief CAN打包并发送
  *
  * @param CANx  指定一个CAN口,CAN1或CAN2
- * @param Protocol 通讯协议
- * @param id 打包所需的id
+ * @param id ID，值越低优先级越高
+ * @param sendbuff 发送缓存区
  * @param length 缓存区长度
  */
-void Can_Send_Msg(CAN_TypeDef *CANx, Protocol_Type *Protocol, uint16_t id, uint16_t length);
+void Can_Send_Msg(CAN_TypeDef *CANx, int16_t stdId, uint8_t sendBuf[128], uint16_t length);
 #endif

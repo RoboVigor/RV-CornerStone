@@ -41,6 +41,22 @@ typedef struct {
     uint8_t       Channel;
 } PWM_Type;
 
+typedef enum { Tx, Rx } trx_e;
+
+typedef struct {
+    uint32_t            PERIPHx_BASE;
+    trx_e               TRx;
+    DMA_TypeDef *       DMAx;
+    DMA_Stream_TypeDef *DMAx_Streamy;
+    uint32_t            DMAx_Streamy_IRQn;
+    uint32_t            DMA_Channel_x;
+    uint32_t            DMA_IT_TCIFx;
+    uint32_t            DMA_FLAG_TCIFx;
+    uint32_t            DMA_FLAG_HTIFx;
+} DMA_Type;
+
+typedef enum { USART1_Tx, USART1_Rx, USART3_Tx, USART3_Rx, USART6_Tx, USART6_Rx, UART7_Tx, UART7_Rx, UART8_Tx, UART8_Rx } dma_e;
+
 // SERVICE
 void BSP_CAN_Init(void);
 void BSP_DBUS_Init(uint8_t *remoteBuffer);
@@ -55,10 +71,6 @@ void BSP_Button_Init(void);
 // TEMPORARY USE
 void BSP_TIM2_Init(void);
 
-// DMA
-void BSP_DMA_USART3_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
-void BSP_DMA_USART6_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
-
 // USART
 void BSP_USART_Init(
     USART_TypeDef *, uint32_t, uint8_t, uint8_t, uint8_t, uint16_t, GPIO_TypeDef *, uint16_t, uint32_t, uint16_t, uint16_t, uint16_t, uint32_t, uint16_t);
@@ -67,6 +79,12 @@ void BSP_USART3_Init(uint32_t baudRate, uint16_t interruptFlag);
 void BSP_USART6_Init(uint32_t baudRate, uint16_t interruptFlag);
 void BSP_UART7_Init(uint32_t baudRate, uint16_t interruptFlag);
 void BSP_UART8_Init(uint32_t baudRate, uint16_t interruptFlag);
+
+// DMA
+void     BSP_DMA_USART_Init(dma_e DMA_Table_Index, uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
+void     DMA_Disable(dma_e DMA_Table_Index);
+void     DMA_Enable(dma_e DMA_Table_Index, uint16_t length);
+uint32_t DMA_Stream(dma_e DMA_Table_Index);
 
 // PWM
 void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_PORT_Px);

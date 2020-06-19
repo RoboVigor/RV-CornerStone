@@ -21,7 +21,6 @@
 #include "Driver_Fsm.h"
 #include "Driver_Protocol.h"
 #include "Driver_CAN.h"
-#include "Driver_DMA.h"
 
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT

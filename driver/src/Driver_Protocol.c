@@ -23,6 +23,7 @@ void Protocol_Update(Protocol_Type *Protocol) {
 void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
     int      i;
     uint8_t *begin_p;
+    uint8_t *send_p;
     uint16_t index = 0;
 
     uint8_t  CRC8_INIT  = 0xff;
@@ -88,6 +89,11 @@ void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
     dataCRC16                  = Get_CRC16_Check_Sum(Protocol->sendBuf, PROTOCOL_HEADER_CMDID_LEN + dataLength, CRC16_INIT);
     Protocol->sendBuf[index++] = (dataCRC16) &0xff;
     Protocol->sendBuf[index++] = (dataCRC16) >> 8;
+
+    send_p = Protocol->sendBuf;
+    for (i = 0; i < index; i++) {
+        *send_p++ = Protocol->sendBuf[i];
+    }
 }
 
 void Protocol_Unpack(Protocol_Type *Protocol, uint8_t byte) {
