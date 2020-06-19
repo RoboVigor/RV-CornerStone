@@ -6,8 +6,6 @@
  * 左2 右1 启动snail
  * lx 控制拨弹轮
  * rx ry 控制云台
- * 由于要抑制roll轴在摩擦轮开启高频振动的问题 调高陀螺仪读取频率至1000
- * 所以开机时最好扶住云台，否则陀螺仪一开机会出现梯度上类似pid的过调现象
  * 有任何问题请联系qq：740670513
  */
 #include "main.h"
@@ -222,19 +220,13 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
 
         // roll滤波
-        DebugData.debug2 = ABS(rollAngle - lastRollAngle) * 1000;
         if (ABS((rollAngle - lastRollAngle) * 1000) < 100) {
             rollAngle = lastRollAngle;
         } else {
             rollAngle = 0.6 * lastRollAngle + 0.4 * rollAngle;
         }
         lastRollAngle = rollAngle;
-        // if (rollAngle > -1 && rollAngle < 1) {
-        //   rollAngle = 0;
-        // }
         PID_Calculate(&PID_Cloud_RollAngle, 0, rollAngle);
-        // PID_Calculate(&PID_Cloud_RollSpeed, PID_Cloud_RollAngle.output,
-        //               -Motor_Roll.speed);
         PID_Calculate(&PID_Cloud_RollSpeed, PID_Cloud_RollAngle.output, rollSpeed);
 
         // 输出电流
@@ -315,16 +307,6 @@ void Task_Fire(void *Parameters) {
 
         //拨弹轮 PID 控制
 
-        // if (stirstate == 1) { //正转
-        //     PID_Calculate(&PID_StirSpeed, -6500.0, Motor_Stir.speed);
-        //     Can_Send(CAN1, 0x200, 0, 0, PID_StirSpeed.output, 0);
-        // } else if (stirstate == -1) { //高速倒转，清弹
-        //     PID_Calculate(&PID_StirSpeed, remoteData.lx * 15, Motor_Stir.speed);
-        //     Can_Send(CAN1, 0x200, 0, 0, PID_StirSpeed.output, 0);
-        // } else if (stirstate == 0) {
-        //     PID_Calculate(&PID_StirSpeed, 0, Motor_Stir.speed);
-        //     Can_Send(CAN1, 0x200, 0, 0, PID_StirSpeed.output, 0);
-        // }
         if (stirstate == 1) {
             // if (stopstate == 0) {
             //     PID_Calculate(&PID_StirSpeed, -700, Motor_Stir.speed * RPM2RPS);
