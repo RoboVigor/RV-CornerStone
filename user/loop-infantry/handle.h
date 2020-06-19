@@ -32,7 +32,9 @@ __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 功能开关
 __HANDLE_EXT uint8_t ControlMode;
-__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, SwingMode, PsAimEnabled, PsShootEnabled, LowSpeedMode, HighSpeedMode, MagzineOpened, FastShootMode, SafetyMode;
+__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, MagzineOpened, FastShootMode;
+__HANDLE_EXT uint8_t PsAimEnabled, PsShootEnabled;
+__HANDLE_EXT uint8_t SwingMode, LowSpeedMode, HighSpeedMode, SafetyMode;
 
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
@@ -67,8 +69,8 @@ __HANDLE_EXT Protocol_Type Judge, Ps;
 __HANDLE_EXT PWM_Type PWM_Magazine_Servo;
 
 //发射机构
-__HANDLE_EXT Motor_Type Motor_Stir;                 // 左/右 摩擦轮 拨弹轮 电机
-__HANDLE_EXT PID_Type PID_StirSpeed, PID_StirAngle; // 拨弹轮 速度/角度 PID
+__HANDLE_EXT Motor_Type Motor_Stir, Motor_FL, Motor_FR;                   // 左/右 摩擦轮 拨弹轮 电机
+__HANDLE_EXT PID_Type PID_StirSpeed, PID_StirAngle, PID_FireL, PID_FireR; // 拨弹轮 速度/角度 PID
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;
