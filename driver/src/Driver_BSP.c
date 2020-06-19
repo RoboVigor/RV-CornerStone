@@ -739,22 +739,20 @@ void BSP_DMA_UART8_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize
 /**
  * @brief 设置PWM所使用的端口
  * @param PWMx   PWM结构体
- * @param PWM_Px 使用的端口,如PWM_PORT_PD12
+ * @param PWM_Px 使用的端口,如PWM_PD12
  */
 void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px) {
-    PWMx->RCC_APBxPeriph_TIMx = PWM_Px >> 28;
-    uint32_t x                = PWMx->RCC_APBxPeriph_TIMx;
-    uint32_t TIMx_Base = ((PWM_Px >> 24 & 0x0F) << 24) + ((x == 4 ? 8 : (x == 8 ? 0xc : (x == 1 ? 0 : 4))) << 8) + (x == 2 ? APB2PERIPH_BASE : APB1PERIPH_BASE);
-    PWMx->TIMx         = (TIM_TypeDef *) TIMx_Base;
-    PWMx->GPIO_AF_TIMx = PWM_Px >> 20 & 0xF;
-    PWMx->RCC_AHB1Periph_GPIOx = PWM_Px >> 4 & 0x0FFF;
-    uint32_t GPIOx_Base        = (AHB1PERIPH_BASE + log(PWMx->RCC_AHB1Periph_GPIOx) / log(2) * 0x400);
-    PWMx->GPIOx                = (GPIO_TypeDef *) GPIOx_Base;
-    PWMx->GPIO_PinSourcex      = PWM_Px & 0x0F;
+    PWMx->RCC_APBxPeriph_TIMx  = PWM_Px >> 28;
+    PWMx->TIMx_BASE            = PERIPH_BASE + ((PWM_Px >> 24 & 0x0F) << 16) + ((PWM_Px >> 20 & 0x0F) << 8);
+    PWMx->GPIO_AF_TIMx         = PWM_Px >> 16 & 0xF;
+    PWMx->Channel              = PWM_Px >> 12 & 0xF;
+    PWMx->GPIOx_BASE           = AHB1PERIPH_BASE + ((PWM_Px >> 4 & 0xFF) << 8);
+    PWMx->GPIO_PinSourcex      = PWM_Px & 0xF;
+    PWMx->RCC_AHB1Periph_GPIOx = 1 << ((PWM_Px >> 4 & 0xFF) / 4);
     PWMx->GPIO_Pin_x           = 1 << (PWM_Px & 0x0F);
-    PWMx->Channel              = PWM_Px >> 16 & 0xF;
-    uint8_t y[4]               = {0x34, 0x38, 0x3C, 0x40};
-    PWMx->CCRx                 = y[PWMx->Channel - 1];
+    PWMx->CCRx                 = PWMx->Channel * 4 + 0x30;
+    PWMx->GPIOx                = (GPIO_TypeDef *) PWMx->GPIOx_BASE;
+    PWMx->TIMx                 = (TIM_TypeDef *) PWMx->TIMx_BASE;
 }
 
 /**
@@ -815,7 +813,7 @@ void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t 
     TIM_Cmd(PWMx->TIMx, ENABLE);              // 使能TIM
 
     // 高级定时器需要使能MOE位
-    if (PWMx->TIMx == TIM8) {
+    if (PWMx->TIMx == TIM1 || PWMx->TIMx == TIM8) {
         TIM_CtrlPWMOutputs(PWMx->TIMx, ENABLE);
     }
 }

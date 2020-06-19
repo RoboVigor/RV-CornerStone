@@ -158,7 +158,7 @@ typedef struct {
             uint8_t data[Protocol_Pack_Length_0401];
         };
     };
-} ext_gimal_aim_data_t;
+} ext_gimbal_aim_data_t;
 
 typedef struct {
     uint16_t seq;

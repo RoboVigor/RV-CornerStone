@@ -38,38 +38,7 @@ void USART1_IRQHandler(void) {
 }
 
 /**
- * @brief USART3 串口中断
- * @note  视觉系统读取
- */
-void USART3_IRQHandler(void) {
-    uint8_t  tmp;
-    uint16_t len;
-    int      i;
-
-    // clear IDLE flag
-    tmp = USART3->DR;
-    tmp = USART3->SR;
-
-    // disable DMA and decode
-    DMA_Cmd(DMA1_Stream1, DISABLE);
-    while (DMA_GetFlagStatus(DMA1_Stream1, DMA_IT_TCIF1) != SET) {
-    }
-    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Stream1);
-    for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
-    }
-
-    // enable DMA
-    DMA_ClearFlag(DMA1_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
-    while (DMA_GetCmdStatus(DMA1_Stream1) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA1_Stream1, Protocol_Buffer_Length);
-    DMA_Cmd(DMA1_Stream1, ENABLE);
-}
-
-/**
  * @brief USART6 串口中断
- * @note  裁判系统读取
  */
 void USART6_IRQHandler(void) {
     uint8_t  tmp;
@@ -80,7 +49,7 @@ void USART6_IRQHandler(void) {
     tmp = USART6->DR;
     tmp = USART6->SR;
 
-    // disable DMA and decode
+    // disable DMA and Unpack
     DMA_Cmd(DMA2_Stream1, DISABLE);
     while (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != SET) {
     }
@@ -95,43 +64,6 @@ void USART6_IRQHandler(void) {
     }
     DMA_SetCurrDataCounter(DMA2_Stream1, Protocol_Buffer_Length);
     DMA_Cmd(DMA2_Stream1, ENABLE);
-
-    // Tx
-    DMA_Cmd(DMA2_Stream6, DISABLE);
-    DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6 | DMA_FLAG_HTIF6);
-    while (DMA_GetCmdStatus(DMA2_Stream6) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA2_Stream6, Protocol_Buffer_Length);
-    DMA_Cmd(DMA2_Stream6, ENABLE);
-}
-
-/**
- * @brief UART7 串口中断
- */
-void UART7_IRQHandler(void) {
-    uint8_t  tmp;
-    uint16_t len;
-    int      i;
-
-    // clear IDLE flag
-    tmp = UART7->DR;
-    tmp = UART7->SR;
-
-    // disable DMA and Unpack
-    DMA_Cmd(DMA1_Stream3, DISABLE);
-    while (DMA_GetFlagStatus(DMA1_Stream3, DMA_IT_TCIF3) != SET) {
-    }
-    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Stream3);
-    for (i = 0; i < len; i++) {
-        // Protocol_Unpack(&Board, Board.receiveBuf[i]);
-    }
-
-    // enable DMA
-    DMA_ClearFlag(DMA1_Stream3, DMA_FLAG_TCIF3 | DMA_FLAG_HTIF3);
-    while (DMA_GetCmdStatus(DMA1_Stream3) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA1_Stream3, Protocol_Buffer_Length);
-    DMA_Cmd(DMA1_Stream3, ENABLE);
 }
 
 /**
@@ -192,12 +124,12 @@ void CAN1_RX0_IRQHandler(void) {
         Motor_Update(&Motor_RF, position, speed);
         break;
 
-    case 0x209:
-        Motor_Update(&Motor_Yaw, position, speed);
+    case 0x205:
+        Motor_Update(&Motor_Raise_Left, position, speed);
         break;
 
     case 0x206:
-        Motor_Update(&Motor_Pitch, position, 0);
+        Motor_Update(&Motor_Raise_Right, position, speed);
         break;
 
     default:
@@ -221,17 +153,20 @@ void CAN2_RX0_IRQHandler(void) {
     position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
     speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
-    //安排数据
+    // 安排数据
     switch (CanRxData.StdId) {
     case 0x201:
-        Motor_Update(&Motor_FL, position, speed);
+        Motor_Update(&Motor_Fetch_X, position, speed);
         break;
+
     case 0x202:
-        Motor_Update(&Motor_FR, position, speed);
+        Motor_Update(&Motor_Fetch_Left_Pitch, position, speed);
         break;
-    case 0x207:
-        Motor_Update(&Motor_Stir, position, speed);
+
+    case 0x203:
+        Motor_Update(&Motor_Fetch_Right_Pitch, position, speed);
         break;
+
     default:
         break;
     }

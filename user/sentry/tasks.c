@@ -398,6 +398,12 @@ void Task_Debug_Magic_Send(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_Ps(void *Parameters) {
+    int PsPacketLostCounter;
+    int PsTargetLostCounter;
+    int PsTargetFound;
+}
+
 void Task_Stir(void *Parameters) {
     // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
