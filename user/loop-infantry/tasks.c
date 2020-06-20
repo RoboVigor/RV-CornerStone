@@ -212,6 +212,7 @@ void Task_Gimbal(void *Parameters) {
         // DebugData.debug6 = PID_Cloud_YawSpeed.output;
         // DebugData.debug7 = yawCurrent;
 
+        DebugData.debug1 = Motor_Pitch.angle;
         //任务间隔
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -219,9 +220,6 @@ void Task_Gimbal(void *Parameters) {
 }
 
 void Task_Chassis(void *Parameters) {
-    DebugData.debug1 = 0;
-    DebugData.debug2 = 0;
-
     // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.005;               // 任务运行间隔 s
@@ -485,7 +483,7 @@ void Task_Fire_Stir(void *Parameters) {
     while (1) {
 // 弹舱盖开关
 #ifdef ROBOT_LOOP_ONE
-        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 10 : 4);
+        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 10 : 5);
 #endif
 #ifdef ROBOT_LOOP_TWO
         PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 14 : 6);
@@ -538,10 +536,6 @@ void Task_Fire_Stir(void *Parameters) {
             PID_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * RPM2RPS);
             Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
-        DebugData.debug1 = Judge.receiveBuf[0];
-        DebugData.debug2 = Judge.powerHeatData.shooter_heat0;
-        DebugData.debug3 = Judge.robotState.robot_level;
-        DebugData.debug4 = Judge.robotState.shooter_heat0_cooling_limit;
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
 
