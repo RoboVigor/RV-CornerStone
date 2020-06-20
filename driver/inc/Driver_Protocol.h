@@ -2,6 +2,7 @@
 #define __DRIVER_PROTOCOL_H
 
 #include "stm32f4xx.h"
+#include "config.h"
 
 #pragma pack(1)
 
@@ -43,7 +44,7 @@
 #define Protocol_Pack_Length_0301_Client_Character 45
 #define Protocol_Pack_Length_0301_Header 6
 #define Protocol_Pack_Length_0301_Robot 112
-#define Protocol_Pack_Length_0302 20
+#define Protocol_Pack_Length_0302 PROTOCOL_DATA_NUM * sizeof(float)
 #define Protocol_Pack_Length_0401 9
 #define Protocol_Pack_Length_0402 32
 
@@ -164,14 +165,13 @@ typedef struct {
     uint16_t seq;
     union {
         struct {
-            float data1;
-            float data2;
-            float data3;
-            float data4;
-            float data5;
+            float data_f[PROTOCOL_DATA_NUM];
         };
         struct {
-            uint8_t data[Protocol_Pack_Length_0302];
+            int data_i[PROTOCOL_DATA_NUM * (sizeof(float) / sizeof(int))];
+        };
+        struct {
+            uint8_t data[PROTOCOL_DATA_NUM * sizeof(float)];
         };
     };
 } board_interactive_data_t;
@@ -348,7 +348,7 @@ typedef struct {
     aerial_robot_energy_t          aerialRobotEnergy;                  // 空中机器人数据
     ext_robot_hurt_t               robotHurt;                          // 伤害数据
     ext_shoot_data_t               shootData;                          // 射击数据
-    ext_gimbal_aim_data_t           autoaimData;                        // 视觉自瞄数据
+    ext_gimbal_aim_data_t          autoaimData;                        // 视觉自瞄数据
     interact_mode_e                mode;                               // 当前交互模式
     board_interactive_data_t       boardInteractiveData[2];            // 板间交互数据 0：发送 1：接收
     client_custom_graphic_delete_t clientGraphicDelete;                // 客户端自定义删除图形
