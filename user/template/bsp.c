@@ -23,27 +23,16 @@ void BSP_Init(void) {
     BSP_USART6_Init(115200, USART_IT_IDLE);
     BSP_DMA_Init(USART6_Tx, Judge.sendBuf, Protocol_Buffer_Length);
     BSP_DMA_Init(USART6_Rx, Judge.receiveBuf, Protocol_Buffer_Length);
-    // BSP_DMA_USART6_RX_Init(Judge.receiveBuf, Protocol_Buffer_Length);
-    // BSP_DMA_USART6_TX_Init(Judge.sendBuf, Protocol_Buffer_Length);
 
     // Board (UART7)
     BSP_UART7_Init(115200, USART_IT_IDLE);
     BSP_DMA_Init(UART7_Tx, Board.sendBuf, Protocol_Buffer_Length);
     BSP_DMA_Init(UART7_Rx, Board.receiveBuf, Protocol_Buffer_Length);
-    // BSP_DMA_UART7_RX_Init(Board.receiveBuf, Protocol_Buffer_Length);
-    // BSP_DMA_UART7_TX_Init(Board.sendBuf, Protocol_Buffer_Length);
 
     // PS (UART8)
     BSP_UART8_Init(115200, USART_IT_IDLE);
     BSP_DMA_Init(UART8_Tx, Ps.sendBuf, Protocol_Buffer_Length);
     BSP_DMA_Init(UART8_Rx, Ps.receiveBuf, Protocol_Buffer_Length);
-    // BSP_DMA_UART8_RX_Init(Ps.receiveBuf, Protocol_Buffer_Length);
-    // BSP_DMA_UART8_TX_Init(Ps.sendBuf, Protocol_Buffer_Length);
-
-    // Debug
-    // BSP_DMA_USART6_TX_Init(Debug.sendBuf, Protocol_Buffer_Length);
-    // BSP_DMA_UART7_TX_Init(Debug.sendBuf, Protocol_Buffer_Length);
-    // BSP_DMA_UART8_TX_Init(Debug.sendBuf, Protocol_Buffer_Length);
 
     // PWM
     // BSP_PWM_Set_Port(&PWM_Test, PWM_PD12);

@@ -22,19 +22,16 @@ void USART1_IRQHandler(void) {
     UARTtemp = USART1->DR;
     UARTtemp = USART1->SR;
 
-    DMA_Cmd(DMA2_Stream2, DISABLE);
+    // disabe DMA
+    DMA_Disable(USART1_Rx);
 
     //数据量正确
-    if (DMA2_Stream2->NDTR == DBUS_BACK_LENGTH) {
+    if (DMA_Stream(USART1_Rx)->NDTR == DBUS_BACK_LENGTH) {
         DBus_Update(&remoteData, &keyboardData, &mouseData, remoteBuffer); //解码
     }
 
-    //重启DMA
-    DMA_ClearFlag(DMA2_Stream2, DMA_FLAG_TCIF2 | DMA_FLAG_HTIF2);
-    while (DMA_GetCmdStatus(DMA2_Stream2) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA2_Stream2, DBUS_LENGTH + DBUS_BACK_LENGTH);
-    DMA_Cmd(DMA2_Stream2, ENABLE);
+    // enable DMA
+    DMA_Enable(USART1_Rx, DBUS_LENGTH + DBUS_BACK_LENGTH);
 }
 
 /**

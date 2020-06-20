@@ -317,8 +317,8 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
-    // while (!remoteData.state) {
-    // }
+    while (!remoteData.state) {
+    }
 
     // 运动控制任务
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
