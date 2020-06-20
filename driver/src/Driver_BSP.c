@@ -816,7 +816,7 @@ void DMA_Enable(dma_table_index_e tableIndex, uint16_t length) {
     DMA_Cmd(dma.DMAx_Streamy, ENABLE);
 }
 
-uint32_t DMA_Stream(dma_table_index_e tableIndex) {
+DMA_Stream_TypeDef *DMA_Stream(dma_table_index_e tableIndex) {
     DMA_Type dma;
     dma = DMA_Table[tableIndex];
 

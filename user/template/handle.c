@@ -22,5 +22,4 @@ void Handle_Init(void) {
     Protocol_Init(&Judge);
     Protocol_Init(&Ps);
     Protocol_Init(&Board);
-    Protocol_Init(&Debug);
 }

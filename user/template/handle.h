@@ -14,13 +14,13 @@
 #include "Driver_Magic.h"
 #include "Driver_PID.h"
 #include "Driver_DBUS.h"
+#include "Driver_CAN.h"
 #include "Driver_Motor.h"
 #include "Driver_Chassis.h"
 #include "mpu6500_driver.h"
 #include "Driver_Gyroscope.h"
-#include "Driver_Fsm.h"
 #include "Driver_Protocol.h"
-#include "Driver_CAN.h"
+#include "Driver_Fsm.h"
 
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT
@@ -53,14 +53,10 @@ __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type         PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
 // 通讯协议
-__HANDLE_EXT Protocol_Type Judge, Ps, Board, Debug;
+__HANDLE_EXT Protocol_Type Judge, Ps, Board;
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test;
-
-// DMA
-__HANDLE_EXT uint8_t DMA_Send_Buffer[DMA_BUFFER_LENGTH];
-__HANDLE_EXT uint8_t DMA_Receive_Buffer[DMA_BUFFER_LENGTH];
 
 /**
  * @brief 初始化结构体
