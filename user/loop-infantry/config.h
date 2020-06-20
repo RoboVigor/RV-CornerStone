@@ -27,8 +27,8 @@
 #endif
 
 // 运动参数
-#define GIMBAL_PITCH_MIN -18
-#define GIMBAL_PITCH_MAX 24
+#define GIMBAL_PITCH_MIN -38
+#define GIMBAL_PITCH_MAX 18
 #define CHASSIS_ROTOR_SPEED 550
 
 // 底盘配置

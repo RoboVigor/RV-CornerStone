@@ -19,8 +19,8 @@ void Handle_Init(void) {
     Motor_Init(&Motor_Yaw, 1.0, 1);   // 顺时针为正电流
     Motor_Init(&Motor_Pitch, 1.0, 1); // 逆时针为正电流
 #ifdef ROBOT_LOOP_ONE
-    Motor_Yaw.positionBias   = 1325;
-    Motor_Yaw.position       = 1325;
+    Motor_Yaw.positionBias   = 4110;
+    Motor_Yaw.position       = 4110;
     Motor_Pitch.positionBias = 5540;
     Motor_Pitch.position     = 5540;
 #endif
