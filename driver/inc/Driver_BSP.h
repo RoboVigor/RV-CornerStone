@@ -12,33 +12,46 @@
 #define RCC_APB1 1
 #define RCC_APB2 2
 
-#define PWM_PORT_PD12 0x4021008c
-#define PWM_PORT_PD13 0x4022008d
-#define PWM_PORT_PD14 0x4023008e
-#define PWM_PORT_PD15 0x4024008f
-#define PWM_PORT_PH10 0x8021080a
-#define PWM_PORT_PH11 0x8022080b
-#define PWM_PORT_PH12 0x8023080c
-#define PWM_PORT_PI0 0x80241000
-#define PWM_PORT_PA0 0x10110010
-#define PWM_PORT_PA1 0x10120011
-#define PWM_PORT_PA2 0x10130012
-#define PWM_PORT_PA3 0x10140013
-#define PWM_PORT_PI5 0x21311005
-#define PWM_PORT_PI6 0x21321006
-#define PWM_PORT_PI7 0x21331007
-#define PWM_PORT_PI2 0x21341002
+#define PWM_PD12 0x408210cc
+#define PWM_PD13 0x408220cd
+#define PWM_PD14 0x408230ce
+#define PWM_PD15 0x408240cf
+#define PWM_PH10 0x80c211ca
+#define PWM_PH11 0x80c221cb
+#define PWM_PH12 0x80c231cc
+#define PWM_PI0 0x80c24200
+#define PWM_PA0 0x10011000
+#define PWM_PA1 0x10012001
+#define PWM_PA2 0x10013002
+#define PWM_PA3 0x10014003
+#define PWM_PI5 0x21431205
+#define PWM_PI6 0x21432206
+#define PWM_PI7 0x21433207
+#define PWM_PI2 0x21434202
+#define PWM_PA8 0x11011008
+#define PWM_PA9 0x11012009
+#define PWM_PA10 0x1101300a
+#define PWM_PA11 0x1101400b
+#define PWM_PC1 0x11011081
+#define PWM_PC2 0x11012082
+#define PWM_PC3 0x11013083
+#define PWM_PC4 0x11014084
+#define PWM_PC5 0x21431085
+#define PWM_PC6 0x21432086
+#define PWM_PC7 0x21433087
 
 typedef struct {
     uint32_t      RCC_APBxPeriph_TIMx;
-    TIM_TypeDef * TIMx;
+    uint32_t      TIMx_BASE;
     uint8_t       GPIO_AF_TIMx;
-    uint32_t      RCC_AHB1Periph_GPIOx;
-    GPIO_TypeDef *GPIOx;
+    uint8_t       Channel;
+    uint32_t      GPIOx_BASE;
     uint32_t      GPIO_PinSourcex;
+    uint32_t      RCC_AHB1Periph_GPIOx;
     uint16_t      GPIO_Pin_x;
     uint8_t       CCRx;
-    uint8_t       Channel;
+    GPIO_TypeDef *GPIOx;
+    TIM_TypeDef * TIMx;
 } PWM_Type;
 
 typedef enum { Tx, Rx } trx_e;
@@ -87,7 +100,7 @@ void     DMA_Enable(dma_e DMA_Table_Index, uint16_t length);
 uint32_t DMA_Stream(dma_e DMA_Table_Index);
 
 // PWM
-void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_PORT_Px);
+void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px);
 void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t polarity);
 void PWM_Set_Compare(PWM_Type *PWMx, uint32_t compare);
 
