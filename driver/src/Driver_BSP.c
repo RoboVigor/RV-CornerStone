@@ -816,11 +816,14 @@ void DMA_Enable(dma_table_index_e tableIndex, uint16_t length) {
     DMA_Cmd(dma.DMAx_Streamy, ENABLE);
 }
 
-DMA_Stream_TypeDef *DMA_Stream(dma_table_index_e tableIndex) {
+DMA_Stream_TypeDef *DMA_Get_Stream(dma_table_index_e tableIndex) {
     DMA_Type dma;
     dma = DMA_Table[tableIndex];
-
     return dma.DMAx_Streamy;
+}
+
+uint16_t DMA_Get_Data_Counter(dma_table_index_e tableIndex) {
+    return DMA_GetCurrDataCounter(DMA_Get_Stream(tableIndex));
 }
 
 /**

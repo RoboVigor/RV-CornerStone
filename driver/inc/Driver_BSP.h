@@ -97,7 +97,8 @@ void BSP_UART8_Init(uint32_t baudRate, uint16_t interruptFlag);
 void                BSP_DMA_USART_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, uint32_t bufferSize);
 void                DMA_Disable(dma_table_index_e tableIndex);
 void                DMA_Enable(dma_table_index_e tableIndex, uint16_t length);
-DMA_Stream_TypeDef *DMA_Stream(dma_table_index_e tableIndex);
+DMA_Stream_TypeDef *DMA_Get_Stream(dma_table_index_e tableIndex);
+uint16_t            DMA_Get_Data_Counter(dma_table_index_e tableIndex);
 
 // PWM
 void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px);

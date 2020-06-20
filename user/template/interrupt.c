@@ -26,7 +26,7 @@ void USART1_IRQHandler(void) {
     DMA_Disable(USART1_Rx);
 
     //数据量正确
-    if (DMA_Stream(USART1_Rx)->NDTR == DBUS_BACK_LENGTH) {
+    if (DMA_Get_Stream(USART1_Rx)->NDTR == DBUS_BACK_LENGTH) {
         DBus_Update(&remoteData, &keyboardData, &mouseData, remoteBuffer); //解码
     }
 
@@ -61,7 +61,7 @@ void USART6_IRQHandler(void) {
     DMA_Disable(USART6_Rx);
 
     // unpack
-    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA_Stream(USART6_Rx));
+    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(USART6_Rx);
     for (i = 0; i < len; i++) {
         Protocol_Unpack(&Judge, Judge.receiveBuf[i]);
     }
@@ -86,7 +86,7 @@ void UART7_IRQHandler(void) {
     DMA_Disable(UART7_Rx);
 
     // unpack
-    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA_Stream(UART7_Rx));
+    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART7_Rx);
     for (i = 0; i < len; i++) {
         Protocol_Unpack(&Board, Board.receiveBuf[i]);
     }
@@ -111,7 +111,7 @@ void UART8_IRQHandler(void) {
     DMA_Disable(UART8_Rx);
 
     // unpack
-    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA_Stream(UART8_Rx));
+    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART8_Rx);
     for (i = 0; i < len; i++) {
         Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
     }
