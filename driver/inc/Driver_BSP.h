@@ -68,7 +68,7 @@ typedef struct {
     uint32_t            DMA_FLAG_HTIFx;
 } DMA_Type;
 
-typedef enum { USART1_Tx, USART1_Rx, USART3_Tx, USART3_Rx, USART6_Tx, USART6_Rx, UART7_Tx, UART7_Rx, UART8_Tx, UART8_Rx } dma_e;
+typedef enum { USART1_Tx, USART1_Rx, USART3_Tx, USART3_Rx, USART6_Tx, USART6_Rx, UART7_Tx, UART7_Rx, UART8_Tx, UART8_Rx } dma_table_index_e;
 
 // SERVICE
 void BSP_CAN_Init(void);
@@ -94,10 +94,10 @@ void BSP_UART7_Init(uint32_t baudRate, uint16_t interruptFlag);
 void BSP_UART8_Init(uint32_t baudRate, uint16_t interruptFlag);
 
 // DMA
-void     BSP_DMA_USART_Init(dma_e DMA_Table_Index, uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize);
-void     DMA_Disable(dma_e DMA_Table_Index);
-void     DMA_Enable(dma_e DMA_Table_Index, uint16_t length);
-uint32_t DMA_Stream(dma_e DMA_Table_Index);
+void     BSP_DMA_USART_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, uint32_t bufferSize);
+void     DMA_Disable(dma_table_index_e tableIndex);
+void     DMA_Enable(dma_table_index_e tableIndex, uint16_t length);
+uint32_t DMA_Stream(dma_table_index_e tableIndex);
 
 // PWM
 void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px);

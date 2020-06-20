@@ -745,11 +745,11 @@ DMA_Type DMA_Table[10] = {{USART1_BASE, Tx, DMA2, DMA2_Stream7, DMA2_Stream7_IRQ
                           {UART8_BASE, Tx, DMA1, DMA1_Stream0, DMA1_Stream0_IRQn, DMA_Channel_5, DMA_IT_TCIF0, DMA_FLAG_TCIF0, DMA_FLAG_HTIF0},
                           {UART8_BASE, Rx, DMA1, DMA1_Stream6, DMA1_Stream6_IRQn, DMA_Channel_5, DMA_IT_TCIF6, DMA_FLAG_TCIF6, DMA_FLAG_HTIF6}};
 
-void BSP_DMA_Init(dma_e DMA_Table_Index, uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+void BSP_DMA_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, uint32_t bufferSize) {
     // DMA
     DMA_Type dma;
-    dma = DMA_Table[DMA_Table_Index];
-    if (DMA_Table_Index < 10) {
+    dma = DMA_Table[tableIndex];
+    if (tableIndex < 10) {
         if (dma.TRx == Tx) {
             USART_DMACmd(((USART_TypeDef *) dma.PERIPHx_BASE), USART_DMAReq_Tx, ENABLE);
         } else {
@@ -763,7 +763,7 @@ void BSP_DMA_Init(dma_e DMA_Table_Index, uint32_t DMA_Memory0BaseAddr, uint32_t 
     } else {
         RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
     }
-    if (DMA_Table_Index < 10) {
+    if (tableIndex < 10) {
         DMA_InitStructure.DMA_PeripheralBaseAddr = &((USART_TypeDef *) dma.PERIPHx_BASE)->DR;
     }
     if (dma.TRx == Tx) {
@@ -777,8 +777,8 @@ void BSP_DMA_Init(dma_e DMA_Table_Index, uint32_t DMA_Memory0BaseAddr, uint32_t 
         DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOStatus_HalfFull;
     }
     DMA_InitStructure.DMA_Channel            = dma.DMA_Channel_x;
-    DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
-    DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = sourceMemoryAddress;
+    DMA_InitStructure.DMA_BufferSize         = bufferSize;
     DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
     DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
     DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
@@ -798,17 +798,17 @@ void BSP_DMA_Init(dma_e DMA_Table_Index, uint32_t DMA_Memory0BaseAddr, uint32_t 
     // NVIC_Init(&NVIC_InitStructure);
 }
 
-void DMA_Disable(dma_e DMA_Table_Index) {
+void DMA_Disable(dma_table_index_e tableIndex) {
     DMA_Type dma;
-    dma = DMA_Table[DMA_Table_Index];
+    dma = DMA_Table[tableIndex];
     DMA_Cmd(dma.DMAx_Streamy, DISABLE);
     while (DMA_GetFlagStatus(dma.DMAx_Streamy, dma.DMA_IT_TCIFx) != SET) {
     }
 }
 
-void DMA_Enable(dma_e DMA_Table_Index, uint16_t length) {
+void DMA_Enable(dma_table_index_e tableIndex, uint16_t length) {
     DMA_Type dma;
-    dma = DMA_Table[DMA_Table_Index];
+    dma = DMA_Table[tableIndex];
     DMA_ClearFlag(dma.DMAx_Streamy, dma.DMA_FLAG_TCIFx | dma.DMA_FLAG_HTIFx);
     while (DMA_GetCmdStatus(dma.DMAx_Streamy) != DISABLE) {
     }
@@ -816,9 +816,9 @@ void DMA_Enable(dma_e DMA_Table_Index, uint16_t length) {
     DMA_Cmd(dma.DMAx_Streamy, ENABLE);
 }
 
-uint32_t DMA_Stream(dma_e DMA_Table_Index) {
+uint32_t DMA_Stream(dma_table_index_e tableIndex) {
     DMA_Type dma;
-    dma = DMA_Table[DMA_Table_Index];
+    dma = DMA_Table[tableIndex];
 
     return dma.DMAx_Streamy;
 }
