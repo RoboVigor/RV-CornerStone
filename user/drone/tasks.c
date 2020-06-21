@@ -153,6 +153,7 @@ void Task_Gimbal(void *Parameters) {
     //（陀螺仪控制云台）初始目标角度初始化
     float yawAngleTarget   = Gyroscope_EulerData.yaw;
     float pitchAngleTarget = 0;
+    float rollAngleTarget  = 0;
 
     //（编码器控制云台）初始目标角度初始化
     // float yawAngleTarget = -Motor_Yaw.angle;
@@ -171,6 +172,11 @@ void Task_Gimbal(void *Parameters) {
     float pitchRampProgress    = 0;
     float pitchRampStart       = -1 * Gyroscope_EulerData.pitch;
     float pitchAngleTargetRamp = 0;
+
+    // roll轴斜坡参数
+    float rollRampProgress    = 0;
+    float rollRampStart       = Gyroscope_EulerData.roll;
+    float rollAngleTargetRamp = 0;
 
     while (1) {
         // 设置反馈
@@ -203,6 +209,8 @@ void Task_Gimbal(void *Parameters) {
         if (ABS(remoteData.rx) > 30) yawAngleTarget += -remoteData.rx / 660.0f * 20 * 0.01;
         if (ABS(remoteData.ry) > 30) pitchAngleTarget += -remoteData.ry / 660.0f * 30 * 0.01;
 
+        MIAO(yawAngleTarget, -180, 180);
+
         PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget, yawAngle);
         PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawSpeed);
 
@@ -212,9 +220,14 @@ void Task_Gimbal(void *Parameters) {
         if (pitchRampProgress < 1) {
             pitchRampProgress += 0.005f;
         }
+        //开机时roll轴匀速抬起
+        rollAngleTargetRamp = RAMP(rollRampStart, rollAngleTarget, rollRampProgress);
+        if (rollRampProgress < 1) {
+            rollRampProgress += 0.005f;
+        }
         // pitch滤波
-        lastPitchAngle = pitchAngle;
         pitchAngle     = 0.7 * lastPitchAngle + 0.3 * pitchAngle;
+        lastPitchAngle = pitchAngle;
 
         PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTargetRamp, pitchAngle);
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
@@ -226,7 +239,7 @@ void Task_Gimbal(void *Parameters) {
             rollAngle = 0.6 * lastRollAngle + 0.4 * rollAngle;
         }
         lastRollAngle = rollAngle;
-        PID_Calculate(&PID_Cloud_RollAngle, 0, rollAngle);
+        PID_Calculate(&PID_Cloud_RollAngle, rollAngleTargetRamp, rollAngle);
         PID_Calculate(&PID_Cloud_RollSpeed, PID_Cloud_RollAngle.output, rollSpeed);
 
         // 输出电流
