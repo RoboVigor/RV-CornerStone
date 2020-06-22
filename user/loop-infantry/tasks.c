@@ -498,7 +498,7 @@ void Task_Fire_Stir(void *Parameters) {
         //     stirSpeed = 160;
         // }
 
-        stirSpeed = 50;
+        stirSpeed = 110;
 
         // X模式
         if (FastShootMode) {
@@ -507,7 +507,7 @@ void Task_Fire_Stir(void *Parameters) {
 
         //热量控制
         // maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit * 0.8; // todo: why?
-        maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit - 60;
+        // maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit - 60;
 
         // 输入射击模式
         shootMode = shootIdle;
