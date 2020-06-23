@@ -211,8 +211,6 @@ void Task_Gimbal(void *Parameters) {
         // DebugData.debug5 = PID_Cloud_YawSpeed.target;
         // DebugData.debug6 = PID_Cloud_YawSpeed.output;
         // DebugData.debug7 = yawCurrent;
-
-        DebugData.debug1 = Motor_Pitch.angle;
         //任务间隔
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -475,7 +473,7 @@ void Task_Fire_Stir(void *Parameters) {
 
     // PID 初始化
     PID_Init(&PID_StirAngle, 1, 0, 0, 9000, 6000);  // 拨弹轮角度环
-    PID_Init(&PID_StirSpeed, 18, 0, 0, 6000, 1000); // 拨弹轮速度环
+    PID_Init(&PID_StirSpeed, 25, 0, 0, 6000, 1000); // 拨弹轮速度环
 
     // 开启激光
     // LASER_ON;
@@ -500,7 +498,7 @@ void Task_Fire_Stir(void *Parameters) {
         //     stirSpeed = 160;
         // }
 
-        stirSpeed = 50;
+        stirSpeed = 110;
 
         // X模式
         if (FastShootMode) {
@@ -509,7 +507,7 @@ void Task_Fire_Stir(void *Parameters) {
 
         //热量控制
         // maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit * 0.8; // todo: why?
-        maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit - 60;
+        // maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit - 60;
 
         // 输入射击模式
         shootMode = shootIdle;
@@ -523,9 +521,9 @@ void Task_Fire_Stir(void *Parameters) {
         }
         lastSeq = Ps.autoaimData.seq;
 
-        if (Judge.powerHeatData.shooter_heat0 > maxShootHeat) {
-            shootMode = shootIdle;
-        }
+        // if (Judge.powerHeatData.shooter_heat0 > maxShootHeat) {
+        //     shootMode = shootIdle;
+        // }
 
         // 控制拨弹轮
         if (shootMode == shootIdle) {
@@ -536,6 +534,8 @@ void Task_Fire_Stir(void *Parameters) {
             PID_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * RPM2RPS);
             Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
+        DebugData.debug1 = PID_StirSpeed.output;
+        DebugData.debug2 = shootMode;
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
 
@@ -667,11 +667,7 @@ void Task_Fire_Frict(void *Parameters) {
         motorRSpeed = Motor_FR.speed / 19.2;
 
         if (FrictEnabled) {
-            if (remoteData.switchRight == 3) {
-                targetSpeed = 0;
-            } else if (remoteData.switchRight == 2) {
-                targetSpeed = 200;
-            }
+            targetSpeed = 260;
         } else {
             targetSpeed = 0;
         }
