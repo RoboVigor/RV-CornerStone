@@ -1,5 +1,5 @@
 /**
- * @brief  中断服务函数根据地
+ * @brief    中断服务函数根据地
  */
 
 #include "interrupt.h"
@@ -24,21 +24,21 @@ void USART1_IRQHandler(void) {
 
     DMA_Cmd(DMA2_Stream2, DISABLE);
 
-    // disabe DMA
-    DMA_Disable(USART1_Rx);
-
-    // 数据量正确
-    if (DMA_Get_Stream(USART1_Rx)->NDTR == DBUS_BACK_LENGTH) {
+    //数据量正确
+    if (DMA2_Stream2->NDTR == DBUS_BACK_LENGTH) {
         DBus_Update(&remoteData, &keyboardData, &mouseData, remoteBuffer); //解码
     }
 
-    // enable DMA
-    DMA_Enable(USART1_Rx, DBUS_LENGTH + DBUS_BACK_LENGTH);
+    //重启DMA
+    DMA_ClearFlag(DMA2_Stream2, DMA_FLAG_TCIF2 | DMA_FLAG_HTIF2);
+    while (DMA_GetCmdStatus(DMA2_Stream2) != DISABLE) {
+    }
+    DMA_SetCurrDataCounter(DMA2_Stream2, DBUS_LENGTH + DBUS_BACK_LENGTH);
+    DMA_Cmd(DMA2_Stream2, ENABLE);
 }
 
 /**
  * @brief USART3 串口中断
- * @note  视觉系统读取
  */
 void USART3_IRQHandler(void) {
     uint8_t  tmp;
@@ -49,22 +49,25 @@ void USART3_IRQHandler(void) {
     tmp = USART3->DR;
     tmp = USART3->SR;
 
-    // disabe DMA
-    DMA_Disable(USART3_Rx);
-
-    // unpack
-    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(USART3_Rx);
+    // disable DMA and Unpack
+    DMA_Cmd(DMA1_Stream1, DISABLE);
+    while (DMA_GetFlagStatus(DMA1_Stream1, DMA_IT_TCIF1) != SET) {
+    }
+    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Stream1);
     for (i = 0; i < len; i++) {
         Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
     }
 
     // enable DMA
-    DMA_Enable(USART3_Rx, Protocol_Buffer_Length);
+    DMA_ClearFlag(DMA1_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
+    while (DMA_GetCmdStatus(DMA1_Stream1) != DISABLE) {
+    }
+    DMA_SetCurrDataCounter(DMA1_Stream1, Protocol_Buffer_Length);
+    DMA_Cmd(DMA1_Stream1, ENABLE);
 }
 
 /**
  * @brief USART6 串口中断
- * @note  裁判系统读取
  */
 void USART6_IRQHandler(void) {
     uint8_t  tmp;
@@ -75,67 +78,21 @@ void USART6_IRQHandler(void) {
     tmp = USART6->DR;
     tmp = USART6->SR;
 
-    // disabe DMA
-    DMA_Disable(USART6_Rx);
-
-    // unpack
-    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(USART6_Rx);
+    // disable DMA and Unpack
+    DMA_Cmd(DMA2_Stream1, DISABLE);
+    while (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != SET) {
+    }
+    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA2_Stream1);
     for (i = 0; i < len; i++) {
         Protocol_Unpack(&Judge, Judge.receiveBuf[i]);
     }
 
     // enable DMA
-    DMA_Enable(USART6_Rx, Protocol_Buffer_Length);
-}
-
-/**
- * @brief UART7 串口中断
- */
-void UART7_IRQHandler(void) {
-    uint8_t  tmp;
-    uint16_t len;
-    int      i;
-
-    // clear IDLE flag
-    tmp = UART7->DR;
-    tmp = UART7->SR;
-
-    // disabe DMA
-    DMA_Disable(UART7_Rx);
-
-    // unpack
-    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART7_Rx);
-    for (i = 0; i < len; i++) {
-        // Protocol_Unpack(&Board, Board.receiveBuf[i]);
+    DMA_ClearFlag(DMA2_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
+    while (DMA_GetCmdStatus(DMA2_Stream1) != DISABLE) {
     }
-
-    // enable DMA
-    DMA_Enable(UART7_Rx, Protocol_Buffer_Length);
-}
-
-/**
- * @brief UART8 串口中断
- */
-void UART8_IRQHandler(void) {
-    uint8_t  tmp;
-    uint16_t len;
-    int      i;
-
-    // clear IDLE flag
-    tmp = UART8->DR;
-    tmp = UART8->SR;
-
-    // disabe DMA
-    DMA_Disable(UART8_Rx);
-
-    // unpack
-    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART8_Rx);
-    for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
-    }
-
-    // enable DMA
-    DMA_Enable(UART8_Rx, Protocol_Buffer_Length);
+    DMA_SetCurrDataCounter(DMA2_Stream1, Protocol_Buffer_Length);
+    DMA_Cmd(DMA2_Stream1, ENABLE);
 }
 
 // CAN1数据接收中断服务函数
@@ -152,27 +109,23 @@ void CAN1_RX0_IRQHandler(void) {
     // 安排数据
     switch (CanRxData.StdId) {
     case 0x201:
-        Motor_Update(&Motor_LF, position, speed);
+        Motor_Update(&Motor_Chassis_Left, position, speed);
         break;
 
     case 0x202:
-        Motor_Update(&Motor_LB, position, speed);
+        Motor_Update(&Motor_Chassis_Right, position, speed);
         break;
 
-    case 0x203:
-        Motor_Update(&Motor_RB, position, speed);
-        break;
-
-    case 0x204:
-        Motor_Update(&Motor_RF, position, speed);
-        break;
-
-    case 0x209:
-        Motor_Update(&Motor_Yaw, position, speed);
+    case 0x205:
+        Motor_Update(&Motor_Stabilizer_Yaw, position, speed);
         break;
 
     case 0x206:
-        Motor_Update(&Motor_Pitch, position, 0);
+        Motor_Update(&Motor_Stabilizer_Pitch, position, speed);
+        break;
+
+    case 0x207:
+        Motor_Update(&Motor_Stir, position, speed);
         break;
 
     default:
@@ -196,17 +149,9 @@ void CAN2_RX0_IRQHandler(void) {
     position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
     speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
-    //安排数据
+    // 安排数据
     switch (CanRxData.StdId) {
-    case 0x201:
-        Motor_Update(&Motor_FL, position, speed);
-        break;
-    case 0x202:
-        Motor_Update(&Motor_FR, position, speed);
-        break;
-    case 0x207:
-        Motor_Update(&Motor_Stir, position, speed);
-        break;
+
     default:
         break;
     }
@@ -224,8 +169,8 @@ void TIM2_IRQHandler(void) {
 }
 
 /**
- * @brief  This function handles NMI exception.
- * @param  None
+ * @brief    This function handles NMI exception.
+ * @param    None
  * @return None
  */
 
@@ -234,8 +179,8 @@ void NMI_Handler(void) {
 }
 
 /**
- * @brief  This function handles Hard Fault exception.
- * @param  None
+ * @brief    This function handles Hard Fault exception.
+ * @param    None
  * @return None
  */
 void HardFault_Handler(void) {
@@ -243,8 +188,8 @@ void HardFault_Handler(void) {
 }
 
 /**
- * @brief  This function handles Memory Manage exception.
- * @param  None
+ * @brief    This function handles Memory Manage exception.
+ * @param    None
  * @return None
  */
 void MemManage_Handler(void) {
@@ -252,8 +197,8 @@ void MemManage_Handler(void) {
 }
 
 /**
- * @brief  This function handles Bus Fault exception.
- * @param  None
+ * @brief    This function handles Bus Fault exception.
+ * @param    None
  * @return None
  */
 void BusFault_Handler(void) {
@@ -261,8 +206,8 @@ void BusFault_Handler(void) {
 }
 
 /**
- * @brief  This function handles Usage Fault exception.
- * @param  None
+ * @brief    This function handles Usage Fault exception.
+ * @param    None
  * @return None
  */
 void UsageFault_Handler(void) {
@@ -270,8 +215,8 @@ void UsageFault_Handler(void) {
 }
 
 /**
- * @brief  This function handles Debug Monitor exception.
- * @param  None
+ * @brief    This function handles Debug Monitor exception.
+ * @param    None
  * @return None
  */
 void DebugMon_Handler(void) {
@@ -279,28 +224,28 @@ void DebugMon_Handler(void) {
 }
 
 // /**
-//  * @brief  This function handles SVCall exception.
-//  * @param  None
-//  * @return None
-//  */
+//    * @brief    This function handles SVCall exception.
+//    * @param    None
+//    * @return None
+//    */
 // void SVC_Handler(void) {
-//     //printf("SVC_Handler");
+//         //printf("SVC_Handler");
 // }
 
 // /**
-//  * @brief  This function handles PendSVC exception.
-//  * @param  None
-//  * @return None
-//  */
+//    * @brief    This function handles PendSVC exception.
+//    * @param    None
+//    * @return None
+//    */
 // void PendSV_Handler(void) {
-//     //printf("PendSV_Handler");
+//         //printf("PendSV_Handler");
 // }
 
 // /**
-//  * @brief  This function handles SysTick Handler.
-//  * @param  None
-//  * @return None
-//  */
+//    * @brief    This function handles SysTick Handler.
+//    * @param    None
+//    * @return None
+//    */
 // void SysTick_Handler(void) {
-//     //printf("SysTick_Handler");
+//         //printf("SysTick_Handler");
 // }

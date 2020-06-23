@@ -28,3 +28,4 @@
 
 // DMA
 #define DMA_BUFFER_LENGTH 128 // DMA发送接收长度
+#define PROTOCOL_DATA_NUM 8   // 通讯数据最大数量

@@ -32,4 +32,16 @@ double vegcos(float deg);
  */
 float FirstOrderLowPassFilter(float input, float *output, float sampleFrq, float CutFrq);
 
+/**
+ * @brief 快速log2
+ * @copyright copy from ce123
+ *            https:// blog.csdn.net/ce123_zhouwei/article/details/16961615
+ * @param x
+ * @return int
+ */
+int FastLog2(int x);
+
+float EaseOut(float progress, float start, float stop);
+float sigmoid(float x);
+
 #endif

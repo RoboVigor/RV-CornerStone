@@ -44,9 +44,6 @@ __HANDLE_EXT Remote_Type remoteData;
 __HANDLE_EXT Keyboard_Type keyboardData;
 __HANDLE_EXT Mouse_Type mouseData;
 
-//键鼠
-// __HANDLE_EXT Keyboard_Type V, C, X, Z, G, F, R, E, Q, CTRL, SHIFT, D, A, S, W, pressRight;
-
 // 陀螺仪
 __HANDLE_EXT volatile ImuData_Type       ImuData;
 __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
@@ -73,8 +70,9 @@ __HANDLE_EXT PID_Type PID_LeftFrictSpeed, PID_RightFrictSpeed, PID_Stir2006Speed
 // PWM 捕获
 __HANDLE_EXT u32 TIM5CH1_CAPTURE_STA, TIM5CH1_CAPTURE_VAL;
 
-//模式控制
-__HANDLE_EXT uint8_t controlMode;
+// 功能开关
+__HANDLE_EXT uint8_t ControlMode;
+__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, PsEnabled, UpEnabled, ServoEnabled, StirStop;
 
 /**
  * @brief 初始化结构体

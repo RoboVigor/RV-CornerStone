@@ -122,7 +122,7 @@ void Task_Snail(void *Parameters) {
                     }
                 }
             }
-        }
+        // }
 
         PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
         PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);

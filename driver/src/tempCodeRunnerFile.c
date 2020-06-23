@@ -1,2 +1,0 @@
-
-        motor->position     = position;

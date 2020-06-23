@@ -25,8 +25,8 @@ void Handle_Init(void) {
     Motor_Init(&Motor_Rotate_Right, 19.2f, 1);
 
     // Guide wheel
-    Motor_Init(&Motor_LGW, 36, 0);
-    Motor_Init(&Motor_RGW, 36, 0);
+    Motor_Init(&Motor_LGW, 36, 1);
+    Motor_Init(&Motor_RGW, 36, 1);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
@@ -35,6 +35,7 @@ void Handle_Init(void) {
     Magic_Init(&magic, 0);
 }
 
+// 状态机使用函数
 void Take_TV_0(void) {
     TV_Out = 0;
 }
@@ -69,7 +70,7 @@ void Take_Chassis_Detect_Left(void) {
 
 void Take_Start_Get(void) {
     TH_Move = 0;
-    TR_Get = 2;
+    TR_Get  = 2;
 }
 
 void Take_TV_Progress(void) {
@@ -104,15 +105,8 @@ void Take_Reset(void) {
     Chassis_Detect = 0;
     TAKE_OFF;
     CATAPULT_OFF;
-    TR_Get = 0;
-    TV_Out = 0;
-    if (Detected_Direction == 2) {
-        TH_Move = 1;
-    } else if (Detected_Direction == 1) {
-        TH_Move = 2;
-    } else {
-        TH_Move = 0;
-    }
+    TR_Get         = 0;
+    TV_Out         = 0;
     TU_Up          = 1;
     Chassis_State  = CHASSIS_NORMAL;
     Detected_State = 0;

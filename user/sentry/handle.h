@@ -8,6 +8,8 @@
 #include "key.h"
 #include "rtos.h"
 #include "vegmath.h"
+#include "stdlib.h"
+#include "limits.h"
 #include "Driver_BSP.h"
 #include "Driver_Filter.h"
 #include "Driver_Magic.h"
@@ -26,6 +28,9 @@
 #else
 #define __HANDLE_EXT extern
 #endif
+
+// 键鼠
+__HANDLE_EXT uint8_t FrictEnabled, LaserEnabled, StirEnabled, PsEnabled, AutoMode, SafetyMode;
 
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
@@ -51,17 +56,27 @@ __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 // 调试数据
 __HANDLE_EXT MagicHandle_Type magic;
 __HANDLE_EXT DebugData_Type DebugData;
+__HANDLE_EXT int            debug1, debug2, debug3;
 
 // 底盘
+__HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type PID_Chassis_Left, PID_Chassis_Right;
 
 // 通讯协议
 __HANDLE_EXT Protocol_Type Judge, Ps;
 
-//发射机构
-__HANDLE_EXT Motor_Type Motor_LeftFrict, Motor_RightFrict, Motor_Stir; // 左/右 摩擦轮 拨弹轮 电机
-__HANDLE_EXT PID_Type PID_LeftFrict, PID_RightFrict;                   // 左/右 摩擦轮 PID
-__HANDLE_EXT PID_Type PID_Stir_Speed, PID_Stir_Angle;                  // 拨弹轮 速度/角度 PID
+// 发射机构
+__HANDLE_EXT Motor_Type Motor_Stir;                   // 左/右 摩擦轮 拨弹轮 电机
+__HANDLE_EXT PID_Type PID_Stir_Speed, PID_Stir_Angle; // 拨弹轮 速度/角度 PID
+
+// PWM
+__HANDLE_EXT PWM_Type PWM_Snail1, PWM_Snail2;
+
+// 光电开关传感器数据
+__HANDLE_EXT int Left_State, Right_State;
+
+// 摩擦轮
+__HANDLE_EXT int Snail_State;
 
 /**
  * @brief 初始化结构体

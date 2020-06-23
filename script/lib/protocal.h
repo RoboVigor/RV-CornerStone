@@ -82,7 +82,7 @@ typedef struct {
             uint8_t data[Protocol_Pack_Length_0401];
         };
     };
-} ext_gimal_aim_data_t;
+} ext_gimbal_aim_data_t;
 
 typedef struct {
     uint8_t  sof;
@@ -110,7 +110,7 @@ typedef struct {
     uint16_t               id;
     ext_game_robot_state_t robotState;
     ext_power_heat_data_t  powerHeatData;
-    ext_gimal_aim_data_t   gimbalAimData;
+    ext_gimbal_aim_data_t  gimbalAimData;
 } Protocol_Type;
 
 unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength, unsigned char ucCRC8);

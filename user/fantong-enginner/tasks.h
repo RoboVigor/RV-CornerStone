@@ -11,9 +11,8 @@ void Task_Debug_Gyroscope_Sampling(void *Parameters); // 采样任务
 void Task_Sys_Init(void *Parameters);  // 硬件初始化和任务初始化
 void Task_Blink(void *Parameters);     // 确认存活
 void Task_Chassis(void *Parameters);   // 底盘运动
+void Task_Fetch(void *Parameters);     // 抓取
 void Task_Safe_Mode(void *Parameters); // 安全模式
 void Task_Gyroscope(void *Parameters); // 陀螺仪姿态解算
-void Task_Frict(void *Parameters);
-void Task_Stir(void *Parameters);
 
 #endif

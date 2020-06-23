@@ -54,3 +54,28 @@ float FirstOrderLowPassFilter(float input, float *output, float sampleFrq, float
     *output = Cof1 * input + Cof2 * (*output);
     return *output;
 }
+
+int FastLog2(int x) {
+    float         fx;
+    unsigned long ix, exp;
+
+    fx  = (float) x;
+    ix  = *(unsigned long *) &fx;
+    exp = (ix >> 23) & 0xFF;
+
+    return exp - 127;
+}
+
+float sigmoid(float x) {
+    return 1.0f / (1.0f + exp(-1 * x));
+}
+
+float EaseOut(float progress, float start, float stop) {
+    if (progress >= 1) {
+        return stop;
+    } else if (progress <= 0) {
+        return start;
+    } else {
+        return (2 * sigmoid(6 * progress) - 1) * (stop - start) + start;
+    }
+}

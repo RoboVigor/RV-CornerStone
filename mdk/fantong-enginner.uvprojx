@@ -10,12 +10,14 @@
       <TargetName>Target 1</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
+      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F427II</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.1.0.8</PackID>
-          <PackURL>http://www.keil.com/pack</PackURL>
+          <PackID>Keil.STM32F4xx_DFP.2.14.0</PackID>
+          <PackURL>http://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x200000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -84,6 +86,8 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
+            <nStopA1X>0</nStopA1X>
+            <nStopA2X>0</nStopA2X>
           </AfterMake>
           <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
@@ -122,47 +126,6 @@
             <HexOffset>0</HexOffset>
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
-          <Simulator>
-            <UseSimulator>0</UseSimulator>
-            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
-            <RestoreBreakpoints>1</RestoreBreakpoints>
-            <RestoreWatchpoints>1</RestoreWatchpoints>
-            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
-            <RestoreFunctions>1</RestoreFunctions>
-            <RestoreToolbox>1</RestoreToolbox>
-            <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
-            <RestoreSysVw>1</RestoreSysVw>
-          </Simulator>
-          <Target>
-            <UseTarget>1</UseTarget>
-            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
-            <RestoreBreakpoints>1</RestoreBreakpoints>
-            <RestoreWatchpoints>1</RestoreWatchpoints>
-            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
-            <RestoreFunctions>0</RestoreFunctions>
-            <RestoreToolbox>1</RestoreToolbox>
-            <RestoreTracepoints>1</RestoreTracepoints>
-            <RestoreSysVw>1</RestoreSysVw>
-          </Target>
-          <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>6</TargetSelection>
-          <SimDlls>
-            <CpuDll></CpuDll>
-            <CpuDllArguments></CpuDllArguments>
-            <PeripheralDll></PeripheralDll>
-            <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
-          </SimDlls>
-          <TargetDlls>
-            <CpuDll></CpuDll>
-            <CpuDllArguments></CpuDllArguments>
-            <PeripheralDll></PeripheralDll>
-            <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
-            <Driver>Segger\JL2CM3.dll</Driver>
-          </TargetDlls>
         </DebugOption>
         <Utilities>
           <Flash1>
@@ -221,12 +184,15 @@
             <hadXRAM>0</hadXRAM>
             <uocXRam>0</uocXRam>
             <RvdsVP>2</RvdsVP>
+            <RvdsMve>0</RvdsMve>
+            <RvdsCdeCp>0</RvdsCdeCp>
             <hadIRAM2>1</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
             <useUlib>0</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
+            <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
             <RwSelD>3</RwSelD>
             <CodeSel>0</CodeSel>
@@ -360,12 +326,20 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>0</uC99>
+            <uGnu>0</uGnu>
             <useXO>0</useXO>
+            <v6Lang>1</v6Lang>
+            <v6LangP>1</v6LangP>
+            <vShortEn>1</vShortEn>
+            <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--gnu</MiscControls>
               <Define>STM32F427_437xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\user\template;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\library\vegmath</IncludePath>
+              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\library\vegmath;..\user\fantong-enginner</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -378,6 +352,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <ClangAsOpt>4</ClangAsOpt>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -405,6 +380,9 @@
         </TargetArmAds>
       </TargetOption>
       <Groups>
+        <Group>
+          <GroupName>bsp</GroupName>
+        </Group>
         <Group>
           <GroupName>core</GroupName>
           <Files>
@@ -609,6 +587,11 @@
               <FilePath>..\driver\src\Driver_Gyroscope.c</FilePath>
             </File>
             <File>
+              <FileName>Driver_BSP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_BSP.c</FilePath>
+            </File>
+            <File>
               <FileName>Driver_Protocol.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Protocol.c</FilePath>
@@ -617,11 +600,6 @@
               <FileName>Driver_Fsm.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Fsm.c</FilePath>
-            </File>
-            <File>
-              <FileName>Driver_BSP.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\Driver_BSP.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -646,67 +624,88 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_guard</GroupName>
+          <GroupName>user_fantong-enginner</GroupName>
           <Files>
             <File>
               <FileName>bsp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\guard\bsp.c</FilePath>
+              <FilePath>..\user\fantong-enginner\bsp.c</FilePath>
             </File>
             <File>
               <FileName>handle.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\guard\handle.c</FilePath>
+              <FilePath>..\user\fantong-enginner\handle.c</FilePath>
             </File>
             <File>
               <FileName>interrupt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\guard\interrupt.c</FilePath>
+              <FilePath>..\user\fantong-enginner\interrupt.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\guard\main.c</FilePath>
+              <FilePath>..\user\fantong-enginner\main.c</FilePath>
             </File>
             <File>
               <FileName>task_debug.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\guard\task_debug.c</FilePath>
+              <FilePath>..\user\fantong-enginner\task_debug.c</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\guard\tasks.c</FilePath>
+              <FilePath>..\user\fantong-enginner\tasks.c</FilePath>
             </File>
             <File>
               <FileName>config.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\user\guard\config.h</FilePath>
+              <FilePath>..\user\fantong-enginner\config.h</FilePath>
             </File>
             <File>
               <FileName>handle.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\user\guard\handle.h</FilePath>
+              <FilePath>..\user\fantong-enginner\handle.h</FilePath>
             </File>
             <File>
               <FileName>main.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\user\guard\main.h</FilePath>
+              <FilePath>..\user\fantong-enginner\main.h</FilePath>
             </File>
             <File>
               <FileName>rtos.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\user\guard\rtos.h</FilePath>
+              <FilePath>..\user\fantong-enginner\rtos.h</FilePath>
             </File>
             <File>
               <FileName>tasks.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\user\guard\tasks.h</FilePath>
+              <FilePath>..\user\fantong-enginner\tasks.h</FilePath>
             </File>
           </Files>
         </Group>
       </Groups>
     </Target>
   </Targets>
+
+  <RTE>
+    <apis/>
+    <components/>
+    <files/>
+  </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>&lt;Project Info&gt;</LayName>
+        <LayDesc></LayDesc>
+        <LayUrl></LayUrl>
+        <LayKeys></LayKeys>
+        <LayCat></LayCat>
+        <LayLic></LayLic>
+        <LayTarg>0</LayTarg>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>

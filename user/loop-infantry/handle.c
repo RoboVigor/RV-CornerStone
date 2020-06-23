@@ -18,10 +18,24 @@ void Handle_Init(void) {
     // 云台电机
     Motor_Init(&Motor_Yaw, 1.0, 1);   // 顺时针为正电流
     Motor_Init(&Motor_Pitch, 1.0, 1); // 逆时针为正电流
+#ifdef ROBOT_LOOP_ONE
+    Motor_Yaw.positionBias   = 4110;
+    Motor_Yaw.position       = 4110;
+    Motor_Pitch.positionBias = 5540;
+    Motor_Pitch.position     = 5540;
+#endif
+#ifdef ROBOT_LOOP_TWO
     Motor_Yaw.positionBias   = 3400;
     Motor_Yaw.position       = 3400;
-    Motor_Pitch.positionBias = 1290;
-    Motor_Pitch.position     = 1290;
+    Motor_Pitch.positionBias = 7090;
+    Motor_Pitch.position     = 7090;
+#endif
+#ifdef ROBOT_LOOP_THREE
+    Motor_Yaw.positionBias   = 640;
+    Motor_Yaw.position       = 640;
+    Motor_Pitch.positionBias = 4720;
+    Motor_Pitch.position     = 4720;
+#endif
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);

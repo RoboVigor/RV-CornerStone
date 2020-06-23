@@ -2,6 +2,8 @@
 
 void DBUS_Init(Remote_Type *remote, Keyboard_Type *kb, Mouse_Type *mouse) {
     remote->state = DBusIdle;
+    kb->state     = DBusIdle;
+    kb->seq       = 0;
 
     remote->ch1 = 0;
     remote->ch2 = 0;
@@ -16,6 +18,7 @@ void DBUS_Init(Remote_Type *remote, Keyboard_Type *kb, Mouse_Type *mouse) {
 }
 
 void DBus_Update(Remote_Type *remote, Keyboard_Type *kb, Mouse_Type *mouse, uint8_t DBusBuffer[]) {
+    int i;
     remote->state = DBusWorking;
 
     remote->ch1 = (DBusBuffer[0] | DBusBuffer[1] << 8) & 0x07FF;
@@ -37,5 +40,27 @@ void DBus_Update(Remote_Type *remote, Keyboard_Type *kb, Mouse_Type *mouse, uint
     mouse->pressLeft  = DBusBuffer[12];
     mouse->pressRight = DBusBuffer[13];
 
-    kb->keyCode = DBusBuffer[14] | DBusBuffer[15] << 8;
+    // 按键禁用
+    kb->seq             = (kb->seq++) % 1024;
+    kb->keyDisabledCode = 0;
+    for (i = 0; i < 15; i++) {
+        if (kb->keyDisabledCounter[i] > 0) {
+            kb->keyDisabledCounter[i]--;
+            kb->keyDisabledCode += 1 << i;
+        }
+    }
+
+    // kb->keyCode = (DBusBuffer[14] | DBusBuffer[15] << 8);
+    // kb->keyCode = kb->keyCode & (~kb->keyDisabledCode);
+    // kb->keyCode = kb->keyCode;
+
+    kb->keyCode = (DBusBuffer[14] | DBusBuffer[15] << 8) & (~kb->keyDisabledCode);
+
+    if (kb->keyCode != 0 || mouse->x != 0) {
+        kb->state = DBusWorking;
+    }
+}
+
+void Key_Disable(Keyboard_Type *kb, uint16_t key, uint16_t duration) {
+    kb->keyDisabledCounter[FastLog2(key)] = duration;
 }
