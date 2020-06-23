@@ -60,8 +60,11 @@ __HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;
 // PWM 捕获
 __HANDLE_EXT u32 TIM5CH1_CAPTURE_STA, TIM5CH1_CAPTURE_VAL;
 
-//键鼠模式切换
+// 键鼠模式切换
 __HANDLE_EXT int controlMode;
+
+// 功能开关
+__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, PsAimEnabled, PsShootEnabled, SafetyMode;
 
 __HANDLE_EXT int snailStart; // snail 开启标志位 1为开 0为关
 
