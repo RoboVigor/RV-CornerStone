@@ -70,6 +70,18 @@ void Task_Client_Communication(void *Parameters) {
 }
 
 void Task_Gimbal(void *Parameters) {
+    //云台
+    TickType_t LastWakeTime = xTaskGetTickCount(); //时钟
+    //初始化云台PID
+    PID_Init(&PID_Cloud_YawAngle, 25, 0, 0, 4000, 0);
+    PID_Init(&PID_Cloud_YawSpeed, 40, 0, 0, 5000, 0);
+    PID_Init(&PID_Cloud_PitchAngle, 30, 0, 0, 5000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 8, 0.1, 0, 4000, 1000);
+
+    float yawTargetAngle   = 0;
+    float pitchTargetAngle = 0;
+    int   yawSpeedTarget   = 0;
+    int   pitchSpeedTarget = 0;
 
     // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -165,12 +177,11 @@ void Task_Gimbal(void *Parameters) {
             pitchRampProgress += 0.005f;
         }
 
-        // 计算PID
-        PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget, yawAngle);
-        PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawSpeed);
+        MIAO(yawAngleTarget, -130, 130);
+        MIAO(pitchAngleTarget, 0, 73);
 
-        PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTargetRamp, pitchAngle);
-        PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
+        PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget, Motor_Yaw.angle);
+        PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, Motor_Yaw.speed);
 
         // 输出电流
         Can_Send(CAN1, 0x1FF, PID_Cloud_YawSpeed.output, PID_Cloud_PitchSpeed.output, 0, 0);
@@ -187,7 +198,6 @@ void Task_Gimbal(void *Parameters) {
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
-    vTaskDelete(NULL);
 }
 
 void Task_Chassis(void *Parameters) {

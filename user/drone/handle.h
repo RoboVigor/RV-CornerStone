@@ -31,13 +31,12 @@
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 电机
-__HANDLE_EXT Motor_Type Motor_Yaw, Motor_Pitch, Motor_Stir;
-
+__HANDLE_EXT Motor_Type Motor_Yaw, Motor_Pitch, Motor_Stir, Motor_Roll;
 // 遥控器
-__HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
-__HANDLE_EXT Remote_Type remoteData;
+__HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
+__HANDLE_EXT Remote_Type   remoteData;
 __HANDLE_EXT Keyboard_Type keyboardData;
-__HANDLE_EXT Mouse_Type mouseData;
+__HANDLE_EXT Mouse_Type    mouseData;
 
 // 陀螺仪
 __HANDLE_EXT volatile ImuData_Type       ImuData;
@@ -45,10 +44,12 @@ __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 无线串口调试
 __HANDLE_EXT MagicHandle_Type magic;
+__HANDLE_EXT DebugData_Type   DebugData;
 
 // pid
 __HANDLE_EXT ChassisData_Type ChassisData;
-__HANDLE_EXT PID_Type PID_Cloud_YawAngle, PID_Cloud_YawSpeed, PID_Cloud_PitchAngle, PID_Cloud_PitchSpeed, PID_StirSpeed, PID_StirAngle;
+__HANDLE_EXT PID_Type PID_Cloud_YawAngle, PID_Cloud_YawSpeed, PID_Cloud_PitchAngle, PID_Cloud_PitchSpeed, PID_StirSpeed, PID_StirAngle, PID_Cloud_RollAngle,
+    PID_Cloud_RollSpeed;
 
 // 通讯协议
 __HANDLE_EXT Protocol_Type Judge, Ps;
@@ -58,6 +59,11 @@ __HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;
 
 // PWM 捕获
 __HANDLE_EXT u32 TIM5CH1_CAPTURE_STA, TIM5CH1_CAPTURE_VAL;
+
+//键鼠模式切换
+__HANDLE_EXT int controlMode;
+
+__HANDLE_EXT int snailStart; // snail 开启标志位 1为开 0为关
 
 __HANDLE_EXT int debug1, debug2;
 
