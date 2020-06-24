@@ -17,21 +17,13 @@ void BSP_Init(void) {
     BSP_LED_Init();
     BSP_User_Power_Init();
 
-    GPIO_InitTypeDef GPIO_InitStructure;
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_14;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOD, &GPIO_InitStructure);
-    //   GPIO_ResetetBits(GPIOD, GPIO_Pin_14);
-
     // snail 电机pwm输出
     BSP_PWM_Set_Port(&PWM_Snail1, PWM_PD12);
     BSP_PWM_Init(&PWM_Snail1, 180, 1250, TIM_OCPolarity_Low);
     BSP_PWM_Set_Port(&PWM_Snail2, PWM_PD13);
     BSP_PWM_Init(&PWM_Snail2, 180, 1250, TIM_OCPolarity_Low);
+    BSP_PWM_Set_Port(&PWM_Servo, PWM_PH12);
+    BSP_PWM_Init(&PWM_Servo, 9000, 200, TIM_OCPolarity_Low);
 
     // Judge (USART6)
     BSP_USART6_Init(115200, USART_IT_IDLE);

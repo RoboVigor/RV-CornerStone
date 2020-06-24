@@ -849,7 +849,7 @@ void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px) {
  * @brief 初始化PWM
  * @note  PI5,PI6,PI7,PI2对应时钟频率为180MHz,其余为90MHz
  * @param PWMx      PWM结构体
- * @param prescaler 预分频器. PWM频率   = TIM/prescaler
+ * @param prescaler 预分频器. PWM频率   = TIM/prescaler/period
  * @param period    计数上限. PWM占空比 = compare/period
  * @param polarity  输出极性. TIM_OCPolarity_Low/TIM_OCPolarity_High
  */

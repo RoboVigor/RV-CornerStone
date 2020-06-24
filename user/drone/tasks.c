@@ -113,8 +113,14 @@ void Task_Snail(void *Parameters) {
             }
         }
 
-        PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
-        PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
+        // PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
+        // PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
+
+        // if (remoteData.switchRight == 1) {
+        //     PWM_Set_Compare(&PWM_Servo, 5);
+        // } else if (remoteData.switchRight == 3) {
+        //     PWM_Set_Compare(&PWM_Servo, 15);
+        // }
 
         vTaskDelayUntil(&LastWakeTime, 5);
     }
@@ -329,10 +335,10 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     // xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Gimbal, "Task_Gimbal", 800, NULL, 5, NULL);
+    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 800, NULL, 5, NULL);
     xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
-    xTaskCreate(Task_Fire, "Task_Fire", 500, NULL, 7, NULL);
-    xTaskCreate(Task_Control, "Task_Control", 500, NULL, 4, NULL);
+    // xTaskCreate(Task_Fire, "Task_Fire", 500, NULL, 7, NULL);
+    // xTaskCreate(Task_Control, "Task_Control", 500, NULL, 4, NULL);
     // 完成使命
     vTaskDelete(NULL);
 }

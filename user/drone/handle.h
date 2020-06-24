@@ -55,7 +55,7 @@ __HANDLE_EXT PID_Type PID_Cloud_YawAngle, PID_Cloud_YawSpeed, PID_Cloud_PitchAng
 __HANDLE_EXT Protocol_Type Judge, Ps;
 
 // PWM
-__HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;
+__HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2, PWM_Servo;
 
 // PWM 捕获
 __HANDLE_EXT u32 TIM5CH1_CAPTURE_STA, TIM5CH1_CAPTURE_VAL;
