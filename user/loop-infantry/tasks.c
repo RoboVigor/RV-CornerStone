@@ -534,8 +534,8 @@ void Task_Fire_Stir(void *Parameters) {
             PID_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * RPM2RPS);
             Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
-        DebugData.debug1 = PID_StirSpeed.output;
-        DebugData.debug2 = shootMode;
+        // DebugData.debug1 = PID_StirSpeed.output;
+        // DebugData.debug2 = shootMode;
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
 
@@ -667,7 +667,7 @@ void Task_Fire_Frict(void *Parameters) {
         motorRSpeed = Motor_FR.speed / 19.2;
 
         if (FrictEnabled) {
-            targetSpeed = 260;
+            targetSpeed = 600;
         } else {
             targetSpeed = 0;
         }
@@ -687,6 +687,73 @@ void Task_Fire_Frict(void *Parameters) {
         // DebugData.debug4 = PID_FireR.output;
         // DebugData.debug5 = -1 * targetSpeed;
         // DebugData.debug6 = Judge.shootData.bullet_speed;
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+    vTaskDelete(NULL);
+}
+
+void Task_Capacitor(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.1;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+    int        lastmode     = 0;
+    float      maxvoltage   = 4096;
+
+    while (1) {
+        if (PigeonChargeEnable && PigeonVoltage <= 800) {
+            DISCHARGE_OFF;
+            CHARGE_ON;
+        }
+        if (PigeonVoltage >= 4000) {
+            CHARGE_OFF;
+        }
+        if (PigeonMode) {
+            if (!lastmode) {
+                CHARGE_OFF;
+                DISCHARGE_ON;
+            }
+            lastmode = PigeonMode;
+        } else if (!PigeonMode && PigeonChargeEnable) {
+            if (lastmode) {
+                DISCHARGE_OFF;
+                CHARGE_ON;
+            }
+            lastmode = PigeonMode;
+        }
+        PigeonEnergy = 100 * PigeonVoltage / maxvoltage;
+
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+    vTaskDelete(NULL);
+}
+
+void Task_ADC_Get(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.1;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    ADC_SoftwareStartConv(ADC1); //使能指定的 ADC1 的软件转换启动功能
+    while (1) {
+        int count;
+        DMA_Cmd(DMA2_Stream0, ENABLE); //启动DMA通道
+        while (!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC)) {
+        } //等待转换结束
+
+        PigeonVoltage = 0;
+        PigeonCurrent = 0;
+
+        for (count = 0; count < 20; count++) {
+            PigeonVoltage += ADC_Value[count][0];
+        }
+        for (count = 0; count < 20; count++) {
+            PigeonCurrent += ADC_Value[count][1];
+        }
+
+        PigeonVoltage /= count;
+        PigeonCurrent /= count;
+
+        DebugData.debug1 = PigeonVoltage;
+        DebugData.debug2 = ADC_Value[0][0];
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
@@ -736,6 +803,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 10, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    xTaskCreate(Task_ADC_Get, "Task_ADC_Get", 400, NULL, 6, NULL);
 
     // 等待遥控器开启
     while (!remoteData.state) {
@@ -749,6 +817,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
     xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Capacitor, "Task_Capacitor", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

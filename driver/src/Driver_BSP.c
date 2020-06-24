@@ -330,10 +330,10 @@ void BSP_ADC_Init(ADC_TypeDef *ADCx,
         RCC_APB2PeriphClockCmd(RCC_APBxPeriph_ADCx, ENABLE); // 使能时钟
 
     // ADC通用配置
-    ADC_CommonInitStructure.ADC_Mode             = ADC_Mode_Independent;          // 独立模式
-    ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_10Cycles; // 两个采样阶段之间的延迟x个时钟
-    ADC_CommonInitStructure.ADC_DMAAccessMode    = ADC_DMAAccessMode_1;           // DMA使能（DMA传输下要设置使能）
-    ADC_CommonInitStructure.ADC_Prescaler        = ADC_Prescaler_Div4;            // 预分频4分频
+    ADC_CommonInitStructure.ADC_Mode             = ADC_Mode_Independent;         // 独立模式
+    ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles; // 两个采样阶段之间的延迟x个时钟
+    ADC_CommonInitStructure.ADC_DMAAccessMode    = ADC_DMAAccessMode_Disabled;   // DMA使能（DMA传输下要设置使能）
+    ADC_CommonInitStructure.ADC_Prescaler        = ADC_Prescaler_Div2;           // 预分频4分频
     ADC_CommonInit(&ADC_CommonInitStructure);
 
     // ADCx配置
@@ -347,12 +347,11 @@ void BSP_ADC_Init(ADC_TypeDef *ADCx,
 
     for (ADC_Channelx = ADC_Channel_0; ADC_Channelx <= ADC_Channel_18; ADC_Channelx++) {
         if (ADC_Channel >> ADC_Channelx & 0x01 == 1) {
-            ADC_RegularChannelConfig(ADCx, ADC_Channelx, Rank, ADC_SampleTime_144Cycles);
+            ADC_RegularChannelConfig(ADCx, ADC_Channelx, Rank, ADC_SampleTime_3Cycles);
             Rank++;
         }
     }
 
-    ADC_DMACmd(ADCx, ENABLE);
     ADC_Cmd(ADCx, ENABLE);
 
     // NVIC
@@ -512,12 +511,15 @@ void BSP_DMA_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, ui
     // DMA
     DMA_Type dma;
     dma = DMA_Table[tableIndex];
-    if (tableIndex < 10) {
+    if (tableIndex <= UART8_Rx) {
         if (dma.TRx == Tx) {
-            USART_DMACmd(((USART_TypeDef *) dma.PERIPHx_BASE), USART_DMAReq_Tx, ENABLE);
+            USART_DMACmd((USART_TypeDef *) dma.PERIPHx_BASE, USART_DMAReq_Tx, ENABLE);
         } else {
-            USART_DMACmd(((USART_TypeDef *) dma.PERIPHx_BASE), USART_DMAReq_Rx, ENABLE);
+            USART_DMACmd((USART_TypeDef *) dma.PERIPHx_BASE, USART_DMAReq_Rx, ENABLE);
         }
+    }
+    if (tableIndex >= ADC1_Rx && tableIndex <= ADC1_Rx) {
+        ADC_DMACmd((ADC_TypeDef *) dma.PERIPHx_BASE, ENABLE);
     }
 
     DMA_InitTypeDef DMA_InitStructure;
@@ -526,38 +528,43 @@ void BSP_DMA_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, ui
     } else {
         RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
     }
-    if (tableIndex < 10) {
+    if (tableIndex <= UART8_Rx) {
         DMA_InitStructure.DMA_PeripheralBaseAddr = &((USART_TypeDef *) dma.PERIPHx_BASE)->DR;
-    } else {
+        DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+        DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+        DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    }
+    if (tableIndex >= ADC1_Rx && tableIndex <= ADC1_Rx) {
         DMA_InitStructure.DMA_PeripheralBaseAddr = &((ADC_TypeDef *) dma.PERIPHx_BASE)->DR;
+        DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+        DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_HalfWord;
+        DMA_InitStructure.DMA_Mode               = DMA_Mode_Circular;
     }
 
     if (dma.TRx == Tx) {
         DMA_InitStructure.DMA_DIR           = DMA_DIR_MemoryToPeripheral;
         DMA_InitStructure.DMA_FIFOMode      = DMA_FIFOMode_Disable;
         DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
-
-    } else {
+    }
+    if (dma.TRx == Rx) {
         DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
-        if (tableIndex < 10) {
+        if (tableIndex <= UART8_Rx) {
             DMA_InitStructure.DMA_FIFOMode      = DMA_FIFOMode_Enable;
             DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOStatus_HalfFull;
-        } else {
+        }
+        if (tableIndex >= ADC1_Rx && tableIndex <= ADC1_Rx) {
             DMA_InitStructure.DMA_FIFOMode      = DMA_FIFOMode_Disable;
-            DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOStatus_Full;
+            DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;
         }
     }
-    DMA_InitStructure.DMA_Channel            = dma.DMA_Channel_x;
-    DMA_InitStructure.DMA_Memory0BaseAddr    = sourceMemoryAddress;
-    DMA_InitStructure.DMA_BufferSize         = bufferSize;
-    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
-    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
-    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
-    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
-    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
-    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
-    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_InitStructure.DMA_Channel         = dma.DMA_Channel_x;
+    DMA_InitStructure.DMA_Memory0BaseAddr = sourceMemoryAddress;
+    DMA_InitStructure.DMA_BufferSize      = bufferSize;
+    DMA_InitStructure.DMA_PeripheralInc   = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc       = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_Priority        = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_MemoryBurst     = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
     DMA_Init(dma.DMAx_Streamy, &DMA_InitStructure);
     DMA_Cmd(dma.DMAx_Streamy, ENABLE);
     // // NVIC

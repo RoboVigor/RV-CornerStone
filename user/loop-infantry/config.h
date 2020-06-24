@@ -13,7 +13,7 @@
 #ifdef ROBOT_LOOP_ONE
 #define IMU_GX_BIAS 3  // GX静态误差,通过平放主控板采样得到 9
 #define IMU_GY_BIAS 16 // GY静态误差 14
-#define IMU_GZ_BIAS 49// GZ静态误差 49
+#define IMU_GZ_BIAS 49 // GZ静态误差 49
 #endif
 #ifdef ROBOT_LOOP_TWO
 #define IMU_GX_BIAS 27 // GX静态误差,通过平放主控板采样得到
@@ -44,3 +44,8 @@
 #define GYROSCOPE_YAW_FILTER_THRESHOLD 0.005f   // 零飘修正阈值
 #define GYROSCOPE_LSB 16.384f                   // 陀螺仪敏感度 2^16/4000
 #define ACCELERATE_LSB 4096.0f                  // 加速度计敏感度 2^16/16
+
+//  数模转化参数
+#define ADC_CHANNEL_NUM 2        //  数模转化通道数
+#define ADC_COLLECT_TIME 20      //  数模转化采集次数
+#define ADC_BUFFER_LENGTH 2 * 20 //数模转化缓存区长度
