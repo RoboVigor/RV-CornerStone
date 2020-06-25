@@ -68,10 +68,10 @@ __HANDLE_EXT Motor_Type Motor_Fetch_X, Motor_Fetch_Left_Pitch, Motor_Fetch_Right
 __HANDLE_EXT Motor_Type Motor_Raise_Left, Motor_Raise_Right;
 
 // 遥控器
-__HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
-__HANDLE_EXT Remote_Type remoteData;
+__HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
+__HANDLE_EXT Remote_Type   remoteData;
 __HANDLE_EXT Keyboard_Type keyboardData;
-__HANDLE_EXT Mouse_Type mouseData;
+__HANDLE_EXT Mouse_Type    mouseData;
 
 // 陀螺仪
 __HANDLE_EXT volatile ImuData_Type       ImuData;
@@ -79,11 +79,16 @@ __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 调试数据
 __HANDLE_EXT MagicHandle_Type magic;
-__HANDLE_EXT DebugData_Type DebugData;
+__HANDLE_EXT DebugData_Type   DebugData;
 
 // 底盘
 __HANDLE_EXT ChassisData_Type ChassisData;
-__HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
+__HANDLE_EXT PID_Type         PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
+
+// 云台
+__HANDLE_EXT Motor_Type Motor_Yaw, Motor_Pitch;
+__HANDLE_EXT PID_Type   PID_Cloud_YawAngle, PID_Cloud_YawSpeed, PID_Cloud_PitchAngle, PID_Cloud_PitchSpeed;
+__HANDLE_EXT PID_Type   PID_Follow_Angle, PID_Follow_Speed;
 
 // 抓取
 __HANDLE_EXT PID_Type PID_Fetch_X;
