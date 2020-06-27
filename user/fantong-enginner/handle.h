@@ -64,7 +64,11 @@ __HANDLE_EXT enum FetchStateEnum {
 
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
+
+//平台
 __HANDLE_EXT Motor_Type Motor_Fetch_X, Motor_Fetch_Left_Pitch, Motor_Fetch_Right_Pitch;
+
+//抬升
 __HANDLE_EXT Motor_Type Motor_Raise_Left, Motor_Raise_Right;
 
 // 遥控器

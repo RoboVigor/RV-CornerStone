@@ -50,12 +50,6 @@ void Task_Chassis(void *Parameters) {
     float      interval     = 0.005;               // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    // 运动模式
-    int   mode           = 2; // 底盘运动模式,1直线,2转弯
-    int   lastMode       = 2; // 上一次的运动模式
-    float yawAngleTarget = 0; // 目标值
-    float yawAngle, yawSpeed; // 反馈值
-
     // 底盘运动
     float vx             = 0;
     float vy             = 0;
@@ -101,27 +95,20 @@ void Task_Chassis(void *Parameters) {
             vy = 0;
         }
 
-        // 切换运动模式
-        if (mode != lastMode) {
-            PID_YawAngle.output_I = 0;        // 清空角度PID积分
-            PID_YawSpeed.output_I = 0;        // 清空角速度PID积分
-            yawAngleTarget        = yawAngle; // 更新角度PID目标值
-            lastMode              = mode;     // 更新lastMode
-        }
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
-        // 按条件开启底盘K_I
-        // if (vx < 0.1 && vy < 0.1 && vw < 0.3) {
-        //     PID_LFCM.i = 1;
-        //     PID_LBCM.i = 1;
-        //     PID_RBCM.i = 1;
-        //     PID_RFCM.i = 1;
-        // } else {
-        //     PID_LFCM.i = 0;
-        //     PID_LBCM.i = 0;
-        //     PID_RBCM.i = 0;
-        //     PID_RFCM.i = 0;
-        // }
+        //按条件开启底盘K_I
+        if (vx < 0.1 && vy < 0.1 && vw < 0.3) {
+            PID_LFCM.i = 1;
+            PID_LBCM.i = 1;
+            PID_RBCM.i = 1;
+            PID_RFCM.i = 1;
+        } else {
+            PID_LFCM.i = 0;
+            PID_LBCM.i = 0;
+            PID_RBCM.i = 0;
+            PID_RFCM.i = 0;
+        }
 
         // 开机时底盘匀速回正
         vwRamp = RAMP(0, vw, vwRampProgress);
@@ -130,13 +117,10 @@ void Task_Chassis(void *Parameters) {
         }
 
         // 设置底盘总体移动速度
-        Chassis_Update(&ChassisData, vx, vy, vw);
+        Chassis_Update(&ChassisData, vx, vy, vwRamp);
 
         // 麦轮解算
         Chassis_Calculate_Rotor_Speed(&ChassisData);
-
-        //稍微限制移动速度
-        Chassis_Limit_Rotor_Speed(&ChassisData, 800);
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
@@ -174,16 +158,10 @@ void Task_Gimbal(void *Parameters) {
     float pitchAngleTargetControl   = 0; // 遥控器输入
     float pitchAngleTargetFix       = 0; // 上坡补偿
     float pitchAngleTargetFixStable = 0; // 上坡补偿
-    float yawAngleTargetPs          = 0; // 视觉辅助
-    float pitchAngleTargetPs        = 0; // 视觉辅助
 
     // 输出量
     int32_t yawCurrent   = 0;
     int32_t pitchCurrent = 0;
-
-    // 视觉系统
-    int16_t lastSeq      = 0;
-    int     autoAimStart = 0;
 
     // Pitch轴斜坡参数
     float pitchRampProgress    = 0;
@@ -222,7 +200,7 @@ void Task_Gimbal(void *Parameters) {
         // 20); pitchAngleTarget += pitchAngleTargetFixStable;
 
         // 限制云台运动范围
-        // MIAO(pitchAngleTarget, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
+        MIAO(pitchAngleTarget, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
 
         // 开机时pitch轴匀速抬起
         // pitchAngleTargetRamp = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);

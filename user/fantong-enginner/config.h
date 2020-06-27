@@ -32,6 +32,3 @@
 
 // 抓取
 #define FITCH_MOTOR_REDUCTION_RATE 19.2f // 抓取电机减速比
-
-// DMA
-#define DMA_BUFFER_LENGTH 128 // DMA发送接收长度
