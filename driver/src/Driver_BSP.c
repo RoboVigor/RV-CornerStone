@@ -333,7 +333,7 @@ void BSP_ADC_Init(ADC_TypeDef *ADCx,
     ADC_CommonInitStructure.ADC_Mode             = ADC_Mode_Independent;         // 独立模式
     ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles; // 两个采样阶段之间的延迟x个时钟
     ADC_CommonInitStructure.ADC_DMAAccessMode    = ADC_DMAAccessMode_Disabled;   // DMA使能（DMA传输下要设置使能）
-    ADC_CommonInitStructure.ADC_Prescaler        = ADC_Prescaler_Div2;           // 预分频4分频
+    ADC_CommonInitStructure.ADC_Prescaler        = ADC_Prescaler_Div4;           // 预分频4分频
     ADC_CommonInit(&ADC_CommonInitStructure);
 
     // ADCx配置
@@ -343,11 +343,12 @@ void BSP_ADC_Init(ADC_TypeDef *ADCx,
     ADC_InitStructure.ADC_Resolution         = ADC_Resolution_12b;            // 12位模式
     ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;                        // 开启连续转换（开启DMA传输要设置连续转换）
     ADC_InitStructure.ADC_ScanConvMode       = ENABLE;                        // 扫描（开启DMA传输要设置扫描）
+    ADC_DMACmd(ADC1, ENABLE);
     ADC_Init(ADCx, &ADC_InitStructure);
 
     for (ADC_Channelx = ADC_Channel_0; ADC_Channelx <= ADC_Channel_18; ADC_Channelx++) {
         if (ADC_Channel >> ADC_Channelx & 0x01 == 1) {
-            ADC_RegularChannelConfig(ADCx, ADC_Channelx, Rank, ADC_SampleTime_3Cycles);
+            ADC_RegularChannelConfig(ADCx, ADC_Channelx, Rank, ADC_SampleTime_144Cycles);
             Rank++;
         }
     }
@@ -373,6 +374,7 @@ void BSP_ADC_Init(ADC_TypeDef *ADCx,
  */
 void BSP_ADC1_Init(uint32_t ADC_NbrOfConversion, uint32_t ADC_Channel, uint16_t interruptFlag) {
     BSP_ADC_Init(ADC1, RCC_APB2, RCC_APB2Periph_ADC1, ADC_NbrOfConversion, ADC_Channel, 2, interruptFlag);
+    ADC_SoftwareStartConv(ADC1); //使能指定的 ADC1 的软件转换启动功能
 }
 
 void BSP_Laser_Init(void) {
@@ -536,8 +538,10 @@ void BSP_DMA_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, ui
     }
     if (tableIndex >= ADC1_Rx && tableIndex <= ADC1_Rx) {
         DMA_InitStructure.DMA_PeripheralBaseAddr = &((ADC_TypeDef *) dma.PERIPHx_BASE)->DR;
+        DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
         DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
         DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_HalfWord;
+        DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Disable;
         DMA_InitStructure.DMA_Mode               = DMA_Mode_Circular;
     }
 

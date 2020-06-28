@@ -732,7 +732,6 @@ void Task_ADC_Get(void *Parameters) {
     float      interval     = 0.1;                 // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    ADC_SoftwareStartConv(ADC1); //使能指定的 ADC1 的软件转换启动功能
     while (1) {
         int count;
         DMA_Cmd(DMA2_Stream0, ENABLE); //启动DMA通道
@@ -806,18 +805,18 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_ADC_Get, "Task_ADC_Get", 400, NULL, 6, NULL);
 
     // 等待遥控器开启
-    while (!remoteData.state) {
-    }
+    // while (!remoteData.state) {
+    // }
 
     //模式切换任务
-    xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
+    // xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
 
     // 运动控制任务
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
-    xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
-    xTaskCreate(Task_Capacitor, "Task_Capacitor", 400, NULL, 6, NULL);
+    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
+    // xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
+    // xTaskCreate(Task_Capacitor, "Task_Capacitor", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
