@@ -62,8 +62,14 @@ __HANDLE_EXT enum FetchStateEnum {
     FetchDone
 };
 
+// 键鼠
+__HANDLE_EXT uint8_t FrictEnabled, LaserEnabled, StirEnabled, PsEnabled, AutoMode, SafetyMode;
+
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
+
+// 摩擦轮
+__HANDLE_EXT int Snail_State;
 
 //平台
 __HANDLE_EXT Motor_Type Motor_Fetch_X, Motor_Fetch_Left_Pitch, Motor_Fetch_Right_Pitch;
@@ -72,10 +78,10 @@ __HANDLE_EXT Motor_Type Motor_Fetch_X, Motor_Fetch_Left_Pitch, Motor_Fetch_Right
 __HANDLE_EXT Motor_Type Motor_Raise_Left, Motor_Raise_Right;
 
 // 遥控器
-__HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
-__HANDLE_EXT Remote_Type   remoteData;
+__HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
+__HANDLE_EXT Remote_Type remoteData;
 __HANDLE_EXT Keyboard_Type keyboardData;
-__HANDLE_EXT Mouse_Type    mouseData;
+__HANDLE_EXT Mouse_Type mouseData;
 
 // 陀螺仪
 __HANDLE_EXT volatile ImuData_Type       ImuData;
@@ -83,16 +89,16 @@ __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 调试数据
 __HANDLE_EXT MagicHandle_Type magic;
-__HANDLE_EXT DebugData_Type   DebugData;
+__HANDLE_EXT DebugData_Type DebugData;
 
 // 底盘
 __HANDLE_EXT ChassisData_Type ChassisData;
-__HANDLE_EXT PID_Type         PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
+__HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
 // 云台
 __HANDLE_EXT Motor_Type Motor_Yaw, Motor_Pitch;
-__HANDLE_EXT PID_Type   PID_Cloud_YawAngle, PID_Cloud_YawSpeed, PID_Cloud_PitchAngle, PID_Cloud_PitchSpeed;
-__HANDLE_EXT PID_Type   PID_Follow_Angle, PID_Follow_Speed;
+__HANDLE_EXT PID_Type PID_Cloud_YawAngle, PID_Cloud_YawSpeed, PID_Cloud_PitchAngle, PID_Cloud_PitchSpeed;
+__HANDLE_EXT PID_Type PID_Follow_Angle, PID_Follow_Speed;
 
 // 抓取
 __HANDLE_EXT PID_Type PID_Fetch_X;
@@ -105,7 +111,15 @@ __HANDLE_EXT PID_Type PID_Raise_Left_Angle, PID_Raise_Left_Speed, PID_Raise_Righ
 __HANDLE_EXT Protocol_Type Judge, Ps;
 
 // PWM
-__HANDLE_EXT PWM_Type PWM_Test;
+__HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;
+
+//发射机构
+__HANDLE_EXT Motor_Type Motor_Stir, Motor_FL, Motor_FR;                   // 左/右 摩擦轮 拨弹轮 电机
+__HANDLE_EXT PID_Type PID_StirSpeed, PID_StirAngle, PID_FireL, PID_FireR; // 拨弹轮 速度/角度 PID
+
+// 功能开关
+__HANDLE_EXT uint8_t ControlMode, SafetyMode;
+__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, FastShootMode;
 
 /**
  * @brief 初始化结构体

@@ -6,7 +6,7 @@
 
 void Task_Safe_Mode(void *Parameters) {
     while (1) {
-        if (remoteData.switchRight == 2 && remoteData.switchLeft == 1) {
+        if (SafetyMode) {
             vTaskSuspendAll();
             while (1) {
                 Can_Send(CAN1, 0x200, 0, 0, 0, 0);
@@ -30,8 +30,11 @@ void Task_Control(void *Parameters) {
     while (1) {
         // FetchMode   = remoteData.switchLeft == 1;
         // RaiseMode   = remoteData.switchLeft == 1;
-        ChassisMode = remoteData.switchLeft == 3;
-        RaiseMode   = (remoteData.switchLeft == 2 && remoteData.switchRight == 3);
+        ChassisMode  = remoteData.switchLeft == 1;
+        RaiseMode    = (remoteData.switchLeft == 3 && remoteData.switchRight == 3);
+        FrictEnabled = (remoteData.switchLeft == 1 && remoteData.switchRight != 1);
+        StirEnabled  = (remoteData.switchLeft == 1 && remoteData.switchRight == 2);
+        SafetyMode   = (remoteData.switchRight == 2 && remoteData.switchLeft == 2);
         // if (remoteData.switchLeft == 2 && remoteData.switchRight == 1) {
         //     RescueMode = 1;
         // } else if (remoteData.switchLeft == 2 && remoteData.switchRight == 2) {
@@ -755,6 +758,212 @@ void Task_Startup_Music(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+/**
+ * @brief 发射机构 (拨弹轮)
+ */
+
+void Task_Fire_Stir(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.05;                // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    // 射击模式
+    enum shootMode_e { shootIdle = 0, shootToDeath }; // 停止, 连发
+    enum shootMode_e shootMode = shootIdle;
+
+    // 热量控制
+    int   shootNum        = 0;
+    int   mayShootNum     = 0;
+    int   maxBulletSpeed  = 0;
+    float lastBulletSpeed = 0;
+    float maxShootHeat    = 0;
+    int   stirSpeed       = 0;
+    int   stirAngle       = 0;
+    int   seconds         = 0;
+
+    // 视觉系统
+    int16_t lastSeq = 0;
+
+    // PID 初始化
+    PID_Init(&PID_StirAngle, 1, 0, 0, 9000, 6000);  // 拨弹轮角度环
+    PID_Init(&PID_StirSpeed, 18, 0, 0, 6000, 1000); // 拨弹轮速度环
+
+    // 开启激光
+    LASER_ON;
+
+    while (1) {
+        // 弹舱盖开关
+
+        // 拨弹速度
+        // if (Judge.robotState.robot_level == 1) {
+        //     stirSpeed = 110;
+        // } else if (Judge.robotState.robot_level == 2) {
+        //     stirSpeed = 140;
+        // } else if (Judge.robotState.robot_level == 3) {
+        //     stirSpeed = 160;
+        // }
+
+        stirSpeed = 50;
+
+        // X模式
+        if (FastShootMode) {
+            stirSpeed *= 2;
+        }
+
+        //热量控制
+        // maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit * 0.8; // todo: why?
+        // maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit - 60;
+
+        // 输入射击模式
+        // if (StirEnabled && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
+        //     shootMode = shootToDeath;
+        // } else {
+        //     shootMode = shootIdle;
+        // }
+        if (StirEnabled) {
+            shootMode = shootToDeath;
+        } else {
+            shootMode = shootIdle;
+        }
+        // 视觉辅助
+        // if (!PsEnabled) {
+        //     lastSeq = Ps.autoaimData.seq;
+        // } else if (lastSeq != Ps.autoaimData.seq && Judge.powerHeatData.shooter_heat0 < maxShootHeat) {
+        //     lastSeq   = Ps.autoaimData.seq;
+        //     shootMode = Ps.autoaimData.biu_biu_state ? shootToDeath : shootIdle;
+        // } else {
+        //     shootMode = shootIdle;
+        // }
+
+        // 控制拨弹轮
+        if (shootMode == shootIdle) {
+            // 停止
+            Can_Send(CAN2, 0x1FF, 0, 0, 0, 0);
+        } else if (shootMode == shootToDeath) {
+            // 连发
+            PID_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * RPM2RPS);
+            Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+        }
+        // DebugData.debug1 = Judge.powerHeatData.shooter_heat0;
+        // DebugData.debug2 = Judge.robotState.robot_level;
+        // DebugData.debug3 = Judge.robotState.shooter_heat0_cooling_limit;
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+
+    vTaskDelete(NULL);
+}
+
+void Task_Snail(void *Parameters) {
+    // 任务
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.005;               // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    // 占空比
+    float dutyCycleStart  = 0.376; // 起始
+    float dutyCycleMiddle = 0.446; // 启动
+    float dutyCycleEnd    = 0.540; // 加速到你想要的
+
+    // 目标占空比
+    float dutyCycleRightSnailTarget = 0.376;
+    float dutyCycleLeftSnailTarget  = 0.376;
+
+    // 存储需要的两个过程（初始到启动，启动到你想要的速度）
+    float dutyCycleRightSnailProgress1 = 0;
+    float dutyCycleLeftSnailProgress1  = 0;
+    float dutyCycleRightSnailProgress2 = 0;
+    float dutyCycleLeftSnailProgress2  = 0;
+
+    // snail电机状态
+    int snailState = 0;
+    int lastSnailState;
+
+    enum {
+        STEP_SNAIL_IDLE,
+        STEP_RIGHT_START_TO_MIDDLE,
+        STEP_LEFT_START_TO_MIDDLE,
+        STEP_RIGHT_MIDDLE_TO_END,
+        STEP_LEFT_MIDDLE_TO_END,
+    } Step = STEP_SNAIL_IDLE;
+
+    /*来自dji开源，两个snail不能同时启动*/
+
+    while (1) {
+
+        if (LaserEnabled) {
+            LASER_ON;
+        } else {
+            LASER_OFF;
+        }
+
+        lastSnailState = snailState;
+        snailState     = FrictEnabled;
+
+        switch (Step) {
+        case STEP_SNAIL_IDLE:
+            if (snailState == 0) {
+                Snail_State                  = 0;
+                dutyCycleRightSnailTarget    = 0.376;
+                dutyCycleLeftSnailTarget     = 0.376;
+                dutyCycleRightSnailProgress1 = 0;
+                dutyCycleRightSnailProgress2 = 0;
+                dutyCycleLeftSnailProgress1  = 0;
+                dutyCycleLeftSnailProgress2  = 0;
+            } else if (lastSnailState == 0) {
+                Step = STEP_RIGHT_START_TO_MIDDLE;
+            }
+            break;
+
+        case STEP_RIGHT_START_TO_MIDDLE:
+            dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle, dutyCycleRightSnailProgress1);
+            dutyCycleRightSnailProgress1 += 0.02f;
+            if (dutyCycleRightSnailProgress1 > 1) {
+                Step = STEP_LEFT_START_TO_MIDDLE;
+                vTaskDelay(100);
+            }
+            break;
+
+        case STEP_LEFT_START_TO_MIDDLE:
+            dutyCycleLeftSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle, dutyCycleLeftSnailProgress1);
+            dutyCycleLeftSnailProgress1 += 0.02f;
+            if (dutyCycleLeftSnailProgress1 > 1) {
+                Step = STEP_RIGHT_MIDDLE_TO_END;
+                vTaskDelay(100);
+            }
+
+        case STEP_RIGHT_MIDDLE_TO_END:
+            dutyCycleRightSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleRightSnailProgress2);
+            dutyCycleRightSnailProgress2 += 0.01f;
+            if (dutyCycleRightSnailProgress2 > 1) {
+                Step = STEP_LEFT_MIDDLE_TO_END;
+            }
+            if (Step != STEP_RIGHT_MIDDLE_TO_END) break;
+
+        case STEP_LEFT_MIDDLE_TO_END:
+            dutyCycleLeftSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleLeftSnailProgress2);
+            dutyCycleLeftSnailProgress2 += 0.01f;
+            if (dutyCycleLeftSnailProgress2 > 1) {
+                Snail_State = 1;
+                Step        = STEP_SNAIL_IDLE;
+            }
+            break;
+
+        default:
+            break;
+        }
+
+        PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
+        PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
+
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+
+        // DebugData.debug1 = dutyCycleRightSnailTarget * 1000;
+        // DebugData.debug2 = dutyCycleLeftSnailTarget * 1000;
+        // DebugData.debug3 = Step;
+    }
+    vTaskDelete(NULL);
+}
+
 void Task_Sys_Init(void *Parameters) {
 
     // 初始化全局变量
@@ -792,6 +1001,8 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Fetch, "Task_Fetch", 400, NULL, 3, NULL);
     xTaskCreate(Task_Raise, "Task_Raise", 400, NULL, 5, NULL); // 抬升
     // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 3, NULL); // 抬升
+    xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 5, NULL);
 
     // DMA发送任务
     // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);

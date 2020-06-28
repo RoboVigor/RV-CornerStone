@@ -64,4 +64,10 @@ void BSP_Init(void) {
     // PWM
     // BSP_PWM_Set_Port(&PWM_Test, PWM_PD12);
     // BSP_PWM_Init(&PWM_Test, 9000, 200, TIM_OCPolarity_Low);
+
+    // snail 电机pwm输出
+    BSP_PWM_Set_Port(&PWM_Snail1, PWM_PD12);
+    BSP_PWM_Init(&PWM_Snail1, 180, 1250, TIM_OCPolarity_Low);
+    BSP_PWM_Set_Port(&PWM_Snail2, PWM_PD13);
+    BSP_PWM_Init(&PWM_Snail2, 180, 1250, TIM_OCPolarity_Low);
 }
