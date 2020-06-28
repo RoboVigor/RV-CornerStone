@@ -731,6 +731,7 @@ void Task_ADC_Get(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.1;                 // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+    ADC_SoftwareStartConv(ADC1);                   //使能指定的 ADC1 的软件转换启动功能
 
     while (1) {
         int count;
