@@ -324,6 +324,8 @@ void BSP_ADC_Init(ADC_TypeDef *ADCx,
     ADC_CommonInitTypeDef ADC_CommonInitStructure;
     ADC_InitTypeDef       ADC_InitStructure;
 
+    ADC_DeInit();
+
     if (RCC_APBx == RCC_APB1)
         RCC_APB1PeriphClockCmd(RCC_APBxPeriph_ADCx, ENABLE); // 使能时钟
     else if (RCC_APBx == RCC_APB2)
@@ -333,7 +335,7 @@ void BSP_ADC_Init(ADC_TypeDef *ADCx,
     ADC_CommonInitStructure.ADC_Mode             = ADC_Mode_Independent;          // 独立模式
     ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_10Cycles; // 两个采样阶段之间的延迟x个时钟
     ADC_CommonInitStructure.ADC_DMAAccessMode    = ADC_DMAAccessMode_1;           // DMA使能（DMA传输下要设置使能）
-    ADC_CommonInitStructure.ADC_Prescaler        = ADC_Prescaler_Div4;            // 预分频4分频
+    ADC_CommonInitStructure.ADC_Prescaler        = ADC_Prescaler_Div8;            // 预分频4分频
     ADC_CommonInit(&ADC_CommonInitStructure);
 
     // ADCx配置
@@ -343,7 +345,7 @@ void BSP_ADC_Init(ADC_TypeDef *ADCx,
     ADC_InitStructure.ADC_NbrOfConversion    = ADC_NbrOfConversion; // 转换数量
     ADC_InitStructure.ADC_Resolution         = ADC_Resolution_12b;  // 12位模式
     ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;              // 开启连续转换（开启DMA传输要设置连续转换）
-    ADC_InitStructure.ADC_ScanConvMode       = ENABLE;              // 扫描（开启DMA传输要设置扫描）
+    ADC_InitStructure.ADC_ScanConvMode       = ENABLE;              // 扫描（开启多通道DMA传输要设置扫描）
     ADC_Init(ADCx, &ADC_InitStructure);
 
     for (ADC_Channelx = ADC_Channel_0; ADC_Channelx <= ADC_Channel_18; ADC_Channelx++) {

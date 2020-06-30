@@ -817,7 +817,7 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
     // xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
-    // xTaskCreate(Task_Capacitor, "Task_Capacitor", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Capacitor, "Task_Capacitor", 400, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
