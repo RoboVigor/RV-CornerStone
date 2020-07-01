@@ -268,10 +268,10 @@ void Task_Gimbal(void *Parameters) {
         // 输出电流
         Can_Send(CAN1, 0x1FF, -PID_Cloud_YawSpeed.output, -PID_Cloud_RollSpeed.output, -1 * PID_Cloud_PitchSpeed.output, 0);
 
-        DebugData.debug1 = PID_Cloud_YawSpeed.p;
+        // DebugData.debug1 = PID_Cloud_YawSpeed.p;
         DebugData.debug2 = Motor_Yaw.position;
         DebugData.debug3 = Motor_Yaw.positionBias;
-        DebugData.debug4 = pitchAngleTarget;
+        // DebugData.debug4 = pitchAngleTarget;
 
         vTaskDelayUntil(&LastWakeTime, 5);
     }
@@ -357,17 +357,17 @@ void Task_Sys_Init(void *Parameters) {
     Gyroscope_Init(&Gyroscope_EulerData);
 
     TIM5CH1_CAPTURE_STA = 0;
-    while (!remoteData.state) {
-    }
+    // while (!remoteData.state) {
+    // }
 
     // 功能任务
     // xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     // xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 800, NULL, 5, NULL);
-    xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
-    xTaskCreate(Task_Fire, "Task_Fire", 500, NULL, 7, NULL);
-    xTaskCreate(Task_Control, "Task_Control", 500, NULL, 4, NULL);
+    // xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
+    // xTaskCreate(Task_Fire, "Task_Fire", 500, NULL, 7, NULL);
+    // xTaskCreate(Task_Control, "Task_Control", 500, NULL, 4, NULL);
     // 完成使命
     vTaskDelete(NULL);
 }
