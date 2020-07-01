@@ -15,14 +15,13 @@ void Handle_Init(void) {
     // 发射机构电机
     Motor_Init(&Motor_LeftFrict, 1, 0);
     Motor_Init(&Motor_RightFrict, 1, 0);
-    Motor_Init(&Motor_Stir2006, 36, 1);
-    Motor_Init(&Motor_Stir3510, 19.2, 0);
+    Motor_Init(&Motor_Stir3510, 19.2, 0); // 19.2
 
     // 云台电机
     Motor_Init(&Motor_Yaw, 1.0, 1);   // 顺时针为正电流
     Motor_Init(&Motor_Pitch, 1.0, 1); // 逆时针为正电流
-    Motor_Yaw.positionBias = 205;
-    Motor_Yaw.position     = 205;
+    // Motor_Yaw.positionBias = 4041;    // 167
+    // Motor_Yaw.position     = 4041;    // 167
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
