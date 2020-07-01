@@ -342,7 +342,7 @@ void oled_LOGO(void) {
 
 /**
  * @brief   show the oled menu
- * @param   joystick: The value from ADC for Joystick.
+ * @param   joystickValue: The value from ADC for Joystick.
  * @retval  None
  */
 void oled_menu(uint16_t joystickValue) {
