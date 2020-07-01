@@ -63,7 +63,7 @@ void USART6_IRQHandler(void) {
     // unpack
     len = Protocol_Buffer_Length - DMA_Get_Data_Counter(USART6_Rx);
     for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Judge, Judge.receiveBuf[i]);
+        Protocol_Unpack(&JudgeChannel, JudgeChannel.receiveBuf[i]);
     }
 
     // enable DMA
@@ -88,7 +88,7 @@ void UART7_IRQHandler(void) {
     // unpack
     len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART7_Rx);
     for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Board, Board.receiveBuf[i]);
+        Protocol_Unpack(&UserChannel, UserChannel.receiveBuf[i]);
     }
 
     // enable DMA
@@ -113,7 +113,7 @@ void UART8_IRQHandler(void) {
     // unpack
     len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART8_Rx);
     for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
+        Protocol_Unpack(&HostChannel, HostChannel.receiveBuf[i]);
     }
 
     // enable DMA
@@ -152,7 +152,7 @@ void CAN1_RX0_IRQHandler(void) {
 
     default:
         for (i = 0; i < 8; i++) {
-            Protocol_Unpack(&Board, CanRxData.Data[i]);
+            Protocol_Unpack(&UserChannel, CanRxData.Data[i]);
         }
         break;
     }
@@ -201,7 +201,7 @@ void CAN2_RX0_IRQHandler(void) {
 
     default:
         for (i = 0; i < 8; i++) {
-            Protocol_Unpack(&Board, CanRxData.Data[i]);
+            Protocol_Unpack(&UserChannel, CanRxData.Data[i]);
             break;
         }
     }
