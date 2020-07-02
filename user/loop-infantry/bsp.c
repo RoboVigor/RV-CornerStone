@@ -33,6 +33,7 @@ void BSP_Init(void) {
     BSP_Beep_Init();
     BSP_LED_Init();
     BSP_User_Power_Init();
+    BSP_Capacitor_Init();
 
     // USART
     // BSP_USART2_Init(9600, USART_IT_RXNE);
@@ -66,7 +67,7 @@ void BSP_Init(void) {
     //  ADC
     BSP_ADC1_Init(ADC_CHANNEL_NUM, ADC_Channel1 | ADC_Channel2, 0);
     BSP_DMA_Init(ADC1_Rx, ADC_Value, ADC_BUFFER_LENGTH);
-    
+
     // Servo
     BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PI0);
     BSP_PWM_Init(&PWM_Magazine_Servo, 9000, 200, TIM_OCPolarity_Low);

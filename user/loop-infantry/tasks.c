@@ -824,17 +824,24 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_ADC_Get, "Task_ADC_Get", 400, NULL, 6, NULL);
 
     // 等待遥控器开启
-    // while (!remoteData.state) {
-    // }
+     while (!remoteData.state) {
+     }
 
     //模式切换任务
-    // xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
+    xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
 
     // 运动控制任务
+<<<<<<< Updated upstream
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
     // xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
+=======
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
+>>>>>>> Stashed changes
     xTaskCreate(Task_Capacitor, "Task_Capacitor", 400, NULL, 6, NULL);
 
     // 完成使命
