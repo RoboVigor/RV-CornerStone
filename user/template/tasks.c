@@ -188,13 +188,12 @@ void Task_Chassis(void *Parameters) {
 
 void Task_Board_Communication(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.1;                 // 任务运行间隔 s
+    float      interval     = 0.005;               // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
         uint16_t id;
         uint16_t dataLength;
-        uint16_t offset = 0;
 
         // 板间通信
 #ifdef BOARD_ALPHA
@@ -215,7 +214,6 @@ void Task_Board_Communication(void *Parameters) {
 
         // USART发送
         DMA_Disable(UART7_Tx);
-        Protocol_Get_Packet_Info(id, &offset, &dataLength);
         dataLength = Protocol_Pack(&UserChannel, id);
         DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
