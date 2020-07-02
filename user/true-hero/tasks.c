@@ -271,7 +271,6 @@ void Task_Chassis(void *Parameters) {
         //大陀螺
         if (SwingMode) {
             if (!swingMode) {
-                gearRound       = 0; //云台圈数清零
                 Motor_Yaw.round = 0; // Yaw轴圈数清零
                 swingMode       = 1;
             }
@@ -285,13 +284,14 @@ void Task_Chassis(void *Parameters) {
             }
             angleSum   = gearRound * 360 * gearRatio;  //减去完整圈数转过的角度
             motorAngle = (Motor_Yaw.angle - angleSum); //电机角度反馈
-            if (ABS(PID_Follow_Angle.error) < followDeadRegion) {
+            if (ABS(PID_Follow_Angle.error) < 360) {
                 Motor_Yaw.round = 0;               //圈数清零
+                gearRound       = 0;               //云台圈数清零
                 motorAngle      = Motor_Yaw.angle; // 电机角度反馈
             }
             // if (Motor_Yaw.speed == 0) {
             //     Motor_Yaw.round = 0;               //圈数清零
-            //     motorAngle      = Motor_Yaw.angle; // 电机角度反馈
+            //     motorAngle      = Motor_Yaw.angle;
             // }
         }
 
