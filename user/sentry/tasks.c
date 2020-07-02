@@ -94,11 +94,12 @@ void Task_Chassis(void *Parameters) {
     while (1) {
         // 视觉系统
         if (!PsEnabled) {
-            lastSeq = Ps.autoaimData.seq;
+            lastSeq = HostChannel.seq;
             visionCounter++;
-        } else if (lastSeq != Ps.autoaimData.seq) {
-            lastSeq = Ps.autoaimData.seq;
-            if (Ps.autoaimData.yaw_angle_diff == 0 && Ps.autoaimData.pitch_angle_diff == 0 && Ps.autoaimData.biu_biu_state == 0) {
+        } else if (lastSeq != HostChannel.seq) {
+            lastSeq = HostChannel.seq;
+            if (ProtocolData.host.autoaimData.yaw_angle_diff == 0 && ProtocolData.host.autoaimData.pitch_angle_diff == 0 &&
+                ProtocolData.host.autoaimData.biu_biu_state == 0) {
                 visionCounter++;
             } else {
                 visionCounter = 0;
@@ -109,13 +110,13 @@ void Task_Chassis(void *Parameters) {
         }
 
         // 挨打
-        if (Judge.robotState.remain_HP == lastBlood) {
+        if (ProtocolData.judge.robotState.remain_HP == lastBlood) {
             hurtCounter++;
         } else {
             hurtCounter = 0;
             motionType  = 2;
         }
-        lastBlood = Judge.robotState.remain_HP;
+        lastBlood = ProtocolData.judge.robotState.remain_HP;
 
         // 巡逻
         if ((visionCounter >= maxVisionTimeout) && (hurtCounter >= maxHurtTimeout)) {
@@ -204,8 +205,8 @@ void Task_Chassis(void *Parameters) {
         }
 
         // 功率限制
-        power       = Judge.powerHeatData.chassis_power;                                   // 裁判系统功率
-        powerBuffer = Judge.powerHeatData.chassis_power_buffer;                            // 裁判系统功率缓冲
+        power       = ProtocolData.judge.powerHeatData.chassis_power;                      // 裁判系统功率
+        powerBuffer = ProtocolData.judge.powerHeatData.chassis_power_buffer;               // 裁判系统功率缓冲
         targetPower = 20.0 - WANG(160.0 - ChassisData.powerBuffer, 0, 160) / 160.0 * 20.0; // 设置目标功率
         Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval);      // 根据功率限幅
 
@@ -303,16 +304,17 @@ void Task_Gimbal(void *Parameters) {
             // pitchAngleTargetControl += pitchAngleTargetPs;
             yawAngleTargetPs   = 0;
             pitchAngleTargetPs = 0;
-            lastSeq            = Ps.autoaimData.seq;
+            lastSeq            = HostChannel.seq;
             counter++;
-        } else if (lastSeq != Ps.autoaimData.seq) {
-            lastSeq = Ps.autoaimData.seq;
-            if (Ps.autoaimData.yaw_angle_diff == 0 && Ps.autoaimData.pitch_angle_diff == 0 && Ps.autoaimData.biu_biu_state == 0) {
+        } else if (lastSeq != HostChannel.seq) {
+            lastSeq = HostChannel.seq;
+            if (ProtocolData.host.autoaimData.yaw_angle_diff == 0 && ProtocolData.host.autoaimData.pitch_angle_diff == 0 &&
+                ProtocolData.host.autoaimData.biu_biu_state == 0) {
                 counter++;
             } else {
                 counter = 0;
-                yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
-                pitchAngleTargetPs += Ps.autoaimData.pitch_angle_diff;
+                yawAngleTargetPs += ProtocolData.host.autoaimData.yaw_angle_diff;
+                pitchAngleTargetPs += ProtocolData.host.autoaimData.pitch_angle_diff;
             }
         } else {
             counter++;
@@ -375,7 +377,7 @@ void Task_Gimbal(void *Parameters) {
 
         // 调试信息
         // DebugData.debug1 = Motor_Stir.speed;
-        // DebugData.debug2 = Ps.autoaimData.biu_biu_state;
+        // DebugData.debug2 = ProtocolData.host.autoaimData.biu_biu_state;
         // DebugData.debug3 = -1 * Gyroscope_EulerData.pitch;
         // DebugData.debug4 = pitchAngleLimitMin;
         // DebugData.debug5 = pitchAngleLimitMax;
@@ -436,16 +438,17 @@ void Task_Stir(void *Parameters) {
     while (1) {
 
         // 热量限制
-        calmDown = (Judge.powerHeatData.shooter_heat0 > 400) ? 1 : 0;
+        calmDown = (ProtocolData.judge.powerHeatData.shooter_heat0 > 400) ? 1 : 0;
 
         // 视觉系统
         if (!PsEnabled) {
-            lastSeq = Ps.autoaimData.seq;
+            lastSeq = HostChannel.seq;
             counter++;
-        } else if (lastSeq != Ps.autoaimData.seq) {
-            lastSeq = Ps.autoaimData.seq;
-            if (Ps.autoaimData.biu_biu_state == 0) {
-                // if (Ps.autoaimData.yaw_angle_diff == 0 && Ps.autoaimData.pitch_angle_diff == 0 && Ps.autoaimData.biu_biu_state == 0) {
+        } else if (lastSeq != HostChannel.seq) {
+            lastSeq = HostChannel.seq;
+            if (ProtocolData.host.autoaimData.biu_biu_state == 0) {
+                // if (ProtocolData.host.autoaimData.yaw_angle_diff == 0 && ProtocolData.host.autoaimData.pitch_angle_diff == 0 &&
+                // ProtocolData.host.autoaimData.biu_biu_state == 0) {
                 counter++;
             } else {
                 counter   = 0;
@@ -463,10 +466,10 @@ void Task_Stir(void *Parameters) {
         }
 
         // if (!PsEnabled) {
-        //     lastSeq = Ps.autoaimData.seq;
-        // } else if (lastSeq != Ps.autoaimData.seq) {
-        //     lastSeq   = Ps.autoaimData.seq;
-        //     shootMode = Ps.autoaimData.biu_biu_state;
+        //     lastSeq = HostChannel.seq;
+        // } else if (lastSeq != HostChannel.seq) {
+        //     lastSeq   = HostChannel.seq;
+        //     shootMode = ProtocolData.host.autoaimData.biu_biu_state;
         // } else {
         //     shootMode = 0;
         // }
@@ -512,7 +515,7 @@ void Task_Stir(void *Parameters) {
 
         // 调试信息
         DebugData.debug1 = Motor_Stir.speed;
-        DebugData.debug2 = Ps.autoaimData.biu_biu_state;
+        DebugData.debug2 = ProtocolData.host.autoaimData.biu_biu_state;
         DebugData.debug3 = shootMode;
     }
 
