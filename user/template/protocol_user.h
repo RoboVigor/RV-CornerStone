@@ -11,6 +11,7 @@
  */
 
 #define PROTOCOL_PACK_LENGTH_0501 16
+#define PROTOCOL_PACK_LENGTH_0502 16
 #define PROTOCOL_PACK_LENGTH_F201 PROTOCOL_PACK_0301_HEADER + 16
 
 /**
@@ -60,9 +61,10 @@ typedef struct {
 
 #define PROTOCOL_USER_LENGTH_FUNCTION(f)     \
         PROTOCOL_PACK_LENGTH_0501             \
+      f PROTOCOL_PACK_LENGTH_0502             \
       f PROTOCOL_PACK_LENGTH_F201
 
-#define PROTOCOL_USER_ID_ARRAY 0x0501,0xF201
+#define PROTOCOL_USER_ID_ARRAY 0x0501,0x0502,0xF201
 #define PROTOCOL_USER_LENGTH   PROTOCOL_USER_LENGTH_FUNCTION(PLUS)
 
 // clang-format on
@@ -74,7 +76,8 @@ typedef struct {
 typedef struct {
     union {
         struct {
-            board_interactive_data_t boardCommunication; // 板间通讯
+            board_interactive_data_t boardAlpha;         // 板间通讯
+            board_interactive_data_t boardBeta;          // 板间通讯
             robot_interactive_data_t robotCommunication; // 车间通讯
         };
         struct {

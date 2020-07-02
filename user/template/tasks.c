@@ -182,54 +182,56 @@ void Task_Chassis(void *Parameters) {
 //         // 发送频率
 //         vTaskDelayUntil(&LastWakeTime, intervalms);
 
-//         // 调试信息
-//         // DebugData.debug1 = Judge.robotInteractiveData[1].transformer[0].F * 1000;
-//         // DebugData.debug2 = Judge.robotInteractiveData[1].transformer[1].F * 1000;
-//         // DebugData.debug3 = Judge.robotInteractiveData[1].transformer[2].F * 1000;
-//         // DebugData.debug4 = Judge.robotInteractiveData[1].transformer[3].F * 1000;
 //     }
 //     vTaskDelete(NULL);
 // }
 
-// void Task_Board_Communication(void *Parameters) {
-//     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-//     float      interval     = 0.1;                 // 任务运行间隔 s
-//     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+void Task_Board_Communication(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.1;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-//     while (1) {
-//         uint16_t id;
-//         uint16_t dataLength;
-//         uint16_t length;
+    while (1) {
+        uint16_t id;
+        uint16_t dataLength;
+        uint16_t offset = 0;
 
-//         // 板间通信
-//         Board.boardInteractiveData[0].data_f[0] = 0.00;
-//         Board.boardInteractiveData[0].data_f[1] = 1.11;
-//         Board.boardInteractiveData[0].data_f[2] = 2.22;
-//         Board.boardInteractiveData[0].data_f[3] = 3.33;
-//         Board.boardInteractiveData[0].data_f[4] = 4.44;
-//         Board.boardInteractiveData[0].data_f[5] = 5.55;
+        // 板间通信
+#ifdef BOARD_ALPHA
+        id                                 = 0x501;
+        ProtocolData.user.boardAlpha.data1 = 1.11;
+        ProtocolData.user.boardAlpha.data2 = 2.22;
+        ProtocolData.user.boardAlpha.data3 = 3.33;
+        ProtocolData.user.boardAlpha.data4 = 4.44;
+#endif
 
-//         id         = Protocol_Interact_Id_Board;
-//         dataLength = PROTOCOL_PACK_LENGTH_0302;
-//         length     = PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength;
+#ifdef BOARD_BETA
+        id                                = 0x502;
+        ProtocolData.user.boardBeta.data1 = 0;
+        ProtocolData.user.boardBeta.data2 = 0;
+        ProtocolData.user.boardBeta.data3 = 0;
+        ProtocolData.user.boardBeta.data4 = 1.11;
+#endif
 
-//         // USART发送
-//         DMA_Disable(UART7_Tx);
-//         Protocol_Pack(&UserChannel, id);
-//         DMA_Enable(UART7_Tx, length);
+        // USART发送
+        DMA_Disable(UART7_Tx);
+        Protocol_Get_Packet_Info(id, &offset, &dataLength);
+        dataLength = Protocol_Pack(&UserChannel, id);
+        DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
-//         // Can发送
-//         Protocol_Pack(&UserChannel, id);
-//         Can_Send_Msg(CAN1, id, Board.sendBuf, length);
+        // Can发送
+        dataLength = Protocol_Pack(&UserChannel, id);
+        Can_Send_Msg(CAN1, id, UserChannel.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
-//         // 发送频率
-//         vTaskDelayUntil(&LastWakeTime, intervalms);
+        // 发送频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
 
-//         // 调试信息
-//         // DebugData.debug1 = Board.boardInteractiveData[1].data_f[1] * 1000;
-//     }
-//     vTaskDelete(NULL);
-// }
+        // 调试信息
+        // DebugData.debug1 = ProtocolData.user.boardAlpha.data1 * 1000;
+        // DebugData.debug2 = ProtocolData.user.boardBeta.data4 * 1000;
+    }
+    vTaskDelete(NULL);
+}
 
 void Task_Vision_Communication(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
