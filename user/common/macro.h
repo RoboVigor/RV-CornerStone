@@ -31,6 +31,9 @@
 #define LASER_OFF GPIO_ResetBits(GPIOG, GPIO_Pin_13) // 激光关闭
 #define LASER_TOGGLE GPIO_ToggleBits(GPIOG, GPIO_Pin_13) // 激光闪烁
 
+// 好看
+#define MOTOR_ID(x) (x - 0x201)
+
 /**
  * @brief 限流
  * @note
