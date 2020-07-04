@@ -31,8 +31,8 @@ typedef struct {
     float   lastAngle;    // 上一次的连续角度
     float   reductionRate;
 
-    int8_t inputEnabled; // 输入启用
-    float  input;        // 输入电流
+    int8_t  inputEnabled; // 输入启用
+    int16_t input;        // 输入电流
 } Motor_Type;
 
 /**

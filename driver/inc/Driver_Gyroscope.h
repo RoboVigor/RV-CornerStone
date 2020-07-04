@@ -32,6 +32,9 @@ typedef struct {
     int16_t          gx_offset;
     int16_t          gy_offset;
     int16_t          gz_offset;
+    int16_t          gx_bias;
+    int16_t          gy_bias;
+    int16_t          gz_bias;
 } ImuData_Type;
 typedef struct {
     float yaw;
@@ -61,5 +64,10 @@ void Gyroscope_Solve(GyroscopeData_Type *GyroscopeData);
  * @brief 获得滤波器diff
  */
 float Gyroscope_Get_Filter_Diff(void);
+
+/**
+ * @brief 设置静态误差
+ */
+void Gyroscope_Set_Bias(ImuData_Type *ImuData, int16_t gx_bias, int16_t gy_bias, int16_t gz_bias);
 
 #endif
