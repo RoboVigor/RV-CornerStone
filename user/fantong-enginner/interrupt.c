@@ -55,7 +55,7 @@ void USART6_IRQHandler(void) {
     }
     len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA2_Stream1);
     for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Judge, Judge.receiveBuf[i]);
+        Protocol_Unpack(&JudgeChannel, JudgeChannel.receiveBuf[i]);
     }
 
     // enable DMA
@@ -64,6 +64,31 @@ void USART6_IRQHandler(void) {
     }
     DMA_SetCurrDataCounter(DMA2_Stream1, Protocol_Buffer_Length);
     DMA_Cmd(DMA2_Stream1, ENABLE);
+}
+
+/**
+ * @brief UART7 串口中断
+ */
+void UART7_IRQHandler(void) {
+    uint8_t  tmp;
+    uint16_t len;
+    int      i;
+
+    // clear IDLE flag
+    tmp = UART7->DR;
+    tmp = UART7->SR;
+
+    // disabe DMA
+    DMA_Disable(UART7_Rx);
+
+    // unpack
+    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART7_Rx);
+    for (i = 0; i < len; i++) {
+        Protocol_Unpack(&UserChannel, UserChannel.receiveBuf[i]);
+    }
+
+    // enable DMA
+    DMA_Enable(UART7_Rx, Protocol_Buffer_Length);
 }
 
 /**
@@ -84,7 +109,7 @@ void UART8_IRQHandler(void) {
     }
     len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Stream6);
     for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
+        Protocol_Unpack(&HostChannel, HostChannel.receiveBuf[i]);
     }
 
     // enable DMA
@@ -124,11 +149,19 @@ void CAN1_RX0_IRQHandler(void) {
         Motor_Update(&Motor_RF, position, speed);
         break;
 
-    case 0x205:
-        Motor_Update(&Motor_Raise_Left, position, speed);
+    case 0x209:
+        Motor_Update(&Motor_Yaw, position, speed);
         break;
 
     case 0x206:
+        Motor_Update(&Motor_Pitch, position, speed);
+        break;
+
+    case 0x207:
+        Motor_Update(&Motor_Raise_Left, position, speed);
+        break;
+
+    case 0x208:
         Motor_Update(&Motor_Raise_Right, position, speed);
         break;
 
@@ -155,16 +188,20 @@ void CAN2_RX0_IRQHandler(void) {
 
     // 安排数据
     switch (CanRxData.StdId) {
-    case 0x201:
-        Motor_Update(&Motor_Fetch_X, position, speed);
-        break;
+        // case 0x201:
+        //     Motor_Update(&Motor_Fetch_X, position, speed);
+        //     break;
 
-    case 0x202:
-        Motor_Update(&Motor_Fetch_Left_Pitch, position, speed);
-        break;
+        // case 0x202:
+        //     Motor_Update(&Motor_Fetch_Left_Pitch, position, speed);
+        //     break;
 
-    case 0x203:
-        Motor_Update(&Motor_Fetch_Right_Pitch, position, speed);
+        // case 0x203:
+        //     Motor_Update(&Motor_Fetch_Right_Pitch, position, speed);
+        //     break;
+
+    case 0x207:
+        Motor_Update(&Motor_Stir, position, speed);
         break;
 
     default:
