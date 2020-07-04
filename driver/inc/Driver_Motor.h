@@ -30,6 +30,9 @@ typedef struct {
     float   angleBias;    // 修正转子连续角度
     float   lastAngle;    // 上一次的连续角度
     float   reductionRate;
+
+    int8_t inputEnabled; // 输入启用
+    float  input;        // 输入电流
 } Motor_Type;
 
 /**
@@ -39,7 +42,7 @@ typedef struct {
  * @param reductionRate 电机减速比(输入转速:输出转速)
  * @param angleEnabled 是否启用连续角度计算
  */
-void Motor_Init(volatile Motor_Type *motor, float reductionRate, int8_t angleEnabled);
+void Motor_Init(volatile Motor_Type *motor, float reductionRate, int8_t angleEnabled, int8_t inputEnabled);
 
 /**
  * @brief 更新电机数据

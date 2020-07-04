@@ -194,7 +194,6 @@ void Task_Board_Communication(void *Parameters) {
     while (1) {
         uint16_t id;
         uint16_t dataLength;
-        uint16_t offset = 0;
 
         // 板间通信
 #ifdef BOARD_ALPHA
@@ -215,7 +214,6 @@ void Task_Board_Communication(void *Parameters) {
 
         // USART发送
         DMA_Disable(UART7_Tx);
-        Protocol_Get_Packet_Info(id, &offset, &dataLength);
         dataLength = Protocol_Pack(&UserChannel, id);
         DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
@@ -251,6 +249,36 @@ void Task_Vision_Communication(void *Parameters) {
         DMA_Disable(UART8_Tx);
         dataLength = Protocol_Pack(&HostChannel, id);
         DMA_Enable(UART8_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+
+        // 发送频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+    vTaskDelete(NULL);
+}
+
+void Task_Can_Send(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.005;               // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    uint16_t Can_Id[3][5] = {{0x200, 0x201, 0x202, 0x203, 0x204}, {0x1ff, 0x205, 0x206, 0x207, 0x208}, {0x2ff, 0x209, 0x020a, 0x20b, 0x20c}};
+
+    while (1) {
+        int i;
+
+        Motor_LF.input = 200;
+        Motor_LB.input = 200;
+        Motor_RB.input = 200;
+        Motor_RF.input = 200;
+
+        for (i = 0; i < 3; i++) {
+            Can_Send(CAN1,
+                     Can_Id[i][0],
+                     Can1_Device[MOTOR_ID(Can_Id[i][1])]->inputEnabled * Can1_Device[MOTOR_ID(Can_Id[i][1])]->input,
+                     Can1_Device[MOTOR_ID(Can_Id[i][2])]->inputEnabled * Can1_Device[MOTOR_ID(Can_Id[i][2])]->input,
+                     Can1_Device[MOTOR_ID(Can_Id[i][3])]->inputEnabled * Can1_Device[MOTOR_ID(Can_Id[i][3])]->input,
+                     Can1_Device[MOTOR_ID(Can_Id[i][4])]->inputEnabled * Can1_Device[MOTOR_ID(Can_Id[i][4])]->input);
+        }
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -324,6 +352,9 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
+
+    // Can发送任务
+    // xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
