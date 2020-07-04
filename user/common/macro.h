@@ -14,12 +14,12 @@
 #define RPS2DPS 57.2957804f // 180.0f / 3.1415926f,    rad/s    ->degree/s
 
 // 遥控器开关
-#define LEFT_SWITCH_TOP remoteData.switchLeft == 1
-#define LEFT_SWITCH_MIDDLE remoteData.switchLeft == 3
-#define LEFT_SWITCH_BOTTOM remoteData.switchLeft == 2
-#define RIGHT_SWITCH_TOP remoteData.switchRight == 1
-#define RIGHT_SWITCH_MIDDLE remoteData.switchRight == 3
-#define RIGHT_SWITCH_BOTTOM remoteData.switchRight == 2
+#define LEFT_SWITCH_TOP     (remoteData.switchLeft == 1)
+#define LEFT_SWITCH_MIDDLE  (remoteData.switchLeft == 3)
+#define LEFT_SWITCH_BOTTOM  (remoteData.switchLeft == 2)
+#define RIGHT_SWITCH_TOP    (remoteData.switchRight == 1)
+#define RIGHT_SWITCH_MIDDLE (remoteData.switchRight == 3)
+#define RIGHT_SWITCH_BOTTOM (remoteData.switchRight == 2)
 
 // 数值运算
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
