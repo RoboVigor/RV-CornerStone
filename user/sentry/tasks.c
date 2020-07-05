@@ -21,21 +21,21 @@ void Task_Safe_Mode(void *Parameters) {
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        FrictEnabled = remoteData.switchLeft == 3;
-        LaserEnabled = remoteData.switchLeft == 3;
-        // StirEnabled  = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
-        StirEnabled = remoteData.switchRight == 1;
-        PsEnabled   = remoteData.switchLeft == 2;
-        AutoMode    = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
-        SafetyMode  = remoteData.switchRight == 2;
+        // FrictEnabled = remoteData.switchLeft == 3;
+        // LaserEnabled = remoteData.switchLeft == 3;
+        // // StirEnabled  = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
+        // StirEnabled = remoteData.switchRight == 1;
+        // PsEnabled   = remoteData.switchLeft == 2;
+        // AutoMode    = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
+        SafetyMode = remoteData.switchRight == 2;
 
-        if ((remoteData.switchLeft == 1 && remoteData.switchRight == 1) || (!remoteData.state)) {
-            FrictEnabled = 1;
-            LaserEnabled = 0;
-            StirEnabled  = 0;
-            PsEnabled    = 1;
-            AutoMode     = 1;
-        }
+        // if ((remoteData.switchLeft == 1 && remoteData.switchRight == 1) || (!remoteData.state)) {
+        //     FrictEnabled = 1;
+        //     LaserEnabled = 0;
+        //     StirEnabled  = 0;
+        //     PsEnabled    = 1;
+        //     AutoMode     = 1;
+        // }
 
         vTaskDelayUntil(&LastWakeTime, 5);
     }
@@ -221,7 +221,7 @@ void Task_Chassis(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试数据
-        DebugData.debug1 = PID_Stir_Speed.output;
+        // DebugData.debug1 = PID_Stir_Speed.output;
         // DebugData.debug2 = Right_State;
         // DebugData.debug3 = PID_Chassis_Left.feedback;
         // DebugData.debug4 = timer;
@@ -633,6 +633,41 @@ void Task_Snail(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_Board_Communication(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.005;               // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    uint16_t id;
+    uint16_t dataLength;
+
+    while (1) {
+
+#ifdef BOARD_GIMBAL_UP
+        id                                        = 0x501;
+        ProtocolData.user.boardGimbalUp.remoteRx  = remoteData.rx;
+        ProtocolData.user.boardGimbalUp.remoteRy  = remoteData.ry;
+        ProtocolData.user.boardGimbalUp.remoteSwL = remoteData.switchLeft;
+        ProtocolData.user.boardGimbalUp.remoteSwR = remoteData.switchRight;
+#endif
+
+#ifdef BOARD_GIMBAL_DOWN
+        remoteData.rx          = ProtocolData.user.boardGimbalUp.remoteRx;
+        remoteData.ry          = ProtocolData.user.boardGimbalUp.remoteRy;
+        remoteData.switchLeft  = ProtocolData.user.boardGimbalUp.remoteSwL;
+        remoteData.switchRight = ProtocolData.user.boardGimbalUp.remoteSwR;
+#endif
+
+        // Can发送
+        dataLength = Protocol_Pack(&UserChannel, id);
+        Can_Send_Msg(CAN1, id, UserChannel.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+
+        // 发送频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+    vTaskDelete(NULL);
+}
+
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
@@ -690,6 +725,9 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
     xTaskCreate(Task_Stir, "Task_Stir", 400, NULL, 6, NULL);
+
+    // DMA发送任务
+    xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
