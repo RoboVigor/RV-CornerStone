@@ -25,17 +25,18 @@ void Task_Safe_Mode(void *Parameters) {
 
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
+    float      interval     = 0.01;            // 任务运行间隔 s
+    int        intervalms   = interval * 1000; // 任务运行间隔 ms
 
     RescueMode = 0;
     while (1) {
         // FetchMode   = LEFT_SWITCH_TOP;
+        ChassisMode = LEFT_SWITCH_TOP;
+        RaiseMode   = (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP);
         // RaiseMode   = LEFT_SWITCH_TOP;
-        RaiseMode = LEFT_SWITCH_TOP;
-        // ChassisMode  = LEFT_SWITCH_TOP;
-        // RaiseMode    = (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP);
         // FrictEnabled = (LEFT_SWITCH_BOTTOM && (RIGHT_SWITCH_TOP || RIGHT_SWITCH_MIDDLE));
         // StirEnabled  = (LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_TOP);
-        // SafetyMode   = (RIGHT_SWITCH_BOTTOM && LEFT_SWITCH_BOTTOM);
+        SafetyMode = (RIGHT_SWITCH_BOTTOM && LEFT_SWITCH_BOTTOM);
         // if (LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_TOP) {
         //     RescueMode = 1;
         // } else if (LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM) {
@@ -44,7 +45,7 @@ void Task_Control(void *Parameters) {
 
         // 调试视觉用
         // PsAimEnabled   = (LEFT_SWITCH_TOP) && (remoteData.switchRight != 3);
-        vTaskDelayUntil(&LastWakeTime, 5);
+        vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
 }
@@ -118,7 +119,7 @@ void Task_Chassis(void *Parameters) {
         // 开机时底盘匀速回正
         vwRamp = RAMP(0, vw, vwRampProgress);
         if (vwRampProgress < 1) {
-            vwRampProgress += 0.002f;
+            vwRampProgress += 0.001f;
         }
 
         // 设置底盘总体移动速度
@@ -135,7 +136,15 @@ void Task_Chassis(void *Parameters) {
 
         // 输出电流值到电调
         if (ChassisMode) {
-            Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+            Motor_LF.input = PID_LFCM.output;
+            Motor_LB.input = PID_LBCM.output;
+            Motor_RB.input = PID_RBCM.output;
+            Motor_RF.input = PID_RFCM.output;
+        } else {
+            Motor_LF.input = 0;
+            Motor_LB.input = 0;
+            Motor_RB.input = 0;
+            Motor_RF.input = 0;
         }
 
         // 底盘运动更新频率
@@ -174,8 +183,12 @@ void Task_Gimbal(void *Parameters) {
     // 初始化云台PID
     PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 16000, 10);
     PID_Init(&PID_Cloud_YawSpeed, 100, 0, 0, 16000, 0);
-    PID_Init(&PID_Cloud_PitchAngle, 15, 0, 0, 16000, 0);
-    PID_Init(&PID_Cloud_PitchSpeed, 20, 0, 0, 16000, 0);
+    // PID_Init(&PID_Cloud_PitchAngle, 10, 0, 0, 16000, 0);
+    // PID_Init(&PID_Cloud_PitchSpeed, 10, 0, 0, 16000, 0);
+    // PID_Init(&PID_Cloud_YawAngle, 20, 0, 0, 16000, 0);
+    // PID_Init(&PID_Cloud_YawSpeed, 2, 0, 0, 4000, 0);
+    PID_Init(&PID_Cloud_PitchAngle, 40, 0, 0, 16000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 1, 0, 0, 2000, 0);
 
     while (1) {
         // 重置目标
@@ -223,15 +236,12 @@ void Task_Gimbal(void *Parameters) {
         yawCurrent   = -1 * PID_Cloud_YawSpeed.output;
         pitchCurrent = -1 * PID_Cloud_PitchSpeed.output;
         MIAO(yawCurrent, -12000, 12000);
-        MIAO(pitchCurrent, -12000, 12000);
+        // MIAO(pitchCurrent, -12000, 12000);
+        MIAO(pitchCurrent, -1500, 1500);
         if (ChassisMode) {
-            can1_data[5] = pitchCurrent / 10;
-            Can_Send(CAN1, 0x2FF, yawCurrent, 0, 0, 0);
+            Motor_Yaw.input   = yawCurrent;
+            Motor_Pitch.input = pitchCurrent;
         }
-        DebugData.debug1 = Gyroscope_EulerData.yaw;
-        DebugData.debug2 = remoteData.switchLeft;
-        DebugData.debug3 = remoteData.switchRight;
-        DebugData.debug4 = LEFT_SWITCH_TOP;
         //任务间隔
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -239,12 +249,38 @@ void Task_Gimbal(void *Parameters) {
 }
 
 void Task_Can_Send(void *Parameters) {
-    // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.005;               // 任务运行间隔 s
+    float      interval     = 0.01;                // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    CAN_TypeDef *Canx[2]          = {CAN1, CAN2};
+    Motor_Type **Canx_Device[2]   = {Can1_Device, Can2_Device};
+    uint16_t     Can_Send_Id[3]   = {0x200, 0x1ff, 0x2ff};
+    uint16_t     Can_ESC_Id[3][4] = {{0x201, 0x202, 0x203, 0x204}, {0x205, 0x206, 0x207, 0x208}, {0x209, 0x020a, 0x20b, 0x20c}};
+
+    int         i, j, k;     // CAN序号 发送ID序号 电调ID序号
+    int         isEmpty = 0; // 同一发送ID下是否有电机
+    Motor_Type *motor;       // 根据i,j,k锁定电机
+    int16_t     currents[4]; // CAN发送电流
+
     while (1) {
-        // Can_Send(CAN1, 0x1FF, 0, can1_data[5], can1_data[6], can1_data[7]);
+
+        for (i = 0; i < 2; i++) {
+            for (j = 0; j < 3; j++) {
+                isEmpty = 1;
+                for (k = 0; k < 4; k++) {
+                    motor       = *(Canx_Device[i] + ESC_ID(Can_ESC_Id[j][k]));
+                    currents[k] = (motor && motor->inputEnabled) ? motor->input : 0;
+                    isEmpty     = isEmpty && (!motor || !(motor->inputEnabled));
+                }
+                if (!isEmpty) {
+                    DebugData.debug1 = (DebugData.debug1 + 1) % 100;
+                    Can_Send(Canx[i], Can_Send_Id[j], currents[0], currents[1], currents[2], currents[3]);
+                }
+            }
+        }
+
+        // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
@@ -507,7 +543,9 @@ void Task_Fetch(void *Parameters) {
         RotateDone = pitchAngleTargetProgress >= 1 && ABS(lastPitchLeftAngle - pitchLeftAngle) < 1;
 
         // 输出电流
-        Can_Send(CAN2, 0x200, PID_Fetch_X.output, PID_Fetch_Pitch_Left.output, PID_Fetch_Pitch_Right.output, 0);
+        Motor_Fetch_X.input           = PID_Fetch_X.output;
+        Motor_Fetch_Left_Pitch.input  = PID_Fetch_Pitch_Left.output;
+        Motor_Fetch_Right_Pitch.input = PID_Fetch_Pitch_Right.output;
 
         // 更新过去值
         lastPitchLeftAngle = pitchLeftAngle;
@@ -528,51 +566,57 @@ void Task_Raise(void *Parameter) {
     float rampStop         = 0;
     int   lastState        = 0; // 上一次抬升机构位置
 
-    PID_Init(&PID_Raise_Left_Angle, 18, 0.01, 0.3, 340, 170);  // 18 0.015
-    PID_Init(&PID_Raise_Left_Speed, 30, 0.5, 0, 10000, 5000);  // 30 1
-    PID_Init(&PID_Raise_Right_Angle, 30, 0.01, 0.3, 290, 145); // 24 0.018
+    PID_Init(&PID_Raise_Left_Angle, 18, 0.01, 0.3, 340, 180);  // 18 0.015
+    PID_Init(&PID_Raise_Left_Speed, 30, 0.1, 0, 10000, 5000);  // 30 1
+    PID_Init(&PID_Raise_Right_Angle, 3, 0.02, 0, 290, 180);    // 24 0.018
     PID_Init(&PID_Raise_Right_Speed, 30, 0.5, 0, 10000, 5000); // 35 0.5
+
+    // PID_Raise_Right_Speed.p = CHOOSER(10, 30, 100);
 
     while (1) {
         if (RaiseMode) {
-            if (rampStop != CHOOSER(1100, 1150, 1200)) {
+            if (rampStop != 1000) {
                 raiseProgress = 0;
-                rampStart     = Motor_Raise_Left.angle;
-                rampStop      = CHOOSER(1100, 1150, 1200);
+                rampStart     = Motor_Raise_Right.angle;
+                rampStop      = 1000;
             }
         } else {
             if (rampStop != 0) {
                 raiseProgress = 0;
-                rampStart     = Motor_Raise_Left.angle;
+                rampStart     = Motor_Raise_Right.angle;
                 rampStop      = 0;
             }
         }
 
         // 计算角度斜坡
         if (raiseProgress < 1) {
-            raiseProgress += 0.05f;
+            raiseProgress += 0.04f;
         }
         raiseAngleTarget = RAMP(rampStart, rampStop, raiseProgress);
-        // 主从控制
-        PID_Calculate(&PID_Raise_Left_Angle, -raiseAngleTarget, Motor_Raise_Left.angle);
-        PID_Calculate(&PID_Raise_Left_Speed, PID_Raise_Left_Angle.output, Motor_Raise_Left.speed * RPM2RPS);
-        PID_Calculate(&PID_Raise_Right_Angle, -Motor_Raise_Left.angle, Motor_Raise_Right.angle);
-        PID_Calculate(&PID_Raise_Right_Speed, PID_Raise_Right_Angle.output, Motor_Raise_Right.speed * RPM2RPS);
 
-        // if (RaiseMode) {
-        // Can_Send(CAN1, 0x1FF, 0, 0, remoteData.ly * 2, remoteData.ry * 2);
-        Can_Send(CAN1, 0x1FF, 0, 0, PID_Raise_Left_Speed.output, PID_Raise_Right_Speed.output);
-        can1_data[6] = PID_Raise_Left_Speed.output;
-        can1_data[7] = PID_Raise_Right_Speed.output;
-        // can1_data[6] = 0;
-        // can1_data[7] = 0;
-        // }
-        DebugData.debug5 = Motor_Raise_Left.angle;
-        DebugData.debug6 = Motor_Raise_Right.angle;
+        // 主从控制
+        PID_Calculate(&PID_Raise_Right_Angle, raiseAngleTarget, Motor_Raise_Right.angle);
+        PID_Calculate(&PID_Raise_Right_Speed, PID_Raise_Right_Angle.output, Motor_Raise_Right.speed * RPM2RPS);
+        PID_Calculate(&PID_Raise_Left_Angle, -Motor_Raise_Right.angle, Motor_Raise_Left.angle);
+        PID_Calculate(&PID_Raise_Left_Speed, PID_Raise_Left_Angle.output, Motor_Raise_Left.speed * RPM2RPS);
+
+        // Motor_Raise_Left.input  = RaiseMode ? PID_Raise_Left_Speed.output : 0;
+        // Motor_Raise_Right.input = RaiseMode ? PID_Raise_Right_Speed.output : 0;
+
+        Motor_Raise_Right.input = PID_Raise_Right_Speed.output;
+        Motor_Raise_Left.input  = PID_Raise_Left_Speed.output;
+
+        DebugData.debug2 = Motor_Raise_Left.angle;
+        DebugData.debug3 = -Motor_Raise_Right.angle;
+
+        DebugData.debug4 = Motor_Raise_Left.speed;
+        DebugData.debug5 = PID_Raise_Left_Angle.output;
+
+        DebugData.debug6 = Motor_Pitch.angle;
 
         // 更新抬升状态量
-        // FantongRaised = ABS(PID_Raise_Left_Angle.error) < 5 && RaiseMode;
-        FantongRaised = 1;
+        FantongRaised = ABS(PID_Raise_Right_Angle.error) < 5 && RaiseMode;
+        // FantongRaised = 1;
         vTaskDelayUntil(&LastWakeTime, 5);
     }
 
@@ -694,11 +738,11 @@ void Task_Fire_Stir(void *Parameters) {
         // 控制拨弹轮
         if (shootMode == shootIdle) {
             // 停止
-            Can_Send(CAN2, 0x1FF, 0, 0, 0, 0);
+            Motor_Stir.input = 0;
         } else if (shootMode == shootToDeath) {
             // 连发
             PID_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * RPM2RPS);
-            Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+            Motor_Stir.input = PID_StirSpeed.output;
         }
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -845,18 +889,20 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
 
     // 运动控制任务
-    // xTaskCreate(Task_Can_Send, "Task_Can_Send", 400, NULL, 5, NULL);
-    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Fetch, "Task_Fetch", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Fetch, "Task_Fetch", 400, NULL, 5, NULL);
     xTaskCreate(Task_Raise, "Task_Raise", 400, NULL, 5, NULL); // 抬升
-    // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 3, NULL); // 抬升
+    // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 5, NULL); // 抬升
     xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 5, NULL);
     xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 5, NULL);
 
     // DMA发送任务
     // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
+
+    // Can发送任务
+    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 5, NULL);
 
     // 完成使命
     vTaskDelete(NULL);
