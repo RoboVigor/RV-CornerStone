@@ -274,7 +274,6 @@ void Task_Can_Send(void *Parameters) {
                     isEmpty     = isEmpty && (!motor || !(motor->inputEnabled));
                 }
                 if (!isEmpty) {
-                    DebugData.debug1 = (DebugData.debug1 + 1) % 100;
                     Can_Send(Canx[i], Can_Send_Id[j], currents[0], currents[1], currents[2], currents[3]);
                 }
             }
