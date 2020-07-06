@@ -31,6 +31,9 @@
 // Stone ID
 __HANDLE_EXT uint8_t Board_Id, Robot_Id;
 
+// 功能开关
+__HANDLE_EXT uint8_t SafetyMode;
+
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 

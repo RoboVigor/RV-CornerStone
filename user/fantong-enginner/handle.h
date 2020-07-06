@@ -65,7 +65,7 @@ __HANDLE_EXT enum FetchStateEnum {
     FetchDone
 };
 
-// 键鼠
+// 功能开关
 __HANDLE_EXT uint8_t FrictEnabled, LaserEnabled, StirEnabled, PsEnabled, AutoMode, SafetyMode;
 
 // 电机
