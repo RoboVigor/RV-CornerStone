@@ -98,11 +98,12 @@ void Task_Chassis(void *Parameters) {
 //     float      interval     = 0.1;                 // 任务运行间隔 s
 //     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-//     while (1) {
 //         int      index = 0;
 //         uint16_t id;
 //         uint16_t dataLength;
 //         uint16_t length;
+
+//     while (1) {
 
 //         switch (Judge.mode) {
 //         case MODE_CLIENT_DATA: {
@@ -191,26 +192,27 @@ void Task_Board_Communication(void *Parameters) {
     float      interval     = 0.1;                 // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
+    uint16_t id;         // 通讯ID
+    uint16_t dataLength; // 数据长度
+
     while (1) {
-        uint16_t id;
-        uint16_t dataLength;
 
         // 板间通信
-#ifdef BOARD_ALPHA
-        id                                 = 0x501;
-        ProtocolData.user.boardAlpha.data1 = 1.11;
-        ProtocolData.user.boardAlpha.data2 = 2.22;
-        ProtocolData.user.boardAlpha.data3 = 3.33;
-        ProtocolData.user.boardAlpha.data4 = 4.44;
-#endif
+        if (Board_Id == 1) {
+            id                                 = 0x501;
+            ProtocolData.user.boardAlpha.data1 = 1.11;
+            ProtocolData.user.boardAlpha.data2 = 2.22;
+            ProtocolData.user.boardAlpha.data3 = 3.33;
+            ProtocolData.user.boardAlpha.data4 = 4.44;
+        }
 
-#ifdef BOARD_BETA
-        id                                = 0x502;
-        ProtocolData.user.boardBeta.data1 = 0;
-        ProtocolData.user.boardBeta.data2 = 0;
-        ProtocolData.user.boardBeta.data3 = 0;
-        ProtocolData.user.boardBeta.data4 = 1.11;
-#endif
+        if (Board_Id == 2) {
+            id                                = 0x502;
+            ProtocolData.user.boardBeta.data1 = 0;
+            ProtocolData.user.boardBeta.data2 = 0;
+            ProtocolData.user.boardBeta.data3 = 0;
+            ProtocolData.user.boardBeta.data4 = 1.11;
+        }
 
         // USART发送
         DMA_Disable(UART7_Tx);
@@ -236,9 +238,10 @@ void Task_Vision_Communication(void *Parameters) {
     float      interval     = 0.1;                 // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
+    uint16_t id = 0x0401; // 通讯ID
+    uint16_t dataLength;  // 数据长度
+
     while (1) {
-        uint16_t id = 0x0401;
-        uint16_t dataLength;
 
         // 视觉通信
         ProtocolData.host.autoaimData.yaw_angle_diff   = 1.23;

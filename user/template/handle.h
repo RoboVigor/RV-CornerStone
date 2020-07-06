@@ -62,6 +62,9 @@ __HANDLE_EXT PWM_Type PWM_Test;
 // CAN
 __HANDLE_EXT Motor_Type *Can1_Device[12], *Can2_Device[12];
 
+// 开发板ID
+__HANDLE_EXT uint8_t Board_Id, Robot_Id;
+
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行

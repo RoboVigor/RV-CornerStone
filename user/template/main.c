@@ -11,6 +11,11 @@ int main(void) {
     LED_Init();      // 初始化LED
     Beep_Init();     // 初始化蜂鸣器
 
+    //开发板ID
+    BSP_GPIO_Init();
+    Board_Id = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_5) << 1 | GPIO_ReadInputDataBit(GPIOF, GPIO_Pin_1);
+    Robot_Id = GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_2) << 1 | GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6);
+
     //创建系统初始化任务
     xTaskCreate(Task_Sys_Init, "Task_Sys_Init", 400, NULL, 1, NULL);
 
