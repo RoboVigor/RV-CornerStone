@@ -153,11 +153,13 @@ void CAN2_RX0_IRQHandler(void) {
     int      position;
     int      speed;
     int      i;
+    float    actualCurrent;
 
     // 读取数据
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
-    position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-    speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    position      = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
+    speed         = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+    actualCurrent = (short) ((int) CanRxData.Data[4] << 8 | CanRxData.Data[5]);
 
     //安排数据
     Motor_Update(Can2_Device[ESC_ID(CanRxData.StdId)], position, speed);
