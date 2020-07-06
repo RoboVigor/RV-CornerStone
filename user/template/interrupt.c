@@ -134,7 +134,7 @@ void CAN1_RX0_IRQHandler(void) {
 
     // 安排数据
     if (CanRxData.StdId < 0x500) {
-        Motor_Update(Can1_Device[MOTOR_ID(CanRxData.StdId)], position, speed);
+        Motor_Update(Can1_Device[ESC_ID(CanRxData.StdId)], position, speed);
     } else {
         for (i = 0; i < 8; i++) {
             Protocol_Unpack(&UserChannel, CanRxData.Data[i]);
@@ -160,7 +160,7 @@ void CAN2_RX0_IRQHandler(void) {
     speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
     //安排数据
-    Motor_Update(Can2_Device[MOTOR_ID(CanRxData.StdId)], position, speed);
+    Motor_Update(Can2_Device[ESC_ID(CanRxData.StdId)], position, speed);
 }
 
 // TIM2 高频计数器
