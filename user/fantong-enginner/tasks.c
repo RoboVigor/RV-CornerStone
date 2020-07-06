@@ -858,6 +858,9 @@ void Task_Snail(void *Parameters) {
 
 void Task_Sys_Init(void *Parameters) {
 
+    //获得 Stone ID
+    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
+
     // 初始化全局变量
     Handle_Init();
 

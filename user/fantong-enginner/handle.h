@@ -40,6 +40,9 @@
 #define RESCUE_HOOK_DOWN GPIO_SetBits(GPIOI, GPIO_Pin_0)
 #define RESCUE_HOOK_UP GPIO_ResetBits(GPIOI, GPIO_Pin_0)
 
+// Stone ID
+__HANDLE_EXT uint8_t Board_Id, Robot_Id;
+
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
@@ -128,7 +131,6 @@ __HANDLE_EXT uint8_t FrictEnabled, StirEnabled, FastShootMode;
 
 // CAN
 __HANDLE_EXT Motor_Type *Can1_Device[12], *Can2_Device[12];
-
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行

@@ -41,13 +41,13 @@ void Handle_Init(void) {
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
 
-    // 初始化串口调试数据
-    Magic_Init(&magic, 0);
-
     // 通讯协议初始化
     Protocol_Init(&JudgeChannel, &ProtocolData);
     Protocol_Init(&HostChannel, &ProtocolData);
     Protocol_Init(&UserChannel, &ProtocolData);
+
+    // 陀螺仪设置静态误差
+    Gyroscope_Set_Bias(&ImuData, 28, 30, 0);
 
 #endif
 #ifdef BOARD_BETA

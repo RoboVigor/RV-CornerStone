@@ -432,7 +432,7 @@ void BSP_TIM2_Init(void) {
     TIM_ClearFlag(TIM2, TIM_FLAG_Update);
 }
 
-void BSP_GPIO_Init(void) {
+void BSP_Stone_Id_Init(uint8_t *Board_Id, uint8_t *Robot_Id) {
     GPIO_InitTypeDef GPIO_InitStructure;
 
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
@@ -484,6 +484,9 @@ void BSP_GPIO_Init(void) {
     GPIO_SetBits(GPIOF, GPIO_Pin_0);
     GPIO_SetBits(GPIOE, GPIO_Pin_4 | GPIO_Pin_12);
     GPIO_SetBits(GPIOB, GPIO_Pin_0);
+
+    *Board_Id = GPIO_ReadInputDataBit(GPIOF, GPIO_Pin_1) << 1 | GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_5);
+    *Robot_Id = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6) << 1 | GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_2);
 }
 
 DMA_Type DMA_Table[10] = {{USART1_BASE, Tx, DMA2, DMA2_Stream7, DMA2_Stream7_IRQn, DMA_Channel_4, DMA_IT_TCIF7, DMA_FLAG_TCIF7, DMA_FLAG_HTIF7},
