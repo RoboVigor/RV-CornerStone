@@ -1,7 +1,7 @@
 #include "beep.h"
 
 void Beep_Init(void) {
-    // 移至BSP_Beep_Init()
+    // BSP_Beep_Init()
 }
 
 const uint16_t tone_tab[] = {

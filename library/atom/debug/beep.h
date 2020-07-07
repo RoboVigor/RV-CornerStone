@@ -7,12 +7,20 @@
 #define Music_Len_Soul 117
 #define Music_Len_XP 18
 
+#ifdef STM32F427_437xx
 #define BEEP_ON (TIM12->CCR1 = 599)
 #define BEEP_OFF (TIM12->CCR1 = 0)
 
 #define BEEP_ARR (TIM12->ARR)
 #define BEEP_CH (TIM12->CCR1)
+#endif
+#ifdef STM32F407xx
+#define BEEP_ON (TIM4->CCR3 = 599)
+#define BEEP_OFF (TIM4->CCR3 = 0)
 
+#define BEEP_ARR (TIM4->ARR)
+#define BEEP_CH (TIM4->CCR3)
+#endif
 typedef enum {
 
     Do1L = 0, ///*261.63Hz*/    3822us

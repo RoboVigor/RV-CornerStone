@@ -39,6 +39,7 @@ using namespace std;
 #define RCC_AHB1Periph_GPIOA             ((uint32_t)0x00000001)
 #define RCC_AHB1Periph_GPIOC             ((uint32_t)0x00000004)
 #define RCC_AHB1Periph_GPIOD             ((uint32_t)0x00000008)
+#define RCC_AHB1Periph_GPIOE             ((uint32_t)0x00000010)
 #define RCC_AHB1Periph_GPIOH             ((uint32_t)0x00000080)
 #define RCC_AHB1Periph_GPIOI             ((uint32_t)0x00000100)
 
@@ -187,13 +188,13 @@ int main(){
         {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 4, GPIOA_BASE, GPIO_PinSource11, RCC_AHB1Periph_GPIOA, GPIO_Pin_11, CCR4},
 
         //C
-        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 1, GPIOC_BASE, GPIO_PinSource1, RCC_AHB1Periph_GPIOC, GPIO_Pin_1, CCR1},
-        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 2, GPIOC_BASE, GPIO_PinSource2, RCC_AHB1Periph_GPIOC, GPIO_Pin_2, CCR2},
-        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 3, GPIOC_BASE, GPIO_PinSource3, RCC_AHB1Periph_GPIOC, GPIO_Pin_3, CCR3},
-        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 4, GPIOC_BASE, GPIO_PinSource4, RCC_AHB1Periph_GPIOC, GPIO_Pin_4, CCR4},
-        {RCC_APB2Periph_TIM8, TIM8_BASE, GPIO_AF_TIM8, 1, GPIOC_BASE, GPIO_PinSource5, RCC_AHB1Periph_GPIOC, GPIO_Pin_5, CCR1},
-        {RCC_APB2Periph_TIM8, TIM8_BASE, GPIO_AF_TIM8, 2, GPIOC_BASE, GPIO_PinSource6, RCC_AHB1Periph_GPIOC, GPIO_Pin_6, CCR2},
-        {RCC_APB2Periph_TIM8, TIM8_BASE, GPIO_AF_TIM8, 3, GPIOC_BASE, GPIO_PinSource7, RCC_AHB1Periph_GPIOC, GPIO_Pin_7, CCR3}
+        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 1, GPIOC_BASE, GPIO_PinSource9, RCC_AHB1Periph_GPIOE, GPIO_Pin_9, CCR1},
+        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 2, GPIOC_BASE, GPIO_PinSource11, RCC_AHB1Periph_GPIOE, GPIO_Pin_11, CCR2},
+        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 3, GPIOC_BASE, GPIO_PinSource13, RCC_AHB1Periph_GPIOE, GPIO_Pin_13, CCR3},
+        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 4, GPIOC_BASE, GPIO_PinSource14, RCC_AHB1Periph_GPIOE, GPIO_Pin_14, CCR4},
+        {RCC_APB2Periph_TIM8, TIM8_BASE, GPIO_AF_TIM8, 1, GPIOC_BASE, GPIO_PinSource6, RCC_AHB1Periph_GPIOC, GPIO_Pin_6, CCR1},
+        {RCC_APB2Periph_TIM8, TIM8_BASE, GPIO_AF_TIM8, 2, GPIOC_BASE, GPIO_PinSource6, RCC_AHB1Periph_GPIOI, GPIO_Pin_6, CCR2},
+        {RCC_APB2Periph_TIM8, TIM8_BASE, GPIO_AF_TIM8, 3, GPIOC_BASE, GPIO_PinSource7, RCC_AHB1Periph_GPIOI, GPIO_Pin_7, CCR3}
     };
 
     int i;
