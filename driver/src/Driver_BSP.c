@@ -87,8 +87,7 @@ void BSP_CAN_Init(void) {
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
     NVIC_Init(&NVIC_InitStructure);
-    CAN_ITConfig(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR | CAN_IT_WKU | CAN_IT_SLK, ENABLE);
-    CAN1->IER |= 0xFF;
+    CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
     // CAN2
     NVIC_InitStructure.NVIC_IRQChannel                   = CAN2_RX0_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
@@ -733,6 +732,98 @@ void BSP_DMA_UART8_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize
     DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
     DMA_Init(DMA1_Stream0, &DMA_InitStructure);
     DMA_Cmd(DMA1_Stream0, ENABLE);
+}
+
+DMA_Type DMA_Table[10] = {{USART1_BASE, Tx, DMA2, DMA2_Stream7, DMA2_Stream7_IRQn, DMA_Channel_4, DMA_IT_TCIF7, DMA_FLAG_TCIF7, DMA_FLAG_HTIF7},
+                          {USART1_BASE, Rx, DMA2, DMA2_Stream2, DMA2_Stream2_IRQn, DMA_Channel_4, DMA_IT_TCIF2, DMA_FLAG_TCIF2, DMA_FLAG_HTIF2},
+                          {USART3_BASE, Tx, DMA1, DMA1_Stream3, DMA1_Stream3_IRQn, DMA_Channel_4, DMA_IT_TCIF3, DMA_FLAG_TCIF3, DMA_FLAG_HTIF3},
+                          {USART3_BASE, Rx, DMA1, DMA1_Stream1, DMA1_Stream1_IRQn, DMA_Channel_4, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
+                          {USART6_BASE, Tx, DMA2, DMA2_Stream6, DMA2_Stream6_IRQn, DMA_Channel_5, DMA_IT_TCIF6, DMA_FLAG_TCIF6, DMA_FLAG_HTIF6},
+                          {USART6_BASE, Rx, DMA2, DMA2_Stream1, DMA2_Stream1_IRQn, DMA_Channel_5, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
+                          {UART7_BASE, Tx, DMA1, DMA1_Stream1, DMA1_Stream1_IRQn, DMA_Channel_5, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
+                          {UART7_BASE, Rx, DMA1, DMA1_Stream3, DMA1_Stream3_IRQn, DMA_Channel_5, DMA_IT_TCIF3, DMA_FLAG_TCIF3, DMA_FLAG_HTIF3},
+                          {UART8_BASE, Tx, DMA1, DMA1_Stream0, DMA1_Stream0_IRQn, DMA_Channel_5, DMA_IT_TCIF0, DMA_FLAG_TCIF0, DMA_FLAG_HTIF0},
+                          {UART8_BASE, Rx, DMA1, DMA1_Stream6, DMA1_Stream6_IRQn, DMA_Channel_5, DMA_IT_TCIF6, DMA_FLAG_TCIF6, DMA_FLAG_HTIF6}};
+
+void BSP_DMA_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, uint32_t bufferSize) {
+    // DMA
+    DMA_Type dma;
+    dma = DMA_Table[tableIndex];
+    if (tableIndex < 10) {
+        if (dma.TRx == Tx) {
+            USART_DMACmd(((USART_TypeDef *) dma.PERIPHx_BASE), USART_DMAReq_Tx, ENABLE);
+        } else {
+            USART_DMACmd(((USART_TypeDef *) dma.PERIPHx_BASE), USART_DMAReq_Rx, ENABLE);
+        }
+    }
+
+    DMA_InitTypeDef DMA_InitStructure;
+    if (dma.DMAx == DMA1) {
+        RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+    } else {
+        RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+    }
+    if (tableIndex < 10) {
+        DMA_InitStructure.DMA_PeripheralBaseAddr = &((USART_TypeDef *) dma.PERIPHx_BASE)->DR;
+    }
+    if (dma.TRx == Tx) {
+        DMA_InitStructure.DMA_DIR           = DMA_DIR_MemoryToPeripheral;
+        DMA_InitStructure.DMA_FIFOMode      = DMA_FIFOMode_Disable;
+        DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+
+    } else {
+        DMA_InitStructure.DMA_DIR           = DMA_DIR_PeripheralToMemory;
+        DMA_InitStructure.DMA_FIFOMode      = DMA_FIFOMode_Enable;
+        DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOStatus_HalfFull;
+    }
+    DMA_InitStructure.DMA_Channel            = dma.DMA_Channel_x;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = sourceMemoryAddress;
+    DMA_InitStructure.DMA_BufferSize         = bufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_Init(dma.DMAx_Streamy, &DMA_InitStructure);
+    DMA_Cmd(dma.DMAx_Streamy, ENABLE);
+    // // NVIC
+    // NVIC_InitTypeDef NVIC_InitStructure;
+    // NVIC_InitStructure.NVIC_IRQChannel                   = dma.DMAx_Streamy_IRQn;
+    // NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+    // NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    // NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    // NVIC_Init(&NVIC_InitStructure);
+}
+
+void DMA_Disable(dma_table_index_e tableIndex) {
+    DMA_Type dma;
+    dma = DMA_Table[tableIndex];
+    DMA_Cmd(dma.DMAx_Streamy, DISABLE);
+    while (DMA_GetFlagStatus(dma.DMAx_Streamy, dma.DMA_IT_TCIFx) != SET) {
+    }
+}
+
+void DMA_Enable(dma_table_index_e tableIndex, uint16_t length) {
+    DMA_Type dma;
+    dma = DMA_Table[tableIndex];
+    DMA_ClearFlag(dma.DMAx_Streamy, dma.DMA_FLAG_TCIFx | dma.DMA_FLAG_HTIFx);
+    while (DMA_GetCmdStatus(dma.DMAx_Streamy) != DISABLE) {
+    }
+    DMA_SetCurrDataCounter(dma.DMAx_Streamy, length);
+    DMA_Cmd(dma.DMAx_Streamy, ENABLE);
+}
+
+DMA_Stream_TypeDef *DMA_Get_Stream(dma_table_index_e tableIndex) {
+    DMA_Type dma;
+    dma = DMA_Table[tableIndex];
+    return dma.DMAx_Streamy;
+}
+
+uint16_t DMA_Get_Data_Counter(dma_table_index_e tableIndex) {
+    return DMA_GetCurrDataCounter(DMA_Get_Stream(tableIndex));
 }
 
 /**

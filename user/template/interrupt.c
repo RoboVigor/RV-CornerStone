@@ -22,48 +22,27 @@ void USART1_IRQHandler(void) {
     UARTtemp = USART1->DR;
     UARTtemp = USART1->SR;
 
-    DMA_Cmd(DMA2_Stream2, DISABLE);
+    // disabe DMA
+    DMA_Disable(USART1_Rx);
 
     //数据量正确
-    if (DMA2_Stream2->NDTR == DBUS_BACK_LENGTH) {
+    if (DMA_Get_Stream(USART1_Rx)->NDTR == DBUS_BACK_LENGTH) {
         DBus_Update(&remoteData, &keyboardData, &mouseData, remoteBuffer); //解码
     }
 
-    //重启DMA
-    DMA_ClearFlag(DMA2_Stream2, DMA_FLAG_TCIF2 | DMA_FLAG_HTIF2);
-    while (DMA_GetCmdStatus(DMA2_Stream2) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA2_Stream2, DBUS_LENGTH + DBUS_BACK_LENGTH);
-    DMA_Cmd(DMA2_Stream2, ENABLE);
+    // enable DMA
+    DMA_Enable(USART1_Rx, DBUS_LENGTH + DBUS_BACK_LENGTH);
 }
 
 /**
  * @brief USART3 串口中断
  */
 void USART3_IRQHandler(void) {
-    uint8_t  tmp;
-    uint16_t len;
-    int      i;
+    uint8_t tmp;
 
     // clear IDLE flag
     tmp = USART3->DR;
     tmp = USART3->SR;
-
-    // disable DMA and Unpack
-    DMA_Cmd(DMA1_Stream1, DISABLE);
-    while (DMA_GetFlagStatus(DMA1_Stream1, DMA_IT_TCIF1) != SET) {
-    }
-    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Stream1);
-    for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
-    }
-
-    // enable DMA
-    DMA_ClearFlag(DMA1_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
-    while (DMA_GetCmdStatus(DMA1_Stream1) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA1_Stream1, Protocol_Buffer_Length);
-    DMA_Cmd(DMA1_Stream1, ENABLE);
 }
 
 /**
@@ -78,21 +57,17 @@ void USART6_IRQHandler(void) {
     tmp = USART6->DR;
     tmp = USART6->SR;
 
-    // disable DMA and Unpack
-    DMA_Cmd(DMA2_Stream1, DISABLE);
-    while (DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TCIF1) != SET) {
-    }
-    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA2_Stream1);
+    // disabe DMA
+    DMA_Disable(USART6_Rx);
+
+    // unpack
+    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(USART6_Rx);
     for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Judge, Judge.receiveBuf[i]);
+        Protocol_Unpack(&JudgeChannel, JudgeChannel.receiveBuf[i]);
     }
 
     // enable DMA
-    DMA_ClearFlag(DMA2_Stream1, DMA_FLAG_TCIF1 | DMA_FLAG_HTIF1);
-    while (DMA_GetCmdStatus(DMA2_Stream1) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA2_Stream1, Protocol_Buffer_Length);
-    DMA_Cmd(DMA2_Stream1, ENABLE);
+    DMA_Enable(USART6_Rx, Protocol_Buffer_Length);
 }
 
 /**
@@ -107,21 +82,17 @@ void UART7_IRQHandler(void) {
     tmp = UART7->DR;
     tmp = UART7->SR;
 
-    // disable DMA and Unpack
-    DMA_Cmd(DMA1_Stream3, DISABLE);
-    while (DMA_GetFlagStatus(DMA1_Stream3, DMA_IT_TCIF3) != SET) {
-    }
-    len = Protocol_Buffer_Length - DMA_GetCurrDataCounter(DMA1_Stream3);
+    // disabe DMA
+    DMA_Disable(UART7_Rx);
+
+    // unpack
+    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART7_Rx);
     for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Board, Board.receiveBuf[i]);
+        Protocol_Unpack(&UserChannel, UserChannel.receiveBuf[i]);
     }
 
     // enable DMA
-    DMA_ClearFlag(DMA1_Stream3, DMA_FLAG_TCIF3 | DMA_FLAG_HTIF3);
-    while (DMA_GetCmdStatus(DMA1_Stream3) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA1_Stream3, Protocol_Buffer_Length);
-    DMA_Cmd(DMA1_Stream3, ENABLE);
+    DMA_Enable(UART7_Rx, Protocol_Buffer_Length);
 }
 
 /**
@@ -136,17 +107,17 @@ void UART8_IRQHandler(void) {
     tmp = UART8->DR;
     tmp = UART8->SR;
 
-    // disable DMA and Unpack
-    DMA_Cmd(DMA1_Stream6, DISABLE);
-    while (DMA_GetFlagStatus(DMA1_Stream6, DMA_IT_TCIF6) != SET) {
+    // disabe DMA
+    DMA_Disable(UART8_Rx);
+
+    // unpack
+    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART8_Rx);
+    for (i = 0; i < len; i++) {
+        Protocol_Unpack(&HostChannel, HostChannel.receiveBuf[i]);
     }
 
     // enable DMA
-    DMA_ClearFlag(DMA1_Stream6, DMA_FLAG_TCIF6 | DMA_FLAG_HTIF6);
-    while (DMA_GetCmdStatus(DMA1_Stream6) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA1_Stream6, DMA_BUFFER_LENGTH);
-    DMA_Cmd(DMA1_Stream6, ENABLE);
+    DMA_Enable(UART8_Rx, Protocol_Buffer_Length);
 }
 
 // CAN1数据接收中断服务函数
@@ -154,6 +125,7 @@ void CAN1_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
     int      position;
     int      speed;
+    int      i;
 
     // 读取数据
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
@@ -179,47 +151,54 @@ void CAN1_RX0_IRQHandler(void) {
         break;
 
     default:
+        for (i = 0; i < 8; i++) {
+            Protocol_Unpack(&UserChannel, CanRxData.Data[i]);
+        }
         break;
     }
 }
 
-void CAN1_SCE_IRQHandler(void) {
-    RED_LIGHT_ON;
-    CAN_ClearITPendingBit(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR);
-}
+// void CAN1_SCE_IRQHandler(void) {
+//     RED_LIGHT_ON;
+//     CAN_ClearITPendingBit(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR);
+// }
 
 // CAN2数据接收中断服务函数
 void CAN2_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
     int      position;
     int      speed;
+    int      i;
 
     // 读取数据
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
     position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
     speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
-    // 安排数据
-    // switch (CanRxData.StdId) {
-    // case 0x201:
-    //     Motor_Update(&Motor_LF, position, speed);
-    //     break;
+    //安排数据
+    switch (CanRxData.StdId) {
+    case 0x201:
+        Motor_Update(&Motor_LF, position, speed);
+        break;
 
-    // case 0x202:
-    //     Motor_Update(&Motor_LB, position, speed);
-    //     break;
+    case 0x202:
+        Motor_Update(&Motor_LB, position, speed);
+        break;
 
-    // case 0x203:
-    //     Motor_Update(&Motor_RB, position, speed);
-    //     break;
+    case 0x203:
+        Motor_Update(&Motor_RB, position, speed);
+        break;
 
-    // case 0x204:
-    //     Motor_Update(&Motor_RF, position, speed);
-    //     break;
+    case 0x204:
+        Motor_Update(&Motor_RF, position, speed);
+        break;
 
-    // default:
-    //     break;
-    // }
+    default:
+        for (i = 0; i < 8; i++) {
+            Protocol_Unpack(&UserChannel, CanRxData.Data[i]);
+            break;
+        }
+    }
 }
 
 // TIM2 高频计数器

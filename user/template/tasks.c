@@ -93,143 +93,98 @@ void Task_Chassis(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_DMA_Send(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.1;                 // 任务运行间隔 s
-    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+// void Task_Client_Communication(void *Parameters) {
+//     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+//     float      interval     = 0.1;                 // 任务运行间隔 s
+//     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    while (1) {
-        int      i;
-        int      index = 0;
-        uint8_t *send_p;
+//     while (1) {
+//         int      index = 0;
+//         uint16_t id;
+//         uint16_t dataLength;
+//         uint16_t length;
 
-        while (DMA_GetFlagStatus(DMA1_Stream0, DMA_IT_TCIF0) != SET) {
-        }
-        DMA_ClearFlag(DMA1_Stream0, DMA_FLAG_TCIF0);
-        DMA_Cmd(DMA1_Stream0, DISABLE);
+//         switch (Judge.mode) {
+//         case MODE_CLIENT_DATA: {
+//             // 客户端自定义数据
+//             Judge.clientCustomData.data_cmd_id = Protocol_Interact_Id_Client_Data;
+//             Judge.clientCustomData.send_id     = Judge.robotState.robot_id;
+//             Judge.clientCustomData.receiver_id = (Judge.clientCustomData.send_id % 10) | (Judge.clientCustomData.send_id / 10) << 4 | (0x01 << 8);
 
-        DMA_Send_Buffer[index++] = 1;
-        DMA_Send_Buffer[index++] = 2;
-        DMA_Send_Buffer[index++] = 3;
+//             Judge.clientCustomData.data1 = 1;
+//             Judge.clientCustomData.data2 = 1.1;
+//             Judge.clientCustomData.data3 = 1.11;
+//             Judge.clientCustomData.masks = 0x3c;
 
-        send_p = DMA_Send_Buffer;
-        for (i = 0; i < index; i++) {
-            *send_p++ = DMA_Send_Buffer[i];
-        }
+//             id         = Protocol_Interact_Id_Client_Data;
+//             dataLength = PROTOCOL_PACK_0301_HEADER + PROTOCOL_PACK_LENGTH_0301_Client_Data;
 
-        DMA_SetCurrDataCounter(DMA1_Stream0, index);
-        DMA_Cmd(DMA1_Stream0, ENABLE);
+//             Judge.mode = MODE_ROBOT_INTERACT;
+//         } break;
 
-        // 发送频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
+//         case MODE_ROBOT_INTERACT: {
+//             // 机器人间通信
+//             Judge.robotInteractiveData[0].data_cmd_id = 0x0200;
+//             Judge.robotInteractiveData[0].send_id     = Judge.robotState.robot_id;
+//             Judge.robotInteractiveData[0].receiver_id = 1;
 
-        // 调试信息
-        // DebugData.debug1 = DMA_Receive_Buffer[0];
-        // DebugData.debug2 = DMA_Receive_Buffer[1];
-        // DebugData.debug3 = DMA_Receive_Buffer[2];
-    }
-    vTaskDelete(NULL);
-}
+//             Judge.robotInteractiveData[0].transformer[index++].F = 1;
+//             Judge.robotInteractiveData[0].transformer[index++].F = 1.1;
+//             Judge.robotInteractiveData[0].transformer[index++].F = 1.11;
+//             Judge.robotInteractiveData[0].transformer[index++].F = 1.111;
 
-void Task_Client_Communication(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.1;                 // 任务运行间隔 s
-    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+//             id         = 0x200;
+//             dataLength = PROTOCOL_PACK_0301_HEADER + index * sizeof(float);
 
-    while (1) {
-        int      index = 0;
-        uint16_t dataLength;
+//             Judge.mode = MODE_CLIENT_GRAPH;
+//         } break;
 
-        while (DMA_GetFlagStatus(DMA2_Stream6, DMA_IT_TCIF6) != SET) {
-        }
-        DMA_ClearFlag(DMA2_Stream6, DMA_FLAG_TCIF6);
-        DMA_Cmd(DMA2_Stream6, DISABLE);
+//         case MODE_CLIENT_GRAPH: {
+//             // 客户端自定义图形
+//             Judge.clientGraphicDraw.data_cmd_id = Protocol_Interact_Id_Client_Graph;
+//             Judge.clientGraphicDraw.send_id     = Judge.robotState.robot_id;
+//             Judge.clientGraphicDraw.receiver_id = (Judge.clientCustomData.send_id % 10) | (Judge.clientCustomData.send_id / 10) << 4 | (0x01 << 8);
 
-        switch (Judge.mode) {
-        case MODE_CLIENT_DATA: {
-            // 客户端自定义数据
-            Judge.clientCustomData.data_cmd_id = Protocol_Interact_Id_Client_Data;
-            Judge.clientCustomData.send_id     = Judge.robotState.robot_id;
-            Judge.clientCustomData.receiver_id = (Judge.clientCustomData.send_id % 10) | (Judge.clientCustomData.send_id / 10) << 4 | (0x01 << 8);
+//             Judge.clientGraphicDraw.operate_tpye = 1; // 0:空操作 1:增加图形 2:修改图形 3:删除单个图形 5:删除一个图层 6:删除所有图形
+//             Judge.clientGraphicDraw.graphic_tpye = 3; // 0:空形 1:直线 2:矩形 3:正圆 4:椭圆 5:弧形 6:文本（ASCII 字码）
+//             Judge.clientGraphicDraw.layer        = 5; // 图层0-9
+//             Judge.clientGraphicDraw.width        = 4; // 线宽
+//             Judge.clientGraphicDraw.color        = 4; // 官方 0:红/蓝 1:黄 2:绿 3:橙 4:紫 5:粉 6:青 7:黑 8:白
+//                                                       // 自测 0:红 1:橙 2:黄 3:绿 4:青 5:蓝 6:紫 7:粉 8:黑
 
-            Judge.clientCustomData.data1 = 1;
-            Judge.clientCustomData.data2 = 1.1;
-            Judge.clientCustomData.data3 = 1.11;
-            Judge.clientCustomData.masks = 0x3c;
+//             Judge.clientGraphicDraw.graphic_name[0] = 0;
+//             Judge.clientGraphicDraw.graphic_name[1] = 0;
+//             Judge.clientGraphicDraw.graphic_name[2] = 0;
+//             Judge.clientGraphicDraw.graphic_name[3] = 0;
+//             Judge.clientGraphicDraw.graphic_name[4] = 1;
 
-            dataLength = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client_Data;
+//             Judge.clientGraphicDraw.start_x = 960;
+//             Judge.clientGraphicDraw.start_y = 540;
+//             Judge.clientGraphicDraw.radius  = 100;
 
-            Protocol_Pack(&Judge, dataLength, Protocol_Interact_Id_Client_Data);
+//             id         = Protocol_Interact_Id_Client_Graph;
+//             dataLength = PROTOCOL_PACK_0301_HEADER + PROTOCOL_PACK_LENGTH_0301_Client_Graph;
 
-            Judge.mode = MODE_ROBOT_INTERACT;
-        } break;
+//             Judge.mode = MODE_CLIENT_DATA;
+//         } break;
 
-        case MODE_ROBOT_INTERACT: {
-            // 机器人间通信
-            Judge.robotInteractiveData[0].data_cmd_id = 0x0200;
-            Judge.robotInteractiveData[0].send_id     = Judge.robotState.robot_id;
-            Judge.robotInteractiveData[0].receiver_id = 1;
+//         default:
+//             break;
+//         }
 
-            Judge.robotInteractiveData[0].transformer[index++].F = 1;
-            Judge.robotInteractiveData[0].transformer[index++].F = 1.1;
-            Judge.robotInteractiveData[0].transformer[index++].F = 1.11;
-            Judge.robotInteractiveData[0].transformer[index++].F = 1.111;
+//         length = PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength;
 
-            dataLength = Protocol_Pack_Length_0301_Header + index * sizeof(float);
+//         // DMA重启
+//         DMA_Disable(USART6_Tx);
+//         Protocol_Pack(&JudgeChannel, dataLength, id);
+//         DMA_Enable(USART6_Tx, length);
 
-            Protocol_Pack(&Judge, dataLength, 0x0200);
+//         // 发送频率
+//         vTaskDelayUntil(&LastWakeTime, intervalms);
 
-            Judge.mode = MODE_CLIENT_GRAPH;
-        } break;
-
-        case MODE_CLIENT_GRAPH: {
-            // 客户端自定义图形
-            Judge.clientGraphicDraw.data_cmd_id = Protocol_Interact_Id_Client_Graph;
-            Judge.clientGraphicDraw.send_id     = Judge.robotState.robot_id;
-            Judge.clientGraphicDraw.receiver_id = (Judge.clientCustomData.send_id % 10) | (Judge.clientCustomData.send_id / 10) << 4 | (0x01 << 8);
-
-            Judge.clientGraphicDraw.operate_tpye = 1; // 0:空操作 1:增加图形 2:修改图形 3:删除单个图形 5:删除一个图层 6:删除所有图形
-            Judge.clientGraphicDraw.graphic_tpye = 3; // 0:空形 1:直线 2:矩形 3:正圆 4:椭圆 5:弧形 6:文本（ASCII 字码）
-            Judge.clientGraphicDraw.layer        = 5; // 图层0-9
-            Judge.clientGraphicDraw.width        = 4; // 线宽
-            Judge.clientGraphicDraw.color        = 4; // 官方 0:红/蓝 1:黄 2:绿 3:橙 4:紫 5:粉 6:青 7:黑 8:白
-                                                      // 自测 0:红 1:橙 2:黄 3:绿 4:青 5:蓝 6:紫 7:粉 8:黑
-
-            Judge.clientGraphicDraw.graphic_name[0] = 0;
-            Judge.clientGraphicDraw.graphic_name[1] = 0;
-            Judge.clientGraphicDraw.graphic_name[2] = 0;
-            Judge.clientGraphicDraw.graphic_name[3] = 0;
-            Judge.clientGraphicDraw.graphic_name[4] = 1;
-
-            Judge.clientGraphicDraw.start_x = 960;
-            Judge.clientGraphicDraw.start_y = 540;
-            Judge.clientGraphicDraw.radius  = 100;
-
-            dataLength = Protocol_Pack_Length_0301_Header + Protocol_Pack_Length_0301_Client_Graph;
-
-            Protocol_Pack(&Judge, dataLength, Protocol_Interact_Id_Client_Graph);
-
-            Judge.mode = MODE_CLIENT_DATA;
-        } break;
-
-        default:
-            break;
-        }
-
-        DMA_SetCurrDataCounter(DMA2_Stream6, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-        DMA_Cmd(DMA2_Stream6, ENABLE);
-
-        // 发送频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
-
-        // 调试信息
-        // DebugData.debug1 = Judge.robotInteractiveData[1].transformer[0].F * 1000;
-        // DebugData.debug2 = Judge.robotInteractiveData[1].transformer[1].F * 1000;
-        // DebugData.debug3 = Judge.robotInteractiveData[1].transformer[2].F * 1000;
-        // DebugData.debug4 = Judge.robotInteractiveData[1].transformer[3].F * 1000;
-    }
-    vTaskDelete(NULL);
-}
+//     }
+//     vTaskDelete(NULL);
+// }
 
 void Task_Board_Communication(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -237,37 +192,43 @@ void Task_Board_Communication(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
+        uint16_t id;
         uint16_t dataLength;
-
-        // disable DMA
-        while (DMA_GetFlagStatus(DMA1_Stream1, DMA_IT_TCIF1) != SET) {
-        }
-        DMA_ClearFlag(DMA1_Stream1, DMA_FLAG_TCIF1);
-        DMA_Cmd(DMA1_Stream1, DISABLE);
+        uint16_t offset = 0;
 
         // 板间通信
-        Board.boardInteractiveData[0].data1 = 1.11;
-        Board.boardInteractiveData[0].data2 = 2.22;
-        Board.boardInteractiveData[0].data3 = 3.33;
-        Board.boardInteractiveData[0].data4 = 4.44;
-        Board.boardInteractiveData[0].data5 = 5.55;
+#ifdef BOARD_ALPHA
+        id                                 = 0x501;
+        ProtocolData.user.boardAlpha.data1 = 1.11;
+        ProtocolData.user.boardAlpha.data2 = 2.22;
+        ProtocolData.user.boardAlpha.data3 = 3.33;
+        ProtocolData.user.boardAlpha.data4 = 4.44;
+#endif
 
-        dataLength = Protocol_Pack_Length_0302;
+#ifdef BOARD_BETA
+        id                                = 0x502;
+        ProtocolData.user.boardBeta.data1 = 0;
+        ProtocolData.user.boardBeta.data2 = 0;
+        ProtocolData.user.boardBeta.data3 = 0;
+        ProtocolData.user.boardBeta.data4 = 1.11;
+#endif
 
-        Protocol_Pack(&Board, dataLength, Protocol_Interact_Id_Board);
+        // USART发送
+        DMA_Disable(UART7_Tx);
+        Protocol_Get_Packet_Info(id, &offset, &dataLength);
+        dataLength = Protocol_Pack(&UserChannel, id);
+        DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
-        // enable DMA
-        DMA_SetCurrDataCounter(DMA1_Stream1, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-        DMA_Cmd(DMA1_Stream1, ENABLE);
+        // Can发送
+        dataLength = Protocol_Pack(&UserChannel, id);
+        Can_Send_Msg(CAN1, id, UserChannel.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
+        // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = Board.boardInteractiveData[1].data1 * 1000;
-        // DebugData.debug2 = Board.boardInteractiveData[1].data2 * 1000;
-        // DebugData.debug3 = Board.boardInteractiveData[1].data3 * 1000;
-        // DebugData.debug4 = Board.boardInteractiveData[1].data4 * 1000;
-        // DebugData.debug5 = Board.boardInteractiveData[1].data5 * 1000;
+        // DebugData.debug1 = ProtocolData.user.boardAlpha.data1 * 1000;
+        // DebugData.debug2 = ProtocolData.user.boardBeta.data4 * 1000;
     }
     vTaskDelete(NULL);
 }
@@ -278,27 +239,20 @@ void Task_Vision_Communication(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
-        int      index = 0;
+        uint16_t id = 0x0401;
         uint16_t dataLength;
 
-        // disable DMA
-        while (DMA_GetFlagStatus(DMA1_Stream3, DMA_IT_TCIF3) != SET) {
-        }
-        DMA_ClearFlag(DMA1_Stream3, DMA_FLAG_TCIF3);
-        DMA_Cmd(DMA1_Stream3, DISABLE);
-
         // 视觉通信
-        Ps.visionInteractiveData.transformer[index].U16[1]   = 0x6666;
-        Ps.visionInteractiveData.transformer[index++].U16[2] = 0x6666;
+        ProtocolData.host.autoaimData.yaw_angle_diff   = 1.23;
+        ProtocolData.host.autoaimData.pitch_angle_diff = 4.56;
+        ProtocolData.host.autoaimData.biu_biu_state    = 7;
 
-        dataLength = index * sizeof(float);
+        // DMA重启
+        DMA_Disable(UART8_Tx);
+        dataLength = Protocol_Pack(&HostChannel, id);
+        DMA_Enable(UART8_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
-        Protocol_Pack(&Ps, dataLength, Protocol_Interact_Id_Vision);
-
-        // enable DMA
-        DMA_SetCurrDataCounter(DMA1_Stream3, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-        DMA_Cmd(DMA1_Stream3, ENABLE);
-
+        // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
@@ -382,7 +336,6 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
 
     // DMA发送任务
-    // xTaskCreate(Task_DMA_Send, "Task_DMA_Send", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);

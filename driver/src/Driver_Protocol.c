@@ -1,234 +1,199 @@
 #include "Driver_Protocol.h"
 
-void Protocol_Init(Protocol_Type *Protocol) {
-    Protocol->state = STATE_IDLE;
+uint8_t  ProtocolDataLengthArray[64] = {PROTOCOL_HOST_LENGTH_FUNCTION(COMMA), PROTOCOL_JUDGE_LENGTH_FUNCTION(COMMA), PROTOCOL_USER_LENGTH_FUNCTION(COMMA)};
+uint16_t ProtocolDataIdArray[64]     = {PROTOCOL_HOST_ID_ARRAY, PROTOCOL_JUDGE_ID_ARRAY, PROTOCOL_USER_ID_ARRAY, 0};
 
-    Protocol->index    = 0;
-    Protocol->step     = STEP_HEADER_SOF;
-    Protocol->seq      = 0;
-    Protocol->lost     = 0;
-    Protocol->received = 0;
+extern Protocol_Data_Type ProtocolData;
+
+void Protocol_Get_Packet_Info(uint16_t id, uint16_t *offset, uint16_t *length) {
+    int i   = 0;
+    *offset = 0;
+    *length = 0;
+    while (ProtocolDataIdArray[i] != 0) {
+        if (ProtocolDataIdArray[i] == id) {
+            *length = ProtocolDataLengthArray[i];
+            return;
+        } else {
+            *offset += ProtocolDataLengthArray[i];
+            i++;
+        }
+    }
+    return;
 }
 
-void Protocol_Update(Protocol_Type *Protocol) {
+void Protocol_Init(Protocol_Channel_Type *channel, Protocol_Data_Type *data) {
+    channel->state = STATE_IDLE;
+    channel->step  = STEP_HEADER_SOF;
+    channel->data  = data->data;
+}
+
+void Protocol_Update(Protocol_Channel_Type *channel) {
     int i = 0;
 
-    Protocol->state = STATE_WORK;
+    channel->state = STATE_WORK;
 
     for (i = 0; i < Protocol_Buffer_Length; i++) {
-        Protocol_Unpack(Protocol, Protocol->receiveBuf[i]);
+        Protocol_Unpack(channel, channel->receiveBuf[i]);
     }
 }
 
-void Protocol_Pack(Protocol_Type *Protocol, uint16_t dataLength, uint16_t id) {
+uint16_t Protocol_Pack(Protocol_Channel_Type *channel, uint16_t id) {
     int      i;
+    uint16_t index    = 0;
+    uint16_t packetId = id;
+    uint16_t dataId   = id;
     uint8_t *begin_p;
     uint8_t *send_p;
-    uint16_t index = 0;
-
+    uint16_t dataLength;
+    uint16_t offset;
     uint8_t  CRC8_INIT  = 0xff;
     uint16_t CRC16_INIT = 0xffff;
     uint16_t dataCRC16;
 
-    Protocol->state = STATE_WORK;
+    channel->state = STATE_WORK;
+
+    // get memory address
+    Protocol_Get_Packet_Info(id, &offset, &dataLength);
+
+    // TaoWaMode
+    if (id >= 0xF000) {
+        packetId = 0x301;
+        dataId   = id & 0x0FFF;
+    }
 
     // Header SOF
-    Protocol->sendBuf[index++] = PROTOCOL_HEADER;
+    channel->sendBuf[index++] = PROTOCOL_HEADER;
 
     // Data Length
-    Protocol->sendBuf[index++] = (dataLength) &0xff;
-    Protocol->sendBuf[index++] = (dataLength) >> 8;
+    channel->sendBuf[index++] = (dataLength) &0xff;
+    channel->sendBuf[index++] = (dataLength) >> 8;
 
     // Frame SEQ
-    Protocol->sendBuf[index++]++;
+    channel->sendBuf[index++]++;
 
     // Header CRC8
-    Protocol->sendBuf[index++] = Get_CRC8_Check_Sum(Protocol->sendBuf, PROTOCOL_HEADER_SIZE - 1, CRC8_INIT);
+    channel->sendBuf[index++] = Get_CRC8_Check_Sum(channel->sendBuf, PROTOCOL_HEADER_SIZE - 1, CRC8_INIT);
 
     // Cmd ID
-    if ((id == Protocol_Interact_Id_Board) || (id == Protocol_Interact_Id_Vision)) {
-        Protocol->sendBuf[index++] = (id) &0xff;
-        Protocol->sendBuf[index++] = (id) >> 8;
-    } else {
-        Protocol->sendBuf[index++] = 0x01;
-        Protocol->sendBuf[index++] = 0x03;
+    channel->sendBuf[index++] = (packetId) &0xff;
+    channel->sendBuf[index++] = (packetId) >> 8;
+
+    // Clear
+    for (i = PROTOCOL_HEADER_CMDID_LEN; i < Protocol_Buffer_Length; i++) {
+        channel->sendBuf[i] = 0x00;
     }
 
     // Data
-    for (i = PROTOCOL_HEADER_CMDID_LEN; i < Protocol_Buffer_Length; i++) {
-        Protocol->sendBuf[i] = 0x00;
-    }
-
-    switch (id) {
-    case Protocol_Interact_Id_Board: {
-        begin_p = Protocol->boardInteractiveData[0].data;
-    } break;
-
-    case Protocol_Interact_Id_Client_Data: {
-        begin_p = Protocol->clientCustomData.data;
-    } break;
-
-    case Protocol_Interact_Id_Client_Graph: {
-        begin_p = Protocol->clientGraphicDraw.data;
-    } break;
-
-    case Protocol_Interact_Id_Vision: {
-        begin_p = Protocol->visionInteractiveData.data;
-    } break;
-
-    default: { begin_p = Protocol->robotInteractiveData[0].data; } break;
-    }
-
+    begin_p = channel->data + offset;
     for (i = 0; i < dataLength; i++) {
-        Protocol->sendBuf[index++] = *(begin_p + i);
+        channel->sendBuf[index++] = *(begin_p + i);
     }
 
     // Data CRC16
-    dataCRC16                  = Get_CRC16_Check_Sum(Protocol->sendBuf, PROTOCOL_HEADER_CMDID_LEN + dataLength, CRC16_INIT);
-    Protocol->sendBuf[index++] = (dataCRC16) &0xff;
-    Protocol->sendBuf[index++] = (dataCRC16) >> 8;
+    dataCRC16                 = Get_CRC16_Check_Sum(channel->sendBuf, PROTOCOL_HEADER_CMDID_LEN + dataLength, CRC16_INIT);
+    channel->sendBuf[index++] = (dataCRC16) &0xff;
+    channel->sendBuf[index++] = (dataCRC16) >> 8;
 
-    send_p = Protocol->sendBuf;
+    send_p = channel->sendBuf;
     for (i = 0; i < index; i++) {
-        *send_p++ = Protocol->sendBuf[i];
+        *send_p++ = channel->sendBuf[i];
     }
+
+    return dataLength;
 }
 
-void Protocol_Unpack(Protocol_Type *Protocol, uint8_t byte) {
+void Protocol_Unpack(Protocol_Channel_Type *channel, uint8_t byte) {
 
-    Protocol->state = STATE_WORK;
+    channel->state = STATE_WORK;
 
-    switch (Protocol->step) {
+    switch (channel->step) {
     case STEP_HEADER_SOF: {
         if (byte == PROTOCOL_HEADER) {
-					Protocol->packet[Protocol->index++] = byte;
-            Protocol->step                      = STEP_LENGTH_LOW;
+            channel->packet[channel->index++] = byte;
+            channel->step                     = STEP_LENGTH_LOW;
         } else {
-            Protocol->index = 0;
+            channel->index = 0;
         }
     } break;
 
     case STEP_LENGTH_LOW: {
-        Protocol->dataLength                = byte;
-        Protocol->packet[Protocol->index++] = byte;
-        Protocol->step                      = STEP_LENGTH_HIGH;
+        channel->dataLength               = byte;
+        channel->packet[channel->index++] = byte;
+        channel->step                     = STEP_LENGTH_HIGH;
     } break;
 
     case STEP_LENGTH_HIGH: {
-        Protocol->dataLength |= byte << 8;
-        Protocol->packet[Protocol->index++] = byte;
-        if (Protocol->dataLength < 114) {
-            Protocol->step = STEP_FRAME_SEQ;
+        channel->dataLength |= byte << 8;
+        channel->packet[channel->index++] = byte;
+        if (channel->dataLength < 114) {
+            channel->step = STEP_FRAME_SEQ;
         } else {
-            Protocol->step  = STEP_HEADER_SOF;
-            Protocol->index = 0;
+            channel->step  = STEP_HEADER_SOF;
+            channel->index = 0;
         }
     } break;
 
     case STEP_FRAME_SEQ: {
-        Protocol->packet[Protocol->index++] = byte;
-        Protocol->step                      = STEP_HEADER_CRC8;
+        channel->packet[channel->index++] = byte;
+        channel->step                     = STEP_HEADER_CRC8;
     } break;
 
     case STEP_HEADER_CRC8: {
-        Protocol->packet[Protocol->index++] = byte;
-        if (Verify_CRC8_Check_Sum(Protocol->packet, PROTOCOL_HEADER_SIZE)) {
-            Protocol->step = STEP_DATA_CRC16;
+        channel->packet[channel->index++] = byte;
+        if (Verify_CRC8_Check_Sum(channel->packet, PROTOCOL_HEADER_SIZE)) {
+            channel->step = STEP_DATA_CRC16;
         } else {
-            Protocol->index = 0;
-            Protocol->step  = STEP_HEADER_SOF;
+            channel->index = 0;
+            channel->step  = STEP_HEADER_SOF;
         }
     } break;
 
     case STEP_DATA_CRC16: {
-        if (Protocol->index < (PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
-            Protocol->packet[Protocol->index++] = byte;
+        if (channel->index < (PROTOCOL_HEADER_CRC_CMDID_LEN + channel->dataLength)) {
+            channel->packet[channel->index++] = byte;
         }
-        if (Protocol->index >= (PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
-            Protocol->packet[Protocol->index++] = byte;
-            Protocol->index                     = 0;
-            Protocol->step                      = STEP_HEADER_SOF;
-            if (Verify_CRC16_Check_Sum(Protocol->packet, PROTOCOL_HEADER_CRC_CMDID_LEN + Protocol->dataLength)) {
-                Protocol_Load(Protocol);
+        if (channel->index >= (PROTOCOL_HEADER_CRC_CMDID_LEN + channel->dataLength)) {
+            channel->packet[channel->index++] = byte;
+            channel->index                    = 0;
+            channel->step                     = STEP_HEADER_SOF;
+            if (Verify_CRC16_Check_Sum(channel->packet, PROTOCOL_HEADER_CRC_CMDID_LEN + channel->dataLength)) {
+                Protocol_Load(channel);
             }
         }
     } break;
 
     default: {
-        Protocol->step  = STEP_HEADER_SOF;
-        Protocol->index = 0;
+        channel->step  = STEP_HEADER_SOF;
+        channel->index = 0;
     } break;
     }
 }
 
-void Protocol_Load(Protocol_Type *Protocol) {
-    int       i;
-    uint8_t * begin_p;
-    uint8_t   sendRobot;
-    uint16_t *seq;
+void Protocol_Load(Protocol_Channel_Type *channel) {
+    int      i;
+    uint8_t *begin_p;
+    uint16_t dataId = 0;
+    uint16_t dataLength;
+    uint16_t offset;
 
     // seq
-    if (Protocol->packet[3] != 0x00) {
-        Protocol->lost += Protocol->packet[3] - Protocol->seq - 1;
-    }
-    Protocol->seq = Protocol->packet[3];
-    Protocol->received += 1;
+    channel->seq = channel->packet[3];
 
     // id
-    Protocol->id = (Protocol->packet[PROTOCOL_HEADER_SIZE + 1] << 8) + Protocol->packet[PROTOCOL_HEADER_SIZE];
-
-    // choose struct
-    switch (Protocol->id) {
-    case 0x0201: {
-        begin_p = Protocol->robotState.data;
-        seq     = &(Protocol->robotState.seq);
-    } break;
-
-    case 0x0202: {
-        begin_p = Protocol->powerHeatData.data;
-        seq     = &(Protocol->powerHeatData.seq);
-    } break;
-
-    case 0x0205: {
-        begin_p = Protocol->aerialRobotEnergy.data;
-        seq     = &(Protocol->aerialRobotEnergy.seq);
-    } break;
-
-    case 0x0206: {
-        begin_p = Protocol->robotHurt.data;
-        seq     = &(Protocol->robotHurt.seq);
-    } break;
-
-    case 0x0207: {
-        begin_p = Protocol->shootData.data;
-        seq     = &(Protocol->shootData.seq);
-    } break;
-
-    case 0x0301: {
-        sendRobot = Protocol->packet[PROTOCOL_HEADER_CMDID_LEN + 2] % 10;
-        begin_p   = Protocol->robotInteractiveData[sendRobot].data;
-        seq       = &(Protocol->robotInteractiveData[sendRobot].seq);
-    } break;
-
-    case 0x0302: {
-        begin_p = Protocol->boardInteractiveData[1].data;
-        seq     = &(Protocol->boardInteractiveData[1].seq);
-    } break;
-
-    case 0x0401: {
-        begin_p = Protocol->autoaimData.data;
-        seq     = &(Protocol->autoaimData.seq);
-    } break;
-
-    default: { return; } break;
+    channel->id = (channel->packet[PROTOCOL_HEADER_SIZE + 1] << 8) + channel->packet[PROTOCOL_HEADER_SIZE];
+    if (channel->id == 0x301) {
+        dataId = (channel->packet[PROTOCOL_HEADER_CMDID_LEN + 1] << 8) + channel->packet[PROTOCOL_HEADER_CMDID_LEN];
+    } else {
+        dataId = channel->id;
     }
 
-    // packet seq
-    *seq = Protocol->seq;
+    // get memory address
+    Protocol_Get_Packet_Info(dataId, &offset, &dataLength);
 
     // load
-    for (i = 0; i < Protocol->dataLength; i++) {
-        *(begin_p + i) = Protocol->packet[PROTOCOL_HEADER_CMDID_LEN + i];
+    begin_p = channel->data + offset;
+    for (i = 0; i < channel->dataLength; i++) {
+        *(begin_p + i) = channel->packet[PROTOCOL_HEADER_CMDID_LEN + i];
     }
 }
 
@@ -258,7 +223,7 @@ unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLengt
 
 /*
 ** Descriptions: CRC8 Verify function
-** Input: Data to Verify,Stream length = Data + checksum
+** Input: Data to Verify,channel length = Data + checksum
 ** Output: True or False (CRC Verify Result)
 */
 unsigned int Verify_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength) {
@@ -270,7 +235,7 @@ unsigned int Verify_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLen
 
 /*
 ** Descriptions: append CRC8 to the end of data
-** Input: Data to CRC and append,Stream length = Data + checksum
+** Input: Data to CRC and append,channel length = Data + checksum
 ** Output: True or False (CRC Verify Result)
 */
 void Append_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength) {
@@ -300,7 +265,7 @@ const uint16_t wCRC_Table[256] = {
 
 /*
 ** Descriptions: CRC16 checksum function
-** Input: Data to check,Stream length, initialized checksum
+** Input: Data to check,channel length, initialized checksum
 ** Output: CRC checksum
 */
 uint16_t Get_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength, uint16_t wCRC) {
@@ -317,7 +282,7 @@ uint16_t Get_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength, uint16_t wC
 
 /*
 ** Descriptions: CRC16 Verify function
-** Input: Data to Verify,Stream length = Data + checksum
+** Input: Data to Verify,channel length = Data + checksum
 ** Output: True or False (CRC Verify Result)
 */
 uint32_t Verify_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength) {
@@ -331,7 +296,7 @@ uint32_t Verify_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength) {
 
 /*
 ** Descriptions: append CRC16 to the end of data
-** Input: Data to CRC and append,Stream length = Data + checksum
+** Input: Data to CRC and append,channel length = Data + checksum
 ** Output: True or False (CRC Verify Result)
 */
 void Append_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength) {
