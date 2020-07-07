@@ -6,18 +6,9 @@ void Motor_Init(volatile Motor_Type *motor, float reductionRate, int8_t angleEna
     motor->reductionRate = reductionRate;
     motor->angleEnabled  = angleEnabled;
     motor->inputEnabled  = inputEnabled;
-    motor->position      = 0;
-    motor->lastPosition  = 0;
-    motor->positionDiff  = 0;
-    motor->speed         = 0;
-    motor->round         = 0;
-    motor->angle         = 0;
-    motor->angleBias     = 0;
-    motor->lastAngle     = 0;
-    motor->input         = 0;
 }
 
-void Motor_Update(volatile Motor_Type *motor, int16_t position, int16_t speed, float actualCurrent) {
+void Motor_Update(volatile Motor_Type *motor, int16_t position, int16_t speed, int16_t actualCurrent, int16_t temperature) {
     // 更新转子初始位置
     if (motor->positionBias == -1) {
         motor->positionBias = position;
@@ -30,10 +21,11 @@ void Motor_Update(volatile Motor_Type *motor, int16_t position, int16_t speed, f
     motor->position      = position;
     motor->speed         = speed;
     motor->actualCurrent = actualCurrent;
-    motor->torque =
+    motor->torque        = ((float) ((24 * (motor->actualCurrent)) / (motor->speed * 2 * PI / 19.2f)));
+    motor->temperature   = temperature;
 
-        //如果启用了连续角度计算
-        if (motor->angleEnabled) {
+    //如果启用了连续角度计算
+    if (motor->angleEnabled) {
         //两次编码器的反馈值差别太大,表示圈数发生了改变
         motor->positionDiff = motor->position - motor->lastPosition;
         if (motor->positionDiff < -4200) {
