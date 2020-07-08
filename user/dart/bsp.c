@@ -12,10 +12,10 @@ void BSP_Init(void) {
     BSP_TIM2_Init();
     BSP_Beep_Init();
 
-    // USART3
-    BSP_USART1_Init(115200, USART_IT_IDLE);
-    BSP_DMA_Init(USART1_Tx, UserChannel.sendBuf, Protocol_Buffer_Length);
-    BSP_DMA_Init(USART1_Rx, UserChannel.receiveBuf, Protocol_Buffer_Length);
+    // // USART3
+    // BSP_USART1_Init(115200, USART_IT_IDLE);
+    // BSP_DMA_Init(USART1_Tx, UserChannel.sendBuf, Protocol_Buffer_Length);
+    // BSP_DMA_Init(USART1_Rx, UserChannel.receiveBuf, Protocol_Buffer_Length);
 
     // PWM
     // BSP_PWM_Set_Port(&PWM_Test, PWM_PD12);

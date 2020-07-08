@@ -254,7 +254,7 @@ void BSP_USART1_Init(uint32_t baudRate, uint16_t interruptFlag) {
                    GPIO_PinSource9,
                    GPIO_PinSource10,
                    GPIO_Pin_9 | GPIO_Pin_10,
-                   GPIOB,
+                   GPIOA,
                    RCC_APB2,
                    RCC_APB2Periph_USART1,
                    USART_Mode_Tx | USART_Mode_Rx,
