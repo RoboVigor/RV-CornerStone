@@ -31,6 +31,9 @@
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
+// 电机
+__HANDLE_EXT Motor_Type Motor_Test;
+
 // 遥控器
 __HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT Remote_Type   remoteData;

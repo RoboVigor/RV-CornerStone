@@ -6,6 +6,8 @@
 #include "config.h"
 
 void Handle_Init(void) {
+    // 电机初始化
+    Motor_Init(&Motor_Test, 36, 0);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);

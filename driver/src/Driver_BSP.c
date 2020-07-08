@@ -46,10 +46,16 @@ void BSP_CAN_Init(void) {
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN2, ENABLE);
     // CAN1
-    CAN_InitStructure.CAN_ABOM      = DISABLE;
-    CAN_InitStructure.CAN_AWUM      = DISABLE;
-    CAN_InitStructure.CAN_BS1       = CAN_BS1_9tq;
-    CAN_InitStructure.CAN_BS2       = CAN_BS2_5tq;
+    CAN_InitStructure.CAN_ABOM = DISABLE;
+    CAN_InitStructure.CAN_AWUM = DISABLE;
+#ifdef STM32F427_437xx
+    CAN_InitStructure.CAN_BS1 = CAN_BS1_9tq;
+    CAN_InitStructure.CAN_BS2 = CAN_BS2_5tq;
+#endif
+#ifdef STM32F407xx
+    CAN_InitStructure.CAN_BS1 = CAN_BS1_10tq;
+    CAN_InitStructure.CAN_BS2 = CAN_BS2_3tq;
+#endif
     CAN_InitStructure.CAN_Mode      = CAN_Mode_Normal;
     CAN_InitStructure.CAN_NART      = DISABLE;
     CAN_InitStructure.CAN_Prescaler = 3;
@@ -69,10 +75,16 @@ void BSP_CAN_Init(void) {
     CAN_FilterInitStructure.CAN_FilterScale          = CAN_FilterScale_32bit;
     CAN_FilterInit(&CAN_FilterInitStructure);
     // CAN2
-    CAN_InitStructure.CAN_ABOM      = ENABLE;
-    CAN_InitStructure.CAN_AWUM      = DISABLE;
-    CAN_InitStructure.CAN_BS1       = CAN_BS1_9tq;
-    CAN_InitStructure.CAN_BS2       = CAN_BS2_5tq;
+    CAN_InitStructure.CAN_ABOM = ENABLE;
+    CAN_InitStructure.CAN_AWUM = DISABLE;
+#ifdef STM32F427_437xx
+    CAN_InitStructure.CAN_BS1 = CAN_BS1_9tq;
+    CAN_InitStructure.CAN_BS2 = CAN_BS2_5tq;
+#endif
+#ifdef STM32F407xx
+    CAN_InitStructure.CAN_BS1 = CAN_BS1_10tq;
+    CAN_InitStructure.CAN_BS2 = CAN_BS2_3tq;
+#endif
     CAN_InitStructure.CAN_Mode      = CAN_Mode_Normal;
     CAN_InitStructure.CAN_NART      = DISABLE;
     CAN_InitStructure.CAN_Prescaler = 3;
@@ -394,6 +406,7 @@ void BSP_UART8_Init(uint32_t baudRate, uint16_t interruptFlag) {
 void BSP_Laser_Init(void) {
     // Laser
     GPIO_InitTypeDef GPIO_InitStructure;
+#ifdef STM32F427_437xx
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -401,6 +414,16 @@ void BSP_Laser_Init(void) {
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOG, &GPIO_InitStructure);
+#endif
+#ifdef STM32F407xx
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_8;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOC, &GPIO_InitStructure);
+#endif
 }
 
 void BSP_User_Power_Init(void) {
@@ -485,7 +508,7 @@ void BSP_TIM2_Init(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource1, GPIO_AF_TIM2); // GPIOA1复用为定时器2
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_1;             // GPIOB4
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_1;             // GPIOA1
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;           //复用功能
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;      //速度100MHz
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;          //推挽复用输出
@@ -633,8 +656,8 @@ void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px) {
 void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t polarity) {
     // InitStructure
     TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure; // TIM 频率
-    GPIO_InitTypeDef        GPIO_InitStructure;        // TIM4_PWM GPIO口设置
-    TIM_OCInitTypeDef       TIM_OCInitStructure;       // TIM4_PWM PWM模式
+    GPIO_InitTypeDef        GPIO_InitStructure;        // GPIO口设置
+    TIM_OCInitTypeDef       TIM_OCInitStructure;       // PWM模式
 
     // GPIO
     RCC_AHB1PeriphClockCmd(PWMx->RCC_AHB1Periph_GPIOx, ENABLE);               // 使能时钟
@@ -668,13 +691,13 @@ void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t 
         TIM_OC1PreloadConfig(PWMx->TIMx, TIM_OCPreload_Enable); // 使能TIM在CCR1上的预装载寄存器
     } else if (PWMx->Channel == 2) {
         TIM_OC2Init(PWMx->TIMx, &TIM_OCInitStructure);          // 根据指定的参数初始化外设
-        TIM_OC2PreloadConfig(PWMx->TIMx, TIM_OCPreload_Enable); // 使能TIM在CCR1上的预装载寄存器
+        TIM_OC2PreloadConfig(PWMx->TIMx, TIM_OCPreload_Enable); // 使能TIM在CCR2上的预装载寄存器
     } else if (PWMx->Channel == 3) {
         TIM_OC3Init(PWMx->TIMx, &TIM_OCInitStructure);          // 根据指定的参数初始化外设
-        TIM_OC3PreloadConfig(PWMx->TIMx, TIM_OCPreload_Enable); // 使能TIM在CCR1上的预装载寄存器
+        TIM_OC3PreloadConfig(PWMx->TIMx, TIM_OCPreload_Enable); // 使能TIM在CCR3上的预装载寄存器
     } else if (PWMx->Channel == 4) {
         TIM_OC4Init(PWMx->TIMx, &TIM_OCInitStructure);          // 根据指定的参数初始化外设
-        TIM_OC4PreloadConfig(PWMx->TIMx, TIM_OCPreload_Enable); // 使能TIM在CCR1上的预装载寄存器
+        TIM_OC4PreloadConfig(PWMx->TIMx, TIM_OCPreload_Enable); // 使能TIM在CCR4上的预装载寄存器
     }
     TIM_ARRPreloadConfig(PWMx->TIMx, ENABLE); // ARPE使能
     TIM_Cmd(PWMx->TIMx, ENABLE);              // 使能TIM
