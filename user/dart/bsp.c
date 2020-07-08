@@ -11,6 +11,7 @@ void BSP_Init(void) {
     BSP_DBUS_Init(remoteBuffer);
     BSP_TIM2_Init();
     BSP_Beep_Init();
+    BSP_LED_Init();
 
     // // USART3
     // BSP_USART1_Init(115200, USART_IT_IDLE);
@@ -18,6 +19,6 @@ void BSP_Init(void) {
     // BSP_DMA_Init(USART1_Rx, UserChannel.receiveBuf, Protocol_Buffer_Length);
 
     // PWM
-    // BSP_PWM_Set_Port(&PWM_Test, PWM_PD12);
-    // BSP_PWM_Init(&PWM_Test, 9000, 200, TIM_OCPolarity_Low);
+    // BSP_PWM_Set_Port(&PWM_Test, PWM_PE9);                   // 180MHz
+    // BSP_PWM_Init(&PWM_Test, 9000, 200, TIM_OCPolarity_Low); // 100Hz
 }

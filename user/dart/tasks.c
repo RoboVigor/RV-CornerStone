@@ -32,9 +32,6 @@ void Task_Board_Communication(void *Parameters) {
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
-
-        // 调试信息
-        DebugData.debug1 = remoteData.switchLeft;
     }
     vTaskDelete(NULL);
 }
@@ -43,18 +40,17 @@ void Task_Blink(void *Parameters) {
     while (1) {
         // LED_Run_Horse_XP(); // XP开机动画,建议延时200ms
         // LED_Run_Horse(); // 跑马灯,建议延时20ms
-        BLUE_LIGHT_TOGGLE;
-        vTaskDelayUntil(&LastWakeTime, 200);
+        LED_Run_Rainbow_Ball(); // 梦幻彩虹灯,建议延时10ms
+        vTaskDelayUntil(&LastWakeTime, 10);
     }
-
     vTaskDelete(NULL);
 }
 
 void Task_Startup_Music(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        if (KTV_Play(Music_Earth)) break;
-        vTaskDelayUntil(&LastWakeTime, 120);
+        if (KTV_Play(Music_XP)) break;
+        vTaskDelayUntil(&LastWakeTime, 150);
     }
     vTaskDelete(NULL);
 }
@@ -77,11 +73,11 @@ void Task_Sys_Init(void *Parameters) {
 
     // 低级任务
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
-    // while (!remoteData.state) {
-    // }
+    while (!remoteData.state) {
+    }
 
     // DMA发送任务
     xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);

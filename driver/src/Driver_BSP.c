@@ -624,7 +624,7 @@ void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px) {
 
 /**
  * @brief 初始化PWM
- * @note  PI5,PI6,PI7,PI2对应时钟频率为180MHz,其余为90MHz
+ * @note  TIM1,TIM8对应时钟频率为180MHz,其余为90MHz
  * @param PWMx      PWM结构体
  * @param prescaler 预分频器. PWM频率   = TIM/prescaler
  * @param period    计数上限. PWM占空比 = compare/period
@@ -647,7 +647,7 @@ void BSP_PWM_Init(PWM_Type *PWMx, uint16_t prescaler, uint32_t period, uint16_t 
     GPIO_Init(PWMx->GPIOx, &GPIO_InitStructure);                              // 初始化
 
     // TIM
-    if (PWMx->TIMx == TIM8) {
+    if (PWMx->TIMx == TIM1 || PWMx->TIMx == TIM8) {
         RCC_APB2PeriphClockCmd(PWMx->RCC_APBxPeriph_TIMx, ENABLE); // 时钟使能
     } else {
         RCC_APB1PeriphClockCmd(PWMx->RCC_APBxPeriph_TIMx, ENABLE); // 时钟使能
@@ -694,8 +694,13 @@ void PWM_Set_Compare(PWM_Type *PWMx, uint32_t compare) {
     *((uint32_t *) (((uint8_t *) PWMx->TIMx) + PWMx->CCRx)) = compare;
 }
 
+// RGB
+PWM_Type PWM_RED, PWM_GREEN, PWM_BLUE;
+
 void BSP_LED_Init(void) {
+#ifdef STM32F427_437xx
     // 用户自定义LED*8
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE); //使能GPIOH时钟
     GPIO_InitTypeDef GPIO_InitStructure;
     GPIO_InitStructure.GPIO_Pin   = 0x01FE;            // GPIO_Pin_1-GPIO_Pin_8
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;     // 普通输出模式
@@ -704,6 +709,16 @@ void BSP_LED_Init(void) {
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;      // 上拉
     GPIO_Init(GPIOG, &GPIO_InitStructure);             // 初始化
     GPIO_SetBits(GPIOG, 0x01FE);                       // GPIOG1-8设置高,灯灭
+#endif
+#ifdef STM32F407xx
+    BSP_PWM_Set_Port(&PWM_RED, PWM_PH12);   // 90MHz
+    BSP_PWM_Set_Port(&PWM_GREEN, PWM_PH11); // 90MHz
+    BSP_PWM_Set_Port(&PWM_BLUE, PWM_PH10);  // 90MHz
+    BSP_PWM_Init(&PWM_RED, 255, 200, TIM_OCPolarity_Low);
+    BSP_PWM_Init(&PWM_GREEN, 255, 200, TIM_OCPolarity_Low);
+    BSP_PWM_Init(&PWM_BLUE, 255, 200, TIM_OCPolarity_Low);
+    LED_Set_Colour(0, 0, 0);
+#endif
 }
 
 /**
@@ -723,6 +738,19 @@ void LED_Set_Progress(uint16_t progress) {
     // 设置
     MIAO(progress, 0, 8);
     LED_Set_Row((1 << progress) - 1);
+}
+
+/**
+ * @brief 设置LED亮起颜色
+ * @param red 0-255
+ * @param green 0-255
+ * @param blue 0-255
+ */
+void LED_Set_Colour(uint16_t red, uint16_t green, uint16_t blue) {
+    // 设置
+    PWM_Set_Compare(&PWM_RED, red);
+    PWM_Set_Compare(&PWM_GREEN, green);
+    PWM_Set_Compare(&PWM_BLUE, blue);
 }
 
 /**
@@ -757,6 +785,30 @@ void LED_Run_Horse_XP() {
     else
         LEDXPRow = LEDXPRow - (1 << LEDXPState - 4);
     LED_Set_Row(LEDXPRow);
+}
+
+/**
+ * @brief 梦幻彩虹球
+ * @note  每次调用本函数会更新LED状态,但没有延时
+ *        建议每次调用后设置10ms延时
+ */
+void LED_Run_Rainbow_Ball() {
+    static uint16_t LEDColourRed   = 255;
+    static uint16_t LEDColourGreen = 0;
+    static uint16_t LEDColourBlue  = 0;
+    static uint16_t LEDBallState   = 0;
+    LED_Set_Colour(LEDColourRed, LEDColourGreen, LEDColourBlue);
+    if (LEDBallState < 255) {
+        LEDColourRed--;
+        LEDColourGreen++;
+    } else if (LEDBallState < 510) {
+        LEDColourGreen--;
+        LEDColourBlue++;
+    } else {
+        LEDColourBlue--;
+        LEDColourRed++;
+    }
+    LEDBallState = (LEDBallState + 1) % 765;
 }
 
 void BSP_Beep_Init(void) {
