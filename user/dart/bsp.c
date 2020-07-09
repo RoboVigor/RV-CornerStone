@@ -10,6 +10,7 @@ void BSP_Init(void) {
     BSP_CAN_Init();
     BSP_DBUS_Init(remoteBuffer);
     BSP_TIM2_Init();
+    BSP_IMU_Init();
     BSP_Laser_Init();
     BSP_Beep_Init();
     BSP_LED_Init();

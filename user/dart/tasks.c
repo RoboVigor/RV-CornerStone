@@ -63,10 +63,15 @@ void Task_Board_Communication(void *Parameters) {
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
+#ifdef STM32F427_437xx
         // LED_Run_Horse_XP(); // XP开机动画,建议延时200ms
-        // LED_Run_Horse(); // 跑马灯,建议延时20ms
+        LED_Run_Horse(); // 跑马灯,建议延时20ms
+        vTaskDelayUntil(&LastWakeTime, 20);
+#endif
+#ifdef STM32F407xx
         LED_Run_Rainbow_Ball(); // 梦幻彩虹灯,建议延时10ms
         vTaskDelayUntil(&LastWakeTime, 10);
+#endif
     }
     vTaskDelete(NULL);
 }
@@ -87,6 +92,9 @@ void Task_Sys_Init(void *Parameters) {
 
     // 初始化硬件
     BSP_Init();
+
+    // 初始化陀螺仪
+    // Gyroscope_Init(&Gyroscope_EulerData);
 
     // 调试任务
 #if DEBUG_ENABLED

@@ -13,6 +13,7 @@
 #include "stm32f4xx.h"
 
 #include "mpu6500_driver.h"
+#include "BMI088driver.h"
 
 #define PI 3.1415926f
 #define GYRO_LSB 16.4f

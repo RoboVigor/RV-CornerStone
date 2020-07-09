@@ -6,6 +6,28 @@
 #include "main.h"
 
 /**
+ * @brief EXTI4 加速度计中断
+ */
+void EXTI4_IRQHandler(void) {
+    if (EXTI_GetITStatus(EXTI_Line4) != RESET) {
+        EXTI_ClearFlag(EXTI_Line4);
+        EXTI_ClearITPendingBit(EXTI_Line4);
+        Gyroscope_Update(&Gyroscope_EulerData);
+    }
+}
+
+/**
+ * @brief EXTI9_5 陀螺仪中断
+ */
+void EXTI9_5_IRQHandler(void) {
+    if (EXTI_GetITStatus(EXTI_Line5) != RESET) {
+        EXTI_ClearFlag(EXTI_Line5);
+        EXTI_ClearITPendingBit(EXTI_Line5);
+        Gyroscope_Update(&Gyroscope_EulerData);
+    }
+}
+
+/**
  * @brief USART1 串口中断
  */
 void USART1_IRQHandler(void) {

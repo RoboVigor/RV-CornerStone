@@ -23,12 +23,23 @@ extern ImuData_Type ImuData;
 
 void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
     GyroscopeData->startupCounter = 0;
+#ifdef STM32F427_437xx
     MPU6500_Initialize();
     MPU6500_EnableInt();
+#endif
+#ifdef STM32F407xx
+    while (BMI088_init()) {
+    }
+#endif
 #if GYROSCOPE_START_UP_DELAY_ENABLED
     beta = 5;
     while (1) {
+#ifdef STM32F427_437xx
         LED_Set_Progress(GyroscopeData->startupCounter / (GYROSCOPE_START_UP_DELAY / 7) + 1);
+#endif
+#ifdef STM32F407xx
+        LED_Set_Colour(GyroscopeData->startupCounter / GYROSCOPE_START_UP_DELAY * 255, 0, 0);
+#endif
         if (GyroscopeData->startupCounter >= GYROSCOPE_START_UP_DELAY) {
             beta = 0.1;
             break;
@@ -39,6 +50,7 @@ void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
 
 // MPU6500数据读取,成功返回1  失败返回0
 int Gyroscope_Update(GyroscopeData_Type *GyroscopeData) {
+#ifdef STM32F427_437xx
     static uint8_t mpu_buf[20];
 
     //尝试读取数据
@@ -63,6 +75,30 @@ int Gyroscope_Update(GyroscopeData_Type *GyroscopeData) {
     ImuData.ax = (((int16_t) mpu_buf[2]) << 8) | mpu_buf[3];
     ImuData.gy = ((((int16_t) mpu_buf[8]) << 8) | mpu_buf[9]) - (IMU_GY_BIAS);
     ImuData.gx = ((((int16_t) mpu_buf[10]) << 8) | mpu_buf[11]) - (IMU_GX_BIAS);
+#endif
+#endif
+#ifdef STM32F407xx
+    static uint8_t buf[8];
+
+    BMI088_accel_read_muli_reg(BMI088_ACCEL_XOUT_L, buf, 6);
+
+    ImuData.ax = (int16_t)((buf[1] << 8) | buf[0]) * BMI088_ACCEL_SEN;
+    ImuData.ay = (int16_t)((buf[3] << 8) | buf[2]) * BMI088_ACCEL_SEN;
+    ImuData.az = (int16_t)((buf[5] << 8) | buf[4]) * BMI088_ACCEL_SEN;
+
+    BMI088_gyro_read_muli_reg(BMI088_GYRO_CHIP_ID, buf, 8);
+    if (buf[0] == BMI088_GYRO_CHIP_ID_VALUE) {
+        ImuData.gx = (int16_t)((buf[3] << 8) | buf[2]) * BMI088_GYRO_SEN;
+        ImuData.gy = (int16_t)((buf[5] << 8) | buf[4]) * BMI088_GYRO_SEN;
+        ImuData.gz = (int16_t)((buf[7] << 8) | buf[6]) * BMI088_GYRO_SEN;
+    }
+    BMI088_accel_read_muli_reg(BMI088_TEMP_M, buf, 2);
+
+    if ((int16_t)((buf[0] << 3) | (buf[1] >> 5)) > 1023) {
+        ImuData.temp = (int16_t)((buf[0] << 3) | (buf[1] >> 5)) * BMI088_TEMP_FACTOR + BMI088_TEMP_OFFSET;
+    } else {
+        ImuData.temp = ((int16_t)((buf[0] << 3) | (buf[1] >> 5)) - 2048) * BMI088_TEMP_FACTOR + BMI088_TEMP_OFFSET;
+    }
 #endif
 
     // 读取完成进行解算

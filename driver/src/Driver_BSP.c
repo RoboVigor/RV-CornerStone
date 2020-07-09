@@ -443,6 +443,7 @@ void BSP_User_Power_Init(void) {
 }
 
 void BSP_IMU_Init(void) {
+#ifdef STM32F427_437xx
     // IIC
     GPIO_InitTypeDef GPIO_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
@@ -501,6 +502,128 @@ void BSP_IMU_Init(void) {
     EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling; //下降沿中断
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStructure);
+#endif
+#ifdef STM32F407xx
+    GPIO_InitTypeDef GPIO_InitStructure;
+    // CS1_ACCEL(PA4)
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_4;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    // CS1_GYRO(PB0)
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+    // INT_ACCEL(PC4),INT_GYRO(PC5)
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_4 | GPIO_Pin_5;
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+
+    GPIO_Init(GPIOC, &GPIO_InitStructure);
+    // NVIC
+    NVIC_InitTypeDef NVIC_InitStructure;
+
+    // ACCEL
+    NVIC_InitStructure.NVIC_IRQChannel                   = EXTI4_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    // GYRO
+    NVIC_InitStructure.NVIC_IRQChannel                   = EXTI9_5_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    // EXTI
+    EXTI_InitTypeDef EXTI_InitStructure;
+    // ACCEL
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOC, GPIO_PinSource4);
+    EXTI_InitStructure.EXTI_Line    = EXTI_Line4;
+    EXTI_InitStructure.EXTI_Mode    = EXTI_Mode_Interrupt;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling; //下降沿中断
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init(&EXTI_InitStructure);
+
+    // GYRO
+    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOC, GPIO_PinSource5);
+    EXTI_InitStructure.EXTI_Line    = EXTI_Line5;
+    EXTI_InitStructure.EXTI_Mode    = EXTI_Mode_Interrupt;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling; //下降沿中断
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init(&EXTI_InitStructure);
+
+    // SPI
+    SPI_InitTypeDef SPI_InitStructure;
+    // SPI1_MISO(PB4) SPI1_SCK(PB3) SPI1_MOSI(PA7)
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+    GPIO_PinAFConfig(GPIOB, GPIO_PinSource4, GPIO_AF_SPI1);
+    GPIO_PinAFConfig(GPIOB, GPIO_PinSource3, GPIO_AF_SPI1);
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_4 | GPIO_Pin_3;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_SPI1);
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_7;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, ENABLE);                       // 复位 SPI1
+    RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, DISABLE);                      // 停止复位
+    SPI_InitStructure.SPI_Direction         = SPI_Direction_2Lines_FullDuplex; // 设置 SPI 全双工
+    SPI_InitStructure.SPI_Mode              = SPI_Mode_Master;                 // 设置 SPI 工作模式:主 SPI
+    SPI_InitStructure.SPI_DataSize          = SPI_DataSize_8b;                 // 设置 SPI 的数据大小: 8 位帧结构
+    SPI_InitStructure.SPI_CPOL              = SPI_CPOL_High;                   // 串行同步时钟的空闲状态为高电平
+    SPI_InitStructure.SPI_CPHA              = SPI_CPHA_2Edge;                  // 数据捕获于第二个时钟沿
+    SPI_InitStructure.SPI_NSS               = SPI_NSS_Soft;                    // NSS 信号由硬件管理
+    SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_256;       // 预分频 256
+    SPI_InitStructure.SPI_FirstBit          = SPI_FirstBit_MSB;                // 数据传输从 MSB 位开始
+    SPI_InitStructure.SPI_CRCPolynomial     = 10;                              // CRC 值计算的多项式
+    SPI_Init(SPI1, &SPI_InitStructure);                                        // 根据指定的参数初始化外设 SPIx 寄存器
+    SPI_Cmd(SPI1, ENABLE);                                                     // 使能 SPI1
+
+    // TIM10
+    TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
+    // CH1(PF6)
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+    GPIO_PinAFConfig(GPIOF, GPIO_PinSource6, GPIO_AF_TIM10); // GPIOA1复用为定时器10
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_6;              // GPIOA1
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;            //复用功能
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;       //速度100MHz
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;           //推挽复用输出
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;            //上拉
+    GPIO_Init(GPIOF, &GPIO_InitStructure);                   //初始化
+
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, ENABLE);
+    TIM_TimeBaseInitStructure.TIM_Period        = 1 - 1;
+    TIM_TimeBaseInitStructure.TIM_Prescaler     = 5000 - 1;
+    TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up;
+    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+    TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStructure);
+    TIM_Cmd(TIM2, ENABLE);
+#endif
 }
 
 void BSP_TIM2_Init(void) {
@@ -563,7 +686,7 @@ void BSP_DMA_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, ui
     } else {
         RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
     }
-    if (tableIndex < 10) {
+    if (tableIndex >= USART1_Tx && tableIndex <= UART8_Rx) {
         DMA_InitStructure.DMA_PeripheralBaseAddr = &((USART_TypeDef *) dma.PERIPHx_BASE)->DR;
     }
     if (dma.TRx == Tx) {
