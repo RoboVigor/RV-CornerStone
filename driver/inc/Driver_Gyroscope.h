@@ -16,8 +16,6 @@
 #include "BMI088driver.h"
 
 #define PI 3.1415926f
-#define GYRO_LSB 16.4f
-#define ACC_LSB 4096.0f
 
 typedef struct {
     volatile int16_t ax; // m/s^2 [-8g,+8g] -> [-32768,32768] ideal:0

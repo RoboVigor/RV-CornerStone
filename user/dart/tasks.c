@@ -94,7 +94,7 @@ void Task_Sys_Init(void *Parameters) {
     BSP_Init();
 
     // 初始化陀螺仪
-    // Gyroscope_Init(&Gyroscope_EulerData);
+    Gyroscope_Init(&Gyroscope_EulerData);
 
     // 调试任务
 #if DEBUG_ENABLED

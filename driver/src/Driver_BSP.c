@@ -590,8 +590,9 @@ void BSP_IMU_Init(void) {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, ENABLE);                       // 复位 SPI1
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, DISABLE);                      // 停止复位
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
+    RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, ENABLE);                       //复位 SPI1
+    RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, DISABLE);                      //停止复位 SPI1
     SPI_InitStructure.SPI_Direction         = SPI_Direction_2Lines_FullDuplex; // 设置 SPI 全双工
     SPI_InitStructure.SPI_Mode              = SPI_Mode_Master;                 // 设置 SPI 工作模式:主 SPI
     SPI_InitStructure.SPI_DataSize          = SPI_DataSize_8b;                 // 设置 SPI 的数据大小: 8 位帧结构

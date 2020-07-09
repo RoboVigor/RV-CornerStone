@@ -41,7 +41,7 @@ void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
         LED_Set_Colour(GyroscopeData->startupCounter / GYROSCOPE_START_UP_DELAY * 255, 0, 0);
 #endif
         if (GyroscopeData->startupCounter >= GYROSCOPE_START_UP_DELAY) {
-            beta = 0.1;
+            beta = 0.5;
             break;
         }
     }
@@ -82,15 +82,15 @@ int Gyroscope_Update(GyroscopeData_Type *GyroscopeData) {
 
     BMI088_accel_read_muli_reg(BMI088_ACCEL_XOUT_L, buf, 6);
 
-    ImuData.ax = (int16_t)((buf[1] << 8) | buf[0]) * BMI088_ACCEL_SEN;
-    ImuData.ay = (int16_t)((buf[3] << 8) | buf[2]) * BMI088_ACCEL_SEN;
-    ImuData.az = (int16_t)((buf[5] << 8) | buf[4]) * BMI088_ACCEL_SEN;
+    ImuData.ax = (int16_t)((buf[1] << 8) | buf[0]);
+    ImuData.ay = (int16_t)((buf[3] << 8) | buf[2]);
+    ImuData.az = (int16_t)((buf[5] << 8) | buf[4]);
 
     BMI088_gyro_read_muli_reg(BMI088_GYRO_CHIP_ID, buf, 8);
     if (buf[0] == BMI088_GYRO_CHIP_ID_VALUE) {
-        ImuData.gx = (int16_t)((buf[3] << 8) | buf[2]) * BMI088_GYRO_SEN;
-        ImuData.gy = (int16_t)((buf[5] << 8) | buf[4]) * BMI088_GYRO_SEN;
-        ImuData.gz = (int16_t)((buf[7] << 8) | buf[6]) * BMI088_GYRO_SEN;
+        ImuData.gx = (int16_t)((buf[3] << 8) | buf[2]);
+        ImuData.gy = (int16_t)((buf[5] << 8) | buf[4]);
+        ImuData.gz = (int16_t)((buf[7] << 8) | buf[6]);
     }
     BMI088_accel_read_muli_reg(BMI088_TEMP_M, buf, 2);
 
@@ -109,12 +109,12 @@ int Gyroscope_Update(GyroscopeData_Type *GyroscopeData) {
 }
 
 void Gyroscope_Solve(GyroscopeData_Type *GyroscopeData) {
-    xSpeed = (float) ((ImuData.gx / GYRO_LSB) * PI / 180.0);
-    ySpeed = (float) ((ImuData.gy / GYRO_LSB) * PI / 180.0);
-    zSpeed = (float) ((ImuData.gz / GYRO_LSB) * PI / 180.0);
-    xAcc   = (float) (ImuData.ax / ACC_LSB);
-    yAcc   = (float) (ImuData.ay / ACC_LSB);
-    zAcc   = (float) (ImuData.az / ACC_LSB);
+    xSpeed = (float) ((ImuData.gx / GYROSCOPE_LSB) * PI / 180.0);
+    ySpeed = (float) ((ImuData.gy / GYROSCOPE_LSB) * PI / 180.0);
+    zSpeed = (float) ((ImuData.gz / GYROSCOPE_LSB) * PI / 180.0);
+    xAcc   = (float) (ImuData.ax / ACCELERATE_LSB);
+    yAcc   = (float) (ImuData.ay / ACCELERATE_LSB);
+    zAcc   = (float) (ImuData.az / ACCELERATE_LSB);
 
     // GD算法或Madgwick算法,梯度算法,网上开源
     MadgwickAHRSupdateIMU(xSpeed, ySpeed, zSpeed, xAcc, yAcc, zAcc);
