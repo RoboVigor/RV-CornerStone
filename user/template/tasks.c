@@ -85,13 +85,14 @@ void Task_Chassis(void *Parameters) {
 
         // 输出电流值到电调(安全起见默认注释此行)
         Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+
+        // 底盘运动更新频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+
         DebugData.debug1 = Motor_LF.temperature;
         DebugData.debug2 = Motor_LF.torque;
         DebugData.debug3 = Motor_LF.speed;
         DebugData.debug4 = Motor_LF.actualCurrent;
-
-        // 底盘运动更新频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
     }
 
     vTaskDelete(NULL);
@@ -356,7 +357,7 @@ void Task_Sys_Init(void *Parameters) {
     // 低级任务
     xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
     while (!remoteData.state) {

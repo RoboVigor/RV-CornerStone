@@ -30,7 +30,7 @@ typedef struct {
     float   angleBias;    // 修正转子连续角度
     float   lastAngle;    // 上一次的连续角度
     float   reductionRate;
-    int16_t actualCurrent; //电流
+    float   actualCurrent; //电流
     float   torque;        // 转矩
     int16_t temperature;   //温度
 
@@ -56,6 +56,6 @@ void Motor_Init(volatile Motor_Type *motor, float reductionRate, int8_t angleEna
  * @param position 转子位置
  * @param speed 转子转速
  */
-void Motor_Update(volatile Motor_Type *motor, int16_t position, int16_t speed, int16_t actualCurrent, int16_t temperature);
+void Motor_Update(volatile Motor_Type *motor, uint8_t data[8]);
 
 #endif
