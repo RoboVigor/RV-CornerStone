@@ -645,7 +645,7 @@ void Task_Fire_Frict(void *Parameters) {
         targetSpeed = FrictEnabled ? 307 : 0;
 
         PID_Calculate(&PID_FireL, targetSpeed, motorLSpeed);
-        PID_Calculate(&PID_FireR, -1 * targetSpeed, motorRSpeed);
+        PID_Calculate(&PID_FireR, targetSpeed, motorRSpeed);
 
         Motor_FL.input = PID_FireL.output;
         Motor_FR.input = PID_FireR.output;

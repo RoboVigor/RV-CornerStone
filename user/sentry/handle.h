@@ -43,10 +43,14 @@ __HANDLE_EXT Motor_Type Motor_Stabilizer_Yaw, Motor_Stabilizer_Pitch;
 __HANDLE_EXT PID_Type   PID_Stabilizer_Yaw_Angle, PID_Stabilizer_Yaw_Speed;
 __HANDLE_EXT PID_Type   PID_Stabilizer_Pitch_Angle, PID_Stabilizer_Pitch_Speed;
 
+// 摩擦轮
+__HANDLE_EXT Motor_Type Motor_Frict_L, Motor_Frict_R;
+__HANDLE_EXT PID_Type   PID_Frict_L_Speed, PID_Frict_R_Speed;
+
 // 遥控器
 __HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT Remote_Type   remoteData;
-__HANDLE_EXT Keyboard_Type keyboardData;
+__HANDLE_EXT Keyboard_Type keyboardData;    
 __HANDLE_EXT Mouse_Type    mouseData;
 
 // 陀螺仪
