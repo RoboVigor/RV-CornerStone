@@ -14,6 +14,10 @@ void Handle_Init(void) {
     Motor_Init(&Motor_Stabilizer_Yaw, 1, 1);
     Motor_Init(&Motor_Stabilizer_Pitch, 36, 1);
 
+    // 摩擦轮电机
+    Motor_Init(&Motor_Frict_L, 1, 0);
+    Motor_Init(&Motor_Frict_R, 1, 0);
+
     Motor_Stabilizer_Yaw.positionBias = 1378;
     Motor_Stabilizer_Yaw.position     = 1378;
 

@@ -677,7 +677,7 @@ void Task_Fire_Frict(void *Parameters) {
         // targetSpeed = 260;   //15m/s
 
         PID_Calculate(&PID_FireL, targetSpeed, motorLSpeed);
-        PID_Calculate(&PID_FireR, -1 * targetSpeed, motorRSpeed);
+        PID_Calculate(&PID_FireR, targetSpeed, motorRSpeed);
 
         Can_Send(CAN2, 0x200, PID_FireL.output, PID_FireR.output, 0, 0);
 
