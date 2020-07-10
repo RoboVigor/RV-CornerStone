@@ -75,7 +75,7 @@ void Task_Chassis(void *Parameters) {
         Chassis_Calculate_Rotor_Speed(&ChassisData);
 
         // 设置转子速度上限 (rad/s)
-        Chassis_Limit_Rotor_Speed(&ChassisData, 700);
+        Chassis_Limit_Rotor_Speed(&ChassisData, 300);
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
@@ -84,15 +84,13 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调(安全起见默认注释此行)
-        Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Motor_LF.input = PID_LFCM.output;
+        Motor_LB.input = PID_LBCM.output;
+        Motor_RB.input = PID_RBCM.output;
+        Motor_RF.input = PID_RFCM.output;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
-
-        DebugData.debug1 = Motor_LF.temperature;
-        DebugData.debug2 = Motor_LF.torque;
-        DebugData.debug3 = Motor_LF.speed;
-        DebugData.debug4 = Motor_LF.actualCurrent;
     }
 
     vTaskDelete(NULL);
@@ -372,7 +370,7 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
 
     // Can发送任务
-    // xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

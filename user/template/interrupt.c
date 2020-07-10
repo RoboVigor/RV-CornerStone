@@ -124,17 +124,16 @@ void UART8_IRQHandler(void) {
 void CAN1_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
     int      i;
-    int      data[8];
 
     // 读取数据
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
 
     // 安排数据
     if (CanRxData.StdId < 0x500) {
-        Motor_Update(Can1_Device[ESC_ID(CanRxData.StdId)], data);
+        Motor_Update(Can1_Device[ESC_ID(CanRxData.StdId)], CanRxData.Data);
     } else {
         for (i = 0; i < 8; i++) {
-            Protocol_Unpack(&UserChannel, data[i]);
+            Protocol_Unpack(&UserChannel, CanRxData.Data[i]);
         }
     }
 }
@@ -153,7 +152,7 @@ void CAN2_RX0_IRQHandler(void) {
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
 
     //安排数据
-    Motor_Update(Can2_Device[ESC_ID(CanRxData.StdId)], data);
+    Motor_Update(Can2_Device[ESC_ID(CanRxData.StdId)], CanRxData.Data);
 }
 
 // TIM2 高频计数器
