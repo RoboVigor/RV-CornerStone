@@ -14,6 +14,7 @@
 
 #include "mpu6500_driver.h"
 #include "BMI088driver.h"
+#include "ist8310driver.h"
 
 #define PI 3.1415926f
 
@@ -25,12 +26,18 @@ typedef struct {
     volatile int16_t gx; // rad/s ideal:0
     volatile int16_t gy; // rad/s ideal:0
     volatile int16_t gz; // rad/s ideal:0
+    volatile int16_t mx; // rad/s ideal:0
+    volatile int16_t my; // rad/s ideal:0
+    volatile int16_t mz; // rad/s ideal:0
     int16_t          ax_offset;
     int16_t          ay_offset;
     int16_t          az_offset;
     int16_t          gx_offset;
     int16_t          gy_offset;
     int16_t          gz_offset;
+    int16_t          mx_offset;
+    int16_t          my_offset;
+    int16_t          mz_offset;
 } ImuData_Type;
 typedef struct {
     float yaw;

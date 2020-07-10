@@ -28,6 +28,17 @@ void EXTI9_5_IRQHandler(void) {
 }
 
 /**
+   * @brief EXTI3 磁力计中断
+   */
+void EXTI3_IRQHandler(void) {
+    if (EXTI_GetITStatus(EXTI_Line3) != RESET) {
+        EXTI_ClearFlag(EXTI_Line3);
+        EXTI_ClearITPendingBit(EXTI_Line3);
+        Gyroscope_Update(&Gyroscope_EulerData);
+    }
+}
+
+/**
  * @brief USART1 串口中断
  */
 void USART1_IRQHandler(void) {

@@ -15,7 +15,7 @@
 #define INT1_GRYO_EXTI_IRQn EXTI9_5_IRQn
 
 extern void BMI088_GPIO_init(void);
-extern void BMI088_SPI_init(void);
+extern void BMI088_com_init(void);
 extern void BMI088_delay_ms(uint16_t ms);
 extern void BMI088_delay_us(uint16_t us);
 extern void BMI088_ACCEL_NS_L(void);

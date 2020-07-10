@@ -3,7 +3,7 @@
 void BMI088_GPIO_init(void) {
 }
 
-void BMI088_SPI_init(void) {
+void BMI088_com_init(void) {
 }
 
 void BMI088_delay_ms(uint16_t ms) {

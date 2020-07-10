@@ -18,6 +18,8 @@
 #include "Driver_Motor.h"
 #include "Driver_Chassis.h"
 #include "mpu6500_driver.h"
+#include "BMI088driver.h"
+#include "ist8310driver.h"
 #include "Driver_Gyroscope.h"
 #include "Driver_Protocol.h"
 #include "Driver_Fsm.h"

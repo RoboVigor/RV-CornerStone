@@ -15,10 +15,16 @@ void BSP_Init(void) {
     BSP_Beep_Init();
     BSP_LED_Init();
 
+#ifdef STM32F427_437xx
+    BSP_User_Power_Init();
+#endif
+
+#ifdef STM32F407xx
     // // USART1
     // BSP_USART1_Init(115200, USART_IT_IDLE);
     // BSP_DMA_Init(USART1_Tx, UserChannel.sendBuf, Protocol_Buffer_Length);
     // BSP_DMA_Init(USART1_Rx, UserChannel.receiveBuf, Protocol_Buffer_Length);
+#endif
 
     // PWM
     BSP_PWM_Set_Port(&PWM_Test, PWM_PI7);                    // 180MHz

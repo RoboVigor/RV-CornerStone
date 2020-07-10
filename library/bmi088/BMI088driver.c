@@ -1,6 +1,4 @@
 #include "BMI088driver.h"
-#include "BMI088middleware.h"
-#include "BMI088reg.h"
 
 static uint8_t write_BMI088_accel_reg_data_error[BMI088_WRITE_ACCEL_REG_NUM][3] = {
     {BMI088_ACC_PWR_CTRL, BMI088_ACC_ENABLE_ACC_ON, BMI088_ACC_PWR_CTRL_ERROR},
@@ -26,7 +24,7 @@ uint8_t BMI088_init(void) {
     uint8_t error = BMI088_NO_ERROR;
     // GPIO and SPI  Init .
     BMI088_GPIO_init();
-    BMI088_SPI_init();
+    BMI088_com_init();
 
     error |= bmi088_accel_init();
     error |= bmi088_gyro_init();
