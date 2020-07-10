@@ -64,9 +64,9 @@ void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
 #ifdef STM32F427_437xx
-        // LED_Run_Horse_XP(); // XP开机动画,建议延时200ms
-        LED_Run_Horse(); // 跑马灯,建议延时20ms
-        vTaskDelayUntil(&LastWakeTime, 20);
+        LED_Run_Horse_XP(); // XP开机动画,建议延时200ms
+        // LED_Run_Horse(); // 跑马灯,建议延时20ms
+        vTaskDelayUntil(&LastWakeTime, 200);
 #endif
 #ifdef STM32F407xx
         LED_Run_Rainbow_Ball(); // 梦幻彩虹灯,建议延时10ms

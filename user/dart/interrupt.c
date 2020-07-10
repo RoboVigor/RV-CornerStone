@@ -20,16 +20,25 @@ void EXTI4_IRQHandler(void) {
  * @brief EXTI9_5 陀螺仪中断
  */
 void EXTI9_5_IRQHandler(void) {
+#ifdef STM32F427_437xx
+    if (EXTI_GetITStatus(EXTI_Line8) != RESET) {
+        EXTI_ClearFlag(EXTI_Line8);
+        EXTI_ClearITPendingBit(EXTI_Line8);
+        Gyroscope_Update(&Gyroscope_EulerData);
+    }
+#endif
+#ifdef STM32F407xx
     if (EXTI_GetITStatus(EXTI_Line5) != RESET) {
         EXTI_ClearFlag(EXTI_Line5);
         EXTI_ClearITPendingBit(EXTI_Line5);
         Gyroscope_Update(&Gyroscope_EulerData);
     }
+#endif
 }
 
 /**
-   * @brief EXTI3 磁力计中断
-   */
+ * @brief EXTI3 磁力计中断
+ */
 void EXTI3_IRQHandler(void) {
     if (EXTI_GetITStatus(EXTI_Line3) != RESET) {
         EXTI_ClearFlag(EXTI_Line3);
@@ -49,6 +58,19 @@ void USART1_IRQHandler(void) {
     tmp = USART1->DR;
     tmp = USART1->SR;
 
+#ifdef STM32F427_437xx
+    // disabe DMA
+    DMA_Disable(USART1_Rx);
+
+    //数据量正确
+    if (DMA_Get_Stream(USART1_Rx)->NDTR == DBUS_BACK_LENGTH) {
+        DBus_Update(&remoteData, &keyboardData, &mouseData, remoteBuffer); //解码
+    }
+
+    // enable DMA
+    DMA_Enable(USART1_Rx, DBUS_LENGTH + DBUS_BACK_LENGTH);
+#endif
+#ifdef STM32F407xx
     // disabe DMA
     DMA_Disable(USART1_Rx);
 
@@ -60,10 +82,11 @@ void USART1_IRQHandler(void) {
 
     // enable DMA
     DMA_Enable(USART1_Rx, Protocol_Buffer_Length);
+#endif
 }
 
 /**
- * @brief DBus空闲中断(USART3)
+ * @brief USART3
  */
 void USART3_IRQHandler(void) {
     uint8_t tmp;

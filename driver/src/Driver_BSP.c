@@ -248,8 +248,8 @@ void BSP_DBUS_Init(uint8_t *remoteBuffer) {
     DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
     DMA_Init(DMA1_Stream1, &DMA_InitStructure);
     DMA_Cmd(DMA1_Stream1, ENABLE);
-}
 #endif
+}
 
 /**
  * @brief USART初始化
