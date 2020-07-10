@@ -29,12 +29,13 @@
 #endif
 
 // Taking
-#define GO_ON GPIO_SetBits(GPIOA, GPIO_Pin_1)
-#define GO_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_1)
+#define LOCK_ON GPIO_SetBits(GPIOD, GPIO_Pin_12)
+#define LOCK_OFF GPIO_ResetBits(GPIOD, GPIO_Pin_12)
+#define LOCK_STATE GPIO_ReadOutputDataBit(GPIOD, GPIO_Pin_12)
 
-#define GET_ON GPIO_SetBits(GPIOA, GPIO_Pin_3)
-#define GET_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_3)
-#define GET_STATUS GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_3)
+#define GO_OUT GPIO_SetBits(GPIOD, GPIO_Pin_13)
+#define GO_BACK GPIO_ResetBits(GPIOD, GPIO_Pin_13)
+#define GO_STATE GPIO_ReadOutputDataBit(GPIOD, GPIO_Pin_13)
 
 // Rescue
 #define RESCUE_HOOK_DOWN GPIO_SetBits(GPIOI, GPIO_Pin_0)

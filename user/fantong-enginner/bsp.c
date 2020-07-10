@@ -17,23 +17,26 @@ void BSP_Rescue_Init(void) {
     GPIO_Init(GPIOI, &GPIO_InitStructure);
 }
 
-void BSP_Take_Init(void) {
+void BSP_LOCK_Init(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-    // Take
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_3;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_12;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-    // Capture
+    GPIO_Init(GPIOD, &GPIO_InitStructure);
+}
+
+void BSP_GO_Init(void) {
+    GPIO_InitTypeDef GPIO_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_1;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_13;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    GPIO_Init(GPIOD, &GPIO_InitStructure);
 }
 
 void BSP_Init(void) {
@@ -45,8 +48,9 @@ void BSP_Init(void) {
     BSP_Beep_Init();
     BSP_LED_Init();
     BSP_User_Power_Init();
-    BSP_Rescue_Init();
-    BSP_Take_Init();
+    // BSP_Rescue_Init();
+    BSP_LOCK_Init();
+    BSP_GO_Init();
 
     // USART
     // BSP_USART2_Init(9600, USART_IT_RXNE);
@@ -67,8 +71,8 @@ void BSP_Init(void) {
     BSP_DMA_Init(UART8_Rx, HostChannel.receiveBuf, Protocol_Buffer_Length);
 
     // snail 电机pwm输出
-    BSP_PWM_Set_Port(&PWM_Snail1, PWM_PD12);
-    BSP_PWM_Init(&PWM_Snail1, 180, 1250, TIM_OCPolarity_Low);
-    BSP_PWM_Set_Port(&PWM_Snail2, PWM_PD13);
-    BSP_PWM_Init(&PWM_Snail2, 180, 1250, TIM_OCPolarity_Low);
+    // BSP_PWM_Set_Port(&PWM_Snail1, PWM_PD12);
+    // BSP_PWM_Init(&PWM_Snail1, 180, 1250, TIM_OCPolarity_Low);
+    // BSP_PWM_Set_Port(&PWM_Snail2, PWM_PD13);
+    // BSP_PWM_Init(&PWM_Snail2, 180, 1250, TIM_OCPolarity_Low);
 }

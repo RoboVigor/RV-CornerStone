@@ -7,6 +7,12 @@
 #include "macro.h"
 
 void Handle_Init(void) {
+
+    // 通讯协议初始化
+    Protocol_Init(&JudgeChannel, &ProtocolData);
+    Protocol_Init(&HostChannel, &ProtocolData);
+    Protocol_Init(&UserChannel, &ProtocolData);
+
     if (Board_Id == 1) {
         // 底盘电机
         Motor_Init(&Motor_LF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
@@ -50,8 +56,14 @@ void Handle_Init(void) {
         Gyroscope_Set_Bias(&ImuData, 28, 30, 0);
     } else if (Board_Id == 2) {
         // 抓取电机
-        Motor_Init(&Motor_Fetch_X, FITCH_MOTOR_REDUCTION_RATE, 0, ENABLE);
+        Motor_Init(&Motor_Fetch_X, FITCH_MOTOR_REDUCTION_RATE, 1, ENABLE);
         Motor_Init(&Motor_Fetch_Left_Pitch, FITCH_MOTOR_REDUCTION_RATE, 1, ENABLE);
         Motor_Init(&Motor_Fetch_Right_Pitch, FITCH_MOTOR_REDUCTION_RATE, 1, ENABLE);
+        Can1_Device[ESC_ID(0x201)] = &Motor_Fetch_X;
+        Can1_Device[ESC_ID(0x202)] = &Motor_Fetch_Left_Pitch;
+        Can1_Device[ESC_ID(0x203)] = &Motor_Fetch_Right_Pitch;
+
+        // 陀螺仪设置静态误差
+        Gyroscope_Set_Bias(&ImuData, 28, 30, 0);
     }
 }
