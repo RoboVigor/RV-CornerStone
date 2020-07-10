@@ -142,12 +142,16 @@ void CAN1_RX0_IRQHandler(void) {
         Motor_Update(&Motor_Chassis_Right, position, speed);
         break;
 
-    case 0x205:
-        Motor_Update(&Motor_Stabilizer_Yaw, position, speed);
+    case 0x203:
+        Motor_Update(&Motor_Frict_L, position, speed);
+        break;
+
+    case 0x204:
+        Motor_Update(&Motor_Frict_R, position, speed);
         break;
 
     case 0x206:
-        Motor_Update(&Motor_Stabilizer_Pitch, position, speed);
+
         break;
 
     case 0x207:
@@ -179,11 +183,7 @@ void CAN2_RX0_IRQHandler(void) {
     speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
     // 安排数据
-    switch (CanRxData.StdId) {
-
-    default:
-        break;
-    }
+    switch (CanRxData.StdId) { default: }
 }
 
 // TIM2 高频计数器
