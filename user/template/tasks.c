@@ -22,7 +22,7 @@ void Task_Chassis(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     // 运动模式
-    int   mode           = 2; // 底盘运动模式,1直线,2转弯
+    int   mode           = 1; // 底盘运动模式,1直线,2转弯
     int   lastMode       = 2; // 上一次的运动模式
     float yawAngleTarget = 0; // 目标值
     float yawAngle, yawSpeed; // 反馈值
@@ -72,7 +72,7 @@ void Task_Chassis(void *Parameters) {
         Chassis_Calculate_Rotor_Speed(&ChassisData);
 
         // 设置转子速度上限 (rad/s)
-        Chassis_Limit_Rotor_Speed(&ChassisData, 700);
+        Chassis_Limit_Rotor_Speed(&ChassisData, 300);
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
@@ -81,7 +81,10 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调(安全起见默认注释此行)
-        // Can_Send(CAN1, 0x200, PID_LFCM.output, PID_LBCM.output, PID_RBCM.output, PID_RFCM.output);
+        Motor_LF.input = PID_LFCM.output;
+        Motor_LB.input = PID_LBCM.output;
+        Motor_RB.input = PID_RBCM.output;
+        Motor_RF.input = PID_RFCM.output;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -361,7 +364,7 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
 
     // 运动控制任务
-    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
 
     // DMA发送任务
     // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
@@ -369,7 +372,7 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
 
     // Can发送任务
-    // xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

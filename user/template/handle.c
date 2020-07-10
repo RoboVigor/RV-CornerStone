@@ -8,10 +8,10 @@
 
 void Handle_Init(void) {
     // 底盘电机
-    Motor_Init(&Motor_LF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
-    Motor_Init(&Motor_LB, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
-    Motor_Init(&Motor_RB, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
-    Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
+    Motor_Init(&Motor_LF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
+    Motor_Init(&Motor_LB, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
+    Motor_Init(&Motor_RB, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
+    Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
 
     // CAN外设
     Can1_Device[ESC_ID(0x201)] = &Motor_LF;
@@ -20,7 +20,7 @@ void Handle_Init(void) {
     Can1_Device[ESC_ID(0x204)] = &Motor_RF;
 
     // 陀螺仪设置静态误差
-    Gyroscope_Set_Bias(&ImuData, 2, 9, -6);
+    Gyroscope_Set_Bias(&ImuData, -4, 3, 1);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);

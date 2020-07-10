@@ -1,22 +1,21 @@
 #include "Driver_Motor.h"
+#include "macro.h"
+
+#define PI 3.1415926
 
 void Motor_Init(volatile Motor_Type *motor, float reductionRate, int8_t angleEnabled, int8_t inputEnabled) {
     motor->positionBias  = -1; // -1为未赋值状态
     motor->reductionRate = reductionRate;
     motor->angleEnabled  = angleEnabled;
     motor->inputEnabled  = inputEnabled;
-    motor->position      = 0;
-    motor->lastPosition  = 0;
-    motor->positionDiff  = 0;
-    motor->speed         = 0;
-    motor->round         = 0;
-    motor->angle         = 0;
-    motor->angleBias     = 0;
-    motor->lastAngle     = 0;
-    motor->input         = 0;
 }
 
-void Motor_Update(volatile Motor_Type *motor, int16_t position, int16_t speed) {
+void Motor_Update(volatile Motor_Type *motor, uint8_t data[8]) {
+    int16_t position      = data[0] << 8 | data[1];
+    int16_t speed         = data[2] << 8 | data[3];
+    int16_t actualCurrent = data[4] << 8 | data[5];
+    int16_t temperature   = data[6];
+
     // 更新转子初始位置
     if (motor->positionBias == -1) {
         motor->positionBias = position;
@@ -25,9 +24,12 @@ void Motor_Update(volatile Motor_Type *motor, int16_t position, int16_t speed) {
     }
 
     // 更新转子信息
-    motor->lastPosition = motor->position;
-    motor->position     = position;
-    motor->speed        = speed;
+    motor->lastPosition  = motor->position;
+    motor->position      = position;
+    motor->speed         = speed;
+    motor->actualCurrent = (actualCurrent / 16384.0) * 20;
+    motor->torque        = MAX(24 * motor->actualCurrent, 0) / (speed * PI / 30.0 / motor->reductionRate + 2);
+    motor->temperature   = temperature;
 
     //如果启用了连续角度计算
     if (motor->angleEnabled) {
