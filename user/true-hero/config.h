@@ -10,18 +10,18 @@
 // #define SERIAL_DEBUG_PORT USART6 // 串口调试端口
 
 // 运动参数
-#define GIMBAL_PITCH_MIN -45
-#define GIMBAL_PITCH_MAX 10
+#define GIMBAL_PITCH_MIN 0  //-14
+#define GIMBAL_PITCH_MAX 26 // 14
 
 // 陀螺仪
 #define BOARD_FRONT_IS_UP 1                     // 板子正面朝上
 #define BOARD_SHORT_SIDE_IS_PARALLEL_TO_PITCH 1 // 板子短边朝下
 #define GYROSCOPE_START_UP_DELAY_ENABLED 1      // 开机解算延迟开关
-#define GYROSCOPE_START_UP_DELAY 300            // 开机解算延迟量
+#define GYROSCOPE_START_UP_DELAY 150            // 开机解算延迟量  300
 #define GYROSCOPE_YAW_FILTER_THRESHOLD 0.006f   // 零飘修正阈值
-#define IMU_GX_BIAS -59.71                      // GX静态误差,通过平放主控板采样得到-61.4
-#define IMU_GY_BIAS 21.20                       // GY静态误差22
-#define IMU_GZ_BIAS 13.2                        // GZ静态误差13.5
+#define IMU_GX_BIAS 3.28                        // GX静态误差,通过平放主控板采样得到  -5.3  -3.61
+#define IMU_GY_BIAS 34.65                       // GY静态误差33.2 30.57
+#define IMU_GZ_BIAS -11.88                      // GZ静态误差-1.45 -5.11 -17.36
 #define GYROSCOPE_LSB 16.384f                   // 陀螺仪敏感度 2^16/4000
 #define ACCELERATE_LSB 4096.0f                  // 加速度计敏感度 2^16/16
 

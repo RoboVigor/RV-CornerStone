@@ -597,6 +597,11 @@
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Fsm.c</FilePath>
             </File>
+            <File>
+              <FileName>Driver_OLED.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_OLED.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -12,6 +12,15 @@ void Handle_Init(void) {
     Motor_Init(&Motor_RB, CHASSIS_MOTOR_REDUCTION_RATE, 0);
     Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, 0);
 
+    // 云台电机
+    Motor_Init(&Motor_Yaw, 1.0, 1);   // 顺时针为正电流
+    Motor_Init(&Motor_Pitch, 1.0, 1); // 逆时针为正电流
+    Motor_Init(&Motor_Stir, 1.0, 1);  //拨弹
+    Motor_Yaw.positionBias   = 1354;
+    Motor_Yaw.position       = 1354;
+    Motor_Pitch.positionBias = 4766;
+    Motor_Pitch.position     = 4766;
+
     //抬升电机
     Motor_Init(&Motor_Raise_Left, 19.2f, 1);
     Motor_Init(&Motor_Raise_Right, 19.2f, 1);
@@ -28,6 +37,7 @@ void Handle_Init(void) {
     Magic_Init(&magic, 0);
 
     // 通讯协议初始化
-    Protocol_Init(&Judge);
-    Protocol_Init(&Ps);
+    Protocol_Init(&JudgeChannel, &ProtocolData);
+    Protocol_Init(&HostChannel, &ProtocolData);
+    Protocol_Init(&UserChannel, &ProtocolData);
 }

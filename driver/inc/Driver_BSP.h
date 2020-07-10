@@ -7,6 +7,7 @@
 #define __DRIVER_BSP_H
 
 #include "stm32f4xx.h"
+#include "stm32f4xx_adc.h"
 #include "beep.h"
 
 #define RCC_APB1 1
@@ -139,5 +140,12 @@ void LED_Run_Horse_XP();
 // BEEP
 void    BSP_Beep_Init(void);
 uint8_t KTV_Play(Song_Type song);
+
+// OLED
+void BSP_OLED_init(void);
+
+// ADC
+void BSP_ADC_Init(ADC_TypeDef *, uint16_t, uint32_t, uint32_t, uint32_t, uint16_t, uint16_t);
+void BSP_ADC1_Init(uint32_t ADC_NbrOfConversion, uint32_t ADC_Channel, uint16_t interruptFlag);
 
 #endif

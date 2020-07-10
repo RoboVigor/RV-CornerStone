@@ -9,6 +9,7 @@
 #include "rtos.h"
 #include "vegmath.h"
 #include "config.h"
+#include "oled.h"
 #include "Driver_BSP.h"
 #include "Driver_Filter.h"
 #include "Driver_Magic.h"
@@ -53,7 +54,8 @@ __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type         PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
 // 通讯协议
-__HANDLE_EXT Protocol_Type Judge, Ps, Board;
+__HANDLE_EXT Protocol_Data_Type    ProtocolData;
+__HANDLE_EXT Protocol_Channel_Type JudgeChannel, HostChannel, UserChannel;
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test;

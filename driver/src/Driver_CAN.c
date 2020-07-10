@@ -40,15 +40,15 @@ void Can_Send(CAN_TypeDef *CANx, int16_t id, int16_t i_201, int16_t i_202, int16
     }
 }
 
-void Can_Send_Msg(CAN_TypeDef *CANx, int16_t id, uint8_t sendBuf[128], uint16_t length) {
+void Can_Send_Msg(CAN_TypeDef *CANx, int16_t id, uint8_t *sendBuf, uint16_t length) {
     int data[4];
     int i;
 
     for (i = 0; i < length / 8 + 1; i++) {
-        data[0] = sendBuf[8 * i] << 8 | sendBuf[8 * i + 1];
-        data[1] = sendBuf[8 * i + 2] << 8 | sendBuf[8 * i + 3];
-        data[2] = sendBuf[8 * i + 4] << 8 | sendBuf[8 * i + 5];
-        data[3] = sendBuf[8 * i + 6] << 8 | sendBuf[8 * i + 7];
+        data[0] = *(sendBuf + 8 * i) << 8 | *(sendBuf + 8 * i + 1);
+        data[1] = *(sendBuf + 8 * i + 2) << 8 | *(sendBuf + 8 * i + 3);
+        data[2] = *(sendBuf + 8 * i + 4) << 8 | *(sendBuf + 8 * i + 5);
+        data[3] = *(sendBuf + 8 * i + 6) << 8 | *(sendBuf + 8 * i + 7);
         Can_Send(CANx, id, data[0], data[1], data[2], data[3]);
         // delay_ms(100); //调试时用，防止发送太快，串口读取不到
     }
