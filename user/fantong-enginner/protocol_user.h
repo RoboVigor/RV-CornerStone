@@ -21,16 +21,32 @@
 typedef struct {
     union {
         struct {
+            uint8_t  fetchMode : 1;
+            uint8_t  milkMode : 1;
+            uint32_t data1 : 30;
+            float    data2;
+            float    data3;
+            float    data4;
+        };
+        struct {
+            uint8_t data[PROTOCOL_PACK_LENGTH_0501];
+        };
+    };
+} board_fetch_data_t;
+
+typedef struct {
+    union {
+        struct {
             float data1;
             float data2;
             float data3;
             float data4;
         };
         struct {
-            uint8_t data[PROTOCOL_PACK_LENGTH_0501];
+            uint8_t data[PROTOCOL_PACK_LENGTH_0502];
         };
     };
-} board_interactive_data_t;
+} board_test_data_t;
 
 typedef struct {
     union {
@@ -76,8 +92,8 @@ typedef struct {
 typedef struct {
     union {
         struct {
-            board_interactive_data_t boardAlpha;         // 板间通讯
-            board_interactive_data_t boardBeta;          // 板间通讯
+            board_fetch_data_t       fetch;              // 抓取
+            board_test_data_t        test;               // 测试
             robot_interactive_data_t robotCommunication; // 车间通讯
         };
         struct {

@@ -9,6 +9,7 @@
 #include "rtos.h"
 #include "vegmath.h"
 #include "config.h"
+#include "oled.h"
 #include "Driver_BSP.h"
 #include "Driver_Filter.h"
 #include "Driver_Magic.h"
@@ -27,6 +28,12 @@
 #else
 #define __HANDLE_EXT extern
 #endif
+
+// Stone ID
+__HANDLE_EXT uint8_t Board_Id, Robot_Id;
+
+// 功能开关
+__HANDLE_EXT uint8_t SafetyMode;
 
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
@@ -58,6 +65,9 @@ __HANDLE_EXT Protocol_Channel_Type JudgeChannel, HostChannel, UserChannel;
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test;
+
+// CAN
+__HANDLE_EXT Motor_Type *Can1_Device[12], *Can2_Device[12];
 
 /**
  * @brief 初始化结构体

@@ -38,6 +38,9 @@
 #define LASER_TOGGLE GPIO_ToggleBits(GPIOC, GPIO_Pin_8) // 激光闪烁
 #endif
 
+// 好看
+#define ESC_ID(x) (x - 0x201)
+
 /**
  * @brief 限流
  * @note

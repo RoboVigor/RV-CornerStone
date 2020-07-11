@@ -7,6 +7,7 @@
 #define __DRIVER_BSP_H
 
 #include "stm32f4xx.h"
+#include "stm32f4xx_adc.h"
 #include "beep.h"
 
 #define RCC_APB1 1
@@ -38,6 +39,26 @@
 #define PWM_PE14 0x1101410e
 #define PWM_PC6 0x21431086
 
+#define ADC_Channel0 0x00000001
+#define ADC_Channel1 0x00000002
+#define ADC_Channel2 0x00000004
+#define ADC_Channel3 0x00000008
+#define ADC_Channel4 0x00000010
+#define ADC_Channel5 0x00000020
+#define ADC_Channel6 0x00000040
+#define ADC_Channel7 0x00000080
+#define ADC_Channel8 0x00000100
+#define ADC_Channel9 0x00000200
+#define ADC_Channel10 0x00000400
+#define ADC_Channel11 0x00000800
+#define ADC_Channel12 0x00001000
+#define ADC_Channel13 0x00002000
+#define ADC_Channel14 0x00004000
+#define ADC_Channel15 0x00008000
+#define ADC_Channel16 0x00010000
+#define ADC_Channel17 0x00020000
+#define ADC_Channel18 0x00040000
+
 typedef struct {
     uint32_t      RCC_APBxPeriph_TIMx;
     uint32_t      TIMx_BASE;
@@ -67,6 +88,9 @@ typedef struct {
 } DMA_Type;
 
 typedef enum { USART1_Tx, USART1_Rx, USART3_Tx, USART3_Rx, USART6_Tx, USART6_Rx, UART7_Tx, UART7_Rx, UART8_Tx, UART8_Rx } dma_table_index_e;
+
+// Stone ID
+void BSP_Stone_Id_Init(uint8_t *Board_Id, uint8_t *Robot_Id);
 
 // SERVICE
 void BSP_CAN_Init(void);
@@ -115,5 +139,12 @@ void LED_Run_Rainbow_Ball();
 // BEEP
 void    BSP_Beep_Init(void);
 uint8_t KTV_Play(Song_Type song);
+
+// OLED
+void BSP_OLED_init(void);
+
+// ADC
+void BSP_ADC_Init(ADC_TypeDef *, uint16_t, uint32_t, uint32_t, uint32_t, uint16_t, uint16_t);
+void BSP_ADC1_Init(uint32_t ADC_NbrOfConversion, uint32_t ADC_Channel, uint16_t interruptFlag);
 
 #endif

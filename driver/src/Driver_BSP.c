@@ -708,6 +708,63 @@ void BSP_TIM2_Init(void) {
     NVIC_Init(&NVIC_InitStructure);
     TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
     TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+
+void BSP_Stone_Id_Init(uint8_t *Board_Id, uint8_t *Robot_Id) {
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOF, &GPIO_InitStructure);
+
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_1;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOF, &GPIO_InitStructure);
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_4 | GPIO_Pin_12;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOE, &GPIO_InitStructure);
+
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_5 | GPIO_Pin_6;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOE, &GPIO_InitStructure);
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_2;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+    GPIO_SetBits(GPIOF, GPIO_Pin_0);
+    GPIO_SetBits(GPIOE, GPIO_Pin_4 | GPIO_Pin_12);
+    GPIO_SetBits(GPIOB, GPIO_Pin_0);
+
+    *Board_Id = GPIO_ReadInputDataBit(GPIOF, GPIO_Pin_1) << 1 | GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_5);
+    *Robot_Id = GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6) << 1 | GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_2);
+
 }
 
 DMA_Type DMA_Table[10] = {{USART1_BASE, Tx, DMA2, DMA2_Stream7, DMA2_Stream7_IRQn, DMA_Channel_4, DMA_IT_TCIF7, DMA_FLAG_TCIF7, DMA_FLAG_HTIF7},
@@ -1127,4 +1184,129 @@ void BSP_I2C2_Init(void) {
 
 void BSP_Button_Init(void) {
     //占坑
+}
+
+void BSP_OLED_Init(void) {
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE); //使能时钟
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;         //复用功能 SPI
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_3 | GPIO_Pin_4; // GPIOB4 GPIOB4
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE); //使能时钟
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;         //复用功能 SPI
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_7; // GPIOA7
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_SPI1); //打开引脚的复用功能
+    GPIO_PinAFConfig(GPIOB, GPIO_PinSource3, GPIO_AF_SPI1);
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE); //使能时钟
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;        //! 功能不复用 RST和DC应当为输出模式
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_9 | GPIO_Pin_10; // GPIOB9 GPIOB10
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE); //使能时钟
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AIN;        //虚拟输入模式
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_6; // GPIOA6
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    SPI_InitTypeDef SPI_InitStructure;
+
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE); //时钟
+    SPI_Cmd(SPI1, DISABLE);
+
+    SPI_InitStructure.SPI_Direction         = SPI_Direction_2Lines_FullDuplex; //全双工模式
+    SPI_InitStructure.SPI_Mode              = SPI_Mode_Master;                 //作为主机使用
+    SPI_InitStructure.SPI_DataSize          = SPI_DataSize_8b;                 //数据长度8
+    SPI_InitStructure.SPI_CPOL              = SPI_CPOL_Low;
+    SPI_InitStructure.SPI_CPHA              = SPI_CPHA_1Edge;
+    SPI_InitStructure.SPI_NSS               = SPI_NSS_Soft; //软件设置NSS功能
+    SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;
+    SPI_InitStructure.SPI_FirstBit          = SPI_FirstBit_MSB;
+
+    SPI_InitStructure.SPI_CRCPolynomial = 10;
+
+    SPI_Init(SPI1, &SPI_InitStructure);
+    SPI_TIModeCmd(SPI1, DISABLE);
+    SPI_CalculateCRC(SPI1, DISABLE);
+    SPI_Cmd(SPI1, ENABLE);
+    SPI_TIModeCmd(SPI1, DISABLE);
+    SPI_CalculateCRC(SPI1, DISABLE);
+}
+
+void BSP_ADC_Init(ADC_TypeDef *ADCx,
+                  uint16_t     RCC_APBx,
+                  uint32_t     RCC_APBxPeriph_ADCx,
+                  uint32_t     ADC_NbrOfConversion,
+                  uint32_t     ADC_Channel,
+                  uint16_t     priority,
+                  uint16_t     interruptFlag) {
+    uint8_t               ADC_Channelx;
+    uint8_t               Rank = 1;
+    ADC_CommonInitTypeDef ADC_CommonInitStructure;
+    ADC_InitTypeDef       ADC_InitStructure;
+
+    if (RCC_APBx == RCC_APB1)
+        RCC_APB1PeriphClockCmd(RCC_APBxPeriph_ADCx, ENABLE); // 使能时钟
+    else if (RCC_APBx == RCC_APB2)
+        RCC_APB2PeriphClockCmd(RCC_APBxPeriph_ADCx, ENABLE); // 使能时钟
+
+    // ADC通用配置
+    ADC_CommonInitStructure.ADC_Mode             = ADC_Mode_Independent;          // 独立模式
+    ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_10Cycles; // 两个采样阶段之间的延迟x个时钟
+    ADC_CommonInitStructure.ADC_DMAAccessMode    = ADC_DMAAccessMode_Disabled;    // DMA使能（DMA传输下要设置使能）
+    ADC_CommonInitStructure.ADC_Prescaler        = ADC_Prescaler_Div4;            // 预分频4分频
+    ADC_CommonInit(&ADC_CommonInitStructure);
+
+    // ADCx配置
+    ADC_InitStructure.ADC_DataAlign          = ADC_DataAlign_Right;           // 右对齐
+    ADC_InitStructure.ADC_ExternalTrigConv   = ADC_ExternalTrigConvEdge_None; // 使用软件触发（暂定）
+    ADC_InitStructure.ADC_NbrOfConversion    = ADC_NbrOfConversion;           // 转换数量
+    ADC_InitStructure.ADC_Resolution         = ADC_Resolution_12b;            // 12位模式
+    ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;                        // 开启连续转换（开启DMA传输要设置连续转换）
+    ADC_InitStructure.ADC_ScanConvMode       = DISABLE;                       // 扫描（开启DMA传输要设置扫描）
+    ADC_Init(ADCx, &ADC_InitStructure);
+
+    for (ADC_Channelx = ADC_Channel_0; ADC_Channelx <= ADC_Channel_18; ADC_Channelx++) {
+        if (ADC_Channel >> ADC_Channelx & 0x01 == 1) {
+            ADC_RegularChannelConfig(ADCx, ADC_Channelx, Rank, ADC_SampleTime_144Cycles);
+            Rank++;
+        }
+    }
+
+    ADC_Cmd(ADCx, ENABLE);
+    // NVIC
+    // if (interruptFlag != 0) {
+    //     NVIC_InitTypeDef NVIC_InitStructure;
+    //     NVIC_InitStructure.NVIC_IRQChannel                   = ADC_IRQn; // 串口中断通道
+    //     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = priority; // 抢占优先级
+    //     NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;        // 子优先级
+    //     NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;   // IRQ通道使能
+    //     NVIC_Init(&NVIC_InitStructure);                                  // 根据指定的参数初始化VIC寄存器
+    // }
+}
+
+/**
+ * @brief ADC1初始化
+ * @param ADC_NbrOfConversion 转换数量
+ * @param ADC_Channel 通道选择
+ * @param interruptFlag 有无中断
+ */
+void BSP_ADC1_Init(uint32_t ADC_NbrOfConversion, uint32_t ADC_Channel, uint16_t interruptFlag) {
+    BSP_ADC_Init(ADC1, RCC_APB2, RCC_APB2Periph_ADC1, ADC_NbrOfConversion, ADC_Channel, 2, interruptFlag);
+    ADC_SoftwareStartConv(ADC1);
 }
