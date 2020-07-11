@@ -48,7 +48,7 @@ __HANDLE_EXT uint8_t Board_Id, Robot_Id;
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 功能开关
-__HANDLE_EXT PsAimEnabled, ChassisMode, FetchMode, RaiseMode, RescueMode;
+__HANDLE_EXT uint8_t PsAimEnabled, ChassisMode, FetchMode, RaiseMode, RescueMode;
 
 // 标志们
 __HANDLE_EXT uint8_t Rotate1Finish, Rotate2Finish, Rotate3Finish, Rotate4Finish, AllFinish, EatFinish, GetFinish;
@@ -67,19 +67,19 @@ __HANDLE_EXT enum FetchStateEnum {
 };
 
 // 功能开关
-__HANDLE_EXT uint8_t FrictEnabled, LaserEnabled, StirEnabled, PsEnabled, AutoMode, SafetyMode;
+__HANDLE_EXT uint8_t FrictEnabled, LaserEnabled, StirEnabled, PsEnabled, AutoMode, MilkMode, SafetyMode;
 
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
 
-// 摩擦轮
-__HANDLE_EXT int Snail_State;
-
-//平台
+//抓取
 __HANDLE_EXT Motor_Type Motor_Fetch_X, Motor_Fetch_Left_Pitch, Motor_Fetch_Right_Pitch;
+__HANDLE_EXT PID_Type   PID_Fetch_X;
+__HANDLE_EXT PID_Type   PID_Fetch_Pitch_Left, PID_Fetch_Pitch_Right;
 
 //抬升
 __HANDLE_EXT Motor_Type Motor_Raise_Left, Motor_Raise_Right;
+__HANDLE_EXT PID_Type   PID_Raise_Left_Angle, PID_Raise_Left_Speed, PID_Raise_Right_Angle, PID_Raise_Right_Speed;
 
 // 遥控器
 __HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
@@ -104,17 +104,6 @@ __HANDLE_EXT Motor_Type Motor_Yaw, Motor_Pitch;
 __HANDLE_EXT PID_Type   PID_Cloud_YawAngle, PID_Cloud_YawSpeed, PID_Cloud_PitchAngle, PID_Cloud_PitchSpeed;
 __HANDLE_EXT PID_Type   PID_Follow_Angle, PID_Follow_Speed;
 
-// 抓取
-__HANDLE_EXT PID_Type PID_Fetch_X;
-__HANDLE_EXT PID_Type PID_Fetch_Pitch_Left, PID_Fetch_Pitch_Right;
-
-// 上升
-__HANDLE_EXT PID_Type PID_Raise_Left_Angle, PID_Raise_Left_Speed, PID_Raise_Right_Angle, PID_Raise_Right_Speed;
-
-// 临时用
-__HANDLE_EXT int16_t can1_data[12];
-__HANDLE_EXT int16_t can2_data[12];
-
 // 通讯协议
 __HANDLE_EXT Protocol_Data_Type    ProtocolData;
 __HANDLE_EXT Protocol_Channel_Type JudgeChannel, HostChannel, UserChannel;
@@ -123,8 +112,13 @@ __HANDLE_EXT Protocol_Channel_Type JudgeChannel, HostChannel, UserChannel;
 __HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;
 
 //发射机构
+__HANDLE_EXT int        Snail_State;
 __HANDLE_EXT Motor_Type Motor_Stir, Motor_FL, Motor_FR;                     // 左/右 摩擦轮 拨弹轮 电机
 __HANDLE_EXT PID_Type   PID_StirSpeed, PID_StirAngle, PID_FireL, PID_FireR; // 拨弹轮 速度/角度 PID
+
+// 补给机构
+__HANDLE_EXT Motor_Type Motor_Milk;
+__HANDLE_EXT PID_Type   PID_Milk_Angle, PID_Milk_Speed;
 
 // 功能开关
 __HANDLE_EXT uint8_t ControlMode, SafetyMode;

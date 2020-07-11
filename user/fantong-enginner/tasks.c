@@ -11,17 +11,19 @@ void Task_Control(void *Parameters) {
     while (1) {
         if (Board_Id == 1) {
             ChassisMode  = LEFT_SWITCH_TOP;
-            RaiseMode    = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
-            FetchMode    = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP;
             SafetyMode   = RIGHT_SWITCH_BOTTOM && LEFT_SWITCH_BOTTOM;
             FrictEnabled = LEFT_SWITCH_BOTTOM && (RIGHT_SWITCH_TOP || RIGHT_SWITCH_MIDDLE);
             StirEnabled  = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_TOP;
+            FetchMode    = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
+            MilkMode     = LEFT_SWITCH_TOP && RIGHT_SWITCH_BOTTOM;
+            RaiseMode    = (LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP) ? 1 : ((LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_BOTTOM) ? 0 : RaiseMode);
             // RescueMode   = (LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_TOP) ? 1 : ((LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM) ? 0 : RescueMode);
             // PsAimEnabled = LEFT_SWITCH_TOP && (RIGHT_SWITCH_TOP || RIGHT_SWITCH_MIDDLE);
             // 调试视觉用
             // PsAimEnabled   = (LEFT_SWITCH_TOP) && (remoteData.switchRight != 3);
         } else if (Board_Id == 2) {
-            FetchMode = LEFT_SWITCH_TOP;
+            FetchMode = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
+            MilkMode  = LEFT_SWITCH_TOP && RIGHT_SWITCH_BOTTOM;
         }
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -40,9 +42,9 @@ void Task_Board_Communication(void *Parameters) {
 
         // 板间通信
         if (Board_Id == 1) {
-            id                                    = 0x501;
-            ProtocolData.user.fetch.fetchMode     = FetchMode;
-            ProtocolData.user.fetch.chassisRaised = FantongRaised;
+            id                                = 0x501;
+            ProtocolData.user.fetch.fetchMode = FetchMode;
+            ProtocolData.user.fetch.milkMode  = MilkMode;
         } else if (Board_Id == 2) {
             id                           = 0x502;
             ProtocolData.user.test.data1 = 1.23;
@@ -336,7 +338,7 @@ void Task_Fetch(void *Parameters) {
     // 初始化PID
     PID_Init(&PID_Fetch_X, 30, 0.3, 40, 6000, 2000);
     PID_Init(&PID_Fetch_Pitch_Left, 350, 0, 5000, 12000, 1500);
-    PID_Init(&PID_Fetch_Pitch_Left, 350, 0, 5000, 12000, 1500);
+    PID_Init(&PID_Fetch_Pitch_Right, 350, 0, 5000, 12000, 1500);
 
     // 初始化状态
     FetchState = 0;
@@ -379,7 +381,7 @@ void Task_Fetch(void *Parameters) {
                     pitchAngleTargetStop          = 8;
                 }
                 // 跳转:爪子和平台已归位
-                if (RotateDone && FetchMode) {
+                if (RotateDone) {
                     FetchState++;
                     continue;
                 }
@@ -405,10 +407,10 @@ void Task_Fetch(void *Parameters) {
                 }
 
                 // 手动模式:开始抓取
-                // if (RIGHT_SWITCH_TOP) {
-                //     FetchState++;
-                //     continue;
-                // }
+                if (ProtocolData.user.fetch.fetchMode) {
+                    FetchState++;
+                    continue;
+                }
                 break;
             } else if (FetchState == FetchRotateOut) {
                 /* 转出去 */
@@ -417,7 +419,7 @@ void Task_Fetch(void *Parameters) {
                     // 转爪子
                     pitchAngleTargetProgress      = 0;
                     pitchAngleTargetProgressDelta = 0.01;
-                    pitchAngleTargetStart         = pitchLeftAngle;
+                    pitchAngleTargetStart         = pitchRightAngle;
                     pitchAngleTargetStop          = 190;
                     RotateDone                    = 0;
                 }
@@ -446,14 +448,11 @@ void Task_Fetch(void *Parameters) {
                 if (lastFetchState != FetchRotateIn) {
                     lastFetchState = FetchRotateIn;
                     // 转爪子
-                    pitchAngleTargetProgress      = 0.2;
-                    pitchAngleTargetProgressDelta = 0;
-                    pitchAngleTargetStart         = pitchLeftAngle;
+                    pitchAngleTargetProgress      = 0;
+                    pitchAngleTargetProgressDelta = 0.002;
+                    pitchAngleTargetStart         = pitchRightAngle;
                     pitchAngleTargetStop          = 30;
                     RotateDone                    = 0;
-                }
-                if (pitchLeftAngle < 180) {
-                    pitchAngleTargetProgressDelta = 0.002;
                 }
                 // 跳转:爪子到位
                 if (RotateDone) {
@@ -480,22 +479,22 @@ void Task_Fetch(void *Parameters) {
                 if (lastFetchState != FetchThrow) {
                     lastFetchState = FetchThrow;
                     // 转爪子
-                    pitchAngleTargetProgress      = 1;
-                    pitchAngleTargetProgressDelta = 0;
-                    pitchAngleTargetStart         = pitchLeftAngle;
-                    pitchAngleTargetStop          = 180;
+                    pitchAngleTargetProgress      = 0;
+                    pitchAngleTargetProgressDelta = 0.1;
+                    pitchAngleTargetStart         = pitchRightAngle;
+                    pitchAngleTargetStop          = 160;
                     RotateDone                    = 0;
-                    PID_Fetch_Pitch_Left.p        = 1500;
-                    PID_Fetch_Pitch_Left.d        = 8000;
+                    // PID_Fetch_Pitch_Left.p        = 1500;
+                    // PID_Fetch_Pitch_Left.d        = 8000;
                 }
                 // 松开爪子
-                if (pitchLeftAngle >= 50) {
+                if (pitchRightAngle >= 20) {
                     LOCK_OFF;
-                    PID_Fetch_Pitch_Left.p = 350;
-                    PID_Fetch_Pitch_Left.d = 3000;
+                    // PID_Fetch_Pitch_Left.p = 350;
+                    // PID_Fetch_Pitch_Left.d = 3000;
                 }
                 // 跳转:爪子到位
-                if (pitchLeftAngle >= 50 && RotateDone) {
+                if (pitchRightAngle >= 50 && RotateDone) {
                     FetchState++;
                     continue;
                 }
@@ -507,7 +506,7 @@ void Task_Fetch(void *Parameters) {
                     // 转爪子
                     pitchAngleTargetProgress      = 0;
                     pitchAngleTargetProgressDelta = 0.1;
-                    pitchAngleTargetStart         = pitchLeftAngle;
+                    pitchAngleTargetStart         = pitchRightAngle;
                     pitchAngleTargetStop          = 20;
                     RotateDone                    = 0;
                 }
@@ -535,25 +534,25 @@ void Task_Fetch(void *Parameters) {
         // pitchAngleTarget = 20 + remoteData.ry / 6.0;
 
         // 测试爪子
-        // if (remoteData.ry > 50) {
-        //     pitchAngleTarget = 140;
-        // } else if (remoteData.ry < 50) {
-        //     pitchAngleTarget = 40;
+        // if (remoteData.rx > 50) {
+        //     pitchAngleTarget = 170;
+        // } else if (remoteData.rx < 50) {
+        //     pitchAngleTarget = 20;
         // }
 
-        //测试GO
+        // //测试GO
         // if (remoteData.ry > 50) {
         //     GO_OUT;
-        // } else if (remoteData.ry < 50) {
+        // } else if (remoteData.ry < -50) {
         //     GO_BACK;
         // }
 
-        //测试LOCK
-        if (remoteData.ry > 50) {
-            LOCK_ON;
-        } else if (remoteData.ry < 50) {
-            LOCK_OFF;
-        }
+        // //测试LOCK
+        // if (remoteData.ly > 50) {
+        //     LOCK_ON;
+        // } else if (remoteData.ly < -50) {
+        //     LOCK_OFF;
+        // }
 
         // PID_Fetch_Pitch_Left.d  = CHOOSER(3000, 4000, 5000);
         // PID_Fetch_Pitch_Right.d = PID_Fetch_Pitch_Left.d;
@@ -571,17 +570,56 @@ void Task_Fetch(void *Parameters) {
         Motor_Fetch_Left_Pitch.input  = PID_Fetch_Pitch_Left.output;
         Motor_Fetch_Right_Pitch.input = PID_Fetch_Pitch_Right.output;
 
-        DebugData.debug1 = pitchAngleTarget;
-        DebugData.debug2 = -1 * pitchLeftAngle;
-        DebugData.debug3 = pitchLeftAngle;
-        DebugData.debug4 = -1 * pitchRightAngle;
-        DebugData.debug7 = Motor_Fetch_Left_Pitch.angle;
-        DebugData.debug8 = Motor_Fetch_Right_Pitch.angle;
-
         // 更新过去值
         lastPitchLeftAngle = pitchLeftAngle;
 
         // 更新频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+
+    vTaskDelete(NULL);
+}
+
+void Task_Milk(void *Parameters) {
+    // 任务
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.005;               // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+    TickType_t timer        = xTaskGetTickCount();
+
+    // 控制
+    uint8_t motorInit  = 0;
+    int16_t milkTarget = 0;
+
+    // 初始化PID
+    PID_Init(&PID_Milk_Angle, 7, 0, 0, 4000, 0);
+    PID_Init(&PID_Milk_Speed, 3, 0, 0, 4000, 0);
+
+    while (1) {
+
+        if (!motorInit) {
+            Motor_Milk.input = 1000;
+            if (Motor_Milk.torque > 10) {
+                motorInit               = 1;
+                Motor_Milk.round        = 0;
+                Motor_Milk.positionBias = Motor_Milk.position;
+            }
+            continue;
+        }
+        milkTarget = ProtocolData.user.fetch.milkMode ? 0 : -185;
+
+        PID_Calculate(&PID_Milk_Angle, milkTarget, Motor_Milk.angle);
+        PID_Calculate(&PID_Milk_Speed, PID_Milk_Angle.output, Motor_Milk.speed * RPM2RPS);
+        Motor_Milk.input = PID_Milk_Speed.output;
+
+        // 更新频率
+        DebugData.debug1 = Motor_Milk.angle;
+        DebugData.debug2 = Motor_Milk.speed;
+        DebugData.debug3 = Motor_Milk.torque * 1000;
+        DebugData.debug4 = motorInit;
+        DebugData.debug5 = PID_Milk_Angle.feedback;
+        DebugData.debug6 = PID_Milk_Angle.target;
+
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
 
@@ -637,13 +675,8 @@ void Task_Raise(void *Parameter) {
         Motor_Raise_Right.input = PID_Raise_Right_Speed.output;
         Motor_Raise_Left.input  = PID_Raise_Left_Speed.output;
 
-        // DebugData.debug2 = Motor_Raise_Left.angle;
-        // DebugData.debug3 = -Motor_Raise_Right.angle;
-
-        // DebugData.debug4 = Motor_Raise_Left.speed;
-        // DebugData.debug5 = PID_Raise_Left_Angle.output;
-
-        // DebugData.debug6 = Motor_Pitch.angle;
+        DebugData.debug1 = remoteData.switchLeft;
+        DebugData.debug2 = remoteData.switchRight;
 
         // 更新抬升状态量
         FantongRaised = ABS(PID_Raise_Right_Angle.error) < 5 && RaiseMode;
@@ -904,7 +937,7 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
-    if (Board_Id == 2) {
+    if (Board_Id == 1) {
         while (!remoteData.state) {
         }
     }
@@ -921,12 +954,13 @@ void Task_Sys_Init(void *Parameters) {
     if (Board_Id == 1) {
         xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
         xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-        // xTaskCreate(Task_Raise, "Task_Raise", 400, NULL, 5, NULL); // 抬升
+        xTaskCreate(Task_Raise, "Task_Raise", 400, NULL, 5, NULL); // 抬升
         // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 5, NULL); // 抬升
         xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 5, NULL);
         xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 5, NULL);
     } else if (Board_Id == 2) {
         xTaskCreate(Task_Fetch, "Task_Fetch", 400, NULL, 5, NULL);
+        xTaskCreate(Task_Milk, "Task_Milk", 400, NULL, 5, NULL);
     }
 
     // 完成使命

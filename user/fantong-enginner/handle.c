@@ -56,12 +56,14 @@ void Handle_Init(void) {
         Gyroscope_Set_Bias(&ImuData, 28, 30, 0);
     } else if (Board_Id == 2) {
         // 抓取电机
-        Motor_Init(&Motor_Fetch_X, FITCH_MOTOR_REDUCTION_RATE, 1, ENABLE);
-        Motor_Init(&Motor_Fetch_Left_Pitch, FITCH_MOTOR_REDUCTION_RATE, 1, ENABLE);
-        Motor_Init(&Motor_Fetch_Right_Pitch, FITCH_MOTOR_REDUCTION_RATE, 1, ENABLE);
+        Motor_Init(&Motor_Fetch_X, FITCH_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
+        Motor_Init(&Motor_Fetch_Left_Pitch, FITCH_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
+        Motor_Init(&Motor_Fetch_Right_Pitch, FITCH_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
+        Motor_Init(&Motor_Milk, 36.0, ENABLE, ENABLE);
         Can1_Device[ESC_ID(0x201)] = &Motor_Fetch_X;
         Can1_Device[ESC_ID(0x202)] = &Motor_Fetch_Left_Pitch;
         Can1_Device[ESC_ID(0x203)] = &Motor_Fetch_Right_Pitch;
+        Can1_Device[ESC_ID(0x204)] = &Motor_Milk;
 
         // 陀螺仪设置静态误差
         Gyroscope_Set_Bias(&ImuData, 28, 30, 0);

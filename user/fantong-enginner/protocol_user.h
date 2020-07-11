@@ -22,7 +22,7 @@ typedef struct {
     union {
         struct {
             uint8_t  fetchMode : 1;
-            uint8_t  chassisRaised : 1;
+            uint8_t  milkMode : 1;
             uint32_t data1 : 30;
             float    data2;
             float    data3;

@@ -71,8 +71,10 @@ void BSP_Init(void) {
     BSP_DMA_Init(UART8_Rx, HostChannel.receiveBuf, Protocol_Buffer_Length);
 
     // snail 电机pwm输出
-    // BSP_PWM_Set_Port(&PWM_Snail1, PWM_PD12);
-    // BSP_PWM_Init(&PWM_Snail1, 180, 1250, TIM_OCPolarity_Low);
-    // BSP_PWM_Set_Port(&PWM_Snail2, PWM_PD13);
-    // BSP_PWM_Init(&PWM_Snail2, 180, 1250, TIM_OCPolarity_Low);
+    if (Board_Id == 1) {
+        BSP_PWM_Set_Port(&PWM_Snail1, PWM_PD12);
+        BSP_PWM_Init(&PWM_Snail1, 180, 1250, TIM_OCPolarity_Low);
+        BSP_PWM_Set_Port(&PWM_Snail2, PWM_PD13);
+        BSP_PWM_Init(&PWM_Snail2, 180, 1250, TIM_OCPolarity_Low);
+    }
 }
