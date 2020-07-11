@@ -312,74 +312,6 @@ void BSP_UART8_Init(uint32_t baudRate, uint16_t interruptFlag) {
                    interruptFlag);
 }
 
-void BSP_ADC_Init(ADC_TypeDef *ADCx,
-                  uint16_t     RCC_APBx,
-                  uint32_t     RCC_APBxPeriph_ADCx,
-                  uint32_t     ADC_NbrOfConversion,
-                  uint32_t     ADC_Channel,
-                  uint16_t     priority,
-                  uint16_t     interruptFlag) {
-    uint8_t               ADC_Channelx;
-    uint8_t               Rank = 1;
-    ADC_CommonInitTypeDef ADC_CommonInitStructure;
-    ADC_InitTypeDef       ADC_InitStructure;
-
-    ADC_DeInit();
-
-    if (RCC_APBx == RCC_APB1)
-        RCC_APB1PeriphClockCmd(RCC_APBxPeriph_ADCx, ENABLE); // 使能时钟
-    else if (RCC_APBx == RCC_APB2)
-        RCC_APB2PeriphClockCmd(RCC_APBxPeriph_ADCx, ENABLE); // 使能时钟
-
-    // ADC通用配置
-    ADC_CommonInitStructure.ADC_Mode             = ADC_Mode_Independent;          // 独立模式
-    ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_10Cycles; // 两个采样阶段之间的延迟x个时钟
-    ADC_CommonInitStructure.ADC_DMAAccessMode    = ADC_DMAAccessMode_1;           // DMA使能（DMA传输下要设置使能）
-    ADC_CommonInitStructure.ADC_Prescaler        = ADC_Prescaler_Div8;            // 预分频4分频
-    ADC_CommonInit(&ADC_CommonInitStructure);
-
-    // ADCx配置
-    ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None; //禁止触发检测，使用软件触发
-    ADC_InitStructure.ADC_DataAlign            = ADC_DataAlign_Right;           // 右对齐
-    // ADC_InitStructure.ADC_ExternalTrigConv     = ADC_ExternalTrigConvEdge_None; // 使用软件触发（暂定）
-    ADC_InitStructure.ADC_NbrOfConversion    = ADC_NbrOfConversion; // 转换数量
-    ADC_InitStructure.ADC_Resolution         = ADC_Resolution_12b;  // 12位模式
-    ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;              // 开启连续转换（开启DMA传输要设置连续转换）
-    ADC_InitStructure.ADC_ScanConvMode       = ENABLE;              // 扫描（开启多通道DMA传输要设置扫描）
-    ADC_Init(ADCx, &ADC_InitStructure);
-
-    for (ADC_Channelx = ADC_Channel_0; ADC_Channelx <= ADC_Channel_18; ADC_Channelx++) {
-        if (ADC_Channel >> ADC_Channelx & 0x01 == 1) {
-            ADC_RegularChannelConfig(ADCx, ADC_Channelx, Rank, ADC_SampleTime_144Cycles);
-            Rank++;
-        }
-    }
-
-    ADC_DMARequestAfterLastTransferCmd(ADCx, ENABLE);
-    ADC_Cmd(ADCx, ENABLE);
-
-    // NVIC
-    if (interruptFlag != 0) {
-        NVIC_InitTypeDef NVIC_InitStructure;
-        NVIC_InitStructure.NVIC_IRQChannel                   = ADC_IRQn; // 串口中断通道
-        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = priority; // 抢占优先级
-        NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;        // 子优先级
-        NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;   // IRQ通道使能
-        NVIC_Init(&NVIC_InitStructure);                                  // 根据指定的参数初始化VIC寄存器
-    }
-}
-
-/**
- * @brief ADC1初始化
- * @param ADC_NbrOfConversion 转换数量
- * @param ADC_Channel 通道选择
- * @param interruptFlag 有无中断
- */
-void BSP_ADC1_Init(uint32_t ADC_NbrOfConversion, uint32_t ADC_Channel, uint16_t interruptFlag) {
-    BSP_ADC_Init(ADC1, RCC_APB2, RCC_APB2Periph_ADC1, ADC_NbrOfConversion, ADC_Channel, 2, interruptFlag);
-    ADC_SoftwareStartConv(ADC1); //使能指定的 ADC1 的软件转换启动功能
-}
-
 void BSP_Laser_Init(void) {
     // Laser
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -500,6 +432,308 @@ void BSP_TIM2_Init(void) {
     TIM_ClearFlag(TIM2, TIM_FLAG_Update);
 }
 
+/**
+ * @brief USART3_RX的DMA初始化
+ *
+ * @param DMA_Memory0BaseAddr    复制到哪里
+ * @param DMA_BufferSize         长度
+ */
+void BSP_DMA_USART3_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+    // NVIC
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA1_Stream1_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+    // DMA
+    USART_DMACmd(USART3, USART_DMAReq_Rx, ENABLE);
+    DMA_InitTypeDef DMA_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+    DMA_InitStructure.DMA_Channel            = DMA_Channel_4;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &USART3->DR;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
+    DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
+    DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Enable;
+    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOStatus_HalfFull;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA1_Stream1, &DMA_InitStructure);
+    DMA_Cmd(DMA1_Stream1, ENABLE);
+}
+
+/**
+ * @brief USART6_RX的DMA初始化
+ *
+ * @param DMA_Memory0BaseAddr    复制到哪里
+ * @param DMA_BufferSize         长度
+ */
+void BSP_DMA_USART6_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+
+    // NVIC
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA2_Stream1_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    // DMA
+    USART_DMACmd(USART6, USART_DMAReq_Rx, ENABLE);
+    DMA_InitTypeDef DMA_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+    DMA_InitStructure.DMA_Channel            = DMA_Channel_5;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &USART6->DR;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
+    DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
+    DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Enable;
+    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOStatus_HalfFull;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA2_Stream1, &DMA_InitStructure);
+    DMA_Cmd(DMA2_Stream1, ENABLE);
+}
+
+/**
+ * @brief UART7_RX的DMA初始化
+ *
+ * @param DMA_Memory0BaseAddr    复制到哪里
+ * @param DMA_BufferSize         长度
+ */
+void BSP_DMA_UART7_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+
+    // NVIC
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA1_Stream3_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    // DMA
+    USART_DMACmd(UART7, USART_DMAReq_Rx, ENABLE);
+    DMA_InitTypeDef DMA_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+    DMA_InitStructure.DMA_Channel            = DMA_Channel_5;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &UART7->DR;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
+    DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
+    DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Enable;
+    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOStatus_HalfFull;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA1_Stream3, &DMA_InitStructure);
+    DMA_Cmd(DMA1_Stream3, ENABLE);
+}
+
+/**
+ * @brief UART7_RX的DMA初始化
+ *
+ * @param DMA_Memory0BaseAddr    复制到哪里
+ * @param DMA_BufferSize         长度
+ */
+void BSP_DMA_UART8_RX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+
+    // NVIC
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA1_Stream6_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    // DMA
+    USART_DMACmd(UART8, USART_DMAReq_Rx, ENABLE);
+    DMA_InitTypeDef DMA_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+    DMA_InitStructure.DMA_Channel            = DMA_Channel_5;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &UART8->DR;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
+    DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
+    DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Enable;
+    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOStatus_HalfFull;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA1_Stream6, &DMA_InitStructure);
+    DMA_Cmd(DMA1_Stream6, ENABLE);
+}
+
+/**
+ * @brief USART3_TX的DMA初始化
+ *
+ * @param DMA_Memory0BaseAddr    复制到哪里
+ * @param DMA_BufferSize         长度
+ */
+void BSP_DMA_USART3_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+    // NVIC
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA1_Stream3_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+    // DMA
+    USART_DMACmd(USART3, USART_DMAReq_Tx, ENABLE);
+    DMA_InitTypeDef DMA_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+    DMA_InitStructure.DMA_Channel            = DMA_Channel_4;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &USART3->DR;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
+    DMA_InitStructure.DMA_DIR                = DMA_DIR_MemoryToPeripheral;
+    DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Disable;
+    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOThreshold_Full;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA1_Stream3, &DMA_InitStructure);
+    DMA_Cmd(DMA1_Stream3, ENABLE);
+}
+
+/**
+ * @brief USART6_TX的DMA初始化
+ *
+ * @param DMA_Memory0BaseAddr    复制到哪里
+ * @param DMA_BufferSize         长度
+ */
+void BSP_DMA_USART6_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+    // NVIC
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA2_Stream6_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+    // DMA
+    USART_DMACmd(USART6, USART_DMAReq_Tx, ENABLE);
+    DMA_InitTypeDef DMA_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+    DMA_InitStructure.DMA_Channel            = DMA_Channel_5;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &USART6->DR;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
+    DMA_InitStructure.DMA_DIR                = DMA_DIR_MemoryToPeripheral;
+    DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Disable;
+    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOThreshold_Full;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA2_Stream6, &DMA_InitStructure);
+    DMA_Cmd(DMA2_Stream6, ENABLE);
+}
+
+/**
+ * @brief UART7_TX的DMA初始化
+ *
+ * @param DMA_Memory0BaseAddr    复制到哪里
+ * @param DMA_BufferSize         长度
+ */
+void BSP_DMA_UART7_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+    // NVIC
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA1_Stream1_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+    // DMA
+    USART_DMACmd(UART7, USART_DMAReq_Tx, ENABLE);
+    DMA_InitTypeDef DMA_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+    DMA_InitStructure.DMA_Channel            = DMA_Channel_5;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &UART7->DR;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
+    DMA_InitStructure.DMA_DIR                = DMA_DIR_MemoryToPeripheral;
+    DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Disable;
+    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOThreshold_Full;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA1_Stream1, &DMA_InitStructure);
+    DMA_Cmd(DMA1_Stream1, ENABLE);
+}
+
+/**
+ * @brief UART7_TX的DMA初始化
+ *
+ * @param DMA_Memory0BaseAddr    复制到哪里
+ * @param DMA_BufferSize         长度
+ */
+void BSP_DMA_UART8_TX_Init(uint32_t DMA_Memory0BaseAddr, uint32_t DMA_BufferSize) {
+    // NVIC
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA1_Stream0_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+    // DMA
+    USART_DMACmd(UART8, USART_DMAReq_Tx, ENABLE);
+    DMA_InitTypeDef DMA_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+    DMA_InitStructure.DMA_Channel            = DMA_Channel_5;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = &UART8->DR;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = DMA_Memory0BaseAddr;
+    DMA_InitStructure.DMA_DIR                = DMA_DIR_MemoryToPeripheral;
+    DMA_InitStructure.DMA_BufferSize         = DMA_BufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_FIFOMode           = DMA_FIFOMode_Disable;
+    DMA_InitStructure.DMA_FIFOThreshold      = DMA_FIFOThreshold_Full;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA1_Stream0, &DMA_InitStructure);
+    DMA_Cmd(DMA1_Stream0, ENABLE);
+}
+
 DMA_Type DMA_Table[10] = {{USART1_BASE, Tx, DMA2, DMA2_Stream7, DMA2_Stream7_IRQn, DMA_Channel_4, DMA_IT_TCIF7, DMA_FLAG_TCIF7, DMA_FLAG_HTIF7},
                           {USART1_BASE, Rx, DMA2, DMA2_Stream2, DMA2_Stream2_IRQn, DMA_Channel_4, DMA_IT_TCIF2, DMA_FLAG_TCIF2, DMA_FLAG_HTIF2},
                           {USART3_BASE, Tx, DMA1, DMA1_Stream3, DMA1_Stream3_IRQn, DMA_Channel_4, DMA_IT_TCIF3, DMA_FLAG_TCIF3, DMA_FLAG_HTIF3},
@@ -509,22 +743,18 @@ DMA_Type DMA_Table[10] = {{USART1_BASE, Tx, DMA2, DMA2_Stream7, DMA2_Stream7_IRQ
                           {UART7_BASE, Tx, DMA1, DMA1_Stream1, DMA1_Stream1_IRQn, DMA_Channel_5, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
                           {UART7_BASE, Rx, DMA1, DMA1_Stream3, DMA1_Stream3_IRQn, DMA_Channel_5, DMA_IT_TCIF3, DMA_FLAG_TCIF3, DMA_FLAG_HTIF3},
                           {UART8_BASE, Tx, DMA1, DMA1_Stream0, DMA1_Stream0_IRQn, DMA_Channel_5, DMA_IT_TCIF0, DMA_FLAG_TCIF0, DMA_FLAG_HTIF0},
-                          {UART8_BASE, Rx, DMA1, DMA1_Stream6, DMA1_Stream6_IRQn, DMA_Channel_5, DMA_IT_TCIF6, DMA_FLAG_TCIF6, DMA_FLAG_HTIF6},
-                          {ADC1_BASE, Rx, DMA2, DMA2_Stream0, DMA2_Stream0_IRQn, DMA_Channel_0, DMA_IT_TCIF0, DMA_FLAG_TCIF0, DMA_FLAG_HTIF0}};
+                          {UART8_BASE, Rx, DMA1, DMA1_Stream6, DMA1_Stream6_IRQn, DMA_Channel_5, DMA_IT_TCIF6, DMA_FLAG_TCIF6, DMA_FLAG_HTIF6}};
 
 void BSP_DMA_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, uint32_t bufferSize) {
     // DMA
     DMA_Type dma;
     dma = DMA_Table[tableIndex];
-    if (tableIndex <= UART8_Rx) {
+    if (tableIndex < 10) {
         if (dma.TRx == Tx) {
-            USART_DMACmd((USART_TypeDef *) dma.PERIPHx_BASE, USART_DMAReq_Tx, ENABLE);
+            USART_DMACmd(((USART_TypeDef *) dma.PERIPHx_BASE), USART_DMAReq_Tx, ENABLE);
         } else {
-            USART_DMACmd((USART_TypeDef *) dma.PERIPHx_BASE, USART_DMAReq_Rx, ENABLE);
+            USART_DMACmd(((USART_TypeDef *) dma.PERIPHx_BASE), USART_DMAReq_Rx, ENABLE);
         }
-    }
-    if (tableIndex >= ADC1_Rx && tableIndex <= ADC1_Rx) {
-        ADC_DMACmd((ADC_TypeDef *) dma.PERIPHx_BASE, ENABLE);
     }
 
     DMA_InitTypeDef DMA_InitStructure;
@@ -533,50 +763,31 @@ void BSP_DMA_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, ui
     } else {
         RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
     }
-    if (tableIndex <= UART8_Rx) {
+    if (tableIndex < 10) {
         DMA_InitStructure.DMA_PeripheralBaseAddr = &((USART_TypeDef *) dma.PERIPHx_BASE)->DR;
-        DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-        DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
-        DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
     }
-    if (tableIndex >= ADC1_Rx && tableIndex <= ADC1_Rx) {
-        DMA_InitStructure.DMA_PeripheralBaseAddr = &((ADC_TypeDef *) dma.PERIPHx_BASE)->DR;
-        DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
-        DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_HalfWord;
-        DMA_InitStructure.DMA_Mode               = DMA_Mode_Circular;
-    }
-
     if (dma.TRx == Tx) {
         DMA_InitStructure.DMA_DIR           = DMA_DIR_MemoryToPeripheral;
         DMA_InitStructure.DMA_FIFOMode      = DMA_FIFOMode_Disable;
         DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
-    }
-    if (dma.TRx == Rx) {
-        DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
-        if (tableIndex <= UART8_Rx) {
-            DMA_InitStructure.DMA_FIFOMode      = DMA_FIFOMode_Enable;
-            DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOStatus_HalfFull;
-        }
-        if (tableIndex >= ADC1_Rx && tableIndex <= ADC1_Rx) {
-            DMA_InitStructure.DMA_FIFOMode      = DMA_FIFOMode_Disable;
-            DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;
-        }
-    }
-    DMA_InitStructure.DMA_Channel         = dma.DMA_Channel_x;
-    DMA_InitStructure.DMA_Memory0BaseAddr = sourceMemoryAddress;
-    DMA_InitStructure.DMA_BufferSize      = bufferSize;
-    DMA_InitStructure.DMA_PeripheralInc   = DMA_PeripheralInc_Disable;
-    DMA_InitStructure.DMA_MemoryInc       = DMA_MemoryInc_Enable;
-    DMA_InitStructure.DMA_Priority        = DMA_Priority_Medium;
-    DMA_InitStructure.DMA_MemoryBurst     = DMA_MemoryBurst_Single;
-    DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
 
+    } else {
+        DMA_InitStructure.DMA_DIR           = DMA_DIR_PeripheralToMemory;
+        DMA_InitStructure.DMA_FIFOMode      = DMA_FIFOMode_Enable;
+        DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOStatus_HalfFull;
+    }
+    DMA_InitStructure.DMA_Channel            = dma.DMA_Channel_x;
+    DMA_InitStructure.DMA_Memory0BaseAddr    = sourceMemoryAddress;
+    DMA_InitStructure.DMA_BufferSize         = bufferSize;
+    DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode               = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority           = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_MemoryBurst        = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
     DMA_Init(dma.DMAx_Streamy, &DMA_InitStructure);
-    if (tableIndex >= ADC1_Rx && tableIndex <= ADC1_Rx) {
-        DMA_ClearFlag(dma.DMAx_Streamy, DMA_IT_TC);
-        DMA_ITConfig(dma.DMAx_Streamy, DMA_IT_TC, ENABLE);
-    }
-
     DMA_Cmd(dma.DMAx_Streamy, ENABLE);
     // // NVIC
     // NVIC_InitTypeDef NVIC_InitStructure;
@@ -638,7 +849,7 @@ void BSP_PWM_Set_Port(PWM_Type *PWMx, uint32_t PWM_Px) {
  * @brief 初始化PWM
  * @note  PI5,PI6,PI7,PI2对应时钟频率为180MHz,其余为90MHz
  * @param PWMx      PWM结构体
- * @param prescaler 预分频器. PWM频率   = TIM/prescaler/period
+ * @param prescaler 预分频器. PWM频率   = TIM/prescaler
  * @param period    计数上限. PWM占空比 = compare/period
  * @param polarity  输出极性. TIM_OCPolarity_Low/TIM_OCPolarity_High
  */

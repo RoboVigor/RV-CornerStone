@@ -6,6 +6,7 @@
 #include "led.h"
 #include "beep.h"
 #include "key.h"
+#include "config.h"
 #include "rtos.h"
 #include "vegmath.h"
 #include "Driver_BSP.h"
@@ -27,12 +28,6 @@
 #define __HANDLE_EXT extern
 #endif
 
-#define CHARGE_ON GPIO_SetBits(GPIOA, GPIO_Pin_4)
-#define CHARGE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_4)
-
-#define DISCHARGE_ON GPIO_SetBits(GPIOA, GPIO_Pin_5)
-#define DISCHARGE_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_5)
-
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
@@ -40,7 +35,7 @@ __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 __HANDLE_EXT uint8_t ControlMode;
 __HANDLE_EXT uint8_t FrictEnabled, StirEnabled, MagzineOpened, FastShootMode;
 __HANDLE_EXT uint8_t PsAimEnabled, PsShootEnabled;
-__HANDLE_EXT uint8_t SwingMode, LowSpeedMode, HighSpeedMode, SafetyMode, PigeonMode;
+__HANDLE_EXT uint8_t SwingMode, SafetyMode, PigeonMode;
 
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
@@ -70,7 +65,8 @@ __HANDLE_EXT PID_Type         PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAng
 __HANDLE_EXT uint8_t          PigeonCurrent, PigeonVoltage, PigeonEnergy, PigeonChargeEnable;
 
 // 通讯协议
-__HANDLE_EXT Protocol_Type Judge, Ps;
+__HANDLE_EXT Protocol_Data_Type    ProtocolData;
+__HANDLE_EXT Protocol_Channel_Type JudgeChannel, HostChannel, UserChannel;
 
 // 弹舱盖舵机
 __HANDLE_EXT PWM_Type PWM_Magazine_Servo;
@@ -80,10 +76,7 @@ __HANDLE_EXT Motor_Type Motor_Stir, Motor_FL, Motor_FR;                     // �
 __HANDLE_EXT PID_Type   PID_StirSpeed, PID_StirAngle, PID_FireL, PID_FireR; // 拨弹轮 速度/角度 PID
 
 // PWM
-__HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;
-
-// ADC
-__HANDLE_EXT uint8_t ADC_Value[ADC_COLLECT_TIME][ADC_CHANNEL_NUM]; // 20次，两个通道,1为电压，2为电流
+__HANDLE_EXT PWM_Type PWM_Test;
 
 /**
  * @brief 初始化结构体

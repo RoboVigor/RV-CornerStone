@@ -89,7 +89,7 @@ typedef struct {
     uint32_t            DMA_FLAG_HTIFx;
 } DMA_Type;
 
-typedef enum { USART1_Tx, USART1_Rx, USART3_Tx, USART3_Rx, USART6_Tx, USART6_Rx, UART7_Tx, UART7_Rx, UART8_Tx, UART8_Rx, ADC1_Rx } dma_table_index_e;
+typedef enum { USART1_Tx, USART1_Rx, USART3_Tx, USART3_Rx, USART6_Tx, USART6_Rx, UART7_Tx, UART7_Rx, UART8_Tx, UART8_Rx } dma_table_index_e;
 
 // SERVICE
 void BSP_CAN_Init(void);
@@ -113,10 +113,6 @@ void BSP_USART3_Init(uint32_t baudRate, uint16_t interruptFlag);
 void BSP_USART6_Init(uint32_t baudRate, uint16_t interruptFlag);
 void BSP_UART7_Init(uint32_t baudRate, uint16_t interruptFlag);
 void BSP_UART8_Init(uint32_t baudRate, uint16_t interruptFlag);
-
-// ADC
-void BSP_ADC_Init(ADC_TypeDef *, uint16_t, uint32_t, uint32_t, uint32_t, uint16_t, uint16_t);
-void BSP_ADC1_Init(uint32_t ADC_NbrOfConversion, uint32_t ADC_Channel, uint16_t interruptFlag);
 
 // DMA
 void                BSP_DMA_USART_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, uint32_t bufferSize);
