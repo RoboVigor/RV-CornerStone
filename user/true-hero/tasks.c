@@ -182,7 +182,7 @@ void Task_Gimbal(void *Parameters) {
 
         // DebugData.debug1 = ImuData.gx;
         // DebugData.debug2 = ImuData.gy;
-        DebugData.debug3 = ImuData.gz;
+        // DebugData.debug3 = ImuData.gz;
 
         // DebugData.debug1 = Motor_Yaw.angle;
         // DebugData.debug2 = yawAngle;
