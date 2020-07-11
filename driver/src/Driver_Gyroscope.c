@@ -14,6 +14,9 @@ static float          zSpeed;
 static float          xAcc;
 static float          yAcc;
 static float          zAcc;
+static float          xMag;
+static float          yMag;
+static float          zMag;
 extern volatile float beta;
 static int16_t        debug_pitch = 0;
 
@@ -23,9 +26,17 @@ extern ImuData_Type ImuData;
 
 void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
     GyroscopeData->startupCounter = 0;
+#ifdef STM32F427_437xx
     MPU6500_Initialize();
     MPU6500_EnableInt();
+#endif
+#ifdef STM32F407xx
+    while (BMI088_init()) {
+    }
+    ist8310_init();
+#endif
 #if GYROSCOPE_START_UP_DELAY_ENABLED
+#ifdef STM32F427_437xx
     beta = 5;
     while (1) {
         LED_Set_Progress(GyroscopeData->startupCounter / (GYROSCOPE_START_UP_DELAY / 7) + 1);
@@ -35,10 +46,22 @@ void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
         }
     }
 #endif
+#ifdef STM32F407xx
+    beta = 5;
+    while (1) {
+        LED_Set_Colour(GyroscopeData->startupCounter / GYROSCOPE_START_UP_DELAY * 255, 0, 0);
+        if (GyroscopeData->startupCounter >= GYROSCOPE_START_UP_DELAY) {
+            beta = 0.5;
+            break;
+        }
+    }
+#endif
+#endif
 }
 
 // MPU6500数据读取,成功返回1  失败返回0
 int Gyroscope_Update(GyroscopeData_Type *GyroscopeData) {
+#ifdef STM32F427_437xx
     static uint8_t mpu_buf[20];
 
     //尝试读取数据
@@ -64,6 +87,34 @@ int Gyroscope_Update(GyroscopeData_Type *GyroscopeData) {
     ImuData.gy = ((((int16_t) mpu_buf[8]) << 8) | mpu_buf[9]) - ImuData.gy_bias;
     ImuData.gx = ((((int16_t) mpu_buf[10]) << 8) | mpu_buf[11]) - ImuData.gx_bias;
 #endif
+#endif
+#ifdef STM32F407xx
+    static uint8_t buf[8];
+
+    BMI088_accel_read_muli_reg(BMI088_ACCEL_XOUT_L, buf, 6);
+    ImuData.ax = (int16_t)((buf[1] << 8) | buf[0]);
+    ImuData.ay = (int16_t)((buf[3] << 8) | buf[2]);
+    ImuData.az = (int16_t)((buf[5] << 8) | buf[4]);
+
+    BMI088_gyro_read_muli_reg(BMI088_GYRO_CHIP_ID, buf, 8);
+    if (buf[0] == BMI088_GYRO_CHIP_ID_VALUE) {
+        ImuData.gx = (int16_t)((buf[3] << 8) | buf[2]);
+        ImuData.gy = (int16_t)((buf[5] << 8) | buf[4]);
+        ImuData.gz = (int16_t)((buf[7] << 8) | buf[6]);
+    }
+
+    BMI088_accel_read_muli_reg(BMI088_TEMP_M, buf, 2);
+    if ((int16_t)((buf[0] << 3) | (buf[1] >> 5)) > 1023) {
+        ImuData.temp = (int16_t)((buf[0] << 3) | (buf[1] >> 5)) * BMI088_TEMP_FACTOR + BMI088_TEMP_OFFSET;
+    } else {
+        ImuData.temp = ((int16_t)((buf[0] << 3) | (buf[1] >> 5)) - 2048) * BMI088_TEMP_FACTOR + BMI088_TEMP_OFFSET;
+    }
+
+    ist8310_IIC_read_muli_reg(0x03, buf, 6);
+    ImuData.mx = (int16_t)((buf[1] << 8) | buf[0]);
+    ImuData.my = (int16_t)((buf[3] << 8) | buf[2]);
+    ImuData.mz = (int16_t)((buf[5] << 8) | buf[4]);
+#endif
 
     // 读取完成进行解算
     Gyroscope_Solve(GyroscopeData);
@@ -73,15 +124,25 @@ int Gyroscope_Update(GyroscopeData_Type *GyroscopeData) {
 }
 
 void Gyroscope_Solve(GyroscopeData_Type *GyroscopeData) {
-    xSpeed = (float) ((ImuData.gx / GYRO_LSB) * PI / 180.0);
-    ySpeed = (float) ((ImuData.gy / GYRO_LSB) * PI / 180.0);
-    zSpeed = (float) ((ImuData.gz / GYRO_LSB) * PI / 180.0);
-    xAcc   = (float) (ImuData.ax / ACC_LSB);
-    yAcc   = (float) (ImuData.ay / ACC_LSB);
-    zAcc   = (float) (ImuData.az / ACC_LSB);
+    xSpeed = (float) ((ImuData.gx / GYROSCOPE_LSB) * PI / 180.0);
+    ySpeed = (float) ((ImuData.gy / GYROSCOPE_LSB) * PI / 180.0);
+    zSpeed = (float) ((ImuData.gz / GYROSCOPE_LSB) * PI / 180.0);
+    xAcc   = (float) (ImuData.ax / ACCELERATE_LSB);
+    yAcc   = (float) (ImuData.ay / ACCELERATE_LSB);
+    zAcc   = (float) (ImuData.az / ACCELERATE_LSB);
+#ifdef STM32F407xx
+    xMag = (float) (ImuData.mx / MAGNETIC_LSB);
+    yMag = (float) (ImuData.my / MAGNETIC_LSB);
+    zMag = (float) (ImuData.mz / MAGNETIC_LSB);
+#endif
 
     // GD算法或Madgwick算法,梯度算法,网上开源
+#ifdef STM32F427_437xx
     MadgwickAHRSupdateIMU(xSpeed, ySpeed, zSpeed, xAcc, yAcc, zAcc);
+#endif
+#ifdef STM32F407xx
+    MadgwickAHRSupdate(xSpeed, ySpeed, zSpeed, xAcc, yAcc, zAcc, xMag, yMag, zMag);
+#endif
 
     // 四元数->欧拉角
     pitchAngle = atan2(2.0f * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3) * 180 / PI;

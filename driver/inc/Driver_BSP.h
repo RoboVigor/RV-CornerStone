@@ -33,13 +33,11 @@
 #define PWM_PA9 0x11012009
 #define PWM_PA10 0x1101300a
 #define PWM_PA11 0x1101400b
-#define PWM_PC1 0x11011081
-#define PWM_PC2 0x11012082
-#define PWM_PC3 0x11013083
-#define PWM_PC4 0x11014084
-#define PWM_PC5 0x21431085
-#define PWM_PC6 0x21432086
-#define PWM_PC7 0x21433087
+#define PWM_PE9 0x11011109
+#define PWM_PE11 0x1101210b
+#define PWM_PE13 0x1101310d
+#define PWM_PE14 0x1101410e
+#define PWM_PC6 0x21431086
 
 #define ADC_Channel0 0x00000001
 #define ADC_Channel1 0x00000002
@@ -118,7 +116,7 @@ void BSP_UART7_Init(uint32_t baudRate, uint16_t interruptFlag);
 void BSP_UART8_Init(uint32_t baudRate, uint16_t interruptFlag);
 
 // DMA
-void                BSP_DMA_USART_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, uint32_t bufferSize);
+void                BSP_DMA_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, uint32_t bufferSize);
 void                DMA_Disable(dma_table_index_e tableIndex);
 void                DMA_Enable(dma_table_index_e tableIndex, uint16_t length);
 DMA_Stream_TypeDef *DMA_Get_Stream(dma_table_index_e tableIndex);
@@ -133,8 +131,10 @@ void PWM_Set_Compare(PWM_Type *PWMx, uint32_t compare);
 void BSP_LED_Init(void);
 void LED_Set_Row(uint16_t row);
 void LED_Set_Progress(uint16_t progress);
+void LED_Set_Colour(uint16_t red, uint16_t green, uint16_t blue);
 void LED_Run_Horse();
 void LED_Run_Horse_XP();
+void LED_Run_Rainbow_Ball();
 
 // BEEP
 void    BSP_Beep_Init(void);

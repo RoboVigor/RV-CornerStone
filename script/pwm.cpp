@@ -39,12 +39,14 @@ using namespace std;
 #define RCC_AHB1Periph_GPIOA             ((uint32_t)0x00000001)
 #define RCC_AHB1Periph_GPIOC             ((uint32_t)0x00000004)
 #define RCC_AHB1Periph_GPIOD             ((uint32_t)0x00000008)
+#define RCC_AHB1Periph_GPIOE             ((uint32_t)0x00000010)
 #define RCC_AHB1Periph_GPIOH             ((uint32_t)0x00000080)
 #define RCC_AHB1Periph_GPIOI             ((uint32_t)0x00000100)
 
 #define GPIOA_BASE            (AHB1PERIPH_BASE + 0x0000)
 #define GPIOC_BASE            (AHB1PERIPH_BASE + 0x0800)
 #define GPIOD_BASE            (AHB1PERIPH_BASE + 0x0C00)
+#define GPIOE_BASE            (AHB1PERIPH_BASE + 0x1000)
 #define GPIOH_BASE            (AHB1PERIPH_BASE + 0x1C00)
 #define GPIOI_BASE            (AHB1PERIPH_BASE + 0x2000)
 
@@ -158,9 +160,9 @@ void testPortCode(string portName, PWM_Type *PWMx, uint32_t PWM_Px) {
 
 int main(){
 
-    string names[27] = {"PWM_PD12","PWM_PD13","PWM_PD14","PWM_PD15","PWM_PH10","PWM_PH11","PWM_PH12","PWM_PI0","PWM_PA0","PWM_PA1","PWM_PA2","PWM_PA3","PWM_PI5","PWM_PI6","PWM_PI7","PWM_PI2","PWM_PA8","PWM_PA9","PWM_PA10","PWM_PA11","PWM_PC1","PWM_PC2","PWM_PC3","PWM_PC4","PWM_PC5","PWM_PC6","PWM_PC7"};
-    uint32_t codes[27];
-    PWM_Type PWM_PORTS[27] = {
+    string names[25] = {"PWM_PD12","PWM_PD13","PWM_PD14","PWM_PD15","PWM_PH10","PWM_PH11","PWM_PH12","PWM_PI0","PWM_PA0","PWM_PA1","PWM_PA2","PWM_PA3","PWM_PI5","PWM_PI6","PWM_PI7","PWM_PI2","PWM_PA8","PWM_PA9","PWM_PA10","PWM_PA11","PWM_PE9","PWM_PE11","PWM_PE13","PWM_PE14","PWM_PC6"};
+    uint32_t codes[25];
+    PWM_Type PWM_PORTS[25] = {
         //A
         {RCC_APB1Periph_TIM4, TIM4_BASE, GPIO_AF_TIM4, 1, GPIOD_BASE, GPIO_PinSource12, RCC_AHB1Periph_GPIOD, GPIO_Pin_12, CCR1},
         {RCC_APB1Periph_TIM4, TIM4_BASE, GPIO_AF_TIM4, 2, GPIOD_BASE, GPIO_PinSource13, RCC_AHB1Periph_GPIOD, GPIO_Pin_13, CCR2},
@@ -187,26 +189,24 @@ int main(){
         {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 4, GPIOA_BASE, GPIO_PinSource11, RCC_AHB1Periph_GPIOA, GPIO_Pin_11, CCR4},
 
         //C
-        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 1, GPIOC_BASE, GPIO_PinSource1, RCC_AHB1Periph_GPIOC, GPIO_Pin_1, CCR1},
-        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 2, GPIOC_BASE, GPIO_PinSource2, RCC_AHB1Periph_GPIOC, GPIO_Pin_2, CCR2},
-        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 3, GPIOC_BASE, GPIO_PinSource3, RCC_AHB1Periph_GPIOC, GPIO_Pin_3, CCR3},
-        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 4, GPIOC_BASE, GPIO_PinSource4, RCC_AHB1Periph_GPIOC, GPIO_Pin_4, CCR4},
-        {RCC_APB2Periph_TIM8, TIM8_BASE, GPIO_AF_TIM8, 1, GPIOC_BASE, GPIO_PinSource5, RCC_AHB1Periph_GPIOC, GPIO_Pin_5, CCR1},
-        {RCC_APB2Periph_TIM8, TIM8_BASE, GPIO_AF_TIM8, 2, GPIOC_BASE, GPIO_PinSource6, RCC_AHB1Periph_GPIOC, GPIO_Pin_6, CCR2},
-        {RCC_APB2Periph_TIM8, TIM8_BASE, GPIO_AF_TIM8, 3, GPIOC_BASE, GPIO_PinSource7, RCC_AHB1Periph_GPIOC, GPIO_Pin_7, CCR3}
+        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 1, GPIOE_BASE, GPIO_PinSource9, RCC_AHB1Periph_GPIOE, GPIO_Pin_9, CCR1},
+        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 2, GPIOE_BASE, GPIO_PinSource11, RCC_AHB1Periph_GPIOE, GPIO_Pin_11, CCR2},
+        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 3, GPIOE_BASE, GPIO_PinSource13, RCC_AHB1Periph_GPIOE, GPIO_Pin_13, CCR3},
+        {RCC_APB2Periph_TIM1, TIM1_BASE, GPIO_AF_TIM1, 4, GPIOE_BASE, GPIO_PinSource14, RCC_AHB1Periph_GPIOE, GPIO_Pin_14, CCR4},
+        {RCC_APB2Periph_TIM8, TIM8_BASE, GPIO_AF_TIM8, 1, GPIOC_BASE, GPIO_PinSource6, RCC_AHB1Periph_GPIOC, GPIO_Pin_6, CCR1},
     };
 
     int i;
     //generate port code
-    for(i=0; i<27; i++){
+    for(i=0; i<25; i++){
         codes[i] = generatePWMPortCode(&(PWM_PORTS[i]));
     }
     //test port code
-    for(i=0; i<27; i++){
+    for(i=0; i<25; i++){
         testPortCode(names[i], &(PWM_PORTS[i]), codes[i]);
     }
     //print port code
-    for(i=0; i<27; i++){
+    for(i=0; i<25; i++){
         printf("#define %s 0x%08x\n", names[i].c_str(), codes[i]);
     }
 

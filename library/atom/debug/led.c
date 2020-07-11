@@ -4,7 +4,7 @@
 // LED IO初始化
 void LED_Init(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
-
+#ifdef STM32F427_437xx
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOF, ENABLE); //使能GPIOE,GPIOF时钟
 
     // GPIOE7,F14初始化设置
@@ -25,4 +25,5 @@ void LED_Init(void) {
 
     GPIO_SetBits(GPIOE, GPIO_Pin_11); // GPIOE11 设置高,灯灭
     GPIO_SetBits(GPIOF, GPIO_Pin_14); // GPIOF14设置高,灯灭
+#endif
 }
