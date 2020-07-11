@@ -62,7 +62,7 @@ int Gyroscope_Update(GyroscopeData_Type *GyroscopeData) {
     ImuData.ay = (((int16_t) mpu_buf[0]) << 8) | mpu_buf[1];
     ImuData.ax = (((int16_t) mpu_buf[2]) << 8) | mpu_buf[3];
     ImuData.gy = ((((int16_t) mpu_buf[8]) << 8) | mpu_buf[9]) - (IMU_GY_BIAS);
-    ImuData.gx = ((((int16_t) mpu_buf[10]) << 8) | mpu_buf[11]) - (IMU_GX_BIAS);
+    ImuData.gx = ((((int16_t) mpu_buf[10]) << 8) | mpu_buf[11]) - (IMU_GX_BIAS);v
 #endif
 
     // 读取完成进行解算

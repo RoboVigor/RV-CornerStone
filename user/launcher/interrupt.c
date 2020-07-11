@@ -11,7 +11,6 @@ void EXTI9_5_IRQHandler(void) {
     if (EXTI_GetITStatus(EXTI_Line8) != RESET) {
         EXTI_ClearFlag(EXTI_Line8);
         EXTI_ClearITPendingBit(EXTI_Line8);
-        Gyroscope_Update(&Gyroscope_EulerData);
     }
 }
 
@@ -135,19 +134,7 @@ void CAN1_RX0_IRQHandler(void) {
     // 安排数据
     switch (CanRxData.StdId) {
     case 0x201:
-        Motor_Update(&Motor_LF, position, speed);
-        break;
-
-    case 0x202:
-        Motor_Update(&Motor_LB, position, speed);
-        break;
-
-    case 0x203:
-        Motor_Update(&Motor_RB, position, speed);
-        break;
-
-    case 0x204:
-        Motor_Update(&Motor_RF, position, speed);
+        Motor_Update(&Motor_Charge, position, speed);
         break;
 
     default:
@@ -176,29 +163,7 @@ void CAN2_RX0_IRQHandler(void) {
     speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
     //安排数据
-    switch (CanRxData.StdId) {
-    case 0x201:
-        Motor_Update(&Motor_LF, position, speed);
-        break;
-
-    case 0x202:
-        Motor_Update(&Motor_LB, position, speed);
-        break;
-
-    case 0x203:
-        Motor_Update(&Motor_RB, position, speed);
-        break;
-
-    case 0x204:
-        Motor_Update(&Motor_RF, position, speed);
-        break;
-
-    default:
-        for (i = 0; i < 8; i++) {
-            Protocol_Unpack(&UserChannel, CanRxData.Data[i]);
-            break;
-        }
-    }
+    switch (CanRxData.StdId) { default: }
 }
 
 // TIM2 高频计数器
