@@ -365,7 +365,7 @@
               <MiscControls>--gnu</MiscControls>
               <Define>STM32F407xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\core;..\bsp\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\user\dart;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\library\vegmath;..\driver\inc</IncludePath>
+              <IncludePath>..\core;..\bsp\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\user\dart;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\library\vegmath;..\driver\inc;..\library\bmi088;..\library\ist8310</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -457,9 +457,19 @@
               <FilePath>..\library\std\src\stm32f4xx_gpio.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f4xx_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_i2c.c</FilePath>
+            </File>
+            <File>
               <FileName>stm32f4xx_rcc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\library\std\src\stm32f4xx_rcc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_spi.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_syscfg.c</FileName>
@@ -545,6 +555,26 @@
               <FileName>mpu6500_i2c.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\library\mpu6500\mpu6500_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>BMI088driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\bmi088\BMI088driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>BMI088middleware.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\bmi088\BMI088middleware.c</FilePath>
+            </File>
+            <File>
+              <FileName>ist8310driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\ist8310\ist8310driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>ist8310middleware.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\ist8310\ist8310middleware.c</FilePath>
             </File>
             <File>
               <FileName>beep.c</FileName>
