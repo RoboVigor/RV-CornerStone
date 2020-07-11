@@ -91,6 +91,9 @@ typedef struct {
 
 typedef enum { USART1_Tx, USART1_Rx, USART3_Tx, USART3_Rx, USART6_Tx, USART6_Rx, UART7_Tx, UART7_Rx, UART8_Tx, UART8_Rx } dma_table_index_e;
 
+// Stone ID
+void BSP_Stone_Id_Init(uint8_t *Board_Id, uint8_t *Robot_Id);
+
 // SERVICE
 void BSP_CAN_Init(void);
 void BSP_DBUS_Init(uint8_t *remoteBuffer);
