@@ -28,6 +28,5 @@ void BSP_Init(void) {
 
     // PWM
     BSP_PWM_Set_Port(&PWM_Test, PWM_PI7);                    // 180MHz
-    BSP_PWM_Init(&PWM_Test, 100, 36000, TIM_OCPolarity_Low); // 50Hz
-    PWM_Set_Compare(&PWM_Test, 5);
+    BSP_PWM_Init(&PWM_Test, 36000, 100, TIM_OCPolarity_Low); // 50Hz
 }

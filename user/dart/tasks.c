@@ -22,8 +22,25 @@ void Task_Duct(void *Parameters) {
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+    vTaskDelete(NULL);
+}
 
-        DebugData.debug1 = remoteData.switchLeft;
+void Task_Servo(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.005;               // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    while (1) {
+
+        if (LEFT_SWITCH_MIDDLE) {
+            PWM_Set_Compare(&PWM_Test, 10);
+        } else {
+            PWM_Set_Compare(&PWM_Test, 3);
+        }
+
+        // 发送频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
 }
@@ -111,7 +128,8 @@ void Task_Sys_Init(void *Parameters) {
     }
 
     // 运动控制任务
-    xTaskCreate(Task_Duct, "Task_Duct", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Duct, "Task_Duct", 500, NULL, 5, NULL);
+    xTaskCreate(Task_Servo, "Task_Servo", 500, NULL, 5, NULL);
 
     // DMA发送任务
     // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
