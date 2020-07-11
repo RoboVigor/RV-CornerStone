@@ -33,9 +33,6 @@
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
-// 电机
-__HANDLE_EXT Motor_Type Motor_Test;
-
 // 遥控器
 __HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT Remote_Type   remoteData;
@@ -49,12 +46,11 @@ __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 // 调试数据
 __HANDLE_EXT DebugData_Type DebugData;
 
-// PWM
-__HANDLE_EXT PWM_Type PWM_Test;
+// 涵道
+__HANDLE_EXT PWM_Type PWM_Motor_Duct;
 
-// 通讯协议
-__HANDLE_EXT Protocol_Data_Type    ProtocolData;
-__HANDLE_EXT Protocol_Channel_Type UserChannel;
+// 舵机
+__HANDLE_EXT PWM_Type PWM_Servo_Yaw, PWM_Servo_Pitch;
 
 /**
  * @brief 初始化结构体

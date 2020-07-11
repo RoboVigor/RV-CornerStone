@@ -20,13 +20,17 @@ void BSP_Init(void) {
 #endif
 
 #ifdef STM32F407xx
-    // // USART1
-    // BSP_USART1_Init(115200, USART_IT_IDLE);
-    // BSP_DMA_Init(USART1_Tx, UserChannel.sendBuf, Protocol_Buffer_Length);
-    // BSP_DMA_Init(USART1_Rx, UserChannel.receiveBuf, Protocol_Buffer_Length);
-#endif
+    // 涵道
+    BSP_PWM_Set_Port(&PWM_Motor_Duct, PWM_PE9);                    // 180MHz
+    BSP_PWM_Init(&PWM_Motor_Duct, 36000, 100, TIM_OCPolarity_Low); // 50Hz
+    PWM_Set_Compare(&PWM_Motor_Duct, 5);
 
-    // PWM
-    BSP_PWM_Set_Port(&PWM_Test, PWM_PI7);                    // 180MHz
-    BSP_PWM_Init(&PWM_Test, 36000, 100, TIM_OCPolarity_Low); // 50Hz
+    // Yaw轴舵机
+    BSP_PWM_Set_Port(&PWM_Servo_Yaw, PWM_PE11);                   // 180MHz
+    BSP_PWM_Init(&PWM_Servo_Yaw, 36000, 100, TIM_OCPolarity_Low); // 50Hz
+
+    // Pitch轴舵机
+    BSP_PWM_Set_Port(&PWM_Servo_Pitch, PWM_PE13);                   // 180MHz
+    BSP_PWM_Init(&PWM_Servo_Pitch, 36000, 100, TIM_OCPolarity_Low); // 50Hz
+#endif
 }

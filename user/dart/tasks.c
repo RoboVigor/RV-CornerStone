@@ -10,15 +10,12 @@ void Task_Duct(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
-        LASER_ON;
 
-        if (LEFT_SWITCH_MIDDLE) {
-            PWM_Set_Compare(&PWM_Test, 7);
+        if (RIGHT_SWITCH_MIDDLE) {
+            PWM_Set_Compare(&PWM_Motor_Duct, 7);
         } else {
-            PWM_Set_Compare(&PWM_Test, 5);
+            PWM_Set_Compare(&PWM_Motor_Duct, 5);
         }
-
-        // Can_Send(CAN2, 0x200, 200, 0, 0, 0);
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -33,43 +30,8 @@ void Task_Servo(void *Parameters) {
 
     while (1) {
 
-        if (LEFT_SWITCH_MIDDLE) {
-            PWM_Set_Compare(&PWM_Test, 10);
-        } else {
-            PWM_Set_Compare(&PWM_Test, 3);
-        }
-
-        // 发送频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
-    }
-    vTaskDelete(NULL);
-}
-
-void Task_Board_Communication(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.01;                // 任务运行间隔 s
-    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
-
-    uint16_t id;
-    uint16_t dataLength;
-
-    while (1) {
-
-        // 板间通信
-        id                                 = 0x501;
-        ProtocolData.user.boardAlpha.data1 = 1.11;
-        ProtocolData.user.boardAlpha.data2 = 2.22;
-        ProtocolData.user.boardAlpha.data3 = 3.33;
-        ProtocolData.user.boardAlpha.data4 = 4.44;
-
-        // // USART发送
-        // DMA_Disable(USART1_Tx);
-        // dataLength = Protocol_Pack(&UserChannel, id);
-        // DMA_Enable(USART1_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-
-        // Can发送
-        // dataLength = Protocol_Pack(&UserChannel, id);
-        // Can_Send_Msg(CAN1, id, UserChannel.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        PWM_Set_Compare(&PWM_Servo_Yaw, remoteData.lx / 660.0 * 2.5 + 7.5);   // 5~10
+        PWM_Set_Compare(&PWM_Servo_Pitch, remoteData.ry / 660.0 * 2.5 + 7.5); // 5~10
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -128,11 +90,8 @@ void Task_Sys_Init(void *Parameters) {
     }
 
     // 运动控制任务
-    // xTaskCreate(Task_Duct, "Task_Duct", 500, NULL, 5, NULL);
+    xTaskCreate(Task_Duct, "Task_Duct", 500, NULL, 5, NULL);
     xTaskCreate(Task_Servo, "Task_Servo", 500, NULL, 5, NULL);
-
-    // DMA发送任务
-    // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

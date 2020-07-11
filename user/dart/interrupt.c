@@ -70,19 +70,6 @@ void USART1_IRQHandler(void) {
     // enable DMA
     DMA_Enable(USART1_Rx, DBUS_LENGTH + DBUS_BACK_LENGTH);
 #endif
-#ifdef STM32F407xx
-    // disabe DMA
-    DMA_Disable(USART1_Rx);
-
-    // unpack
-    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(USART1_Rx);
-    for (i = 0; i < len; i++) {
-        Protocol_Unpack(&UserChannel, UserChannel.receiveBuf[i]);
-    }
-
-    // enable DMA
-    DMA_Enable(USART1_Rx, Protocol_Buffer_Length);
-#endif
 }
 
 /**
@@ -156,15 +143,6 @@ void CAN1_RX0_IRQHandler(void) {
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
     position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
     speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-
-    switch (CanRxData.StdId) {
-    case 0x201:
-        Motor_Update(&Motor_Test, position, speed);
-        break;
-
-    default:
-        break;
-    }
 }
 
 // void CAN1_SCE_IRQHandler(void) {
@@ -182,15 +160,6 @@ void CAN2_RX0_IRQHandler(void) {
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
     position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
     speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-
-    switch (CanRxData.StdId) {
-    case 0x201:
-        Motor_Update(&Motor_Test, position, speed);
-        break;
-
-    default:
-        break;
-    }
 }
 
 // TIM2 高频计数器
