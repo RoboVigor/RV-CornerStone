@@ -9,6 +9,7 @@
 #include "rtos.h"
 #include "vegmath.h"
 #include "config.h"
+#include "oled.h"
 #include "Driver_BSP.h"
 #include "Driver_Filter.h"
 #include "Driver_Magic.h"

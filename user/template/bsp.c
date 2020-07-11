@@ -15,7 +15,7 @@ void BSP_Init(void) {
     BSP_Beep_Init();
     BSP_LED_Init();
     BSP_User_Power_Init();
-
+    BSP_OLED_Init();
     // USART
     // BSP_USART2_Init(9600, USART_IT_RXNE);
 
@@ -37,4 +37,7 @@ void BSP_Init(void) {
     // PWM
     // BSP_PWM_Set_Port(&PWM_Test, PWM_PD12);
     // BSP_PWM_Init(&PWM_Test, 9000, 200, TIM_OCPolarity_Low);
+
+    // ADC
+    BSP_ADC1_Init(ADC_CHANNEL_NUM, ADC_Channel6, 0);
 }

@@ -327,6 +327,20 @@ void Task_Startup_Music(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_OLED(void *Parameters) {
+    uint16_t   JoystickValue = -1;
+    TickType_t LastWakeTime  = xTaskGetTickCount();
+    oled_init();
+    while (1) {
+        JoystickValue = ADC_GetConversionValue(ADC1);
+        oled_clear(Pen_Clear);
+        oled_menu(JoystickValue);
+        oled_refresh_gram();
+        vTaskDelayUntil(&LastWakeTime, 125);
+    }
+    vTaskDelete(NULL);
+}
+
 void Task_Sys_Init(void *Parameters) {
 
     //获得 Stone ID
@@ -354,11 +368,12 @@ void Task_Sys_Init(void *Parameters) {
 
     // 低级任务
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
+    xTaskCreate(Task_OLED, "Task_OLED", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
-    while (!remoteData.state) {
-    }
+    // while (!remoteData.state) {
+    // }
 
     //模式切换任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
