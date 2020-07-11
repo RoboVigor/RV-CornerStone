@@ -36,7 +36,7 @@ void IIC_SDA_Out(void) {
     GPIO_Init(GPIOF, &gpio);
 }
 
-void IIC_SDA_In(void) {
+void IIC_SDA_In(void) {	
     GPIO_InitTypeDef gpio;
     gpio.GPIO_Pin   = GPIO_Pin_9;
     gpio.GPIO_Mode  = GPIO_Mode_IN;

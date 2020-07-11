@@ -6,24 +6,19 @@
 #include "default_config.h"
 
 // 调试
-#define DEBUG_ENABLED 0 // 调试开关
-// #define SERIAL_DEBUG_PORT USART6 // 串口调试端口
+#define DEBUG_ENABLED 0          // 调试开关
+#define SERIAL_DEBUG_PORT USART6 // 串口调试端口
 
 // 陀螺仪校准
 #ifdef ROBOT_LOOP_ONE
 #define IMU_GX_BIAS 3  // GX静态误差,通过平放主控板采样得到 9
 #define IMU_GY_BIAS 16 // GY静态误差 14
-#define IMU_GZ_BIAS 49// GZ静态误差 49
+#define IMU_GZ_BIAS 49 // GZ静态误差 49
 #endif
 #ifdef ROBOT_LOOP_TWO
 #define IMU_GX_BIAS 27 // GX静态误差,通过平放主控板采样得到
 #define IMU_GY_BIAS -2 // GY静态误差
 #define IMU_GZ_BIAS 12 // GZ静态误差
-#endif
-#ifdef ROBOT_LOOP_THREE
-#define IMU_GX_BIAS 29 // GX静态误差,通过平放主控板采样得到
-#define IMU_GY_BIAS 33 // GY静态误差
-#define IMU_GZ_BIAS -2 // GZ静态误差
 #endif
 
 // 运动参数
@@ -44,3 +39,6 @@
 #define GYROSCOPE_YAW_FILTER_THRESHOLD 0.005f   // 零飘修正阈值
 #define GYROSCOPE_LSB 16.384f                   // 陀螺仪敏感度 2^16/4000
 #define ACCELERATE_LSB 4096.0f                  // 加速度计敏感度 2^16/16
+
+// DMA
+#define DMA_BUFFER_LENGTH 128 // DMA发送接收长度

@@ -6,3 +6,4 @@
 #include "macro.h"
 #include "handle.h"
 #include "tasks.h"
+#include "vegmath.h"

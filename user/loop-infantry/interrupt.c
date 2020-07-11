@@ -48,18 +48,6 @@ void USART3_IRQHandler(void) {
     // clear IDLE flag
     tmp = USART3->DR;
     tmp = USART3->SR;
-
-    // disabe DMA
-    DMA_Disable(USART3_Rx);
-
-    // unpack
-    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(USART3_Rx);
-    for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
-    }
-
-    // enable DMA
-    DMA_Enable(USART3_Rx, Protocol_Buffer_Length);
 }
 
 /**
@@ -81,7 +69,7 @@ void USART6_IRQHandler(void) {
     // unpack
     len = Protocol_Buffer_Length - DMA_Get_Data_Counter(USART6_Rx);
     for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Judge, Judge.receiveBuf[i]);
+        Protocol_Unpack(&JudgeChannel, JudgeChannel.receiveBuf[i]);
     }
 
     // enable DMA
@@ -106,7 +94,7 @@ void UART7_IRQHandler(void) {
     // unpack
     len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART7_Rx);
     for (i = 0; i < len; i++) {
-        // Protocol_Unpack(&Board, Board.receiveBuf[i]);
+        Protocol_Unpack(&UserChannel, UserChannel.receiveBuf[i]);
     }
 
     // enable DMA
@@ -131,7 +119,7 @@ void UART8_IRQHandler(void) {
     // unpack
     len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART8_Rx);
     for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
+        Protocol_Unpack(&HostChannel, HostChannel.receiveBuf[i]);
     }
 
     // enable DMA
@@ -172,7 +160,7 @@ void CAN1_RX0_IRQHandler(void) {
         break;
 
     case 0x206:
-        Motor_Update(&Motor_Pitch, position, 0);
+        Motor_Update(&Motor_Pitch, position, speed);
         break;
 
     default:

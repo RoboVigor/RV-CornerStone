@@ -1,6 +1,6 @@
 /**
- * @brief 步兵/英雄
- * @version 1.2.0
+ * @brief 步兵
+ * @version 1.5.0
  */
 #include "main.h"
 #include "stdlib.h"
@@ -14,8 +14,6 @@ void Task_Safe_Mode(void *Parameters) {
                 Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
                 Can_Send(CAN1, 0x2FF, 0, 0, 0, 0);
                 Can_Send(CAN2, 0x1FF, 0, 0, 0, 0);
-                PWM_Set_Compare(&PWM_Snail1, 0.376 * 1250);
-                PWM_Set_Compare(&PWM_Snail2, 0.376 * 1250);
                 vTaskDelay(5);
             }
         }
@@ -27,29 +25,26 @@ void Task_Safe_Mode(void *Parameters) {
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     LASER_ON;
-    // SlowShootMode = 0;
+
     while (1) {
-        if (remoteData.switchRight != 2) {
+        if (1) {
             ControlMode = 1; //遥控器模式
             // if (remoteData.switchRight == 1) {
             //     Key_Disable(KEY_CTRL, 100);
             // }
 
             // 视觉测试
-            PsAimEnabled   = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
-            PsShootEnabled = 0;
+            // PsAimEnabled   = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
+            // PsShootEnabled = 0;
 
             // 检录用
-            MagzineOpened = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
-            FrictEnabled  = remoteData.switchLeft == 2;
-            StirEnabled   = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
+            MagzineOpened = remoteData.switchLeft == 1;
+            FrictEnabled  = remoteData.switchRight != 1;
+            StirEnabled   = remoteData.switchLeft == 2;
             // 小陀螺测试
-            // SwingMode = ((remoteData.switchLeft == 2) && (remoteData.switchRight == 1))?3:0;
-            // 超级电容
-            // HighSpeedMode = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
-            HighSpeedMode = 0;
+            // SwingMode = (remoteData.switchRight == 2) ? 3 : 0;
             // 安全模式
-            // SafetyMode   = remoteData.switchRight == 2;
+            SafetyMode    = remoteData.switchRight == 2;
             FastShootMode = 0;
         } else {
             ControlMode    = 2; //键鼠模式
@@ -71,10 +66,6 @@ void Task_Control(void *Parameters) {
             } else if (keyboardData.V) {
                 SwingMode = 0;
             }
-            // 低速模式
-            // LowSpeedMode = keyboardData.Shift;
-            // 高速模式
-            HighSpeedMode = 0;
             // 高射速模式
             FastShootMode = keyboardData.E;
         }
@@ -83,6 +74,77 @@ void Task_Control(void *Parameters) {
         // PsAimEnabled   = (remoteData.switchLeft == 1) && (remoteData.switchRight != 3);
         // PsShootEnabled = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
         vTaskDelayUntil(&LastWakeTime, 5);
+    }
+    vTaskDelete(NULL);
+}
+void Task_Board_Communication(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.1;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    while (1) {
+        uint16_t id;
+        uint16_t dataLength;
+        uint16_t offset = 0;
+
+        // 板间通信
+#ifdef BOARD_ALPHA
+        id                                 = 0x501;
+        ProtocolData.user.boardAlpha.data1 = 1.11;
+        ProtocolData.user.boardAlpha.data2 = 2.22;
+        ProtocolData.user.boardAlpha.data3 = 3.33;
+        ProtocolData.user.boardAlpha.data4 = 4.44;
+#endif
+
+#ifdef BOARD_BETA
+        id                                = 0x502;
+        ProtocolData.user.boardBeta.data1 = 0;
+        ProtocolData.user.boardBeta.data2 = 0;
+        ProtocolData.user.boardBeta.data3 = 0;
+        ProtocolData.user.boardBeta.data4 = 1.11;
+#endif
+
+        // USART发送
+        DMA_Disable(UART7_Tx);
+        Protocol_Get_Packet_Info(id, &offset, &dataLength);
+        dataLength = Protocol_Pack(&UserChannel, id);
+        DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+
+        // Can发送
+        dataLength = Protocol_Pack(&UserChannel, id);
+        Can_Send_Msg(CAN1, id, UserChannel.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+
+        // 发送频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+
+        // 调试信息
+        // DebugData.debug1 = ProtocolData.user.boardAlpha.data1 * 1000;
+        // DebugData.debug2 = ProtocolData.user.boardBeta.data4 * 1000;
+    }
+    vTaskDelete(NULL);
+}
+
+void Task_Vision_Communication(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.1;                 // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    while (1) {
+        uint16_t id = 0x0401;
+        uint16_t dataLength;
+
+        // 视觉通信
+        ProtocolData.host.autoaimData.yaw_angle_diff   = 1.23;
+        ProtocolData.host.autoaimData.pitch_angle_diff = 4.56;
+        ProtocolData.host.autoaimData.biu_biu_state    = 7;
+
+        // DMA重启
+        DMA_Disable(UART8_Tx);
+        dataLength = Protocol_Pack(&HostChannel, id);
+        DMA_Enable(UART8_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+
+        // 发送频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
 }
@@ -123,7 +185,7 @@ void Task_Gimbal(void *Parameters) {
     PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 1000, 10);
     PID_Init(&PID_Cloud_YawSpeed, 10, 0, 0, 4000, 0);
     PID_Init(&PID_Cloud_PitchAngle, 15, 0, 0, 16000, 0);
-    PID_Init(&PID_Cloud_PitchSpeed, 100, 0, 0, 16000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 85, 0, 0, 16000, 0);
 
     while (1) {
         // 重置目标
@@ -135,7 +197,7 @@ void Task_Gimbal(void *Parameters) {
         yawSpeed     = ImuData.gy / GYROSCOPE_LSB;      // 逆时针为正
         pitchAngle   = Gyroscope_EulerData.pitch - 90;  // 逆时针为正
         pitchSpeed   = -1 * ImuData.gx / GYROSCOPE_LSB; // 逆时针为正
-        chassisAngle = Motor_Pitch.angle + pitchAngle;
+        chassisAngle = -1 * Motor_Pitch.angle + pitchAngle;
 
         // 遥控器输入角度目标
         if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 360 * interval;
@@ -147,27 +209,29 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget += pitchAngleTargetControl;
 
         // 视觉辅助
-        if (!PsAimEnabled) {
-            lastSeq = Ps.autoaimData.seq;
-            yawAngleTargetControl += yawAngleTargetPs;
-            pitchAngleTargetControl += pitchAngleTargetPs;
-            yawAngleTarget += yawAngleTargetPs;
-            pitchAngleTarget += pitchAngleTargetPs;
-            yawAngleTargetPs   = 0;
-            pitchAngleTargetPs = 0;
-        } else if (lastSeq != Ps.autoaimData.seq) {
-            lastSeq = Ps.autoaimData.seq;
-            yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
-            pitchAngleTargetPs -= Ps.autoaimData.pitch_angle_diff;
-        }
+        // if (!PsAimEnabled) {
+        //     lastSeq = Ps.autoaimData.seq;
+        //     yawAngleTargetControl += yawAngleTargetPs;
+        //     pitchAngleTargetControl += pitchAngleTargetPs;
+        //     yawAngleTarget += yawAngleTargetPs;
+        //     pitchAngleTarget += pitchAngleTargetPs;
+        //     yawAngleTargetPs   = 0;
+        //     pitchAngleTargetPs = 0;
+        // } else if (lastSeq != Ps.autoaimData.seq) {
+        //     lastSeq = Ps.autoaimData.seq;
+        //     yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
+        //     pitchAngleTargetPs -= Ps.autoaimData.pitch_angle_diff;
+        // }
 
+        //视觉补偿
         MIAO(pitchAngleTargetPs, GIMBAL_PITCH_MIN - pitchAngleTarget, GIMBAL_PITCH_MAX - pitchAngleTarget);
         yawAngleTarget += yawAngleTargetPs;
         pitchAngleTarget += pitchAngleTargetPs;
 
-        // 上坡补偿
-        // pitchAngleTargetFixStable = FirstOrderLowPassFilter(-1 * (chassisAngle / 40.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget), &pitchAngleTargetFix, 200,
-        // 20); pitchAngleTarget += pitchAngleTargetFixStable;
+        // 斜坡补偿
+        pitchAngleTargetFix = -1 * (chassisAngle / 40.0) * (GIMBAL_PITCH_MIN - pitchAngleTarget);
+        FirstOrderLowPassFilter(pitchAngleTargetFix, &pitchAngleTargetFixStable, 200, 20);
+        pitchAngleTarget += pitchAngleTargetFixStable;
 
         // 限制云台运动范围
         MIAO(pitchAngleTarget, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
@@ -197,20 +261,17 @@ void Task_Gimbal(void *Parameters) {
         Can_Send(CAN1, 0x1FF, 0, -pitchCurrent, 0, 0);
         Can_Send(CAN1, 0x2FF, yawCurrent, 0, 0, 0);
 #endif
-#ifdef ROBOT_LOOP_THREE
-        Can_Send(CAN1, 0x1FF, 0, pitchCurrent, 0, 0);
-        Can_Send(CAN1, 0x2FF, yawCurrent, 0, 0, 0);
-#endif
 
         // 调试信息
         //
-        // DebugData.debug1 = PID_Cloud_PitchSpeed.output;
-        // DebugData.debug2 = ImuData.gx;
-        // DebugData.debug3 = pitchAngleTarget;
-        // DebugData.debug4 = ImuData.gy;
-        // DebugData.debug5 = PID_Cloud_YawSpeed.target;
+        // DebugData.debug1 = pitchAngleTarget;
+        // DebugData.debug2 = pitchAngleTargetFix;
+        // DebugData.debug3 = pitchAngleTargetFixStable;
+        // DebugData.debug4 = chassisAngle;
+        // DebugData.debug5 = Motor_Pitch.angle;
         // DebugData.debug6 = PID_Cloud_YawSpeed.output;
         // DebugData.debug7 = yawCurrent;
+
         //任务间隔
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -269,17 +330,17 @@ void Task_Chassis(void *Parameters) {
 
     while (1) {
         // 设置反馈值
-        motorAngle  = Motor_Yaw.angle;                          // 电机角度
-        motorSpeed  = Motor_Yaw.speed * RPM2RPS;                // 电机角速度
-        power       = Judge.powerHeatData.chassis_power;        // 裁判系统功率
-        powerBuffer = Judge.powerHeatData.chassis_power_buffer; // 裁判系统功率缓冲
+        motorAngle  = Motor_Yaw.angle;                                       // 电机角度
+        motorSpeed  = Motor_Yaw.speed * RPM2RPS;                             // 电机角速度
+        power       = ProtocolData.judge.powerHeatData.chassis_power;        // 裁判系统功率
+        powerBuffer = ProtocolData.judge.powerHeatData.chassis_power_buffer; // 裁判系统功率缓冲
 
-        // 视觉专属follow PID
-        if (PsAimEnabled) {
-            PID_Follow_Angle.p = 1;
-        } else {
-            PID_Follow_Angle.p = 1.3;
-        }
+        // // 视觉专属follow PID
+        // if (PsAimEnabled) {
+        //     PID_Follow_Angle.p = 1;
+        // } else {
+        //     PID_Follow_Angle.p = 1.3;
+        // }
 
         // 底盘跟随死区
         if (SwingMode) {
@@ -352,10 +413,6 @@ void Task_Chassis(void *Parameters) {
                 xRampProgress = 0;
                 xRampStart    = 0;
             }
-            if (LowSpeedMode) {
-                vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 0.5;
-                vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 0.5;
-            }
         }
 
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
@@ -387,19 +444,14 @@ void Task_Chassis(void *Parameters) {
 
         // 麦轮解算及限速
         // targetPower = 70.0 - WANG(30 - ChassisData.powerBuffer, 0.0, 10.0) / 10.0 * 70.0; // 设置目标功率
-        targetPower = 100.0 * (1 - WANG(60.0 - ChassisData.powerBuffer, 0.0, 40.0) / 40.0); // 设置目标功率
+        targetPower = 100.0 * (1 - WANG(60.0 - ChassisData.powerBuffer, 0.0, 40.0) / 40.0); // 设置目标功率 ?
 
         Chassis_Update(&ChassisData, vx, vy, vwRamp); // 更新麦轮转速
         Chassis_Fix(&ChassisData, motorAngle);        // 修正旋转后底盘的前进方向
         Chassis_Calculate_Rotor_Speed(&ChassisData);  // 麦轮解算
-        if (HighSpeedMode) {
-            Chassis_Limit_Rotor_Speed(&ChassisData, 1000);                                // 设置转子速度上限 (rad/s)
-            Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
-            ChassisData.powerScale = 1;
-        } else {
-            Chassis_Limit_Rotor_Speed(&ChassisData, 800);                                 // 设置转子速度上限 (rad/s)
-            Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
-        }
+
+        Chassis_Limit_Rotor_Speed(&ChassisData, 800);                                 // 设置转子速度上限 (rad/s)
+        Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
@@ -473,7 +525,7 @@ void Task_Fire_Stir(void *Parameters) {
 
     // PID 初始化
     PID_Init(&PID_StirAngle, 1, 0, 0, 9000, 6000);  // 拨弹轮角度环
-    PID_Init(&PID_StirSpeed, 25, 0, 0, 6000, 1000); // 拨弹轮速度环
+    PID_Init(&PID_StirSpeed, 18, 0, 0, 6000, 1000); // 拨弹轮速度环
 
     // 开启激光
     // LASER_ON;
@@ -486,19 +538,18 @@ void Task_Fire_Stir(void *Parameters) {
 #ifdef ROBOT_LOOP_TWO
         PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 14 : 6);
 #endif
-#ifdef ROBOT_LOOP_THREE
-        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 16 : 5);
-#endif
         // 拨弹速度
-        // if (Judge.robotState.robot_level == 1) {
-        //     stirSpeed = 110;
-        // } else if (Judge.robotState.robot_level == 2) {
-        //     stirSpeed = 140;
-        // } else if (Judge.robotState.robot_level == 3) {
-        //     stirSpeed = 160;
-        // }
+        if (ProtocolData.judge.robotState.shooter_heat0_cooling_rate == 20) {
+            stirSpeed = 110;
+        } else if (ProtocolData.judge.robotState.shooter_heat0_cooling_rate == 30) {
+            stirSpeed = 140;
+        } else if (ProtocolData.judge.robotState.shooter_heat0_cooling_rate == 40) {
+            stirSpeed = 160;
+        }
 
-        stirSpeed = 110;
+        // stirSpeed = 143; // 热量：120
+        // stirSpeed = 120; // 热量：240
+        // stirSpeed = 120; // 热量：360
 
         // X模式
         if (FastShootMode) {
@@ -507,7 +558,7 @@ void Task_Fire_Stir(void *Parameters) {
 
         //热量控制
         // maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit * 0.8; // todo: why?
-        // maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit - 60;
+        maxShootHeat = ProtocolData.judge.robotState.shooter_heat0_cooling_limit - 60;
 
         // 输入射击模式
         shootMode = shootIdle;
@@ -516,14 +567,14 @@ void Task_Fire_Stir(void *Parameters) {
             shootMode = shootToDeath;
         }
         // 视觉辅助
-        if (PsShootEnabled && lastSeq != Ps.autoaimData.seq && Ps.autoaimData.biu_biu_state) {
-            shootMode = shootToDeath;
-        }
-        lastSeq = Ps.autoaimData.seq;
-
-        // if (Judge.powerHeatData.shooter_heat0 > maxShootHeat) {
-        //     shootMode = shootIdle;
+        // if (PsShootEnabled && lastSeq != Ps.autoaimData.seq && Ps.autoaimData.biu_biu_state) {
+        //     shootMode = shootToDeath;
         // }
+        // lastSeq = Ps.autoaimData.seq;
+
+        if (ProtocolData.judge.powerHeatData.shooter_heat0 > maxShootHeat) {
+            shootMode = shootIdle;
+        }
 
         // 控制拨弹轮
         if (shootMode == shootIdle) {
@@ -534,114 +585,15 @@ void Task_Fire_Stir(void *Parameters) {
             PID_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * RPM2RPS);
             Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
         }
-        DebugData.debug1 = PID_StirSpeed.output;
-        DebugData.debug2 = shootMode;
+
+        // DebugData.debug1 = PID_StirSpeed.output;
+        // DebugData.debug2 = shootMode;
+
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
 
     vTaskDelete(NULL);
 }
-
-/**
- * @brief 发射机构 (摩擦轮)
- * @todo  使用状态机重写
- */
-// void Task_Fire_Frict(void *Parameters) {
-
-//     // snail摩擦轮任务
-//     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-
-//     float dutyCycleStart  = 0.376; //起始占空比为37.6
-//     float dutyCycleMiddle = 0.446; //启动需要到44.6
-//     float dutyCycleEnd    = 0.540; //加速到你想要的占空比
-
-//     float dutyCycleRightSnailTarget = 0.376; //目标占空比
-//     float dutyCycleLeftSnailTarget  = 0.376;
-
-//     float dutyCycleRightSnailProgress1 = 0; //存储需要的两个过程（初始到启动，启动到你想要的速度）
-//     float dutyCycleLeftSnailProgress1  = 0;
-//     float dutyCycleRightSnailProgress2 = 0;
-//     float dutyCycleLeftSnailProgress2  = 0;
-
-//     int snailState = 0;
-//     int lastSnailState;
-
-//     enum {
-//         STEP_SNAIL_IDLE,
-//         STEP_RIGHT_START_TO_MIDDLE,
-//         STEP_LEFT_START_TO_MIDDLE,
-//         STEP_RIGHT_MIDDLE_TO_END,
-//         STEP_LEFT_MIDDLE_TO_END,
-//     } Step = STEP_SNAIL_IDLE;
-
-//     /*来自dji开源，两个snail不能同时启动*/
-
-//     while (1) {
-//         lastSnailState = snailState;
-//         snailState     = FrictEnabled;
-//         if (FrictEnabled) {
-//             LASER_ON;
-//         } else {
-//             // LASER_OFF;
-//         }
-//         switch (Step) {
-//         case STEP_SNAIL_IDLE:
-//             if (snailState == 0) {
-//                 dutyCycleRightSnailTarget    = 0.376;
-//                 dutyCycleLeftSnailTarget     = 0.376;
-//                 dutyCycleRightSnailProgress1 = 0;
-//                 dutyCycleRightSnailProgress2 = 0;
-//                 dutyCycleLeftSnailProgress1  = 0;
-//                 dutyCycleLeftSnailProgress2  = 0;
-//             } else if (lastSnailState == 0) {
-//                 Step = STEP_RIGHT_START_TO_MIDDLE;
-//             }
-//             break;
-
-//         case STEP_RIGHT_START_TO_MIDDLE:
-//             dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle, dutyCycleRightSnailProgress1);
-//             dutyCycleRightSnailProgress1 += 0.1f;
-//             if (dutyCycleRightSnailProgress1 > 1) {
-//                 Step = STEP_LEFT_START_TO_MIDDLE;
-//                 vTaskDelay(100);
-//             }
-//             break;
-
-//         case STEP_LEFT_START_TO_MIDDLE:
-//             dutyCycleLeftSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle, dutyCycleLeftSnailProgress1);
-//             dutyCycleLeftSnailProgress1 += 0.1f;
-//             if (dutyCycleLeftSnailProgress1 > 1) {
-//                 Step = STEP_RIGHT_MIDDLE_TO_END;
-//                 vTaskDelay(100);
-//             }
-
-//         case STEP_RIGHT_MIDDLE_TO_END:
-//             dutyCycleRightSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleRightSnailProgress2);
-//             dutyCycleRightSnailProgress2 += 0.01f;
-//             if (dutyCycleRightSnailProgress2 > 1) {
-//                 Step = STEP_LEFT_MIDDLE_TO_END;
-//             }
-//             if (Step != STEP_RIGHT_MIDDLE_TO_END) break;
-
-//         case STEP_LEFT_MIDDLE_TO_END:
-//             dutyCycleLeftSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleLeftSnailProgress2);
-//             dutyCycleLeftSnailProgress2 += 0.01f;
-//             if (dutyCycleLeftSnailProgress2 > 1) {
-//                 Step = STEP_SNAIL_IDLE;
-//             }
-//             break;
-
-//         default:
-//             break;
-//         }
-
-//         PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
-//         PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
-
-//         vTaskDelayUntil(&LastWakeTime, 5);
-//     }
-//     vTaskDelete(NULL);
-// }
 
 void Task_Fire_Frict(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -652,8 +604,8 @@ void Task_Fire_Frict(void *Parameters) {
     int motorRSpeed;
     int targetSpeed = 0;
 
-    PID_Init(&PID_FireL, 50, 0, 0, 16384, 1200);
-    PID_Init(&PID_FireR, 50, 0, 0, 16384, 1200);
+    PID_Init(&PID_FireL, 55, 0, 0, 16384, 1200);
+    PID_Init(&PID_FireR, 55, 0, 0, 16384, 1200);
 
     while (1) {
 
@@ -667,14 +619,17 @@ void Task_Fire_Frict(void *Parameters) {
         motorRSpeed = Motor_FR.speed / 19.2;
 
         if (FrictEnabled) {
-            targetSpeed = 260;
+            if (ProtocolData.judge.robotState.shooter_heat0_speed_limit == 15)
+                targetSpeed = 225;
+            else if (ProtocolData.judge.robotState.shooter_heat0_speed_limit == 18)
+                targetSpeed = 260;
+            else if (ProtocolData.judge.robotState.shooter_heat0_speed_limit == 22)
+                targetSpeed = 307;
+            else if (ProtocolData.judge.robotState.shooter_heat0_speed_limit == 30)
+                targetSpeed = 453;
         } else {
             targetSpeed = 0;
         }
-
-        // targetSpeed = 200;   //10m/s
-        // targetSpeed = 220;   //12m/s
-        // targetSpeed = 260;   //15m/s
 
         PID_Calculate(&PID_FireL, targetSpeed, motorLSpeed);
         PID_Calculate(&PID_FireR, -1 * targetSpeed, motorRSpeed);
@@ -687,6 +642,7 @@ void Task_Fire_Frict(void *Parameters) {
         // DebugData.debug4 = PID_FireR.output;
         // DebugData.debug5 = -1 * targetSpeed;
         // DebugData.debug6 = Judge.shootData.bullet_speed;
+
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
@@ -749,6 +705,10 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
     xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
+
+    // DMA发送任务
+    // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
+    // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

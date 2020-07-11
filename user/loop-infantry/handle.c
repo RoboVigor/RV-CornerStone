@@ -30,12 +30,6 @@ void Handle_Init(void) {
     Motor_Pitch.positionBias = 7090;
     Motor_Pitch.position     = 7090;
 #endif
-#ifdef ROBOT_LOOP_THREE
-    Motor_Yaw.positionBias   = 640;
-    Motor_Yaw.position       = 640;
-    Motor_Pitch.positionBias = 4720;
-    Motor_Pitch.position     = 4720;
-#endif
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
@@ -44,6 +38,7 @@ void Handle_Init(void) {
     Magic_Init(&magic, 0);
 
     // 通讯协议初始化
-    Protocol_Init(&Judge);
-    Protocol_Init(&Ps);
+    Protocol_Init(&JudgeChannel, &ProtocolData);
+    Protocol_Init(&HostChannel, &ProtocolData);
+    Protocol_Init(&UserChannel, &ProtocolData);
 }
