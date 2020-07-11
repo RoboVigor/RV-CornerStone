@@ -21,13 +21,15 @@ void Task_Safe_Mode(void *Parameters) {
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        // FrictEnabled = remoteData.switchLeft == 3;
+        // FrictEnabled = remoteData.switchRight == 2;
+        FrictEnabled = 1;
         // LaserEnabled = remoteData.switchLeft == 3;
-        // // StirEnabled  = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
-        // StirEnabled = remoteData.switchRight == 1;
+        // StirEnabled  = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
+        // StirEnabled = remoteData.switchLeft == 2;
+        StirEnabled = 1;
         // PsEnabled   = remoteData.switchLeft == 2;
         // AutoMode    = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
-        SafetyMode = remoteData.switchRight == 2;
+        // SafetyMode = remoteData.switchRight == 2;
 
         // if ((remoteData.switchLeft == 1 && remoteData.switchRight == 1) || (!remoteData.state)) {
         //     FrictEnabled = 1;
@@ -409,7 +411,7 @@ void Task_Ps(void *Parameters) {
 void Task_Stir(void *Parameters) {
     // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.005;               // 任务运行间隔 s
+    float      interval     = 0.05;                // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     //堵转检测
@@ -419,7 +421,7 @@ void Task_Stir(void *Parameters) {
     int counter2 = 0;
 
     // PID 初始化
-    PID_Init(&PID_Stir_Speed, 60, 0.1, 0, 6000, 3000); //?? 0.1
+    PID_Init(&PID_Stir_Speed, 12, 0, 0, 6000, 3000); //?? 0.1
 
     // 摩擦轮是否开启
     Snail_State = 0;
@@ -428,42 +430,48 @@ void Task_Stir(void *Parameters) {
     int calmDown = 0; // 1:冷却
 
     // 射击模式
-    int shootMode = 0; // 0:停止 1:发射S
+    int shootMode = 1; // 0:停止 1:发射S
 
     // 视觉系统
     int lastSeq    = 0;
     int counter    = 0;
     int maxTimeout = 500 / intervalms;
 
+    int targetSpeed = 0;
+
     while (1) {
+        targetSpeed = CHOOSEL(0, 200, 300);
+        PID_Calculate(&PID_Stir_Speed, targetSpeed, Motor_Stir.speed * RPM2RPS);
 
-        // 热量限制
-        calmDown = (ProtocolData.judge.powerHeatData.shooter_heat0 > 400) ? 1 : 0;
+        if (StirEnabled) Can_Send(CAN1, 0x1ff, 0, 0, PID_Stir_Speed.output, 0);
 
-        // 视觉系统
-        if (!PsEnabled) {
-            lastSeq = HostChannel.seq;
-            counter++;
-        } else if (lastSeq != HostChannel.seq) {
-            lastSeq = HostChannel.seq;
-            if (ProtocolData.host.autoaimData.biu_biu_state == 0) {
-                // if (ProtocolData.host.autoaimData.yaw_angle_diff == 0 && ProtocolData.host.autoaimData.pitch_angle_diff == 0 &&
-                // ProtocolData.host.autoaimData.biu_biu_state == 0) {
-                counter++;
-            } else {
-                counter   = 0;
-                shootMode = 1;
-            }
-        } else {
-            counter++;
-        }
+        // // 热量限制
+        // calmDown = (ProtocolData.judge.powerHeatData.shooter_heat0 > 400) ? 1 : 0;
 
-        if ((counter >= maxTimeout)) {
-            shootMode = 0;
-        }
-        if (counter == INT_MAX) {
-            counter = maxTimeout;
-        }
+        // // 视觉系统
+        // if (!PsEnabled) {
+        //     lastSeq = HostChannel.seq;
+        //     counter++;
+        // } else if (lastSeq != HostChannel.seq) {
+        //     lastSeq = HostChannel.seq;
+        //     if (ProtocolData.host.autoaimData.biu_biu_state == 0) {
+        //         // if (ProtocolData.host.autoaimData.yaw_angle_diff == 0 && ProtocolData.host.autoaimData.pitch_angle_diff == 0 &&
+        //         // ProtocolData.host.autoaimData.biu_biu_state == 0) {
+        //         counter++;
+        //     } else {
+        //         counter   = 0;
+        //         shootMode = 1;
+        //     }
+        // } else {
+        //     counter++;
+        // }
+
+        // if ((counter >= maxTimeout)) {
+        //     shootMode = 0;
+        // }
+        // if (counter == INT_MAX) {
+        //     counter = maxTimeout;
+        // }
 
         // if (!PsEnabled) {
         //     lastSeq = HostChannel.seq;
@@ -475,18 +483,18 @@ void Task_Stir(void *Parameters) {
         // }
 
         // 射击模式
-        shootMode = shootMode | StirEnabled;
+        // shootMode = shootMode | StirEnabled;
 
-        // 摩擦轮是否开启
-        if (Snail_State == 0) {
-            shootMode = 0;
-        };
+        // // 摩擦轮是否开启
+        // if (Snail_State == 0) {
+        //     shootMode = 0;
+        // };
 
-        if ((calmDown == 0) && (shootMode == 1)) {
-            PID_Calculate(&PID_Stir_Speed, 400, Motor_Stir.speed * RPM2RPS);
-        } else {
-            PID_Calculate(&PID_Stir_Speed, 0, Motor_Stir.speed * RPM2RPS);
-        }
+        // if ((calmDown == 0) && (shootMode == 1)) {
+        //     PID_Calculate(&PID_Stir_Speed, 400, Motor_Stir.speed * RPM2RPS);
+        // } else {
+        //     PID_Calculate(&PID_Stir_Speed, 0, Motor_Stir.speed * RPM2RPS);
+        // }
 
         // //堵转检测
         // if (PID_Stir_Speed.output > 3500) {
@@ -509,129 +517,18 @@ void Task_Stir(void *Parameters) {
         //     counter1 = 0;
         //     counter2 = 0;
         // }
-
+        DebugData.debug1 = Motor_Stir.speed;
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = Motor_Stir.speed;
+
         DebugData.debug2 = ProtocolData.host.autoaimData.biu_biu_state;
         DebugData.debug3 = shootMode;
     }
 
     vTaskDelete(NULL);
 }
-
-// void Task_Snail(void *Parameters) {
-//     // 任务
-//     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-//     float      interval     = 0.005;               // 任务运行间隔 s
-//     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
-
-//     // 占空比
-//     float dutyCycleStart  = 0.376; // 起始
-//     float dutyCycleMiddle = 0.446; // 启动
-//     float dutyCycleEnd    = 0.540; // 加速到你想要的
-
-//     // 目标占空比
-//     float dutyCycleRightSnailTarget = 0.376;
-//     float dutyCycleLeftSnailTarget  = 0.376;
-
-//     // 存储需要的两个过程（初始到启动，启动到你想要的速度）
-//     float dutyCycleRightSnailProgress1 = 0;
-//     float dutyCycleLeftSnailProgress1  = 0;
-//     float dutyCycleRightSnailProgress2 = 0;
-//     float dutyCycleLeftSnailProgress2  = 0;
-
-//     // snail电机状态
-//     int snailState = 0;
-//     int lastSnailState;
-
-//     enum {
-//         STEP_SNAIL_IDLE,
-//         STEP_RIGHT_START_TO_MIDDLE,
-//         STEP_LEFT_START_TO_MIDDLE,
-//         STEP_RIGHT_MIDDLE_TO_END,
-//         STEP_LEFT_MIDDLE_TO_END,
-//     } Step = STEP_SNAIL_IDLE;
-
-//     /*来自dji开源，两个snail不能同时启动*/
-
-//     while (1) {
-
-//         if (LaserEnabled) {
-//             LASER_ON;
-//         } else {
-//             LASER_OFF;
-//         }
-
-//         lastSnailState = snailState;
-//         snailState     = FrictEnabled;
-
-//         switch (Step) {
-//         case STEP_SNAIL_IDLE:
-//             if (snailState == 0) {
-//                 Snail_State                  = 0;
-//                 dutyCycleRightSnailTarget    = 0.376;
-//                 dutyCycleLeftSnailTarget     = 0.376;
-//                 dutyCycleRightSnailProgress1 = 0;
-//                 dutyCycleRightSnailProgress2 = 0;
-//                 dutyCycleLeftSnailProgress1  = 0;
-//                 dutyCycleLeftSnailProgress2  = 0;
-//             } else if (lastSnailState == 0) {
-//                 Step = STEP_RIGHT_START_TO_MIDDLE;
-//             }
-//             break;
-
-//         case STEP_RIGHT_START_TO_MIDDLE:
-//             dutyCycleRightSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle, dutyCycleRightSnailProgress1);
-//             dutyCycleRightSnailProgress1 += 0.02f;
-//             if (dutyCycleRightSnailProgress1 > 1) {
-//                 Step = STEP_LEFT_START_TO_MIDDLE;
-//                 vTaskDelay(100);
-//             }
-//             break;
-
-//         case STEP_LEFT_START_TO_MIDDLE:
-//             dutyCycleLeftSnailTarget = RAMP(dutyCycleStart, dutyCycleMiddle, dutyCycleLeftSnailProgress1);
-//             dutyCycleLeftSnailProgress1 += 0.02f;
-//             if (dutyCycleLeftSnailProgress1 > 1) {
-//                 Step = STEP_RIGHT_MIDDLE_TO_END;
-//                 vTaskDelay(100);
-//             }
-
-//         case STEP_RIGHT_MIDDLE_TO_END:
-//             dutyCycleRightSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleRightSnailProgress2);
-//             dutyCycleRightSnailProgress2 += 0.01f;
-//             if (dutyCycleRightSnailProgress2 > 1) {
-//                 Step = STEP_LEFT_MIDDLE_TO_END;
-//             }
-//             if (Step != STEP_RIGHT_MIDDLE_TO_END) break;
-
-//         case STEP_LEFT_MIDDLE_TO_END:
-//             dutyCycleLeftSnailTarget = RAMP(dutyCycleMiddle, dutyCycleEnd, dutyCycleLeftSnailProgress2);
-//             dutyCycleLeftSnailProgress2 += 0.01f;
-//             if (dutyCycleLeftSnailProgress2 > 1) {
-//                 Snail_State = 1;
-//                 Step        = STEP_SNAIL_IDLE;
-//             }
-//             break;
-
-//         default:
-//             break;
-//         }
-
-//         PWM_Set_Compare(&PWM_Snail1, dutyCycleRightSnailTarget * 1250);
-//         PWM_Set_Compare(&PWM_Snail2, dutyCycleLeftSnailTarget * 1250);
-
-//         vTaskDelayUntil(&LastWakeTime, intervalms);
-
-//         // DebugData.debug1 = dutyCycleRightSnailTarget * 1000;
-//         // DebugData.debug2 = dutyCycleLeftSnailTarget * 1000;
-//         // DebugData.debug3 = Step;
-//     }
-//     vTaskDelete(NULL);
-// }
 
 void Task_Frict(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -646,7 +543,7 @@ void Task_Frict(void *Parameters) {
     PID_Init(&PID_Frict_R_Speed, 50, 0, 0, 16384, 2000);
 
     while (1) {
-        targetSpeed = 300;
+        targetSpeed = CHOOSER(0, 200, 300);
 
         motorLSpeed = Motor_Frict_L.speed / 19.2f;
         motorRSpeed = Motor_Frict_R.speed / 19.2f;
@@ -660,8 +557,7 @@ void Task_Frict(void *Parameters) {
 
         DebugData.debug1 = motorLSpeed;
         DebugData.debug2 = motorRSpeed;
-
-        Can_Send(CAN1, 0x200, 0, 0, PID_Frict_L_Speed.output, PID_Frict_R_Speed.output);
+        if (FrictEnabled) Can_Send(CAN1, 0x200, 0, 0, PID_Frict_L_Speed.output, PID_Frict_R_Speed.output);
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -749,17 +645,16 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
-    // while (!remoteData.state) {
-    // }
+    while (!remoteData.state) {
+    }
 
     //模式切换任务
-    // xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
+    xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
 
     // 运动控制任务
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Stir, "Task_Stir", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Stir, "Task_Stir", 400, NULL, 6, NULL);
 
     xTaskCreate(Task_Frict, "Task_Frict", 400, NULL, 6, NULL);
 
