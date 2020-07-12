@@ -15,12 +15,12 @@ void Handle_Init(void) {
 
     // 发射机构电机
     Motor_Init(&Motor_LeftFrict, 1, DISABLE, ENABLE);
-    Motor_Init(&Motor_LeftFrict, 1, DISABLE, ENABLE);
-    Motor_Init(&Motor_LeftFrict, 19.2, DISABLE, ENABLE);
+    Motor_Init(&Motor_RightFrict, 1, DISABLE, ENABLE);
+    Motor_Init(&Motor_Stir3510, 19.2, DISABLE, ENABLE);
 
     // 云台电机
-    Motor_Init(&Motor_Yaw, 1, ENABLE, ENABLE); // 顺时针为正电流
-    Motor_Init(&Motor_Yaw, 1, ENABLE, ENABLE); // 逆时针为正电流
+    Motor_Init(&Motor_Yaw, 1, ENABLE, ENABLE);
+    Motor_Init(&Motor_Pitch, 1, ENABLE, ENABLE);
 
     // CAN外设
     Can1_Device[ESC_ID(0x203)] = &Motor_Yaw;

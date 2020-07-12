@@ -142,6 +142,10 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTargetRamp, -Motor_Pitch.angle);
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed); //正输出向上
 
+        // 输出电流值到电调
+        Motor_Yaw.input   = PID_Cloud_YawSpeed.output;
+        Motor_Pitch.input = PID_Cloud_PitchSpeed.output;
+
         // 调试信息
         // DebugData.debug1 = yawAngle;
         // DebugData.debug2 = yawSpeed;
@@ -351,6 +355,12 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RBCM, ChassisData.rotorSpeed[2], Motor_RB.speed * RPM2RPS);
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
+        // 输出电流值到电调
+        Motor_LF.input = PID_LFCM.output;
+        Motor_LB.input = PID_LBCM.output;
+        Motor_RB.input = PID_RBCM.output;
+        Motor_RF.input = PID_RFCM.output;
+
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
@@ -483,6 +493,11 @@ void Task_Fire(void *Parameters) {
         }
 
         PID_Calculate(&PID_Stir3510Speed, Stir3510_SpeedTarget, Motor_Stir3510.speed * RPM2RPS / 2);
+
+        // 输出电流值到电调
+        Motor_LeftFrict.input  = PID_LeftFrictSpeed.output;
+        Motor_RightFrict.input = PID_RightFrictSpeed.output;
+        Motor_Stir3510.input   = PID_Stir3510Speed.output;
 
         // DebugData.debug1 = PID_Stir3510Speed.output;
         // DebugData.debug2 = Motor_Stir3510.speed * RPM2RPS / 2;
