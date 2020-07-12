@@ -427,6 +427,11 @@
               <FilePath>..\library\std\src\misc.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f4xx_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_adc.c</FilePath>
+            </File>
+            <File>
               <FileName>stm32f4xx_can.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\library\std\src\stm32f4xx_can.c</FilePath>
