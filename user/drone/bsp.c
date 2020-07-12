@@ -27,11 +27,16 @@ void BSP_Init(void) {
 
     // Judge (USART6)
     BSP_USART6_Init(115200, USART_IT_IDLE);
-    BSP_DMA_Init(USART6_Tx, Judge.sendBuf, Protocol_Buffer_Length);
-    BSP_DMA_Init(USART6_Rx, Judge.receiveBuf, Protocol_Buffer_Length);
+    BSP_DMA_Init(USART6_Tx, JudgeChannel.sendBuf, Protocol_Buffer_Length);
+    BSP_DMA_Init(USART6_Rx, JudgeChannel.receiveBuf, Protocol_Buffer_Length);
 
-    // Ps (UART8)
+    // User (UART7)
+    BSP_UART7_Init(115200, USART_IT_IDLE);
+    BSP_DMA_Init(UART7_Tx, UserChannel.sendBuf, Protocol_Buffer_Length);
+    BSP_DMA_Init(UART7_Rx, UserChannel.receiveBuf, Protocol_Buffer_Length);
+
+    // Host (UART8)
     BSP_UART8_Init(115200, USART_IT_IDLE);
-    BSP_DMA_Init(UART8_Tx, Ps.sendBuf, Protocol_Buffer_Length);
-    BSP_DMA_Init(UART8_Rx, Ps.receiveBuf, Protocol_Buffer_Length);
+    BSP_DMA_Init(UART8_Tx, HostChannel.sendBuf, Protocol_Buffer_Length);
+    BSP_DMA_Init(UART8_Rx, HostChannel.receiveBuf, Protocol_Buffer_Length);
 }
