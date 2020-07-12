@@ -64,6 +64,17 @@ void Task_Startup_Music(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_OLED(void *Parameters) {
+    uint16_t   JoystickValue = -1;
+    TickType_t LastWakeTime  = xTaskGetTickCount();
+    oled_init();
+    while (1) {
+        oled_LOGO();
+        vTaskDelayUntil(&LastWakeTime, 125);
+    }
+    vTaskDelete(NULL);
+}
+
 void Task_Sys_Init(void *Parameters) {
 
     // 初始化全局变量
@@ -83,6 +94,7 @@ void Task_Sys_Init(void *Parameters) {
 
     // 低级任务
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_OLED, "Task_OLED", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启

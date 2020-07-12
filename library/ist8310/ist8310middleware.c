@@ -18,6 +18,13 @@
 */
 
 #include "ist8310middleware.h"
+#include "mpu6500_i2c.h"
+
+#define IIC_SCL_H() PAout(8) = 1
+#define IIC_SCL_L() PAout(8) = 0
+#define IIC_SDA_H() PCout(9) = 1
+#define IIC_SDA_L() PCout(9) = 0
+#define IIC_SDA_Read() PCin(9)
 
 /**
  * @brief          initialize ist8310 gpio.

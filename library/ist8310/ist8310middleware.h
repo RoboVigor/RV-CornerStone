@@ -19,15 +19,8 @@
 #define IST8310DRIVER_MIDDLEWARE_H
 
 #include "stm32f4xx.h"
-#include "mpu6500_i2c.h"
 
 #define IST8310_IIC_ADDRESS 0x0E // the I2C address of IST8310
-
-#define IIC_SCL_H() PAout(8) = 1
-#define IIC_SCL_L() PAout(8) = 0
-#define IIC_SDA_H() PCout(9) = 1
-#define IIC_SDA_L() PCout(9) = 0
-#define IIC_SDA_Read() PCin(9)
 
 /**
  * @brief          initialize ist8310 gpio.

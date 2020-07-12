@@ -16,11 +16,20 @@
 #include "stm32f4xx_spi.h"
 #include <stdint.h>
 
+#ifdef STM32F427_437xx
+#define OLED_USE_SPI
 #define Max_Column 130
+#endif
+#ifdef STM32F407xx
+#define OLED_USE_IIC
+#define OLED_I2C_ADDRESS 0x3c
+#define Max_Column 128
+#endif
+
 #define Max_Row 64
 
-#define X_WIDTH 130
-#define Y_WIDTH 64
+#define X_WIDTH Max_Column
+#define Y_WIDTH Max_Row
 
 #define OLED_CMD 0x00
 #define OLED_DATA 0x01
