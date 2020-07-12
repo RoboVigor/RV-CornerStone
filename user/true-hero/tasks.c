@@ -57,18 +57,16 @@ void Task_Gimbal(void *Parameters) {
     int16_t lastSeq = 0;
 
     // Pitch轴斜坡参数
-    float pitchRampProgress = 0;
-    // float pitchRampStart       = -Gyroscope_EulerData.pitch;
+    float pitchRampProgress    = 0;
     float pitchRampStart       = Motor_Pitch.angle;
     float pitchAngleTargetRamp = 0;
 
     // 初始化云台PID
-    PID_Init(&PID_Cloud_YawAngle, 42, 0, 0, 3000, 0);  // 35  45
-    PID_Init(&PID_Cloud_YawSpeed, 75, 0, 0, 16000, 0); // 65  75
-    // PID_Init(&PID_Cloud_PitchAngle, 24, 0, 0, 1000, 0);   //  12 15 18 11 15  13 6 7.5 9
-    // PID_Init(&PID_Cloud_PitchSpeed, 105, 0, 0, 16000, 0); //  126 120 115 125 85 100 120 125 130
-    PID_Init(&PID_Cloud_PitchAngle, 32, 0, 0, 1000, 0);   //  20
-    PID_Init(&PID_Cloud_PitchSpeed, 100, 0, 0, 16000, 0); //  110
+    PID_Init(&PID_Cloud_YawAngle, 20, 0, 0, 3000, 0);
+    PID_Init(&PID_Cloud_YawSpeed, 50, 0, 0, 16000, 0);
+    PID_Init(&PID_Cloud_PitchAngle, 30, 0, 0, 1000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 200, 0, 0, 16000, 0);
+    // PID_Cloud_PitchSpeed.p = CHOOSE(450, 500, 550);
 
     //滤波函数参数
     float   filter_k       = 0.03; //滤波系数
@@ -94,7 +92,7 @@ void Task_Gimbal(void *Parameters) {
         // 设置角度目标
         // if (lastFilterFlag == filterFlag) {
         // if (ControlMode == 1) {
-        if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f;
+        if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 1.5;
         if (ABS(remoteData.ry) > 30) pitchAngleTargetControl += remoteData.ry / 660.0f;
         // } else if (ControlMode == 2) {
         //     yawAngleTargetControl += mouseData.x * 2 * interval;
@@ -169,7 +167,7 @@ void Task_Gimbal(void *Parameters) {
         // DebugData.debug7 = PID_Cloud_YawAngle.output_P;
 
         // DebugData.debug1 = pitchAngle;
-        // DebugData.debug1 = Motor_Yaw.angle;
+        // DebugData.debug1 = -Motor_Pitch.angle;
 
         // DebugData.debug1 = pitchSpeed;
         // DebugData.debug2 = Motor_Pitch.angle;
@@ -177,11 +175,15 @@ void Task_Gimbal(void *Parameters) {
         // DebugData.debug4 = PID_Cloud_PitchSpeed.output;
         // DebugData.debug5 = pitchAngleTarget;
         // DebugData.debug6 = pitchAngleTargetRamp;
+        // DebugData.debug7 = PID_Cloud_PitchAngle.p;
         // DebugData.debug7 = pitchRampStart;
 
         // DebugData.debug1 = ImuData.gx;
         // DebugData.debug2 = ImuData.gy;
         // DebugData.debug3 = ImuData.gz;
+
+        // DebugData.debug1 = Motor_Yaw.angle;
+        // DebugData.debug2 = yawAngle;
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -215,20 +217,21 @@ void Task_Chassis(void *Parameters) {
     float   gearRatio  = 290 / 17;
     float   angleSum   = 0;
     int     gearRound  = 0;
+    int16_t motorMode  = 1;
     int16_t SwingMode  = 0;
     int16_t swingMode  = 0;
 
     // 底盘跟随PID
-    // float gearRatio        = 1; // 290：17
     float followDeadRegion = 3.0;
-    PID_Init(&PID_Follow_Angle, 0.18, 0, 0, 1000, 0);
-    PID_Init(&PID_Follow_Speed, 8, 0, 0, 1000, 1000);
+    PID_Init(&PID_Follow_Angle, 0.12, 0, 0, 1000, 0);
+    PID_Init(&PID_Follow_Speed, 10, 0, 0, 1000, 1000);
+    // PID_Follow_Speed.p = CHOOSE(8, 10, 12);
 
     // 麦轮速度PID
-    PID_Init(&PID_LFCM, 22, 0, 0, 15000, 7500);
-    PID_Init(&PID_LBCM, 22, 0, 0, 15000, 7500);
-    PID_Init(&PID_RBCM, 22, 0, 0, 15000, 7500);
-    PID_Init(&PID_RFCM, 22, 0, 0, 15000, 7500);
+    PID_Init(&PID_LFCM, 25, 0, 0, 15000, 7500);
+    PID_Init(&PID_LBCM, 25, 0, 0, 15000, 7500);
+    PID_Init(&PID_RBCM, 25, 0, 0, 15000, 7500);
+    PID_Init(&PID_RFCM, 25, 0, 0, 15000, 7500);
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
@@ -252,28 +255,20 @@ void Task_Chassis(void *Parameters) {
         power       = Judge.powerHeatData.chassis_power;        // 裁判系统功率
         powerBuffer = Judge.powerHeatData.chassis_power_buffer; // 裁判系统功率缓冲
 
-        // 对电机角速度进行平均值滤波
-        // filter[filterp] = motorAngle;
-        // filterp         = filterp == 5 ? 0 : filterp + 1;
-        // int i;
-        // for (i = 0; i < 6; i++) {
-        //     motorSpeedStable += filter[i];
-        // }
-        // motorSpeedStable = motorSpeedStable / 6.0f;
-
         // 底盘跟随死区
         if (SwingMode) {
             followDeadRegion = 0; // 关闭底盘跟随死区
         } else {
-            followDeadRegion = 3; // 开启底盘跟随死区
+            followDeadRegion = 1; // 开启底盘跟随死区
         }
 
         //大陀螺
         if (SwingMode) {
             if (!swingMode) {
-                gearRound       = 0; //云台圈数清零
-                Motor_Yaw.round = 0; // Yaw轴圈数清零
-                swingMode       = 1;
+                Motor_Yaw.round        = 0;                  // Yaw轴圈数清零
+                Motor_Yaw.positionBias = Motor_Yaw.position; //角度清零
+                swingMode              = 1;
+                motorMode              = 0;
             }
             motorAngle = Motor_Yaw.angle;               // 电机角度反馈
             swingAngle += 5000 * interval;              //匀速旋转目标值设置
@@ -281,18 +276,20 @@ void Task_Chassis(void *Parameters) {
         } else {
             if (swingMode) {
                 swingMode  = 0;
-                swingAngle = 0; //底盘跟随目标角设置
+                swingAngle = 0;
             }
-            angleSum   = gearRound * 360 * gearRatio;  //减去完整圈数转过的角度
+            angleSum   = gearRound * 6141.9;
             motorAngle = (Motor_Yaw.angle - angleSum); //电机角度反馈
-            if (ABS(PID_Follow_Angle.error) < followDeadRegion) {
-                Motor_Yaw.round = 0;               //圈数清零
-                motorAngle      = Motor_Yaw.angle; // 电机角度反馈
+            //未回正前
+            if (!motorMode) {
+                if (ABS(motorAngle) < 1) {
+                    Motor_Yaw.round        = 0;                  //圈数清零
+                    Motor_Yaw.positionBias = Motor_Yaw.position; //角度清零
+                    gearRound              = 0;                  //云台圈数清零
+                    motorAngle             = Motor_Yaw.angle;    //更新反馈
+                    motorMode              = 1;                  //只清零一次
+                }
             }
-            // if (Motor_Yaw.speed == 0) {
-            //     Motor_Yaw.round = 0;               //圈数清零
-            //     motorAngle      = Motor_Yaw.angle; // 电机角度反馈
-            // }
         }
 
         // 根据运动模式计算PID
@@ -303,7 +300,7 @@ void Task_Chassis(void *Parameters) {
 
         // 设置底盘总体移动速度
         // if (ControlMode == 1) {
-        vx = -remoteData.lx / 660.0f * 4;
+        vx = -remoteData.lx / 660.0f * 8;
         vy = remoteData.ly / 660.0f * 12;
         // } else if (ControlMode == 2) {
         //     xTargetRamp = RAMP(xRampStart, 660, xRampProgress);
@@ -343,13 +340,13 @@ void Task_Chassis(void *Parameters) {
         // 麦轮解算及限速
         targetPower = 80.0 - WANG(40.0 - ChassisData.powerBuffer, 0, 40) / 40.0 * 80.0; // 设置目标功率
         Chassis_Update(&ChassisData, vx, vy, vw);                                       // 更新麦轮转速
-        Chassis_Fix(&ChassisData, -motorAngle * 17 / 290);
+        Chassis_Fix(&ChassisData, -motorAngle / gearRatio);
         // 修正旋转后底盘的前进方向
         Chassis_Calculate_Rotor_Speed(&ChassisData); // 麦轮解算
         Chassis_Limit_Rotor_Speed(&ChassisData,
                                   CHASSIS_ROTOR_SPEED); // 设置转子速度上限 (rad/s)
-        Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer,
-                            interval); // 根据功率限幅
+        // Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer,
+        // interval); // 根据功率限幅
         if (keyboardData.G && !keyboardData.Ctrl) {
             UpEnabled  = 1;
             PID_LFCM.i = 0.5;
@@ -386,16 +383,34 @@ void Task_Chassis(void *Parameters) {
 
         // 调试信息
         // DebugData.debug1 = ABS(PID_Follow_Angle.error);
-        // DebugData.debug2 = -1 * PID_Follow_Speed.output * DPS2RPS * 5 * 1000;
+        // DebugData.debug2 = -1 * PID_Follow_Speed.output   * DPS2RPS * 5 * 1000;
         // DebugData.debug3 = motorSpeedStable;
         // DebugData.debug4 = PID_LFCM.output;
         // DebugData.debug5 = followDeadRegion;
         // DebugData.debug7 = remoteData.rx;
 
-        DebugData.debug1 = motorAngle;
-        DebugData.debug2 = gearRound;
-        DebugData.debug3 = ABS(PID_Follow_Angle.error);
-        DebugData.debug4 = Motor_Yaw.angle;
+        // DebugData.debug1 = motorAngle;
+        // DebugData.debug2 = swingAngle;
+        // DebugData.debug3 = Motor_Yaw.position;
+        // DebugData.debug4 = Motor_Yaw.round;
+        // DebugData.debug5 = gearRound;
+        // DebugData.debug6 = ABS(PID_Follow_Angle.error);
+        // DebugData.debug7 = Motor_Yaw.angle;
+        // DebugData.debug8 = Motor_Yaw.positionBias;
+
+        // DebugData.debug1 = ChassisData.rotorSpeed[0];
+        // DebugData.debug2 = Motor_LF.speed * RPM2RPS;
+        // DebugData.debug3 = ChassisData.rotorSpeed[1];
+        // DebugData.debug4 = Motor_LB.speed * RPM2RPS;
+        // DebugData.debug5 = ChassisData.rotorSpeed[2];
+        // DebugData.debug6 = Motor_RB.speed * RPM2RPS;
+        // DebugData.debug7 = vx;
+        // DebugData.debug8 = vy;
+
+        // DebugData.debug1 = motorAngle;
+        // DebugData.debug2 = gearRound;
+        // DebugData.debug3 = ABS(PID_Follow_Angle.error);
+        // DebugData.debug4 = Motor_Yaw.angle;
     }
 
     vTaskDelete(NULL);
@@ -438,7 +453,7 @@ void Task_Fire(void *Parameters) {
 
     PID_Init(&PID_LeftFrictSpeed, 35, 0.15, 0, 10000, 5000);
     PID_Init(&PID_RightFrictSpeed, 35, 0.1, 0, 10000, 5000);
-    PID_Init(&PID_Stir3510Speed, 320, 0.04, 0, 16000, 10000); // p=110  120  //300
+    PID_Init(&PID_Stir3510Speed, 320, 0.01, 0, 16000, 10000); // p=110  120  //300  320
 
     while (1) {
         //进入射击模式
@@ -446,14 +461,12 @@ void Task_Fire(void *Parameters) {
 
         //开启摩擦轮
         // if (remoteData.switchRight == 3) {
-        // PID_Calculate(&PID_LeftFrictSpeed, -230, Motor_LeftFrict.speed * RPM2RPS / 2);
-        // PID_Calculate(&PID_RightFrictSpeed, 230, Motor_RightFrict.speed * RPM2RPS / 2);
-        frictTargetRamp = RAMP(0, 460, frictRampProgress); // 360  420
+        frictTargetRamp = RAMP(0, 460, frictRampProgress); // 360  420  460
         if (frictRampProgress < 1) {
             frictRampProgress += 0.01f;
         }
-        PID_Calculate(&PID_LeftFrictSpeed, frictTargetRamp, Motor_LeftFrict.speed * RPM2RPS);
-        PID_Calculate(&PID_RightFrictSpeed, -frictTargetRamp, Motor_RightFrict.speed * RPM2RPS);
+        PID_Calculate(&PID_LeftFrictSpeed, -frictTargetRamp, Motor_LeftFrict.speed * RPM2RPS);
+        PID_Calculate(&PID_RightFrictSpeed, frictTargetRamp, Motor_RightFrict.speed * RPM2RPS);
         LASER_ON;
         Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
 
@@ -464,7 +477,7 @@ void Task_Fire(void *Parameters) {
             shootState = 1;
 
             //射击模式
-            shootMode = remoteData.switchLeft == 1 ? 1 : 0;
+            shootMode = remoteData.switchLeft == 1 ? 1 : 0; // 1射击
             // shootMode = keyboardData.A == 1 ? 1 : 0;
 
             //限位开关
@@ -478,26 +491,19 @@ void Task_Fire(void *Parameters) {
             }
 
             //目标值设定
-            // if (remoteData.ry > 30) { // pitch轴抬起时大拨弹反转
-            //     PID_Stir3510Speed.p     = 100;
-            //     PID_Stir3510Speed.i     = 0;
-            //     Stir3510_SpeedTargetMax = 20;
-            // } else {
             if (shootState) {
                 if (!limit_switch) {
                     if (shootTime < 1000) {
-                        PID_Stir3510Speed.p     = 300; // 250
-                        Stir3510_SpeedTargetMax = -60;
+                        PID_Stir3510Speed.p     = 320; // 250
+                        Stir3510_SpeedTargetMax = -65;
                         shootTime++;
                     } else {
-                        Stir3510_SpeedTargetMax = -50; //-60
-                        // Stir3510_SpeedTargetMax = ABS(Motor_Stir3510.speed * RPM2RPS / 2) <= 5 ? 30 : -60;
-                        // if (Stir3510_SpeedTargetMax == 20) PID_Stir3510Speed.p = 100; // 30
+                        Stir3510_SpeedTargetMax = -60; //-60
                     }
                 } else if (limit_switch) {
-                    Stir3510_SpeedTargetMax = shootMode == 1 ? -50 : 0; //-60
+                    Stir3510_SpeedTargetMax = shootMode == 1 ? -65 : 0; //-60
                     if (shootMode == 1) {
-                        PID_Stir3510Speed.p = 320; // 280
+                        PID_Stir3510Speed.p = 350; // 280
                     }
                 } else if (!shootState) {
                     Stir3510_SpeedTargetMax = 0;
@@ -515,17 +521,16 @@ void Task_Fire(void *Parameters) {
         }
 
         PID_Calculate(&PID_Stir3510Speed, Stir3510_SpeedTarget, Motor_Stir3510.speed * RPM2RPS / 2);
-        // PID_Calculate(&PID_Stir3510Speed, Stir3510_SpeedTargetMax, Motor_Stir3510.speed * RPM2RPS);
 
         Can_Send(CAN1, 0x200, 0, 0, 0, PID_Stir3510Speed.output);
         // }
 
-        DebugData.debug1 = PID_Stir3510Speed.output;
-        DebugData.debug2 = Motor_Stir3510.speed * RPM2RPS / 2;
-        DebugData.debug2 = Motor_Stir3510.speed * RPM2RPS;
-        DebugData.debug3 = Stir3510_SpeedTarget;
-        DebugData.debug4 = Motor_Stir3510.angle;
-        DebugData.debug5 = shootTime;
+        // DebugData.debug1 = PID_Stir3510Speed.output;
+        // DebugData.debug2 = Motor_Stir3510.speed * RPM2RPS / 2;
+        // DebugData.debug2 = Motor_Stir3510.speed * RPM2RPS;
+        // DebugData.debug3 = Stir3510_SpeedTarget;
+        // DebugData.debug4 = Motor_Stir3510.angle;
+        // DebugData.debug5 = shootTime;
 
         // DebugData.debug1 = Motor_LeftFrict.speed * RPM2RPS;
         // DebugData.debug2 = Motor_RightFrict.speed * RPM2RPS;
@@ -589,7 +594,7 @@ void Task_Sys_Init(void *Parameters) {
     // // 运动控制任务
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 5, NULL);
 
     //模式切换任务
     // xTaskCreate(Task_Control, "Task_Control", 400, NULL, 4, NULL);
