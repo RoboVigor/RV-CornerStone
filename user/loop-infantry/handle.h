@@ -78,6 +78,8 @@ __HANDLE_EXT PID_Type   PID_StirSpeed, PID_StirAngle, PID_FireL, PID_FireR; // �
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test;
 
+// CAN
+__HANDLE_EXT Motor_Type *Can1_Device[12], *Can2_Device[12];
 /**
  * @brief 初始化结构体
  * @note 该函数将在所有硬件及任务初始化之前执行
