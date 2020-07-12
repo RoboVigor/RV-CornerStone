@@ -31,6 +31,15 @@
 #define CHASSIS_SIZE_K 0.385f               // 测量值, 机器人中心点到XY边缘的距离之和
 #define CHASSIS_INVERSE_WHEEL_RADIUS 13.16f // 测量值, 麦克纳姆轮半径的倒数
 
+//拨弹配置
+#define STIR_MOTOR_REDUCTION_RATE 36.0f // 拨弹电机减速比
+
+//射击配置
+#define FIRE_MOTOR_REDUCTION_RATE 19.2f // 射击电机减速比
+
+//云台配置
+#define GIMBAL_MOTOR_REDUCTION_RATE 1.0f // 云台电机减速比
+
 // 陀螺仪设置
 #define BOARD_FRONT_IS_UP 0                     // 板子正面朝上
 #define BOARD_SHORT_SIDE_IS_PARALLEL_TO_PITCH 0 // 板子短边朝下
