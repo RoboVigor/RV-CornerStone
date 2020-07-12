@@ -129,42 +129,18 @@ void UART8_IRQHandler(void) {
 // CAN1数据接收中断服务函数
 void CAN1_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
-    int      position;
-    int      speed;
+    int      i;
 
     // 读取数据
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
-    position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-    speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
     // 安排数据
-    switch (CanRxData.StdId) {
-    case 0x201:
-        Motor_Update(&Motor_LF, position, speed);
-        break;
-
-    case 0x202:
-        Motor_Update(&Motor_LB, position, speed);
-        break;
-
-    case 0x203:
-        Motor_Update(&Motor_RB, position, speed);
-        break;
-
-    case 0x204:
-        Motor_Update(&Motor_RF, position, speed);
-        break;
-
-    case 0x209:
-        Motor_Update(&Motor_Yaw, position, speed);
-        break;
-
-    case 0x206:
-        Motor_Update(&Motor_Pitch, position, speed);
-        break;
-
-    default:
-        break;
+    if (CanRxData.StdId < 0x500) {
+        Motor_Update(Can1_Device[ESC_ID(CanRxData.StdId)], CanRxData.Data);
+    } else {
+        for (i = 0; i < 8; i++) {
+            Protocol_Unpack(&UserChannel, CanRxData.Data[i]);
+        }
     }
 }
 
@@ -176,28 +152,12 @@ void CAN1_SCE_IRQHandler(void) {
 // CAN2数据接收中断服务函数
 void CAN2_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
-    int      position;
-    int      speed;
+    int      data[8];
 
     // 读取数据
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
-    position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-    speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
-
     //安排数据
-    switch (CanRxData.StdId) {
-    case 0x201:
-        Motor_Update(&Motor_FL, position, speed);
-        break;
-    case 0x202:
-        Motor_Update(&Motor_FR, position, speed);
-        break;
-    case 0x207:
-        Motor_Update(&Motor_Stir, position, speed);
-        break;
-    default:
-        break;
-    }
+    Motor_Update(Can2_Device[ESC_ID(CanRxData.StdId)], CanRxData.Data);
 }
 
 // TIM2 高频计数器

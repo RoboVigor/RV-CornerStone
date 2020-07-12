@@ -5,23 +5,6 @@
 #include "main.h"
 #include "stdlib.h"
 
-void Task_Safe_Mode(void *Parameters) {
-    while (1) {
-        if (SafetyMode) {
-            vTaskSuspendAll();
-            while (1) {
-                Can_Send(CAN1, 0x200, 0, 0, 0, 0);
-                Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
-                Can_Send(CAN1, 0x2FF, 0, 0, 0, 0);
-                Can_Send(CAN2, 0x1FF, 0, 0, 0, 0);
-                vTaskDelay(5);
-            }
-        }
-        vTaskDelay(5);
-    }
-    vTaskDelete(NULL);
-}
-
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     LASER_ON;
@@ -77,6 +60,44 @@ void Task_Control(void *Parameters) {
     }
     vTaskDelete(NULL);
 }
+
+void Task_Can_Send(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.01;                // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    CAN_TypeDef *Canx[2]          = {CAN1, CAN2};
+    Motor_Type **Canx_Device[2]   = {Can1_Device, Can2_Device};
+    uint16_t     Can_Send_Id[3]   = {0x200, 0x1ff, 0x2ff};
+    uint16_t     Can_ESC_Id[3][4] = {{0x201, 0x202, 0x203, 0x204}, {0x205, 0x206, 0x207, 0x208}, {0x209, 0x020a, 0x20b, 0x20c}};
+
+    int         i, j, k;        // CAN序号 发送ID序号 电调ID序号
+    int         isNotEmpty = 0; // 同一发送ID下是否有电机
+    Motor_Type *motor;          // 根据i,j,k锁定电机
+    int16_t     currents[4];    // CAN发送电流
+
+    while (1) {
+        for (i = 0; i < 2; i++) {
+            for (j = 0; j < 3; j++) {
+                isNotEmpty = 0;
+                for (k = 0; k < 4; k++) {
+                    motor       = *(Canx_Device[i] + ESC_ID(Can_ESC_Id[j][k]));
+                    currents[k] = (motor && motor->inputEnabled) ? motor->input : 0;
+                    isNotEmpty  = isNotEmpty || (motor && motor->inputEnabled);
+                }
+                if (isNotEmpty && !SafetyMode) {
+                    Can_Send(Canx[i], Can_Send_Id[j], currents[0], currents[1], currents[2], currents[3]);
+                } else if (isNotEmpty && SafetyMode) {
+                    Can_Send(Canx[i], Can_Send_Id[j], 0, 0, 0, 0);
+                }
+            }
+        }
+        // 发送频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+    vTaskDelete(NULL);
+}
+
 void Task_Board_Communication(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.1;                 // 任务运行间隔 s
@@ -254,12 +275,12 @@ void Task_Gimbal(void *Parameters) {
         MIAO(yawCurrent, -12000, 12000);
         MIAO(pitchCurrent, -12000, 12000);
 #ifdef ROBOT_LOOP_ONE
-        Can_Send(CAN1, 0x1FF, 0, pitchCurrent, 0, 0);
-        Can_Send(CAN1, 0x2FF, yawCurrent, 0, 0, 0);
+        Motor_Yaw.input   = yawCurrent;
+        Motor_Pitch.input = pitchCurrent;
 #endif
 #ifdef ROBOT_LOOP_TWO
-        Can_Send(CAN1, 0x1FF, 0, -pitchCurrent, 0, 0);
-        Can_Send(CAN1, 0x2FF, yawCurrent, 0, 0, 0);
+        Motor_Yaw.input   = yawCurrent;
+        Motor_Pitch.input = -pitchCurrent;
 #endif
 
         // 调试信息
@@ -460,12 +481,10 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        Can_Send(CAN1,
-                 0x200,
-                 PID_LFCM.output * ChassisData.powerScale,
-                 PID_LBCM.output * ChassisData.powerScale,
-                 PID_RBCM.output * ChassisData.powerScale,
-                 PID_RFCM.output * ChassisData.powerScale);
+        Motor_LF.input = PID_LFCM.output * ChassisData.powerScale;
+        Motor_LB.input = PID_LBCM.output * ChassisData.powerScale;
+        Motor_RB.input = PID_RBCM.output * ChassisData.powerScale;
+        Motor_RF.input = PID_RFCM.output * ChassisData.powerScale;
 
         // 调试信息
         // DebugData.debug1 = Motor_Stir.angle;
@@ -579,11 +598,11 @@ void Task_Fire_Stir(void *Parameters) {
         // 控制拨弹轮
         if (shootMode == shootIdle) {
             // 停止
-            Can_Send(CAN2, 0x1FF, 0, 0, 0, 0);
+            Motor_Stir.input = 0;
         } else if (shootMode == shootToDeath) {
             // 连发
             PID_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * RPM2RPS);
-            Can_Send(CAN2, 0x1FF, 0, 0, PID_StirSpeed.output, 0);
+            Motor_Stir.input = PID_StirSpeed.output;
         }
 
         // DebugData.debug1 = PID_StirSpeed.output;
@@ -634,7 +653,8 @@ void Task_Fire_Frict(void *Parameters) {
         PID_Calculate(&PID_FireL, targetSpeed, motorLSpeed);
         PID_Calculate(&PID_FireR, -1 * targetSpeed, motorRSpeed);
 
-        Can_Send(CAN2, 0x200, PID_FireL.output, PID_FireR.output, 0, 0);
+        Motor_FL.input = PID_FireL.output;
+        Motor_FR.input = PID_FireR.output;
 
         // DebugData.debug1 = Motor_FL.speed;
         // DebugData.debug2 = Motor_FR.speed;
@@ -679,17 +699,7 @@ void Task_Sys_Init(void *Parameters) {
     // 初始化陀螺仪
     Gyroscope_Init(&Gyroscope_EulerData);
 
-    // 调试任务
-#if DEBUG_ENABLED
-    // xTaskCreate(Task_Debug_Magic_Receive, "Task_Debug_Magic_Receive", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Debug_Magic_Send, "Task_Debug_Magic_Send", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Debug_RTOS_State, "Task_Debug_RTOS_State", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Debug_Gyroscope_Sampling, "Task_Debug_Gyroscope_Sampling", 400, NULL, 6,
-    // NULL);
-#endif
-
     // 低级任务
-    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 10, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
@@ -699,6 +709,9 @@ void Task_Sys_Init(void *Parameters) {
 
     //模式切换任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
+
+    // Can发送任务
+    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 5, NULL);
 
     // 运动控制任务
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
