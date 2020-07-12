@@ -50,7 +50,7 @@ __HANDLE_EXT PID_Type   PID_Frict_L_Speed, PID_Frict_R_Speed;
 // 遥控器
 __HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT Remote_Type   remoteData;
-__HANDLE_EXT Keyboard_Type keyboardData;    
+__HANDLE_EXT Keyboard_Type keyboardData;
 __HANDLE_EXT Mouse_Type    mouseData;
 
 // 陀螺仪
@@ -82,6 +82,9 @@ __HANDLE_EXT int Left_State, Right_State;
 
 // 摩擦轮
 __HANDLE_EXT int Snail_State;
+
+// CAN
+__HANDLE_EXT Motor_Type *Can1_Device[12], *Can2_Device[12];
 
 /**
  * @brief 初始化结构体
