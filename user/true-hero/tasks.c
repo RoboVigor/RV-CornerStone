@@ -525,20 +525,9 @@ void Task_Can_Send(void *Parameters) {
                     isNotEmpty  = isNotEmpty || (motor && motor->inputEnabled);
                 }
                 if (isNotEmpty && !SafetyMode) {
-                    Can_Send(CAN1, 0x200, 0, 0, PID_Cloud_YawSpeed.output, PID_Stir3510Speed.output);
-                    Can_Send(CAN1,
-                             0x1FF,
-                             PID_LFCM.output * ChassisData.powerScale,
-                             PID_LBCM.output * ChassisData.powerScale,
-                             PID_RBCM.output * ChassisData.powerScale,
-                             PID_RFCM.output * ChassisData.powerScale);
-                    Can_Send(CAN2, 0x200, PID_LeftFrictSpeed.output, PID_RightFrictSpeed.output, 0, 0);
-                    Can_Send(CAN2, 0x1FF, 0, PID_Cloud_PitchSpeed.output, 0, 0);
+                    Can_Send(Canx[i], Can_Send_Id[j], currents[0], currents[1], currents[2], currents[3]);
                 } else if (isNotEmpty && SafetyMode) {
-                    Can_Send(CAN1, 0x200, 0, 0, 0, 0);
-                    Can_Send(CAN1, 0x1FF, 0, 0, 0, 0);
-                    Can_Send(CAN2, 0x200, 0, 0, 0, 0);
-                    Can_Send(CAN2, 0x1FF, 0, 0, 0, 0);
+                    Can_Send(Canx[i], Can_Send_Id[j], 0, 0, 0, 0);
                 }
             }
         }
