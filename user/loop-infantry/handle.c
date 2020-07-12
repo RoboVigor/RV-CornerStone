@@ -20,11 +20,13 @@ void Handle_Init(void) {
     Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
 
     // 发射机构电机
-    Motor_Init(&Motor_Stir, 36.0, ENABLE, ENABLE); //拨弹
+    Motor_Init(&Motor_Stir, STIR_MOTOR_REDUCTION_RATE, ENABLE, ENABLE); //拨弹
+    Motor_Init(&Motor_FL, FIRE_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
+    Motor_Init(&Motor_FR, FIRE_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
 
     // 云台电机
-    Motor_Init(&Motor_Yaw, 1.0, ENABLE, ENABLE);   // 顺时针为正电流
-    Motor_Init(&Motor_Pitch, 1.0, ENABLE, ENABLE); // 顺时针为正电流
+    Motor_Init(&Motor_Yaw, GIMBAL_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);   // 顺时针为正电流
+    Motor_Init(&Motor_Pitch, GIMBAL_MOTOR_REDUCTION_RATE, ENABLE, ENABLE); // 顺时针为正电流
 
 #ifdef ROBOT_LOOP_ONE
     Motor_Yaw.positionBias   = 4110;
