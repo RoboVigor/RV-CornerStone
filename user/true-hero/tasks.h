@@ -12,7 +12,6 @@ void Task_Sys_Init(void *Parameters);             // 硬件初始化和任务初
 void Task_Blink(void *Parameters);                // 跑马灯
 void Task_Startup_Music(void *Parameters);        // 开机音乐
 void Task_Chassis(void *Parameters);              // 底盘运动
-void Task_Safe_Mode(void *Parameters);            // 安全模式
 void Task_Gimbal(void *Parameters);               // 云台任务
 void Task_Fire(void *Parameters);                 // 发射机构
 void Task_Control(void *Parameters);              // 模式切换

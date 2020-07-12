@@ -27,6 +27,9 @@
 #define __HANDLE_EXT extern
 #endif
 
+// Stone ID
+__HANDLE_EXT uint8_t Board_Id, Robot_Id;
+
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
@@ -57,19 +60,20 @@ __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type         PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
 // 通讯协议
-__HANDLE_EXT Protocol_Type Judge, Ps;
+__HANDLE_EXT Protocol_Data_Type    ProtocolData;
+__HANDLE_EXT Protocol_Channel_Type JudgeChannel, HostChannel, UserChannel;
 
 //发射机构
 __HANDLE_EXT Motor_Type Motor_LeftFrict, Motor_RightFrict, Motor_Stir3510; // 左/右 摩擦轮 拨弹轮电机
 __HANDLE_EXT PID_Type   PID_LeftFrictSpeed, PID_RightFrictSpeed, PID_Stir3510Speed, PID_Stir3510Angle, PID_Stir2006Angle,
     PID_Compensation; // 拨弹轮 速度/角度 PID
 
-// PWM 捕获
-__HANDLE_EXT u32 TIM5CH1_CAPTURE_STA, TIM5CH1_CAPTURE_VAL;
-
 // 功能开关
 __HANDLE_EXT uint8_t ControlMode;
-__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, PsEnabled, UpEnabled, ServoEnabled, StirStop;
+__HANDLE_EXT uint8_t ShootEnabled, PsEnabled, UpEnabled, ServoEnabled, StirStop, SafetyMode, SwingMode, ShootMode;
+
+// CAN
+__HANDLE_EXT Motor_Type *Can1_Device[12], *Can2_Device[12];
 
 /**
  * @brief 初始化结构体
