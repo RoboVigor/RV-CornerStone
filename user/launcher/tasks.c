@@ -67,7 +67,7 @@ void Task_Charge(void *Parameters) {
     float      interval     = 0.05;                // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    PID_Init(&PID_Charge, 100, 0, 0, 3000, 0);
+    PID_Init(&PID_Charge, 50, 0, 0, 10000, 0);
 
     float isSwitchClose;
     float targetSpeed;
@@ -88,7 +88,7 @@ void Task_Charge(void *Parameters) {
         }
 
         if (ChargeDisabled) {
-            targetSpeed = 1000;
+            targetSpeed = 200;
         }
 
         PID_Calculate(&PID_Charge, targetSpeed, motorSpeed);
