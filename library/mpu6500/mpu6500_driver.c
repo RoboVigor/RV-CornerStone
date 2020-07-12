@@ -66,7 +66,7 @@ int MPU6500_Init(void) {
 }
 
 int MPU6500_EnableInt(void) {
-    if (IIC_WriteData(MPU_IIC_ADDR, MPU6500_SMPLRT_DIV, 0x03) == 0xff) // Sample Rate: Gyro output rate / (1 + 1) = 500Hz
+    if (IIC_WriteData(MPU_IIC_ADDR, MPU6500_SMPLRT_DIV, GYROSCOPE_FREQ) == 0xff) // Sample Rate: Gyro output rate / (1 + 1) = 500Hz
     {
         return 0xff;
     }
