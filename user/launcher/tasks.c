@@ -139,6 +139,7 @@ void Task_Can_Send(void *Parameters) {
                     currents[k] = (motor && motor->inputEnabled) ? motor->input : 0;
                     isNotEmpty  = isNotEmpty || (motor && motor->inputEnabled);
                 }
+
                 if (isNotEmpty && !SafetyMode) {
                     Can_Send(Canx[i], Can_Send_Id[j], currents[0], currents[1], currents[2], currents[3]);
                 } else if (isNotEmpty && SafetyMode) {

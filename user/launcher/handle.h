@@ -39,7 +39,7 @@ __HANDLE_EXT PID_Type   PID_Charge;
 __HANDLE_EXT PWM_Type PWM_Hook_L, PWM_Hook_R;
 
 // 运动控制标志
-__HANDLE_EXT uint8_t ChargeEnabled, ChargeDisabled, HookClose;
+__HANDLE_EXT uint8_t ChargeEnabled, ChargeDisabled, HookClose, SafetyMode;
 
 // 遥控器
 __HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
