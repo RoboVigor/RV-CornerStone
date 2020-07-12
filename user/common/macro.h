@@ -14,12 +14,12 @@
 #define RPS2DPS 57.2957804f // 180.0f / 3.1415926f,    rad/s    ->degree/s
 
 // 遥控器开关
-#define LEFT_SWITCH_TOP remoteData.switchLeft == 1
-#define LEFT_SWITCH_MIDDLE remoteData.switchLeft == 3
-#define LEFT_SWITCH_BOTTOM remoteData.switchLeft == 2
-#define RIGHT_SWITCH_TOP remoteData.switchRight == 1
-#define RIGHT_SWITCH_MIDDLE remoteData.switchRight == 3
-#define RIGHT_SWITCH_BOTTOM remoteData.switchRight == 2
+#define LEFT_SWITCH_TOP     (remoteData.switchLeft == 1)
+#define LEFT_SWITCH_MIDDLE  (remoteData.switchLeft == 3)
+#define LEFT_SWITCH_BOTTOM  (remoteData.switchLeft == 2)
+#define RIGHT_SWITCH_TOP    (remoteData.switchRight == 1)
+#define RIGHT_SWITCH_MIDDLE (remoteData.switchRight == 3)
+#define RIGHT_SWITCH_BOTTOM (remoteData.switchRight == 2)
 
 // 数值运算
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
@@ -27,9 +27,19 @@
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
 // 偷懒
+#ifdef STM32F427_437xx
 #define LASER_ON GPIO_SetBits(GPIOG, GPIO_Pin_13) // 激光开启
 #define LASER_OFF GPIO_ResetBits(GPIOG, GPIO_Pin_13) // 激光关闭
 #define LASER_TOGGLE GPIO_ToggleBits(GPIOG, GPIO_Pin_13) // 激光闪烁
+#endif
+#ifdef STM32F407xx
+#define LASER_ON GPIO_SetBits(GPIOC, GPIO_Pin_8) // 激光开启
+#define LASER_OFF GPIO_ResetBits(GPIOC, GPIO_Pin_8) // 激光关闭
+#define LASER_TOGGLE GPIO_ToggleBits(GPIOC, GPIO_Pin_8) // 激光闪烁
+#endif
+
+// 好看
+#define ESC_ID(x) (x - 0x201)
 
 /**
  * @brief 限流

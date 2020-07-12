@@ -4,20 +4,6 @@
  */
 #include "main.h"
 
-void Task_Safe_Mode(void *Parameters) {
-    while (1) {
-        if (remoteData.switchRight == 2) {
-            vTaskSuspendAll();
-            while (1) {
-                Can_Send(CAN1, 0x200, 0, 0, 0, 0);
-                vTaskDelay(2);
-            }
-        }
-        vTaskDelay(2);
-    }
-    vTaskDelete(NULL);
-}
-
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
@@ -107,7 +93,7 @@ void Task_Charge(void *Parameters) {
 
         PID_Calculate(&PID_Charge, targetSpeed, motorSpeed);
 
-        Can_Send(CAN1, 0x200, PID_Charge.output, 0, 0, 0);
+        Motor_Charge.input = PID_Charge.output;
 
         DebugData.debug1 = isSwitchClose;
 
@@ -124,6 +110,43 @@ void Task_Hook(void *Parameters) {
     while (1) {
         PWM_Set_Compare(&PWM_Hook_L, HookClose ? 14 : 5);
         PWM_Set_Compare(&PWM_Hook_R, HookClose ? 19 : 100);
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+    vTaskDelete(NULL);
+}
+
+void Task_Can_Send(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.01;                // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    CAN_TypeDef *Canx[2]          = {CAN1, CAN2};
+    Motor_Type **Canx_Device[2]   = {Can1_Device, Can2_Device};
+    uint16_t     Can_Send_Id[3]   = {0x200, 0x1ff, 0x2ff};
+    uint16_t     Can_ESC_Id[3][4] = {{0x201, 0x202, 0x203, 0x204}, {0x205, 0x206, 0x207, 0x208}, {0x209, 0x020a, 0x20b, 0x20c}};
+
+    int         i, j, k;        // CAN序号 发送ID序号 电调ID序号
+    int         isNotEmpty = 0; // 同一发送ID下是否有电机
+    Motor_Type *motor;          // 根据i,j,k锁定电机
+    int16_t     currents[4];    // CAN发送电流
+
+    while (1) {
+        for (i = 0; i < 2; i++) {
+            for (j = 0; j < 3; j++) {
+                isNotEmpty = 0;
+                for (k = 0; k < 4; k++) {
+                    motor       = *(Canx_Device[i] + ESC_ID(Can_ESC_Id[j][k]));
+                    currents[k] = (motor && motor->inputEnabled) ? motor->input : 0;
+                    isNotEmpty  = isNotEmpty || (motor && motor->inputEnabled);
+                }
+                if (isNotEmpty && !SafetyMode) {
+                    Can_Send(Canx[i], Can_Send_Id[j], currents[0], currents[1], currents[2], currents[3]);
+                } else if (isNotEmpty && SafetyMode) {
+                    Can_Send(Canx[i], Can_Send_Id[j], 0, 0, 0, 0);
+                }
+            }
+        }
+        // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
@@ -166,7 +189,6 @@ void Task_Sys_Init(void *Parameters) {
 #endif
 
     // 低级任务
-    // xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
@@ -184,6 +206,9 @@ void Task_Sys_Init(void *Parameters) {
     // DMA发送任务
     // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
+
+    // Can发送任务
+    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

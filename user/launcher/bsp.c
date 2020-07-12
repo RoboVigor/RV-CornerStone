@@ -6,7 +6,7 @@
 #include "bsp.h"
 #include "handle.h"
 
-void BSP_Switch_Input(void) {
+void BSP_Switch_Init(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
 
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -28,7 +28,7 @@ void BSP_Init(void) {
     BSP_Beep_Init();
     BSP_LED_Init();
     BSP_User_Power_Init();
-    BSP_Switch_Input();
+    BSP_Switch_Init();
 
     // USART
     // BSP_USART2_Init(9600, USART_IT_RXNE);
