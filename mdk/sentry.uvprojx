@@ -532,6 +532,16 @@
               <FileType>1</FileType>
               <FilePath>..\library\vegmath\vegmath.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f4xx_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_adc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -646,6 +656,11 @@
               <FileName>tasks.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\sentry\tasks.c</FilePath>
+            </File>
+            <File>
+              <FileName>handle.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\sentry\handle.h</FilePath>
             </File>
           </Files>
         </Group>
