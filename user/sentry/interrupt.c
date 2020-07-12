@@ -1,5 +1,5 @@
 /**
- * @brief    中断服务函数根据地
+ * @brief  中断服务函数根据地
  */
 
 #include "interrupt.h"
@@ -123,67 +123,36 @@ void UART8_IRQHandler(void) {
 // CAN1数据接收中断服务函数
 void CAN1_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
-    int      position;
-    int      speed;
     int      i;
 
     // 读取数据
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
-    position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-    speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
     // 安排数据
-    switch (CanRxData.StdId) {
-    case 0x201:
-        Motor_Update(&Motor_Chassis_Left, position, speed);
-        break;
-
-    case 0x202:
-        Motor_Update(&Motor_Chassis_Right, position, speed);
-        break;
-
-    case 0x203:
-        Motor_Update(&Motor_Frict_L, position, speed);
-        break;
-
-    case 0x204:
-        Motor_Update(&Motor_Frict_R, position, speed);
-        break;
-
-    case 0x207:
-        Motor_Update(&Motor_Stir, position, speed);
-        break;
-
-    default:
+    if (CanRxData.StdId < 0x500) {
+        Motor_Update(Can1_Device[ESC_ID(CanRxData.StdId)], CanRxData.Data);
+    } else {
         for (i = 0; i < 8; i++) {
             Protocol_Unpack(&UserChannel, CanRxData.Data[i]);
         }
-        break;
     }
 }
 
-void CAN1_SCE_IRQHandler(void) {
-    RED_LIGHT_ON;
-    CAN_ClearITPendingBit(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR);
-}
+// void CAN1_SCE_IRQHandler(void) {
+//     RED_LIGHT_ON;
+//     CAN_ClearITPendingBit(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR);
+// }
 
 // CAN2数据接收中断服务函数
 void CAN2_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
-    int      position;
-    int      speed;
+    int      data[8];
 
     // 读取数据
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
-    position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-    speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
-    // 安排数据
-    switch (CanRxData.StdId) {
-    case 0x201:
-        Motor_Update(&Motor_Stir, position, speed);
-        break;
-    }
+    //安排数据
+    Motor_Update(Can2_Device[ESC_ID(CanRxData.StdId)], CanRxData.Data);
 }
 
 // TIM2 高频计数器
@@ -198,8 +167,8 @@ void TIM2_IRQHandler(void) {
 }
 
 /**
- * @brief    This function handles NMI exception.
- * @param    None
+ * @brief  This function handles NMI exception.
+ * @param  None
  * @return None
  */
 
@@ -208,8 +177,8 @@ void NMI_Handler(void) {
 }
 
 /**
- * @brief    This function handles Hard Fault exception.
- * @param    None
+ * @brief  This function handles Hard Fault exception.
+ * @param  None
  * @return None
  */
 void HardFault_Handler(void) {
@@ -217,8 +186,8 @@ void HardFault_Handler(void) {
 }
 
 /**
- * @brief    This function handles Memory Manage exception.
- * @param    None
+ * @brief  This function handles Memory Manage exception.
+ * @param  None
  * @return None
  */
 void MemManage_Handler(void) {
@@ -226,8 +195,8 @@ void MemManage_Handler(void) {
 }
 
 /**
- * @brief    This function handles Bus Fault exception.
- * @param    None
+ * @brief  This function handles Bus Fault exception.
+ * @param  None
  * @return None
  */
 void BusFault_Handler(void) {
@@ -235,8 +204,8 @@ void BusFault_Handler(void) {
 }
 
 /**
- * @brief    This function handles Usage Fault exception.
- * @param    None
+ * @brief  This function handles Usage Fault exception.
+ * @param  None
  * @return None
  */
 void UsageFault_Handler(void) {
@@ -244,8 +213,8 @@ void UsageFault_Handler(void) {
 }
 
 /**
- * @brief    This function handles Debug Monitor exception.
- * @param    None
+ * @brief  This function handles Debug Monitor exception.
+ * @param  None
  * @return None
  */
 void DebugMon_Handler(void) {
@@ -253,28 +222,28 @@ void DebugMon_Handler(void) {
 }
 
 // /**
-//    * @brief    This function handles SVCall exception.
-//    * @param    None
-//    * @return None
-//    */
+//  * @brief  This function handles SVCall exception.
+//  * @param  None
+//  * @return None
+//  */
 // void SVC_Handler(void) {
-//         //printf("SVC_Handler");
+//     //printf("SVC_Handler");
 // }
 
 // /**
-//    * @brief    This function handles PendSVC exception.
-//    * @param    None
-//    * @return None
-//    */
+//  * @brief  This function handles PendSVC exception.
+//  * @param  None
+//  * @return None
+//  */
 // void PendSV_Handler(void) {
-//         //printf("PendSV_Handler");
+//     //printf("PendSV_Handler");
 // }
 
 // /**
-//    * @brief    This function handles SysTick Handler.
-//    * @param    None
-//    * @return None
-//    */
+//  * @brief  This function handles SysTick Handler.
+//  * @param  None
+//  * @return None
+//  */
 // void SysTick_Handler(void) {
-//         //printf("SysTick_Handler");
+//     //printf("SysTick_Handler");
 // }

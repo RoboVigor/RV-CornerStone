@@ -11,12 +11,15 @@
 #define __DRIVER_GYROSCOPE_H
 
 #include "stm32f4xx.h"
-
+#ifdef STM32F427_437xx
 #include "mpu6500_driver.h"
+#endif
+#ifdef STM32F407xx
+#include "BMI088driver.h"
+#include "ist8310driver.h"
+#endif
 
 #define PI 3.1415926f
-#define GYRO_LSB 16.4f
-#define ACC_LSB 4096.0f
 
 typedef struct {
     volatile int16_t ax; // m/s^2 [-8g,+8g] -> [-32768,32768] ideal:0
@@ -26,12 +29,21 @@ typedef struct {
     volatile int16_t gx; // rad/s ideal:0
     volatile int16_t gy; // rad/s ideal:0
     volatile int16_t gz; // rad/s ideal:0
+    volatile int16_t mx; // rad/s ideal:0
+    volatile int16_t my; // rad/s ideal:0
+    volatile int16_t mz; // rad/s ideal:0
     int16_t          ax_offset;
     int16_t          ay_offset;
     int16_t          az_offset;
     int16_t          gx_offset;
     int16_t          gy_offset;
     int16_t          gz_offset;
+    int16_t          mx_offset;
+    int16_t          my_offset;
+    int16_t          mz_offset;
+    int16_t          gx_bias;
+    int16_t          gy_bias;
+    int16_t          gz_bias;
 } ImuData_Type;
 typedef struct {
     float yaw;
@@ -61,5 +73,10 @@ void Gyroscope_Solve(GyroscopeData_Type *GyroscopeData);
  * @brief 获得滤波器diff
  */
 float Gyroscope_Get_Filter_Diff(void);
+
+/**
+ * @brief 设置静态误差
+ */
+void Gyroscope_Set_Bias(ImuData_Type *ImuData, int16_t gx_bias, int16_t gy_bias, int16_t gz_bias);
 
 #endif
