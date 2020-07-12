@@ -11,10 +11,13 @@
 #define __DRIVER_GYROSCOPE_H
 
 #include "stm32f4xx.h"
-
+#ifdef STM32F427_437xx
 #include "mpu6500_driver.h"
+#endif
+#ifdef STM32F407xx
 #include "BMI088driver.h"
 #include "ist8310driver.h"
+#endif
 
 #define PI 3.1415926f
 
