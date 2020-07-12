@@ -99,9 +99,9 @@ void BSP_IMU_Init(void);
 void BSP_Laser_Init(void);
 void BSP_User_Power_Init(void);
 
-// NOT IMPLEMENTED
-void BSP_I2C2_Init(void);
-void BSP_Button_Init(void);
+// 按键
+void    BSP_Button_Init(void);
+uint8_t Is_Button_Pressed(void);
 
 // TEMPORARY USE
 void BSP_TIM2_Init(void);
@@ -146,5 +146,7 @@ void BSP_OLED_init(void);
 // ADC
 void BSP_ADC_Init(ADC_TypeDef *, uint16_t, uint32_t, uint32_t, uint32_t, uint16_t, uint16_t);
 void BSP_ADC1_Init(uint32_t ADC_NbrOfConversion, uint32_t ADC_Channel, uint16_t interruptFlag);
+void BSP_ADC2_Init(uint32_t ADC_NbrOfConversion, uint32_t ADC_Channel, uint16_t interruptFlag);
+void BSP_ADC3_Init(uint32_t ADC_NbrOfConversion, uint32_t ADC_Channel, uint16_t interruptFlag);
 
 #endif

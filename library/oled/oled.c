@@ -14,6 +14,13 @@
 #include "delay.h"
 #include <stdio.h>
 #include <stdarg.h>
+#include "mpu6500_i2c.h"
+
+#define IIC_SCL_H() PFout(1) = 1
+#define IIC_SCL_L() PFout(1) = 0
+#define IIC_SDA_H() PFout(0) = 1
+#define IIC_SDA_L() PFout(0) = 0
+#define IIC_SDA_Read() PFin(0)
 
 /**
  * OLED flash Addr:
@@ -27,7 +34,7 @@
  * [7]0 1 2 3 ... 127
  **/
 
-static uint8_t OLED_GRAM[130][8];
+static uint8_t OLED_GRAM[X_WIDTH][8];
 
 MenuItem subMenu[3]  = {{"Func3", NULL, NULL}, {"Func4", NULL, NULL}, {"Back To Main", NULL, NULL}};
 MenuItem mainMenu[3] = {{"Func1", NULL, NULL}, {"Func2", NULL, NULL}, {"SubMenu1", NULL, NULL}};
@@ -44,6 +51,7 @@ MenuItem *renderingItem;
  * @retvals
  */
 void oled_write_byte(uint8_t dat, uint8_t cmd) {
+#ifdef OLED_USE_SPI
     if (cmd != 0)
         OLED_CMD_Set();
     else
@@ -52,6 +60,17 @@ void oled_write_byte(uint8_t dat, uint8_t cmd) {
     SPI_SendData(SPI1, dat); //通过外设SPIx发送一个byte数据
     while (SPI_GetFlagStatus(SPI1, SPI_FLAG_TXE) == RESET)
         ; //等待发送区空
+#endif
+#ifdef OLED_USE_IIC
+    static uint8_t cmd_data[2];
+    if (cmd == OLED_CMD) {
+        cmd_data[0] = 0x00;
+    } else {
+        cmd_data[0] = 0x40;
+    }
+    cmd_data[1] = dat;
+    IIC_WriteData(OLED_I2C_ADDRESS, cmd_data[0], cmd_data[1]);
+#endif
 }
 
 /**
@@ -61,7 +80,7 @@ void oled_write_byte(uint8_t dat, uint8_t cmd) {
  * @retval
  */
 static void oled_set_pos(uint8_t x, uint8_t y) {
-    x += 2;
+    x += (X_WIDTH - 128);
     oled_write_byte((0xb0 + y), OLED_CMD);               // set page address y
     oled_write_byte(((x & 0xf0) >> 4) | 0x10, OLED_CMD); // set column high address
     oled_write_byte((x & 0xf0), OLED_CMD);               // set column low address
@@ -325,8 +344,8 @@ void oled_LOGO(void) {
     uint8_t temp_char = 0;
     uint8_t x = 0, y = 0;
     uint8_t i = 0;
-    for (; y < 64; y += 8) {
-        for (x = 0; x < 130; x++) {
+    for (; y < Y_WIDTH; y += 8) {
+        for (x = 0; x < X_WIDTH; x++) {
             temp_char = LOGO_BMP[x][y / 8];
             for (i = 0; i < 8; i++) {
                 if (temp_char & 0x80)
@@ -386,9 +405,11 @@ void oled_menu(uint16_t joystickValue) {
  * @retval  None
  */
 void oled_init(void) {
+#ifdef OLED_USE_SPI
     OLED_RST_Clr();
     delay_ms(500);
     OLED_RST_Set();
+#endif
 
     oled_write_byte(0xae, OLED_CMD); // turn off oled panel
     oled_write_byte(0x00, OLED_CMD); // set low column address

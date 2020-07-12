@@ -14,6 +14,8 @@ void BSP_Init(void) {
     BSP_Laser_Init();
     BSP_Beep_Init();
     BSP_LED_Init();
+    BSP_OLED_Init();
+    BSP_Button_Init();
 
 #ifdef STM32F427_437xx
     BSP_User_Power_Init();
