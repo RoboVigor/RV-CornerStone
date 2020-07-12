@@ -4,6 +4,7 @@
  */
 #include "handle.h"
 #include "config.h"
+#include "macro.h"
 
 void Handle_Init(void) {
     // 底盘电机
