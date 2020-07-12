@@ -27,6 +27,9 @@
 #define __HANDLE_EXT extern
 #endif
 
+// Stone ID
+__HANDLE_EXT uint8_t Board_Id, Robot_Id;
+
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
@@ -52,7 +55,8 @@ __HANDLE_EXT PID_Type PID_Cloud_YawAngle, PID_Cloud_YawSpeed, PID_Cloud_PitchAng
     PID_Cloud_RollSpeed;
 
 // 通讯协议
-__HANDLE_EXT Protocol_Type Judge, Ps;
+__HANDLE_EXT Protocol_Data_Type    ProtocolData;
+__HANDLE_EXT Protocol_Channel_Type JudgeChannel, HostChannel, UserChannel;
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2, PWM_Servo;
@@ -69,6 +73,9 @@ __HANDLE_EXT uint8_t FrictEnabled, StirEnabled, PsAimEnabled, PsShootEnabled, Sa
 __HANDLE_EXT int snailStart; // snail 开启标志位 1为开 0为关
 
 __HANDLE_EXT int debug1, debug2;
+
+// CAN
+__HANDLE_EXT Motor_Type *Can1_Device[12], *Can2_Device[12];
 
 /**
  * @brief 初始化结构体

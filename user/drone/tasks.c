@@ -32,6 +32,54 @@ void Task_Control(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_Can_Send(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.01;                // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    CAN_TypeDef *Canx[2]          = {CAN1, CAN2};
+    Motor_Type **Canx_Device[2]   = {Can1_Device, Can2_Device};
+    uint16_t     Can_Send_Id[3]   = {0x200, 0x1ff, 0x2ff};
+    uint16_t     Can_ESC_Id[3][4] = {{0x201, 0x202, 0x203, 0x204}, {0x205, 0x206, 0x207, 0x208}, {0x209, 0x020a, 0x20b, 0x20c}};
+
+    int         i, j, k;        // CAN序号 发送ID序号 电调ID序号
+    int         isNotEmpty = 0; // 同一发送ID下是否有电机
+    Motor_Type *motor;          // 根据i,j,k锁定电机
+    int16_t     currents[4];    // CAN发送电流
+
+    while (1) {
+        for (i = 0; i < 2; i++) {
+            for (j = 0; j < 3; j++) {
+                isNotEmpty = 0;
+                for (k = 0; k < 4; k++) {
+                    motor       = *(Canx_Device[i] + ESC_ID(Can_ESC_Id[j][k]));
+                    currents[k] = (motor && motor->inputEnabled) ? motor->input : 0;
+                    isNotEmpty  = isNotEmpty || (motor && motor->inputEnabled);
+                }
+                if (isNotEmpty && !SafetyMode) {
+                    Can_Send(Canx[i], Can_Send_Id[j], currents[0], currents[1], currents[2], currents[3]);
+                } else if (isNotEmpty && SafetyMode) {
+                    Can_Send(Canx[i], Can_Send_Id[j], 0, 0, 0, 0);
+                }
+            }
+        }
+        // 发送频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+    vTaskDelete(NULL);
+}
+
+void Task_Debug_Magic_Send(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount();
+    while (1) {
+        taskENTER_CRITICAL(); // 进入临界段
+        printf("Yaw: %f \r\n", Gyroscope_EulerData.yaw);
+        taskEXIT_CRITICAL(); // 退出临界段
+        vTaskDelayUntil(&LastWakeTime, 500);
+    }
+    vTaskDelete(NULL);
+}
+
 void Task_Safe_Mode(void *Parameters) {
     while (1) {
         if (SafetyMode) {
@@ -207,7 +255,7 @@ void Task_Gimbal(void *Parameters) {
 
         // 视觉辅助
         if (!PsAimEnabled) {
-            lastSeq = Ps.autoaimData.seq;
+            lastSeq = HostChannel.seq;
             yawAngleTargetControl += yawAngleTargetPs;
             pitchAngleTargetControl += pitchAngleTargetPs;
             yawAngleTarget += yawAngleTargetPs;
@@ -215,10 +263,10 @@ void Task_Gimbal(void *Parameters) {
             yawAngleTargetPs   = 0;
             pitchAngleTargetPs = 0;
         } else {
-            if (lastSeq != Ps.autoaimData.seq) {
-                lastSeq = Ps.autoaimData.seq;
-                yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
-                pitchAngleTargetPs -= Ps.autoaimData.pitch_angle_diff;
+            if (lastSeq != HostChannel.seq) {
+                lastSeq = HostChannel.seq;
+                yawAngleTargetPs += ProtocolData.host.autoaimData.yaw_angle_diff;
+                pitchAngleTargetPs -= ProtocolData.host.autoaimData.pitch_angle_diff;
             }
         }
         MIAO(yawAngleTargetPs, GIMBAL_YAW_MIN - yawAngleTarget, GIMBAL_YAW_MAX - yawAngleTarget);
@@ -266,11 +314,15 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_RollSpeed, PID_Cloud_RollAngle.output, rollSpeed);
 
         // 输出电流
-        Can_Send(CAN1, 0x1FF, -PID_Cloud_YawSpeed.output, -PID_Cloud_RollSpeed.output, -1 * PID_Cloud_PitchSpeed.output, 0);
+        // Can_Send(CAN1, 0x1FF, -PID_Cloud_YawSpeed.output, -PID_Cloud_RollSpeed.output, -1 * PID_Cloud_PitchSpeed.output, 0);
+        Motor_Yaw.input   = -PID_Cloud_YawSpeed.output;
+        Motor_Pitch.input = -PID_Cloud_RollSpeed.output;
+        Motor_Roll.input  = -PID_Cloud_PitchSpeed.output;
+        Motor_Stir.input  = 0;
 
         // DebugData.debug1 = PID_Cloud_YawSpeed.p;
-        DebugData.debug2 = Motor_Yaw.position;
-        DebugData.debug3 = Motor_Yaw.positionBias;
+        // DebugData.debug2 = Motor_Yaw.position;
+        // DebugData.debug3 = Motor_Yaw.positionBias;
         // DebugData.debug4 = pitchAngleTarget;
 
         vTaskDelayUntil(&LastWakeTime, 5);
@@ -345,7 +397,24 @@ void Task_Fire(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+// void Task_OLED(void *Parameters) {
+//     uint16_t   JoystickValue = -1;
+//     TickType_t LastWakeTime  = xTaskGetTickCount();
+//     oled_init();
+//     while (1) {
+//         JoystickValue = ADC_GetConversionValue(ADC1);
+//         oled_clear(Pen_Clear);
+//         oled_menu(JoystickValue);
+//         oled_refresh_gram();
+//         vTaskDelayUntil(&LastWakeTime, 125);
+//     }
+//     vTaskDelete(NULL);
+// }
+
 void Task_Sys_Init(void *Parameters) {
+
+    //获得 Stone ID
+    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
 
     // 初始化全局变量
     Handle_Init();

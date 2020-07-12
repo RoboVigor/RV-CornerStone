@@ -22,32 +22,27 @@ void USART1_IRQHandler(void) {
     UARTtemp = USART1->DR;
     UARTtemp = USART1->SR;
 
-    DMA_Cmd(DMA2_Stream2, DISABLE);
+    // disabe DMA
+    DMA_Disable(USART1_Rx);
 
     //数据量正确
-    if (DMA2_Stream2->NDTR == DBUS_BACK_LENGTH) {
+    if (DMA_Get_Stream(USART1_Rx)->NDTR == DBUS_BACK_LENGTH) {
         DBus_Update(&remoteData, &keyboardData, &mouseData, remoteBuffer); //解码
     }
 
-    //重启DMA
-    DMA_ClearFlag(DMA2_Stream2, DMA_FLAG_TCIF2 | DMA_FLAG_HTIF2);
-    while (DMA_GetCmdStatus(DMA2_Stream2) != DISABLE) {
-    }
-    DMA_SetCurrDataCounter(DMA2_Stream2, DBUS_LENGTH + DBUS_BACK_LENGTH);
-    DMA_Cmd(DMA2_Stream2, ENABLE);
+    // enable DMA
+    DMA_Enable(USART1_Rx, DBUS_LENGTH + DBUS_BACK_LENGTH);
 }
 
 /**
  * @brief USART3 串口中断
  */
 void USART3_IRQHandler(void) {
-    u8 res;
+    uint8_t tmp;
 
-    if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
-        res        = USART_ReceiveData(USART3);              // 读取数据
-        USART3->DR = res + 1;                                // 输出数据
-        RED_LIGHT_TOGGLE;
-    }
+    // clear IDLE flag
+    tmp = USART3->DR;
+    tmp = USART3->SR;
 }
 
 /**
@@ -68,7 +63,7 @@ void USART6_IRQHandler(void) {
     // unpack
     len = Protocol_Buffer_Length - DMA_Get_Data_Counter(USART6_Rx);
     for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Judge, Judge.receiveBuf[i]);
+        Protocol_Unpack(&JudgeChannel, JudgeChannel.receiveBuf[i]);
     }
 
     // enable DMA
@@ -79,13 +74,25 @@ void USART6_IRQHandler(void) {
  * @brief UART7 串口中断
  */
 void UART7_IRQHandler(void) {
-    u8 res;
+    uint8_t  tmp;
+    uint16_t len;
+    int      i;
 
-    if (USART_GetITStatus(UART7, USART_IT_RXNE) != RESET) { // 接收中断（必须以 0x0d 0x0a 结尾）
-        res       = USART_ReceiveData(UART7);               // 读取数据
-        UART7->DR = res;                                    // 输出数据
-        RED_LIGHT_TOGGLE;
+    // clear IDLE flag
+    tmp = UART7->DR;
+    tmp = UART7->SR;
+
+    // disabe DMA
+    DMA_Disable(UART7_Rx);
+
+    // unpack
+    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART7_Rx);
+    for (i = 0; i < len; i++) {
+        Protocol_Unpack(&UserChannel, UserChannel.receiveBuf[i]);
     }
+
+    // enable DMA
+    DMA_Enable(UART7_Rx, Protocol_Buffer_Length);
 }
 
 /**
@@ -106,7 +113,7 @@ void UART8_IRQHandler(void) {
     // unpack
     len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART8_Rx);
     for (i = 0; i < len; i++) {
-        Protocol_Unpack(&Ps, Ps.receiveBuf[i]);
+        Protocol_Unpack(&HostChannel, HostChannel.receiveBuf[i]);
     }
 
     // enable DMA
@@ -116,63 +123,36 @@ void UART8_IRQHandler(void) {
 // CAN1数据接收中断服务函数
 void CAN1_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
-    int      position;
-    int      speed;
+    int      i;
 
     // 读取数据
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
-    position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-    speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
     // 安排数据
-    switch (CanRxData.StdId) {
-    case 0x203:
-        Motor_Update(&Motor_Stir, position, speed);
-        break;
-
-    case 0x205:
-        Motor_Update(&Motor_Yaw, position, speed);
-        break;
-
-    case 0x206:
-        Motor_Update(&Motor_Roll, position, speed);
-        break;
-
-    case 0x207:
-        Motor_Update(&Motor_Pitch, position, speed);
-        break;
-
-    default:
-        break;
+    if (CanRxData.StdId < 0x500) {
+        Motor_Update(Can1_Device[ESC_ID(CanRxData.StdId)], CanRxData.Data);
+    } else {
+        for (i = 0; i < 8; i++) {
+            Protocol_Unpack(&UserChannel, CanRxData.Data[i]);
+        }
     }
 }
 
-void CAN1_SCE_IRQHandler(void) {
-    RED_LIGHT_ON;
-    CAN_ClearITPendingBit(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR);
-}
+// void CAN1_SCE_IRQHandler(void) {
+//     RED_LIGHT_ON;
+//     CAN_ClearITPendingBit(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR);
+// }
 
 // CAN2数据接收中断服务函数
 void CAN2_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
-    int      position;
-    int      speed;
+    int      data[8];
 
     // 读取数据
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
-    position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-    speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
 
-    // 安排数据
-    // switch (CanRxData.StdId) {
-
-    // case 0x207:
-    // Motor_Update(&Motor_Stir, position, speed);
-    // break;
-
-    // default:
-    // break;
-    //}
+    //安排数据
+    Motor_Update(Can2_Device[ESC_ID(CanRxData.StdId)], CanRxData.Data);
 }
 
 // TIM2 高频计数器
@@ -184,46 +164,6 @@ void TIM2_IRQHandler(void) {
         TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
         TIM_ClearFlag(TIM2, TIM_FLAG_Update);
     }
-}
-
-//定时器5中断服务程序
-void TIM5_IRQHandler(void) {
-
-    if ((TIM5CH1_CAPTURE_STA & 0X80) == 0) //还未成功捕获
-    {
-        if (TIM_GetITStatus(TIM5, TIM_IT_Update) != RESET) //溢出
-        {
-            if (TIM5CH1_CAPTURE_STA & 0X40) //已经捕获到高电平了
-            {
-                if ((TIM5CH1_CAPTURE_STA & 0X3F) == 0X3F) //高电平太长了
-                {
-                    TIM5CH1_CAPTURE_STA |= 0X80; //标记成功捕获了一次
-                    TIM5CH1_CAPTURE_VAL = 0XFFFFFFFF;
-                } else
-                    TIM5CH1_CAPTURE_STA++;
-            }
-        }
-        if (TIM_GetITStatus(TIM5, TIM_IT_CC1) != RESET) //捕获1发生捕获事件
-        {
-            if (TIM5CH1_CAPTURE_STA & 0X40) //捕获到一个下降沿
-            {
-                TIM5CH1_CAPTURE_STA |= 0X80;                 //标记成功捕获到一次高电平脉宽
-                TIM5CH1_CAPTURE_VAL = TIM_GetCapture1(TIM5); //获取当前的捕获值.
-                TIM_OC1PolarityConfig(TIM5,
-                                      TIM_ICPolarity_Rising); // CC1P=0 设置为上升沿捕获
-            } else                                            //还未开始,第一次捕获上升沿
-            {
-                TIM5CH1_CAPTURE_STA = 0; //清空
-                TIM5CH1_CAPTURE_VAL = 0;
-                TIM5CH1_CAPTURE_STA |= 0X40; //标记捕获到了上升沿
-                TIM_Cmd(TIM5, DISABLE);      //关闭定时器5
-                TIM_SetCounter(TIM5, 0);
-                TIM_OC1PolarityConfig(TIM5, TIM_ICPolarity_Falling); // CC1P=1 设置为下降沿捕获
-                TIM_Cmd(TIM5, ENABLE);                               //使能定时器5
-            }
-        }
-    }
-    TIM_ClearITPendingBit(TIM5, TIM_IT_CC1 | TIM_IT_Update); //清除中断标志位
 }
 
 /**
