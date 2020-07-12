@@ -630,6 +630,16 @@
               <FileType>5</FileType>
               <FilePath>..\user\common\interrupt.h</FilePath>
             </File>
+            <File>
+              <FileName>protocol_host.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\common\protocol_host.h</FilePath>
+            </File>
+            <File>
+              <FileName>protocol_judge.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\common\protocol_judge.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
