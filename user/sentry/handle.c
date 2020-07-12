@@ -30,6 +30,13 @@ void Handle_Init(void) {
     // 初始化串口调试数据
     Magic_Init(&magic, 0);
 
+    // CAN外设
+    Can1_Device[ESC_ID(0x201)] = &Motor_Chassis_Left;
+    Can1_Device[ESC_ID(0x202)] = &Motor_Chassis_Right;
+    Can1_Device[ESC_ID(0x203)] = &Motor_Frict_L;
+    Can1_Device[ESC_ID(0x204)] = &Motor_Frict_R;
+    Can1_Device[ESC_ID(0x207)] = &Motor_Stir;
+
     // 通讯协议初始化
     Protocol_Init(&JudgeChannel, &ProtocolData);
     Protocol_Init(&HostChannel, &ProtocolData);
