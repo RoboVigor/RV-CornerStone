@@ -368,7 +368,7 @@ void Task_Sys_Init(void *Parameters) {
 
     // 低级任务
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    xTaskCreate(Task_OLED, "Task_OLED", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_OLED, "Task_OLED", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启

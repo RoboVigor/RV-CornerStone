@@ -15,9 +15,7 @@ void BSP_Init(void) {
     BSP_Beep_Init();
     BSP_LED_Init();
     BSP_User_Power_Init();
-    BSP_OLED_Init();
-    // USART
-    // BSP_USART2_Init(9600, USART_IT_RXNE);
+    // BSP_OLED_Init();
 
     // Judge (USART6)
     BSP_USART6_Init(115200, USART_IT_IDLE);
