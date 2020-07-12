@@ -217,7 +217,8 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Chassis_Right, rightTarget, Motor_Chassis_Right.speed * RPM2RPS);
 
         // 输出电流值到电调
-        Can_Send(CAN1, 0x200, PID_Chassis_Left.output * ChassisData.powerScale, PID_Chassis_Right.output * ChassisData.powerScale, 0, 0);
+        Motor_Chassis_Left.input  = PID_Chassis_Left.output * ChassisData.powerScale;
+        Motor_Chassis_Right.input = PID_Chassis_Right.output * ChassisData.powerScale;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -371,8 +372,8 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Stabilizer_Pitch_Speed, PID_Stabilizer_Pitch_Angle.output, pitchSpeed);
 
         // 输出电流
-        Can_Send(CAN1, 0x1ff, PID_Stabilizer_Yaw_Speed.output, PID_Stabilizer_Pitch_Speed.output, PID_Stir_Speed.output, 0);
-        // Can_Send(CAN1, 0x1ff, 0, 0, 4000, 0);
+        Motor_Stabilizer_Yaw.input = PID_Stabilizer_Yaw_Speed.output;
+        Motor_Stabilizer_Pitch     = PID_Stabilizer_Pitch_Speed.output;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -443,7 +444,7 @@ void Task_Stir(void *Parameters) {
         targetSpeed = CHOOSEL(0, 200, 300);
         PID_Calculate(&PID_Stir_Speed, targetSpeed, Motor_Stir.speed * RPM2RPS);
 
-        if (StirEnabled) Can_Send(CAN1, 0x1ff, 0, 0, PID_Stir_Speed.output, 0);
+        if (StirEnabled) Motor_Stir.input = PID_Stir_Speed.output;
 
         // // 热量限制
         // calmDown = (ProtocolData.judge.powerHeatData.shooter_heat0 > 400) ? 1 : 0;
@@ -557,7 +558,10 @@ void Task_Frict(void *Parameters) {
 
         DebugData.debug1 = motorLSpeed;
         DebugData.debug2 = motorRSpeed;
-        if (FrictEnabled) Can_Send(CAN1, 0x200, 0, 0, PID_Frict_L_Speed.output, PID_Frict_R_Speed.output);
+        if (FrictEnabled) {
+            Motor_Frict_L.input = PID_Frict_L_Speed.output;
+            Motor_Frict_R.input = PID_Frict_R_Speed;
+        };
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
