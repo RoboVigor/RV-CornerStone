@@ -372,8 +372,8 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Stabilizer_Pitch_Speed, PID_Stabilizer_Pitch_Angle.output, pitchSpeed);
 
         // 输出电流
-        Motor_Stabilizer_Yaw.input = PID_Stabilizer_Yaw_Speed.output;
-        Motor_Stabilizer_Pitch     = PID_Stabilizer_Pitch_Speed.output;
+        Motor_Stabilizer_Yaw.input   = PID_Stabilizer_Yaw_Speed.output;
+        Motor_Stabilizer_Pitch.input = PID_Stabilizer_Pitch_Speed.output;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -560,7 +560,7 @@ void Task_Frict(void *Parameters) {
         DebugData.debug2 = motorRSpeed;
         if (FrictEnabled) {
             Motor_Frict_L.input = PID_Frict_L_Speed.output;
-            Motor_Frict_R.input = PID_Frict_R_Speed;
+            Motor_Frict_R.input = PID_Frict_R_Speed.output;
         };
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
