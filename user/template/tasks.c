@@ -189,7 +189,7 @@ void Task_Chassis(void *Parameters) {
 
 void Task_Board_Communication(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.005;               // 任务运行间隔 s
+    float      interval     = 0.1;                 // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     uint16_t id;         // 通讯ID
