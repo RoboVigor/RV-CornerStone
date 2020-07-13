@@ -5,6 +5,7 @@
 #define Music_Len_Earth 281
 #define Music_Len_Sky 241
 #define Music_Len_Soul 117
+#define Music_Len_Bird 1
 #define Music_Len_XP 18
 
 #define BEEP_ON (TIM12->CCR1 = 599)
@@ -42,7 +43,7 @@ typedef enum {
     Silent,
 } Sound_Tone_Type;
 
-typedef enum { Music_Sky, Music_Earth, Music_Soul, Music_XP } Song_Type;
+typedef enum { Music_Sky, Music_Earth, Music_Soul, Music_Bird, Music_XP } Song_Type;
 
 void Beep_Init(void); //初始化
 
