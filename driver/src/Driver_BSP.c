@@ -1163,6 +1163,7 @@ extern Sound_Tone_Type Music_Scope_Soul[];
  *        Music_Sky       天空之城    350
  *        Music_Earth     极乐净土    120
  *        Music_Soul      New Soul   60
+ *        Music_Bird      青鸟        ？？
  *        Music_XP        XP开机音乐  150
  */
 uint8_t KTV_Play(Song_Type song) {
@@ -1179,6 +1180,10 @@ uint8_t KTV_Play(Song_Type song) {
     case Music_Soul:
         if (index >= Music_Len_Soul) return 1;
         Sing(Music_Scope_Soul[index]);
+        break;
+    case Music_Bird:
+        if (index >= Music_Len_Bird) return 1;
+        Sing(Music_Scope_Bird[index]);
         break;
     case Music_XP:
         if (index >= Music_Len_XP) return 1;
