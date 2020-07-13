@@ -42,13 +42,13 @@ __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 __HANDLE_EXT Motor_Type Motor_Chassis_Left, Motor_Chassis_Right;
 
 // 云台
-__HANDLE_EXT Motor_Type Motor_Stabilizer_Yaw, Motor_Stabilizer_Pitch;
-__HANDLE_EXT PID_Type   PID_Stabilizer_Yaw_Angle, PID_Stabilizer_Yaw_Speed;
-__HANDLE_EXT PID_Type   PID_Stabilizer_Pitch_Angle, PID_Stabilizer_Pitch_Speed;
+__HANDLE_EXT Motor_Type Motor_Up_Gimbal_Yaw, Motor_Up_Gimbal_Pitch, Motor_Down_Gimbal_Yaw, Motor_Down_Gimbal_Pitch;
+__HANDLE_EXT PID_Type   PID_Up_Gimbal_Yaw_Angle, PID_Up_Gimbal_Yaw_Speed, PID_Up_Gimbal_Pitch_Angle, PID_Up_Gimbal_Pitch_Speed;
+__HANDLE_EXT PID_Type   PID_Down_Gimbal_Yaw_Angle, PID_Down_Gimbal_Yaw_Speed, PID_Down_Gimbal_Pitch_Angle, PID_Down_Gimbal_Pitch_Speed;
 
 // 摩擦轮
-__HANDLE_EXT Motor_Type Motor_Frict_L, Motor_Frict_R;
-__HANDLE_EXT PID_Type   PID_Frict_L_Speed, PID_Frict_R_Speed;
+__HANDLE_EXT Motor_Type Motor_Up_Frict_Left, Motor_Up_Frict_Right, Motor_Down_Frict_Left, Motor_Down_Frict_Right;
+__HANDLE_EXT PID_Type   PID_Up_Frict_Left_Speed, PID_Up_Frict_Right_Speed, PID_Down_Frict_Left_Speed, PID_Down_Frict_Right_Speed;
 
 // 遥控器
 __HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
@@ -74,17 +74,11 @@ __HANDLE_EXT Protocol_Data_Type    ProtocolData;
 __HANDLE_EXT Protocol_Channel_Type JudgeChannel, HostChannel, UserChannel;
 
 // 发射机构
-__HANDLE_EXT Motor_Type Motor_Stir;                     // 左/右 摩擦轮 拨弹轮 电机
-__HANDLE_EXT PID_Type   PID_Stir_Speed, PID_Stir_Angle; // 拨弹轮 速度/角度 PID
-
-// PWM
-__HANDLE_EXT PWM_Type PWM_Snail1, PWM_Snail2;
+__HANDLE_EXT Motor_Type Motor_Up_Stir, Motor_Down_Stir;                                                 // 左/右 摩擦轮 拨弹轮 电机
+__HANDLE_EXT PID_Type   PID_Up_Stir_Speed, PID_Up_Stir_Angle, PID_Down_Stir_Speed, PID_Down_Stir_Angle; // 拨弹轮 速度/角度 PID
 
 // 光电开关传感器数据
 __HANDLE_EXT int Left_State, Right_State;
-
-// 摩擦轮
-__HANDLE_EXT int Snail_State;
 
 // CAN
 __HANDLE_EXT Motor_Type *Can1_Device[12], *Can2_Device[12];
