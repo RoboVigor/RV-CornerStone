@@ -28,6 +28,9 @@
 #define __HANDLE_EXT extern
 #endif
 
+// Stone Id
+__HANDLE_EXT uint8_t Board_Id, Robot_Id;
+
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 

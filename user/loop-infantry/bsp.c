@@ -37,4 +37,7 @@ void BSP_Init(void) {
     // Servo
     BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PI0);
     BSP_PWM_Init(&PWM_Magazine_Servo, 9000, 200, TIM_OCPolarity_Low);
+
+    // Stone Id
+    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
 }
