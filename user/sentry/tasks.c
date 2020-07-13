@@ -4,19 +4,8 @@
  */
 #include "main.h"
 
-void Task_Safe_Mode(void *Parameters) {
-    while (1) {
-        if (SafetyMode) {
-            vTaskSuspendAll();
-            Can_Send(CAN1, 0x200, 0, 0, 0, 0);
-            Can_Send(CAN1, 0x1ff, 0, 0, 0, 0);
-            PWM_Set_Compare(&PWM_Snail1, 0.376 * 1250);
-            PWM_Set_Compare(&PWM_Snail2, 0.376 * 1250);
-        }
-        vTaskDelay(5);
-    }
-    vTaskDelete(NULL);
-}
+#define IS_UP_BOARD Board_Id == 1
+#define IS_DOWN_BOARD Board_Id == 2
 
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
@@ -681,7 +670,6 @@ void Task_Sys_Init(void *Parameters) {
 #endif
 
     // 低级任务
-    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
