@@ -29,6 +29,9 @@
 #define __HANDLE_EXT extern
 #endif
 
+//
+__HANDLE_EXT uint8_t Board_Id, Stone_Id;
+
 // 键鼠
 __HANDLE_EXT uint8_t FrictEnabled, LaserEnabled, StirEnabled, PsEnabled, AutoMode, SafetyMode;
 
