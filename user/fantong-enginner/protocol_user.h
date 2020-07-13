@@ -21,10 +21,11 @@
 typedef struct {
     union {
         struct {
+            uint32_t data1 : 29;
             uint8_t  fetchMode : 1;
+            uint8_t  goMode : 1;
             uint8_t  milkMode : 1;
-            uint32_t data1 : 30;
-            float    data2;
+            float    fetchVelocity;
             float    data3;
             float    data4;
         };
@@ -37,16 +38,18 @@ typedef struct {
 typedef struct {
     union {
         struct {
-            float data1;
-            float data2;
-            float data3;
-            float data4;
+            uint32_t data1 : 23;
+            uint8_t  raiseMode : 1;
+            uint8_t  fetchState;
+            float    chassisVelocityX;
+            float    chassisVelocityY;
+            float    gimbalVelocityYaw;
         };
         struct {
             uint8_t data[PROTOCOL_PACK_LENGTH_0502];
         };
     };
-} board_test_data_t;
+} board_chassis_data_t;
 
 typedef struct {
     union {
@@ -93,7 +96,7 @@ typedef struct {
     union {
         struct {
             board_fetch_data_t       fetch;              // 抓取
-            board_test_data_t        test;               // 测试
+            board_chassis_data_t     chassis;            // 底盘
             robot_interactive_data_t robotCommunication; // 车间通讯
         };
         struct {
