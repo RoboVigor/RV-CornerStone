@@ -67,7 +67,6 @@
 #define CHOOSEL(a, b, c) (remoteData.switchLeft == 1?(a):(remoteData.switchLeft == 3?(b):(c)))
 #define CHOOSER(a, b, c) (remoteData.switchRight == 1?(a):(remoteData.switchRight == 3?(b):(c)))
 
-
 /**
  * @brief 斜坡函数 (一次函数)
  * @note
