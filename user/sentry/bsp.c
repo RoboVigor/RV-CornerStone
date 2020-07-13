@@ -48,4 +48,6 @@ void BSP_Init(void) {
     BSP_UART8_Init(115200, USART_IT_IDLE);
     BSP_DMA_Init(UART8_Tx, HostChannel.sendBuf, Protocol_Buffer_Length);
     BSP_DMA_Init(UART8_Rx, HostChannel.receiveBuf, Protocol_Buffer_Length);
+
+    BSP_Stone_Id_Init(&Board_Id, &Stone_Id);
 }
