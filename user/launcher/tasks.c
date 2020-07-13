@@ -109,7 +109,7 @@ void Task_Hook(void *Parameters) {
 
     while (1) {
         PWM_Set_Compare(&PWM_Hook_L, HookClose ? 20 : 25);
-        PWM_Set_Compare(&PWM_Hook_R, HookClose ? 14 : 11);
+        PWM_Set_Compare(&PWM_Hook_R, HookClose ? 14 : 9);
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
