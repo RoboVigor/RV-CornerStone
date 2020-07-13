@@ -9,14 +9,14 @@
 void BSP_Switch_Init(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
 
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOI, ENABLE);
 
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_5;
+    GPIO_InitStructure.GPIO_PuPd	  = GPIO_PuPd_NOPULL;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    GPIO_Init(GPIOI, &GPIO_InitStructure);
 }
 
 void BSP_Init(void) {
@@ -52,7 +52,7 @@ void BSP_Init(void) {
     // BSP_PWM_Set_Port(&PWM_Test, PWM_PD12);
     // BSP_PWM_Init(&PWM_Test, 9000, 200, TIM_OCPolarity_Low);
 
-    BSP_PWM_Set_Port(&PWM_Hook_L, PWM_PI0);
+    BSP_PWM_Set_Port(&PWM_Hook_L, PWM_PA1);
     BSP_PWM_Init(&PWM_Hook_L, 9000, 200, TIM_OCPolarity_Low);
     BSP_PWM_Set_Port(&PWM_Hook_R, PWM_PA2);
     BSP_PWM_Init(&PWM_Hook_R, 9000, 200, TIM_OCPolarity_Low);

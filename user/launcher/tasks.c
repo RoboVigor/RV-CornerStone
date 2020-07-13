@@ -75,7 +75,7 @@ void Task_Charge(void *Parameters) {
 
     while (1) {
         motorSpeed    = Motor_Charge.speed / 19.2f;
-        isSwitchClose = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0);
+        isSwitchClose = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_5);
 
         targetSpeed = 0;
 
@@ -108,8 +108,8 @@ void Task_Hook(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
-        PWM_Set_Compare(&PWM_Hook_L, HookClose ? 14 : 5);
-        PWM_Set_Compare(&PWM_Hook_R, HookClose ? 19 : 100);
+        PWM_Set_Compare(&PWM_Hook_L, HookClose ? 20 : 25);
+        PWM_Set_Compare(&PWM_Hook_R, HookClose ? 14 : 11);
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
