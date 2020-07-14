@@ -274,14 +274,14 @@ void Task_Gimbal(void *Parameters) {
         pitchCurrent = PID_Cloud_PitchSpeed.output;
         MIAO(yawCurrent, -12000, 12000);
         MIAO(pitchCurrent, -12000, 12000);
-#ifdef ROBOT_LOOP_ONE
-        Motor_Yaw.input   = yawCurrent;
-        Motor_Pitch.input = pitchCurrent;
-#endif
-#ifdef ROBOT_LOOP_TWO
-        Motor_Yaw.input   = yawCurrent;
-        Motor_Pitch.input = -pitchCurrent;
-#endif
+
+        if (Robot_Id == 1) {
+            Motor_Yaw.input   = yawCurrent;
+            Motor_Pitch.input = pitchCurrent;
+        } else if (Robot_Id == 2) {
+            Motor_Yaw.input   = yawCurrent;
+            Motor_Pitch.input = -pitchCurrent;
+        }
 
         // 调试信息
         //
@@ -550,13 +550,12 @@ void Task_Fire_Stir(void *Parameters) {
     // LASER_ON;
 
     while (1) {
-// 弹舱盖开关
-#ifdef ROBOT_LOOP_ONE
-        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 10 : 5);
-#endif
-#ifdef ROBOT_LOOP_TWO
-        PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 14 : 6);
-#endif
+        // 弹舱盖开关
+        if (Robot_Id == 1) {
+            PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 10 : 5);
+        } else if (Robot_Id == 2) {
+            PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 14 : 6);
+        }
         // 拨弹速度
         if (ProtocolData.judge.robotState.shooter_heat0_cooling_rate == 20) {
             stirSpeed = 110;
