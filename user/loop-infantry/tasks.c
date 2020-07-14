@@ -21,13 +21,13 @@ void Task_Control(void *Parameters) {
             // PsShootEnabled = 0;
 
             // 检录用
-            MagzineOpened = remoteData.switchLeft == 1;
-            FrictEnabled  = remoteData.switchRight != 1;
-            StirEnabled   = remoteData.switchLeft == 2;
+            MagzineOpened = LEFT_SWITCH_TOP;
+            FrictEnabled  = RIGHT_SWITCH_MIDDLE;
+            StirEnabled   = LEFT_SWITCH_BOTTOM;
             // 小陀螺测试
-            // SwingMode = (remoteData.switchRight == 2) ? 3 : 0;
+            SwingMode = RIGHT_SWITCH_BOTTOM ? 3 : 0;
             // 安全模式
-            SafetyMode    = remoteData.switchRight == 2;
+            // SafetyMode    = remoteData.switchRight == 2;
             FastShootMode = 0;
         } else {
             ControlMode    = 2; //键鼠模式
@@ -206,7 +206,7 @@ void Task_Gimbal(void *Parameters) {
     PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 1000, 10);
     PID_Init(&PID_Cloud_YawSpeed, 10, 0, 0, 4000, 0);
     PID_Init(&PID_Cloud_PitchAngle, 15, 0, 0, 16000, 0);
-    PID_Init(&PID_Cloud_PitchSpeed, 85, 0, 0, 16000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 75, 0, 0, 16000, 0);
 
     while (1) {
         // 重置目标
@@ -624,7 +624,7 @@ void Task_Fire_Frict(void *Parameters) {
     int targetSpeed = 0;
 
     PID_Init(&PID_FireL, 55, 0, 0, 16384, 1200);
-    PID_Init(&PID_FireR, 55, 0, 0, 16384, 1200);
+    PID_Init(&PID_FireR, 50, 0, 0, 16384, 1200);
 
     while (1) {
 
@@ -689,12 +689,11 @@ void Task_Startup_Music(void *Parameters) {
 }
 
 void Task_Sys_Init(void *Parameters) {
+    // 初始化硬件
+    BSP_Init();
 
     // 初始化全局变量
     Handle_Init();
-
-    // 初始化硬件
-    BSP_Init();
 
     // 初始化陀螺仪
     Gyroscope_Init(&Gyroscope_EulerData);
