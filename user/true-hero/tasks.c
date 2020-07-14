@@ -9,11 +9,11 @@ void Task_Control(void *Parameters) {
     while (1) {
 
         // if (remoteData.switchLeft == 1 || remoteData.switchLeft == 3) {
-        ControlMode  = 1;                   //遥控器模式
-        SafetyMode   = RIGHT_SWITCH_BOTTOM; //安全模式
-        ShootEnabled = !LEFT_SWITCH_BOTTOM;
+        ControlMode  = 1;                           //遥控器模式
+        SafetyMode   = RIGHT_SWITCH_BOTTOM;         //安全模式
+        ShootEnabled = !LEFT_SWITCH_BOTTOM;         //射击模式
         SwingMode    = RIGHT_SWITCH_MIDDLE ? 1 : 0; //大陀螺
-        ShootMode    = LEFT_SWITCH_TOP ? 1 : 0;     // 射击
+        ShootMode    = LEFT_SWITCH_TOP ? 1 : 0;     // 发射
         // } else if (remoteData.switchLeft == 2) {
         //     ControlMode = 2; //键鼠模式
         // }
@@ -52,10 +52,10 @@ void Task_Gimbal(void *Parameters) {
 
     // 初始化云台PID
     PID_Init(&PID_Cloud_YawAngle, 20, 0, 0, 3000, 0);
-    PID_Init(&PID_Cloud_YawSpeed, 50, 0, 0, 16000, 0);
-    PID_Init(&PID_Cloud_PitchAngle, 30, 0, 0, 1000, 0);
-    PID_Init(&PID_Cloud_PitchSpeed, 200, 0, 0, 16000, 0);
-    // PID_Cloud_PitchSpeed.p = CHOOSE(450, 500, 550);
+    PID_Init(&PID_Cloud_YawSpeed, 40, 0, 0, 16000, 0);
+    PID_Init(&PID_Cloud_PitchAngle, 15, 0, 0, 1000, 0);   // 20
+    PID_Init(&PID_Cloud_PitchSpeed, 150, 0, 0, 16000, 0); // 150
+    // PID_Cloud_PitchAngle.p = CHOOSE(15, 20, 25);
 
     //滤波函数参数
     float   filter_k       = 0.03; //滤波系数
@@ -132,14 +132,15 @@ void Task_Gimbal(void *Parameters) {
         // 开机时pitch轴匀速抬起
         pitchAngleTargetRamp = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
         if (pitchRampProgress < 1) {
-            pitchRampProgress += 0.01f;
+            pitchRampProgress += 0.005f;
         }
 
         // 计算PID
         PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget, yawAngle);
         PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawSpeed);
 
-        PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTargetRamp, -Motor_Pitch.angle);
+        PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTargetRamp, -Motor_Pitch.angle); // pitch轴电机
+        // PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTargetRamp, pitchAngle);//陀螺仪
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed); //正输出向上
 
         // 输出电流值到电调
@@ -159,7 +160,7 @@ void Task_Gimbal(void *Parameters) {
         // DebugData.debug1 = -Motor_Pitch.angle;
 
         // DebugData.debug1 = pitchSpeed;
-        // DebugData.debug2 = Motor_Pitch.angle;
+        // DebugData.debug2 = -Motor_Pitch.angle;
         // DebugData.debug3 = PID_Cloud_PitchAngle.output;
         // DebugData.debug4 = PID_Cloud_PitchSpeed.output;
         // DebugData.debug5 = pitchAngleTarget;
@@ -211,7 +212,7 @@ void Task_Chassis(void *Parameters) {
 
     // 底盘跟随PID
     float followDeadRegion = 3.0;
-    PID_Init(&PID_Follow_Angle, 0.12, 0, 0, 1000, 0);
+    PID_Init(&PID_Follow_Angle, 0.1, 0, 0, 1000, 0);
     PID_Init(&PID_Follow_Speed, 10, 0, 0, 1000, 1000);
     // PID_Follow_Speed.p = CHOOSE(8, 10, 12);
 
@@ -425,7 +426,6 @@ void Task_Fire(void *Parameters) {
     int16_t shootTime         = 0;
 
     float Stir3510_SpeedTarget;
-    float Stir3510_SpeedTargetMax;
     float speedRampProgress = 0;
     float speedRampStart    = 0;
     float frictRampProgress = 0;
@@ -433,9 +433,11 @@ void Task_Fire(void *Parameters) {
 
     PID_Init(&PID_LeftFrictSpeed, 35, 0.15, 0, 10000, 5000);
     PID_Init(&PID_RightFrictSpeed, 35, 0.1, 0, 10000, 5000);
-    PID_Init(&PID_Stir3510Speed, 320, 0.01, 0, 16000, 10000); // p=110  120  //300  320
+    PID_Init(&PID_Stir3510Speed, 85, 0, 0, 16000, 10000); // p=110  120  //300  320
+    // PID_Stir3510Speed.p = CHOOSE(50, 55, 60);
 
     while (1) {
+        ShootEnabled = 1;
 
         if (ShootEnabled) {
             //开启摩擦轮
@@ -466,28 +468,22 @@ void Task_Fire(void *Parameters) {
             if (ShootState) {
                 if (!limit_switch) {
                     if (shootTime < 1000) {
-                        PID_Stir3510Speed.p     = 320; // 250
-                        Stir3510_SpeedTargetMax = -65;
+                        PID_Stir3510Speed.p  = 90; // 250
+                        Stir3510_SpeedTarget = -65;
                         shootTime++;
                     } else {
-                        Stir3510_SpeedTargetMax = -60; //-60
+                        Stir3510_SpeedTarget = -65; //-60
                     }
                 } else if (limit_switch) {
-                    Stir3510_SpeedTargetMax = ShootMode == 1 ? -65 : 0; //-60
+                    Stir3510_SpeedTarget = ShootMode == 1 ? -70 : 0; //-60
                     if (ShootMode == 1) {
-                        PID_Stir3510Speed.p = 350; // 280
+                        PID_Stir3510Speed.p = 120; // 280
                     }
                 } else if (!ShootState) {
-                    Stir3510_SpeedTargetMax = 0;
+                    Stir3510_SpeedTarget = 0;
                 }
             }
 
-            //斜坡函数
-            Stir3510_SpeedTarget = RAMP(speedRampStart, Stir3510_SpeedTargetMax, speedRampProgress);
-
-            if (speedRampProgress < 1) {
-                speedRampProgress += 1;
-            }
         } else {
             Stir3510_SpeedTarget = 0;
         }
@@ -499,12 +495,12 @@ void Task_Fire(void *Parameters) {
         Motor_RightFrict.input = PID_RightFrictSpeed.output;
         Motor_Stir3510.input   = PID_Stir3510Speed.output;
 
-        // DebugData.debug1 = PID_Stir3510Speed.output;
-        // DebugData.debug2 = Motor_Stir3510.speed * RPM2RPS / 2;
+        DebugData.debug1 = PID_Stir3510Speed.output;
+        DebugData.debug2 = Motor_Stir3510.speed * RPM2RPS / 2;
         // DebugData.debug2 = Motor_Stir3510.speed * RPM2RPS;
-        // DebugData.debug3 = Stir3510_SpeedTarget;
-        // DebugData.debug4 = Motor_Stir3510.angle;
-        // DebugData.debug5 = shootTime;
+        DebugData.debug3 = Stir3510_SpeedTarget;
+        DebugData.debug4 = Motor_Stir3510.angle;
+        DebugData.debug5 = shootTime;
 
         // DebugData.debug1 = Motor_LeftFrict.speed * RPM2RPS;
         // DebugData.debug2 = Motor_RightFrict.speed * RPM2RPS;
