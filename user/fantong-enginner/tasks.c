@@ -10,13 +10,14 @@ void Task_Control(void *Parameters) {
     int        intervalms   = interval * 1000; // 任务运行间隔 ms
     while (1) {
         if (Board_Id == 1) {
-            ChassisMode  = LEFT_SWITCH_MIDDLE;
-            SafetyMode   = RIGHT_SWITCH_BOTTOM && LEFT_SWITCH_BOTTOM;
-            FrictEnabled = LEFT_SWITCH_BOTTOM && (RIGHT_SWITCH_TOP || RIGHT_SWITCH_MIDDLE);
-            StirEnabled  = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_TOP;
-            FetchMode    = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
-            MilkMode     = LEFT_SWITCH_TOP && RIGHT_SWITCH_BOTTOM;
-            RaiseMode    = (LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP) ? 1 : ((LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_BOTTOM) ? 0 : RaiseMode);
+            // ChassisMode  = LEFT_SWITCH_MIDDLE;
+            // SafetyMode   = RIGHT_SWITCH_BOTTOM && LEFT_SWITCH_BOTTOM;
+            // FrictEnabled = LEFT_SWITCH_BOTTOM && (RIGHT_SWITCH_TOP || RIGHT_SWITCH_MIDDLE);
+            // StirEnabled  = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_TOP;
+            // FetchMode    = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
+            // MilkMode     = LEFT_SWITCH_TOP && RIGHT_SWITCH_BOTTOM;
+            // RaiseMode    = (LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP) ? 1 : ((LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_BOTTOM) ? 0 : RaiseMode);
+            RaiseMode = LEFT_SWITCH_TOP;
             // RescueMode   = (LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_TOP) ? 1 : ((LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM) ? 0 : RescueMode);
             // PsAimEnabled = LEFT_SWITCH_TOP && (RIGHT_SWITCH_TOP || RIGHT_SWITCH_MIDDLE);
             // 调试视觉用
@@ -423,7 +424,7 @@ void Task_Fetch(void *Parameters) {
                 }
                 timePassed = xTaskGetTickCount() - timer;
                 if (timePassed > 100) {
-                    ProtocolData.user.chassis.chassisVelocityY = ABS(xSpeedTarget) / 200.0f * 0.1 * xSpeedTarget / ABS(xSpeedTarget);
+                    ProtocolData.user.chassis.chassisVelocityY = 0.15 * xSpeedTarget / ABS(xSpeedTarget);
                 } else {
                     ProtocolData.user.chassis.chassisVelocityY = 0;
                 }
@@ -598,10 +599,6 @@ void Task_Fetch(void *Parameters) {
         // 更新过去值
         lastPitchLeftAngle = pitchLeftAngle;
 
-        DebugData.debug1 = timePassed;
-        DebugData.debug2 = xSpeedTarget;
-        DebugData.debug3 = ABS(Motor_Fetch_X.speed);
-
         // 更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -680,15 +677,13 @@ void Task_Raise(void *Parameter) {
     PID_Init(&PID_Raise_Right_Angle, 3, 0.02, 0, 290, 180);    // 24 0.018
     PID_Init(&PID_Raise_Right_Speed, 30, 0.5, 0, 10000, 5000); // 35 0.5
 
-    // PID_Raise_Right_Speed.p = CHOOSER(10, 30, 100);
-
     while (1) {
         RaiseMode = ProtocolData.user.chassis.raiseMode;
         if (RaiseMode) {
-            if (rampStop != 1070) {
+            if (rampStop < 1100) {
                 raiseProgress = 0;
                 rampStart     = Motor_Raise_Right.angle;
-                rampStop      = 1070;
+                rampStop      = 1100;
             }
         } else {
             if (rampStop != 0) {
@@ -698,11 +693,15 @@ void Task_Raise(void *Parameter) {
             }
         }
 
+        rampStop += remoteData.ry / 660.0f * 10;
+
         // 计算角度斜坡
         if (raiseProgress < 1) {
             raiseProgress += 0.04f;
         }
         raiseAngleTarget = RAMP(rampStart, rampStop, raiseProgress);
+
+        PID_Raise_Left_Speed.i = CHOOSER(0.1, 0.3, 0.5);
 
         // 主从控制
         PID_Calculate(&PID_Raise_Right_Angle, raiseAngleTarget, Motor_Raise_Right.angle);
@@ -710,15 +709,17 @@ void Task_Raise(void *Parameter) {
         PID_Calculate(&PID_Raise_Left_Angle, -Motor_Raise_Right.angle, Motor_Raise_Left.angle);
         PID_Calculate(&PID_Raise_Left_Speed, PID_Raise_Left_Angle.output, Motor_Raise_Left.speed * RPM2RPS);
 
-        // Motor_Raise_Left.input  = RaiseMode ? PID_Raise_Left_Speed.output : 0;
-        // Motor_Raise_Right.input = RaiseMode ? PID_Raise_Right_Speed.output : 0;
-
         Motor_Raise_Right.input = PID_Raise_Right_Speed.output;
         Motor_Raise_Left.input  = PID_Raise_Left_Speed.output;
 
         // 更新抬升状态量
         FantongRaised = ABS(PID_Raise_Right_Angle.error) < 5 && RaiseMode;
         vTaskDelayUntil(&LastWakeTime, 5);
+
+        DebugData.debug1 = raiseAngleTarget;
+        DebugData.debug2 = Motor_Raise_Right.angle;
+        DebugData.debug3 = -Motor_Raise_Right.angle;
+        DebugData.debug4 = Motor_Raise_Left.angle;
     }
 
     vTaskDelete(NULL);
