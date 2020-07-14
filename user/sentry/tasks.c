@@ -260,10 +260,10 @@ void Task_Up_Gimbal(void *Parameters) {
 
     while (1) {
         // 设置反馈
-        yawAngle         = Motor_Stabilizer_Yaw.angle;
-        yawSpeed         = Motor_Stabilizer_Yaw.speed * RPM2RPS;
-        pitchAngle       = Motor_Stabilizer_Pitch.angle;
-        pitchSpeed       = Motor_Stabilizer_Pitch.speed * RPM2RPS;
+        yawAngle         = Motor_Up_Gimbal_Yaw.angle;
+        yawSpeed         = Motor_Up_Gimbal_Yaw.speed * RPM2RPS;
+        pitchAngle       = Motor_Up_Gimbal_Pitch.angle;
+        pitchSpeed       = Motor_Up_Gimbal_Pitch.speed * RPM2RPS;
         yawAngleTarget   = 0;
         pitchAngleTarget = 0;
 
@@ -341,9 +341,9 @@ void Task_Up_Gimbal(void *Parameters) {
 
         // 计算PID
         PID_Calculate(&PID_Up_Gimbal_Yaw_Angle, yawAngleTarget, yawAngle);
-        PID_Calculate(&PID_Up_Gimbal_Yaw_Speed, PID_Stabilizer_Yaw_Angle.output, yawSpeed);
+        PID_Calculate(&PID_Up_Gimbal_Yaw_Speed, PID_Up_Gimbal_Yaw_Angle.output, yawSpeed);
         PID_Calculate(&PID_Up_Gimbal_Pitch_Angle, pitchAngleTarget, pitchAngle);
-        PID_Calculate(&PID_Up_Gimbal_Pitch_Speed, PID_Stabilizer_Pitch_Angle.output, pitchSpeed);
+        PID_Calculate(&PID_Up_Gimbal_Pitch_Speed, PID_Up_Gimbal_Pitch_Angle.output, pitchSpeed);
 
         // 输出电流
         Motor_Up_Gimbal_Yaw.input   = PID_Up_Gimbal_Yaw_Speed.output;
@@ -405,10 +405,10 @@ void Task_Down_Gimbal(void *Parameters) {
 
     while (1) {
         // 设置反馈
-        yawAngle         = Motor_Stabilizer_Yaw.angle;
-        yawSpeed         = Motor_Stabilizer_Yaw.speed * RPM2RPS;
-        pitchAngle       = Motor_Stabilizer_Pitch.angle;
-        pitchSpeed       = Motor_Stabilizer_Pitch.speed * RPM2RPS;
+        yawAngle         = Motor_Down_Gimbal_Yaw.angle;
+        yawSpeed         = Motor_Down_Gimbal_Yaw.speed * RPM2RPS;
+        pitchAngle       = Motor_Down_Gimbal_Pitch.angle;
+        pitchSpeed       = Motor_Down_Gimbal_Pitch.speed * RPM2RPS;
         yawAngleTarget   = 0;
         pitchAngleTarget = 0;
 
@@ -486,13 +486,13 @@ void Task_Down_Gimbal(void *Parameters) {
 
         // 计算PID
         PID_Calculate(&PID_Down_Gimbal_Yaw_Angle, yawAngleTarget, yawAngle);
-        PID_Calculate(&PID_Down_Gimbal_Yaw_Speed, PID_Stabilizer_Yaw_Angle.output, yawSpeed);
+        PID_Calculate(&PID_Down_Gimbal_Yaw_Speed, PID_Down_Gimbal_Yaw_Angle.output, yawSpeed);
         PID_Calculate(&PID_Down_Gimbal_Pitch_Angle, pitchAngleTarget, pitchAngle);
-        PID_Calculate(&PID_Down_Gimbal_Pitch_Speed, PID_Stabilizer_Pitch_Angle.output, pitchSpeed);
+        PID_Calculate(&PID_Down_Gimbal_Pitch_Speed, PID_Down_Gimbal_Pitch_Angle.output, pitchSpeed);
 
         // 输出电流
-        Motor_Stabilizer_Yaw.input   = PID_Stabilizer_Yaw_Speed.output;
-        Motor_Stabilizer_Pitch.input = PID_Stabilizer_Pitch_Speed.output;
+        Motor_Down_Gimbal_Yaw.input   = PID_Down_Gimbal_Yaw_Speed.output;
+        Motor_Down_Gimbal_Pitch.input = PID_Down_Gimbal_Pitch_Speed.output;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
