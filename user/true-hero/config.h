@@ -10,8 +10,8 @@
 // #define SERIAL_DEBUG_PORT USART6 // 串口调试端口
 
 // 运动参数
-#define GIMBAL_PITCH_MIN 0  //-14
-#define GIMBAL_PITCH_MAX 36 // 14
+#define GIMBAL_PITCH_MIN 0
+#define GIMBAL_PITCH_MAX 34
 
 // 陀螺仪
 #define BOARD_FRONT_IS_UP 1                     // 板子正面朝上

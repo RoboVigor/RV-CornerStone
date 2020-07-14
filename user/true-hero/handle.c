@@ -35,7 +35,7 @@ void Handle_Init(void) {
     Can2_Device[ESC_ID(0x206)] = &Motor_Pitch;
 
     // 陀螺仪设置静态误差
-    Gyroscope_Set_Bias(&ImuData, 0.15, 34.65, -8.55);
+    Gyroscope_Set_Bias(&ImuData, 0.60, 34.65, -9.85);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
