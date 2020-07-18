@@ -67,7 +67,7 @@ void Task_Charge(void *Parameters) {
     float      interval     = 0.05;                // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    PID_Init(&PID_Charge, 60, 5, 0, 16000, 2000);
+    PID_Init(&PID_Charge, 60, 5, 0, 16000, 4000);
 
     float isSwitchClose;
     float targetSpeed;
@@ -88,7 +88,7 @@ void Task_Charge(void *Parameters) {
         }
 
         if (ChargeDisabled) {
-            targetSpeed = 200;
+            targetSpeed = 230;
         }
 
         PID_Calculate(&PID_Charge, targetSpeed, motorSpeed);
@@ -110,8 +110,8 @@ void Task_Hook(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
-        PWM_Set_Compare(&PWM_Hook_L, HookClose ? 19 : 25);
-        PWM_Set_Compare(&PWM_Hook_R, HookClose ? 15 : 9);
+        PWM_Set_Compare(&PWM_Hook_L, HookClose ? 17 : 25);
+        PWM_Set_Compare(&PWM_Hook_R, HookClose ? 17 : 9);
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
