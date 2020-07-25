@@ -16,6 +16,7 @@
 #define GYROSCOPE_LSB 16.384f                   // 陀螺仪敏感度
 #define ACCELERATE_LSB 4096.0f                  // 加速度计敏感度
 #define GYROSCOPE_FREQ 0x03                     // 陀螺仪频率 0x09/100Hz 0x04/200Hz 0x03/250Hz 0x01/500Hz 0x00/1000Hz
+#define SAMPLE_FREQ 250.0f                      // 结算采样频率
 
 // 底盘
 #define CHASSIS_MOTOR_REDUCTION_RATE 19.2f  // 底盘电机减速比
