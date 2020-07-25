@@ -365,7 +365,7 @@
               <MiscControls>--gnu</MiscControls>
               <Define>STM32F407xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\core;..\bsp\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\user\dart;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\library\vegmath;..\driver\inc;..\library\bmi088;..\library\ist8310</IncludePath>
+              <IncludePath>..\core;..\bsp\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\user\dart;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\library\vegmath;..\driver\inc;..\library\bmi088;..\library\ist8310;..\library\oled</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -600,6 +600,11 @@
               <FileName>vegmath.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\library\vegmath\vegmath.c</FilePath>
+            </File>
+            <File>
+              <FileName>oled.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\oled\oled.c</FilePath>
             </File>
           </Files>
         </Group>
