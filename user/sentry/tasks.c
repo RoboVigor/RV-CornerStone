@@ -4,6 +4,9 @@
  */
 #include "main.h"
 
+#define IS_DOWN_BOARD Board_Id == 1
+#define IS_UP_BOARD Board_Id == 2
+
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
@@ -944,10 +947,14 @@ void Task_Sys_Init(void *Parameters) {
 
     // 运动控制任务
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    xTaskCreate(Task_Stir, "Task_Stir", 400, NULL, 6, NULL);
 
-    xTaskCreate(Task_Frict, "Task_Frict", 400, NULL, 6, NULL);
+    // xTaskCreate(Task_Up_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Up_Stir, "Task_Stir", 400, NULL, 6, NULL);
+    // xTaskCreate(Task_Up_Frict, "Task_Frict", 400, NULL, 6, NULL);
+
+    // xTaskCreate(Task_Down_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Down_Stir, "Task_Stir", 400, NULL, 6, NULL);
+    // xTaskCreate(Task_Down_Frict, "Task_Frict", 400, NULL, 6, NULL);    
 
     // DMA发送任务
     // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
