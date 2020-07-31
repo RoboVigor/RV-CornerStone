@@ -30,7 +30,7 @@
 #endif
 
 //
-__HANDLE_EXT uint8_t Board_Id, Stone_Id;
+__HANDLE_EXT uint8_t Board_Id, Robot_Id;
 
 // 键鼠
 __HANDLE_EXT uint8_t FrictEnabled, LaserEnabled, StirEnabled, PsEnabled, AutoMode, SafetyMode;
