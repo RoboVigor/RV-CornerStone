@@ -9,26 +9,13 @@ void Task_Control(void *Parameters) {
     float      interval     = 0.01;            // 任务运行间隔 s
     int        intervalms   = interval * 1000; // 任务运行间隔 ms
     while (1) {
-        if (Board_Id == 1) {
-            // ChassisMode  = LEFT_SWITCH_MIDDLE;
-            // SafetyMode   = RIGHT_SWITCH_BOTTOM && LEFT_SWITCH_BOTTOM;
-            // FrictEnabled = LEFT_SWITCH_BOTTOM && (RIGHT_SWITCH_TOP || RIGHT_SWITCH_MIDDLE);
-            // StirEnabled  = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_TOP;
-            // FetchMode    = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
-            // MilkMode     = LEFT_SWITCH_TOP && RIGHT_SWITCH_BOTTOM;
-            // RaiseMode    = (LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP) ? 1 : ((LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_BOTTOM) ? 0 : RaiseMode);
-            RaiseMode = LEFT_SWITCH_TOP;
-            // RescueMode   = (LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_TOP) ? 1 : ((LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM) ? 0 : RescueMode);
-            // PsAimEnabled = LEFT_SWITCH_TOP && (RIGHT_SWITCH_TOP || RIGHT_SWITCH_MIDDLE);
-            // 调试视觉用
-            // PsAimEnabled   = (LEFT_SWITCH_TOP) && (remoteData.switchRight != 3);
-        } else if (Board_Id == 2) {
-            FetchMode = LEFT_SWITCH_TOP;
-            FetchMode += (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP) ? 1 : 0;
-            MilkMode    = LEFT_SWITCH_TOP && RIGHT_SWITCH_BOTTOM;
-            ChassisMode = LEFT_SWITCH_MIDDLE;
-            RaiseMode   = (LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP) ? 1 : ((LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_BOTTOM) ? 0 : RaiseMode);
-        }
+        MilkMode     = LEFT_SWITCH_TOP && RIGHT_SWITCH_BOTTOM;
+        FetchMode    = LEFT_SWITCH_TOP + ((LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP) ? 1 : 0);
+        RaiseMode    = (LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP) ? 1 : ((LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_BOTTOM) ? 0 : RaiseMode);
+        ChassisMode  = LEFT_SWITCH_MIDDLE;
+        FrictEnabled = LEFT_SWITCH_BOTTOM && (RIGHT_SWITCH_TOP || RIGHT_SWITCH_MIDDLE);
+        StirEnabled  = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_TOP;
+        SafetyMode   = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
@@ -69,6 +56,46 @@ void Task_Board_Communication(void *Parameters) {
 
         ProtocolData.user.chassis.fetchState = 3;
         Protocol_Pack(&UserChannel, 0x502);
+
+        // 调试信息
+    }
+    vTaskDelete(NULL);
+}
+
+void Task_Remote_Share(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.01;                // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+    int        i;
+
+    uint16_t id;         // 通讯ID
+    uint16_t dataLength; // 数据长度
+
+    while (1) {
+        if (remoteShareHost) {
+            id = 0x501;
+            for (i = 0; i < 19; i++) {
+                ProtocolData.user.remote.data[i] = remoteBuffer[i];
+            }
+            // USART发送
+            DMA_Disable(UART7_Tx);
+            dataLength = Protocol_Pack(&UserChannel, id);
+            DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+            // Can发送
+            // dataLength = Protocol_Pack(&UserChannel, id);
+            // Can_Send_Msg(CAN1, id, UserChannel.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        } else if (remoteShareClient) {
+            DBus_Update(&remoteData, &keyboardData, &mouseData, ProtocolData.user.remote.data);
+        } else {
+            for (i = 0; i < 19; i++) {
+                if (ProtocolData.user.remote.data[i] != 0) {
+                    remoteShareClient = 1;
+                }
+            }
+        }
+
+        // 发送频率
+        vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
     }
@@ -976,9 +1003,7 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
-    if (Board_Id == 2) {
-        while (!remoteData.state) {
-        }
+    while (!remoteData.state) {
     }
     //模式切换任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
