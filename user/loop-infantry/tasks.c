@@ -10,36 +10,28 @@ void Task_Control(void *Parameters) {
     LASER_ON;
 
     while (1) {
-        if (1) {
-            ControlMode = 1; //遥控器模式
-            // if (remoteData.switchRight == 1) {
-            //     Key_Disable(KEY_CTRL, 100);
-            // }
-
-            // 视觉测试
-            // PsAimEnabled   = (remoteData.switchLeft == 1) && (remoteData.switchRight == 1);
-            // PsShootEnabled = 0;
-
-            // 检录用
-            MagzineOpened = LEFT_SWITCH_TOP;
-            FrictEnabled  = RIGHT_SWITCH_MIDDLE;
-            StirEnabled   = LEFT_SWITCH_BOTTOM;
-            // 小陀螺测试
-            SwingMode = RIGHT_SWITCH_BOTTOM ? 3 : 0;
-            // 安全模式
-            // SafetyMode    = remoteData.switchRight == 2;
+        ControlMode = 1;
+        if (ControlMode == 1) {
+            //遥控器模式
+            PsShootEnabled = 0;
+            // PsAimEnabled   = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
+            SwingMode     = (LEFT_SWITCH_TOP && !RIGHT_SWITCH_MIDDLE) ? 3 : 0;
+            MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP;
+            FrictEnabled  = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP);
+            StirEnabled   = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP) && RIGHT_SWITCH_TOP;
+            SafetyMode    = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
             FastShootMode = 0;
-        } else {
-            ControlMode    = 2; //键鼠模式
+        } else if (ControlMode == 2) {
+            //键鼠模式
+            PsShootEnabled = 0;
             StirEnabled    = mouseData.pressLeft;
             PsAimEnabled   = mouseData.pressRight;
-            PsShootEnabled = 0;
             // 摩擦轮
             if (keyboardData.G && !keyboardData.Ctrl) {
                 FrictEnabled = 1;
             } else if (keyboardData.G && keyboardData.Ctrl) {
                 FrictEnabled = 0;
-                Key_Disable(&keyboardData, KEY_G, 50);
+                Key_Disable(&keyboardData, KEY_G, 100);
             }
             // 弹舱盖
             MagzineOpened = keyboardData.F;
