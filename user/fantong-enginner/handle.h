@@ -82,6 +82,7 @@ __HANDLE_EXT Motor_Type Motor_Raise_Left, Motor_Raise_Right;
 __HANDLE_EXT PID_Type   PID_Raise_Left_Angle, PID_Raise_Left_Speed, PID_Raise_Right_Angle, PID_Raise_Right_Speed;
 
 // 遥控器
+__HANDLE_EXT uint8_t       remoteShareHost, remoteShareClient;
 __HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT Remote_Type   remoteData;
 __HANDLE_EXT Keyboard_Type keyboardData;

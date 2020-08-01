@@ -10,13 +10,25 @@
  * @note    单位 bit
  */
 
-#define PROTOCOL_PACK_LENGTH_0501 16
+#define PROTOCOL_PACK_LENGTH_0501 19
 #define PROTOCOL_PACK_LENGTH_0502 16
+#define PROTOCOL_PACK_LENGTH_0503 16
 #define PROTOCOL_PACK_LENGTH_F201 PROTOCOL_PACK_0301_HEADER + 16
 
 /**
  * @brief   协议列表
  */
+
+typedef struct {
+    union {
+        struct {
+            uint8_t remoteBuffer[PROTOCOL_PACK_LENGTH_0501];
+        };
+        struct {
+            uint8_t data[PROTOCOL_PACK_LENGTH_0501];
+        };
+    };
+} shared_remote_buffer_t;
 
 typedef struct {
     union {
@@ -30,7 +42,7 @@ typedef struct {
             float    data4;
         };
         struct {
-            uint8_t data[PROTOCOL_PACK_LENGTH_0501];
+            uint8_t data[PROTOCOL_PACK_LENGTH_0502];
         };
     };
 } board_fetch_data_t;
@@ -46,7 +58,7 @@ typedef struct {
             float    gimbalVelocityYaw;
         };
         struct {
-            uint8_t data[PROTOCOL_PACK_LENGTH_0502];
+            uint8_t data[PROTOCOL_PACK_LENGTH_0503];
         };
     };
 } board_chassis_data_t;
@@ -81,9 +93,10 @@ typedef struct {
 #define PROTOCOL_USER_LENGTH_FUNCTION(f)     \
         PROTOCOL_PACK_LENGTH_0501             \
       f PROTOCOL_PACK_LENGTH_0502             \
+      f PROTOCOL_PACK_LENGTH_0503             \
       f PROTOCOL_PACK_LENGTH_F201
 
-#define PROTOCOL_USER_ID_ARRAY 0x0501,0x0502,0xF201
+#define PROTOCOL_USER_ID_ARRAY 0x0501,0x0502,0x0503,0xF201
 #define PROTOCOL_USER_LENGTH   PROTOCOL_USER_LENGTH_FUNCTION(PLUS)
 
 // clang-format on
@@ -95,6 +108,7 @@ typedef struct {
 typedef struct {
     union {
         struct {
+            board_fetch_data_t       remote;             // 遥控器
             board_fetch_data_t       fetch;              // 抓取
             board_chassis_data_t     chassis;            // 底盘
             robot_interactive_data_t robotCommunication; // 车间通讯
