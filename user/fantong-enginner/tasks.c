@@ -32,11 +32,11 @@ void Task_Board_Communication(void *Parameters) {
     while (1) {
 
         // 板间通信
-        if (Board_Id == 1) {
+        if (BOARD_CHASSIS) {
             // id = 0x501;
             // ProtocolData.user.fetch.fetchMode = FetchMode;
             // ProtocolData.user.fetch.milkMode  = MilkMode;
-        } else if (Board_Id == 2) {
+        } else if (BOARD_FETCH) {
             id                                          = 0x502;
             ProtocolData.user.chassis.raiseMode         = RaiseMode;
             ProtocolData.user.chassis.gimbalVelocityYaw = 1.123;
@@ -73,23 +73,23 @@ void Task_Remote_Share(void *Parameters) {
 
     while (1) {
         if (remoteShareHost) {
+            // host: 打包遥控器数据
             id = 0x501;
             for (i = 0; i < 19; i++) {
                 ProtocolData.user.remote.data[i] = remoteBuffer[i];
             }
-            // USART发送
             DMA_Disable(UART7_Tx);
             dataLength = Protocol_Pack(&UserChannel, id);
             DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-            // Can发送
-            // dataLength = Protocol_Pack(&UserChannel, id);
-            // Can_Send_Msg(CAN1, id, UserChannel.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
         } else if (remoteShareClient) {
+            // client: 更新遥控器数据
             DBus_Update(&remoteData, &keyboardData, &mouseData, ProtocolData.user.remote.data);
         } else {
+            // client: 等待遥控器数据
             for (i = 0; i < 19; i++) {
                 if (ProtocolData.user.remote.data[i] != 0) {
                     remoteShareClient = 1;
+                    continue;
                 }
             }
         }
@@ -994,7 +994,7 @@ void Task_Sys_Init(void *Parameters) {
     BSP_Init();
 
     // 初始化陀螺仪
-    if (Board_Id == 1) {
+    if (BOARD_CHASSIS) {
         Gyroscope_Init(&Gyroscope_EulerData);
     }
 
@@ -1015,14 +1015,14 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
 
     // 运动控制任务
-    if (Board_Id == 1) {
+    if (BOARD_CHASSIS) {
         xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
         // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
         xTaskCreate(Task_Raise, "Task_Raise", 400, NULL, 5, NULL); // 抬升
         // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 5, NULL); // 抬升
         xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 5, NULL);
         xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 5, NULL);
-    } else if (Board_Id == 2) {
+    } else if (BOARD_FETCH) {
         xTaskCreate(Task_Fetch, "Task_Fetch", 400, NULL, 5, NULL);
         xTaskCreate(Task_Milk, "Task_Milk", 400, NULL, 5, NULL);
         xTaskCreate(Task_Go, "Task_Go", 400, NULL, 5, NULL);

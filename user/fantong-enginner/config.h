@@ -9,6 +9,10 @@
 #define DEBUG_ENABLED 0          // 调试开关
 #define SERIAL_DEBUG_PORT USART6 // 串口调试端口
 
+// 主控板编号
+#define BOARD_CHASSIS (Board_Id == 1)
+#define BOARD_FETCH (Board_Id == 2)
+
 // 陀螺仪
 #define BOARD_FRONT_IS_UP 0                     // 板子正面朝上
 #define BOARD_SHORT_SIDE_IS_PARALLEL_TO_PITCH 0 // 板子短边朝下
