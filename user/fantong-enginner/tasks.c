@@ -12,10 +12,10 @@ void Task_Control(void *Parameters) {
         MilkMode     = LEFT_SWITCH_TOP && RIGHT_SWITCH_BOTTOM;
         FetchMode    = LEFT_SWITCH_TOP + ((LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP) ? 1 : 0);
         RaiseMode    = (LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP) ? 1 : ((LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_BOTTOM) ? 0 : RaiseMode);
-        ChassisMode  = LEFT_SWITCH_MIDDLE;
         FrictEnabled = LEFT_SWITCH_BOTTOM && (RIGHT_SWITCH_TOP || RIGHT_SWITCH_MIDDLE);
         StirEnabled  = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_TOP;
         SafetyMode   = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
+        ChassisMode  = !LEFT_SWITCH_TOP;
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
@@ -145,19 +145,18 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeed);
 
         // 根据控制模式设定运动
-        if (ChassisMode) {
-            vx = -remoteData.lx / 660.0f * 8.0;
-            vy = remoteData.ly / 660.0f * 12.0;
-        } else {
-            vx = 0;
-            vy = 0;
-        }
-
+        vx = -remoteData.lx / 660.0f * 8.0;
+        vy = remoteData.ly / 660.0f * 12.0;
         vx += ProtocolData.user.chassis.chassisVelocityX;
         vy += ProtocolData.user.chassis.chassisVelocityY;
 
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
-        vw = 0;
+
+        if (!ChassisMode) {
+            vx = 0;
+            vx = 0;
+            vw = 0;
+        }
         //按条件开启底盘K_I
         if (vx < 0.1 && vy < 0.1 && vw < 0.3) {
             PID_LFCM.i = 1;
@@ -232,14 +231,14 @@ void Task_Gimbal(void *Parameters) {
     float pitchAngleTargetRamp = 0;
 
     // 初始化云台PID
-    PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 16000, 10);
-    PID_Init(&PID_Cloud_YawSpeed, 100, 0, 0, 16000, 0);
+    PID_Init(&PID_Cloud_YawAngle, 10, 0, 0, 15000, 10);
+    PID_Init(&PID_Cloud_YawSpeed, 100, 0, 0, 12000, 0);
     // PID_Init(&PID_Cloud_PitchAngle, 10, 0, 0, 16000, 0);
     // PID_Init(&PID_Cloud_PitchSpeed, 10, 0, 0, 16000, 0);
     // PID_Init(&PID_Cloud_YawAngle, 20, 0, 0, 16000, 0);
     // PID_Init(&PID_Cloud_YawSpeed, 2, 0, 0, 4000, 0);
-    PID_Init(&PID_Cloud_PitchAngle, 40, 0, 0, 16000, 0);
-    PID_Init(&PID_Cloud_PitchSpeed, 1, 0, 0, 2000, 0);
+    PID_Init(&PID_Cloud_PitchAngle, 40, 0, 0, 15000, 0);
+    PID_Init(&PID_Cloud_PitchSpeed, 1, 0, 0, 1500, 0);
 
     while (1) {
         // 重置目标
@@ -254,15 +253,13 @@ void Task_Gimbal(void *Parameters) {
         chassisAngle = Motor_Pitch.angle + pitchAngle;
 
         // 遥控器输入角度目标
-        if (ChassisMode) {
-            if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 360 * interval;
-            if (ABS(remoteData.ry) > 30) pitchAngleTargetControl -= remoteData.ry / 660.0f * 360 * interval;
-            yawAngleTargetControl += mouseData.x * 0.5 * 0.005; // 0.005
-            pitchAngleTargetControl += mouseData.y * 0.005;
-            MIAO(pitchAngleTargetControl, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
-            yawAngleTarget += yawAngleTargetControl;
-            pitchAngleTarget += pitchAngleTargetControl;
-        }
+        if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 360 * interval;
+        if (ABS(remoteData.ry) > 30) pitchAngleTargetControl -= remoteData.ry / 660.0f * 360 * interval;
+        yawAngleTargetControl += mouseData.x * 0.5 * 0.005; // 0.005
+        pitchAngleTargetControl += mouseData.y * 0.005;
+        MIAO(pitchAngleTargetControl, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
+        yawAngleTarget += yawAngleTargetControl;
+        pitchAngleTarget += pitchAngleTargetControl;
 
         if (UserChannel.seq != lastSeq) {
             lastSeq = UserChannel.seq;
@@ -291,13 +288,8 @@ void Task_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
 
         // 输出电流
-        yawCurrent   = -1 * PID_Cloud_YawSpeed.output;
-        pitchCurrent = -1 * PID_Cloud_PitchSpeed.output;
-        MIAO(yawCurrent, -12000, 12000);
-        // MIAO(pitchCurrent, -12000, 12000);
-        MIAO(pitchCurrent, -1500, 1500);
-        Motor_Yaw.input   = yawCurrent;
-        Motor_Pitch.input = pitchCurrent;
+        Motor_Yaw.input   = -1 * PID_Cloud_YawSpeed.output;
+        Motor_Pitch.input = -1 * PID_Cloud_PitchSpeed.output;
         //任务间隔
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -365,7 +357,7 @@ void Task_Fetch(void *Parameters) {
     float pitchAngleTarget = 0;
 
     // 视觉辅助
-    int   lastSeq        = 0;
+    int   lastSeq        = -1;
     float xSpeedTargetPs = 0;
 
     // 临时状态
@@ -387,26 +379,8 @@ void Task_Fetch(void *Parameters) {
         pitchLeftAngle  = Motor_Fetch_Left_Pitch.angle;
         pitchRightAngle = Motor_Fetch_Right_Pitch.angle;
 
-        // 视觉辅助
-        // if (!PsAimEnabled) {
-        //     xSpeedTargetPs = 0;
-        //     lastSeq        = Ps.autoaimData.seq;
-        // } else if (lastSeq != Ps.autoaimData.seq) {
-        //     lastSeq        = Ps.autoaimData.seq;
-        //     xSpeedTargetPs = Ps.autoaimData.yaw_angle_diff;
-        //     if (Ps.autoaimData.pitch_angle_diff > 0) {
-        //         pitchAngleTargetProgress = 0;
-        //         pitchAngleTargetStart    = pitchAngleTargetStop;
-        //         pitchAngleTargetStop     = Ps.autoaimData.pitch_angle_diff;
-        //     }
-        // }
-        // xSpeedTarget = xSpeedTargetPs;
-
         // 抓取状态更新
         while (1) {
-            // if (ChassisMode) {
-            //     FetchState = FetchReset;
-            // }
             if (FetchState == FetchReset) {
                 /* 回到默认位置 */
                 if (lastFetchState != FetchReset) {
@@ -440,8 +414,9 @@ void Task_Fetch(void *Parameters) {
                         xSpeedTarget = -200;
                     } else if (remoteData.lx < -30) {
                         xSpeedTarget = 200;
-                    } else {
+                    } else if (lastSeq != UserChannel.seq) {
                         xSpeedTarget = ProtocolData.user.fetch.fetchVelocity;
+                        lastSeq      = UserChannel.seq;
                     }
                 } else {
                     xSpeedTarget = 0;
@@ -659,7 +634,7 @@ void Task_Milk(void *Parameters) {
             }
             continue;
         }
-        milkTarget = (ProtocolData.user.fetch.milkMode || MilkMode) ? 0 : -185;
+        milkTarget = MilkMode ? 0 : -185;
 
         PID_Calculate(&PID_Milk_Angle, milkTarget, Motor_Milk.angle);
         PID_Calculate(&PID_Milk_Speed, PID_Milk_Angle.output, Motor_Milk.speed * RPM2RPS);
@@ -705,7 +680,6 @@ void Task_Raise(void *Parameter) {
     PID_Init(&PID_Raise_Right_Speed, 30, 0.5, 0, 10000, 5000); // 35 0.5
 
     while (1) {
-        RaiseMode = ProtocolData.user.chassis.raiseMode;
         if (RaiseMode) {
             if (rampStop < 1100) {
                 raiseProgress = 0;
@@ -998,13 +972,16 @@ void Task_Sys_Init(void *Parameters) {
         Gyroscope_Init(&Gyroscope_EulerData);
     }
 
-    // 低级任务
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    xTaskCreate(Task_Remote_Share, "Task_Remote_Share", 500, NULL, 9, NULL);
 
     // 等待遥控器开启
     while (!remoteData.state) {
     }
+
+    // 低级任务
+    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+
     //模式切换任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
 
@@ -1012,14 +989,14 @@ void Task_Sys_Init(void *Parameters) {
     xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 5, NULL);
 
     // 板间通讯
-    xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
+    // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
 
     // 运动控制任务
     if (BOARD_CHASSIS) {
         xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-        // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+        xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
         xTaskCreate(Task_Raise, "Task_Raise", 400, NULL, 5, NULL); // 抬升
-        // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 5, NULL); // 抬升
+        // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 5, NULL); // 救援
         xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 5, NULL);
         xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 5, NULL);
     } else if (BOARD_FETCH) {
