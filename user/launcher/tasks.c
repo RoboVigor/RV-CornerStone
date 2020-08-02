@@ -7,9 +7,9 @@
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        ChargeEnabled  = RIGHT_SWITCH_BOTTOM;
-        ChargeDisabled = RIGHT_SWITCH_MIDDLE;
-        HookClose      = LEFT_SWITCH_MIDDLE;
+        ChargeMode  = RIGHT_SWITCH_TOP;
+        ReleaseMode = RIGHT_SWITCH_BOTTOM;
+        HookMode    = LEFT_SWITCH_TOP;
         vTaskDelayUntil(&LastWakeTime, 5);
     }
     vTaskDelete(NULL);
@@ -69,35 +69,26 @@ void Task_Charge(void *Parameters) {
 
     PID_Init(&PID_Charge, 60, 5, 0, 16000, 4000);
 
-    float isSwitchClose;
+    uint8_t switchClose;
+
     float targetSpeed;
     float motorSpeed;
 
     while (1) {
-        motorSpeed    = Motor_Charge.speed / 19.2f;
-        isSwitchClose = GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_5);
+        motorSpeed  = Motor_Charge.speed / 19.2f;
+        switchClose = !GPIO_ReadInputDataBit(GPIOI, GPIO_Pin_5);
 
-        targetSpeed = 0;
-
-        if (ChargeEnabled) {
+        if (ChargeMode && !switchClose) {
             targetSpeed = -150;
-        }
-
-        if (isSwitchClose < 0.5) {
+        } else if (ReleaseMode) {
+            targetSpeed = 50;
+        } else {
             targetSpeed = 0;
-        }
-
-        if (ChargeDisabled) {
-            targetSpeed = 230;
         }
 
         PID_Calculate(&PID_Charge, targetSpeed, motorSpeed);
 
         Motor_Charge.input = PID_Charge.output;
-
-        DebugData.debug1 = isSwitchClose;
-        DebugData.debug2 = PID_Charge.output;
-        DebugData.debug3 = Motor_Charge.speed;
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -110,8 +101,8 @@ void Task_Hook(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
-        PWM_Set_Compare(&PWM_Hook_L, HookClose ? 17 : 25);
-        PWM_Set_Compare(&PWM_Hook_R, HookClose ? 17 : 9);
+        PWM_Set_Compare(&PWM_Hook_L, HookMode ? 17 : 25);
+        PWM_Set_Compare(&PWM_Hook_R, HookMode ? 17 : 9);
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
