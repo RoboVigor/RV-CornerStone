@@ -27,9 +27,14 @@ typedef struct {
     float thresholdLB;
 
     // 采样
-    float movingAverage; // 移动平均值
-    float max;           // 最大值
-    float min;           // 最小值
+    float average; // 移动平均值
+    float max;     // 最大值
+    float min;     // 最小值
+
+    // 移动平均值
+    int16_t windowSize;
+    float   movingAverage;
+    float * movingAverageArray;
 } Filter_Type;
 
 /**
@@ -41,6 +46,11 @@ void Filter_Update(Filter_Type *filter, float value);
  * @brief 计算移动平均值
  */
 void Filter_Update_Sample(Filter_Type *filter);
+
+/**
+ * @brief 计算移动平均值
+ */
+void Filter_Update_Moving_Average(Filter_Type *filter);
 
 /**
  * @brief 应用限幅滤波

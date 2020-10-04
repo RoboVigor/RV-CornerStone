@@ -9,7 +9,7 @@ void Task_Control(void *Parameters) {
     float      interval     = 0.01;            // 任务运行间隔 s
     int        intervalms   = interval * 1000; // 任务运行间隔 ms
     while (1) {
-        SafetyMode = (RIGHT_SWITCH_BOTTOM && LEFT_SWITCH_BOTTOM);
+        SafetyMode = RIGHT_SWITCH_BOTTOM && LEFT_SWITCH_BOTTOM;
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
@@ -22,44 +22,69 @@ void Task_Chassis(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     float pitchAngle     = 0;
-    float pitchSpeed     = 0;
     float lastPitchAngle = 0;
 
-    float pitchAngleTargetControl = 0; // 遥控器输入
-    float pitchAngleTarget        = 0; // 目标Pitch
+    float speedTargetLeft  = 0;
+    float speedTargetRight = 0;
+
+    float linearSpeed  = 0;
+    float angularSpeed = 0;
+
+    Filter_Chassis_Motor_Speed_Left.windowSize  = 1;
+    Filter_Chassis_Motor_Speed_Right.windowSize = 1;
 
     // PID初始化
-    PID_Init(&PID_Balance_PitchAngle, 410, 0, 1.4, 16000, 0);
-    PID_Init(&PID_Balance_PitchSpeed, -100, -0.5, 0, 2000, 0);
+    PID_Init(&PID_Chassis_PitchAngle, 4, 0, 15, 16000, 0);
+    PID_Init(&PID_Chassis_LeftSpeed, 60, 0, 0, 16000, 100);
+    PID_Init(&PID_Chassis_RightSpeed, 60, 0, 0, 16000, 100);
 
     while (1) {
         pitchAngle = Gyroscope_EulerData.pitch; // 俯仰角角度反馈
 
-        // pitch滤波
-        // if (ABS((pitchAngle - lastpitchAngle) * 1000) < 100) {
-        //     pitchAngle = lastpitchAngle;
-        // } else {
-        //     pitchAngle = 0.6 * lastpitchAngle + 0.4 * pitchAngle;
-        // }
-        // lastPitchAngle = pitchAngle;
+        linearSpeed  = 0;
+        angularSpeed = 0;
+        if (ABS(remoteData.ry) > 30) {
+            linearSpeed += remoteData.ry / 660.0f * 360 * interval;
+        }
 
-        if (ABS(remoteData.ry) > 30) pitchAngleTargetControl -= remoteData.ry / 660.0f * 360 * interval;
-        pitchAngleTarget += pitchAngleTargetControl;
+        // speedTargetLeft  = remoteData.lx / 5;
+        // speedTargetRight = -remoteData.rx / 5;
+        // PID_Chassis_LeftSpeed.p  = CHOOSEL(45, 60, 75);
+        // PID_Chassis_RightSpeed.p = CHOOSEL(45, 60, 75);
+        PID_Chassis_PitchAngle.p = CHOOSEL(4, 5.5, 7);
 
         //计算PID
-        PID_Calculate(&PID_Balance_PitchAngle, pitchAngleTarget, pitchAngle);
+        PID_Calculate(&PID_Chassis_PitchAngle, 0, pitchAngle);
 
-        PID_Calculate(&PID_Balance_LeftSpeed, PID_Balance_PitchAngle.output, Motor_Left.speed * RPM2RPS);
-        PID_Calculate(&PID_Balance_RightSpeed, PID_Balance_PitchAngle.output, Motor_Right.speed * RPM2RPS);
+        speedTargetLeft  = PID_Chassis_PitchAngle.output + linearSpeed;
+        speedTargetRight = -1 * (PID_Chassis_PitchAngle.output + linearSpeed);
 
-        // Motor_Left.input = PID_Balance_LeftSpeed.output;
-        // Motor_Right.input = PID_Balance_RightSpeed.output;
-        Motor_Left.input  = remoteData.lx * 3;
-        Motor_Right.input = remoteData.ly * 3;
+        Filter_Update(&Filter_Chassis_Motor_Speed_Left, Motor_Left.speed / 19.2f);
+        Filter_Update_Moving_Average(&Filter_Chassis_Motor_Speed_Left);
+        Filter_Update(&Filter_Chassis_Motor_Speed_Right, Motor_Right.speed / 19.2f);
+        Filter_Update_Moving_Average(&Filter_Chassis_Motor_Speed_Right);
+
+        PID_Calculate(&PID_Chassis_LeftSpeed, speedTargetLeft, Filter_Chassis_Motor_Speed_Left.movingAverage);
+        PID_Calculate(&PID_Chassis_RightSpeed, speedTargetRight, Filter_Chassis_Motor_Speed_Right.movingAverage);
+
+        if (pitchAngle >= -20 && pitchAngle <= 20) {
+            Motor_Left.input  = PID_Chassis_LeftSpeed.output;
+            Motor_Right.input = PID_Chassis_RightSpeed.output;
+        } else {
+            Motor_Left.input  = 0;
+            Motor_Right.input = 0;
+        }
 
         // 调试信息
-        DebugData.debug1 = Gyroscope_EulerData.pitch;
-        DebugData.debug2 = ImuData.gz / GYROSCOPE_LSB;
+        DebugData.debug1 = PID_Chassis_PitchAngle.target;
+        DebugData.debug2 = PID_Chassis_PitchAngle.feedback;
+        DebugData.debug3 = PID_Chassis_PitchAngle.output_I;
+        DebugData.debug4 = PID_Chassis_RightSpeed.target;
+        DebugData.debug5 = PID_Chassis_RightSpeed.feedback;
+        DebugData.debug6 = PID_Chassis_RightSpeed.output_I;
+        DebugData.debug7 = pitchAngle;
+
+        vTaskDelayUntil(&LastWakeTime, intervalms);
     }
 
     vTaskDelete(NULL);
@@ -250,8 +275,8 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
-    // while (!remoteData.state) {
-    // }
+    while (!remoteData.state) {
+    }
 
     //模式切换任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
@@ -265,7 +290,7 @@ void Task_Sys_Init(void *Parameters) {
     // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
 
     // Can发送任务
-    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 5, NULL);
 
     // 完成使命
     vTaskDelete(NULL);

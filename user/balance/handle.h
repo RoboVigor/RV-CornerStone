@@ -39,7 +39,8 @@ __HANDLE_EXT uint8_t SafetyMode;
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 电机
-__HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB, Motor_Left, Motor_Right;
+__HANDLE_EXT Motor_Type  Motor_Left, Motor_Right;
+__HANDLE_EXT Filter_Type Filter_Chassis_Motor_Speed_Left, Filter_Chassis_Motor_Speed_Right;
 
 // 遥控器
 __HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
@@ -57,10 +58,7 @@ __HANDLE_EXT DebugData_Type   DebugData;
 
 // 底盘
 __HANDLE_EXT ChassisData_Type ChassisData;
-__HANDLE_EXT PID_Type         PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
-
-// 平衡车
-__HANDLE_EXT PID_Type PID_Balance_PitchAngle, PID_Balance_PitchSpeed, PID_Balance_LeftSpeed, PID_Balance_RightSpeed;
+__HANDLE_EXT PID_Type         PID_Chassis_PitchAngle, PID_Chassis_PitchSpeed, PID_Chassis_LeftSpeed, PID_Chassis_RightSpeed;
 
 // 通讯协议
 __HANDLE_EXT Protocol_Data_Type    ProtocolData;

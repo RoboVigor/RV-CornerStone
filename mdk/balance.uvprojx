@@ -664,62 +664,37 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_template</GroupName>
+          <GroupName>user_balance</GroupName>
           <Files>
+            <File>
+              <FileName>bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\balance\bsp.c</FilePath>
+            </File>
             <File>
               <FileName>handle.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\template\handle.c</FilePath>
-            </File>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\template\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>task_debug.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\template\task_debug.c</FilePath>
+              <FilePath>..\user\balance\handle.c</FilePath>
             </File>
             <File>
               <FileName>interrupt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\template\interrupt.c</FilePath>
+              <FilePath>..\user\balance\interrupt.c</FilePath>
             </File>
             <File>
-              <FileName>config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\template\config.h</FilePath>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\balance\main.c</FilePath>
             </File>
             <File>
-              <FileName>handle.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\template\handle.h</FilePath>
-            </File>
-            <File>
-              <FileName>main.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\template\main.h</FilePath>
-            </File>
-            <File>
-              <FileName>rtos.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\template\rtos.h</FilePath>
+              <FileName>task_debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\balance\task_debug.c</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\template\tasks.c</FilePath>
-            </File>
-            <File>
-              <FileName>tasks.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\template\tasks.h</FilePath>
-            </File>
-            <File>
-              <FileName>bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\template\bsp.c</FilePath>
+              <FilePath>..\user\balance\tasks.c</FilePath>
             </File>
           </Files>
         </Group>
