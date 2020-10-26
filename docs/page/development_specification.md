@@ -1,6 +1,6 @@
 # 电控开发指南
 
-CornerStone通用的代码风格在`.clang-format`文件里定义好了，按照[电控开发入门](pages/best_practice)中所述的配置好VS Code，保存时就能自动格式化代码。超好用哟(*ﾟ∇ﾟ)
+CornerStone通用的代码风格在`.clang-format`文件里定义好了，按照[电控开发入门](page/best_practice)中所述的配置好VS Code，保存时就能自动格式化代码。超好用哟(*ﾟ∇ﾟ)
 
 对变量名、函数名进行批量修改时请活用编辑器的全局替换功能。
 

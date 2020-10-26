@@ -1,4 +1,4 @@
-* [首页](pages/index)
-* [入门](pages/best_practice)
-* [规范](pages/development_specification)
-* [接口](pages/guide)
+* [首页](page/index)
+* [入门](page/best_practice)
+* [规范](page/development_specification)
+* [接口](page/guide)

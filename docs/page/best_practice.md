@@ -19,7 +19,7 @@ Tccoin @ 2018-08-08
 VS Code真是我用过最牛X的编辑器了！微软牛X！
 
 
-![](https://github.com/RoboVigor/FuXing-PKQ/blob/master/tutorial/assets/1533660044462.png)
+![](../image/vscode.png)
 
 
 ### 功能
