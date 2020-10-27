@@ -12,7 +12,9 @@ Tccoin @ 2018-08-08
 
 ## Keil uVision
 
-安装根据正点原子的教材来就行了，这里不罗嗦。关键是装好以后在MDK中依次选择Edit - Configuration - Editor - Encoding-Encode in UTF-8 without signature来以utf8格式正确打开并保存文件。 
+安装根据正点原子的教材*来就行了，这里不罗嗦。关键是装好以后在MDK中依次选择Edit - Configuration - Editor - Encoding-Encode in UTF-8 without signature来以utf8格式正确打开并保存文件。 
+
+* 链接: https://pan.baidu.com/s/1sXSji659bNp5zd0s_x18kw 提取码: is2u
 
 ## VS Code
 
