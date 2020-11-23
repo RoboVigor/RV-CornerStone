@@ -1170,10 +1170,6 @@ uint8_t KTV_Play(Song_Type song) {
         if (index >= Music_Len_Soul) return 1;
         Sing(Music_Scope_Soul[index]);
         break;
-    case Music_Bird:
-        if (index >= Music_Len_Bird) return 1;
-        Sing(Music_Scope_Bird[index]);
-        break;
     case Music_XP:
         if (index >= Music_Len_XP) return 1;
         Sing(Music_Scope_XP[index]);
