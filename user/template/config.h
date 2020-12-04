@@ -28,4 +28,7 @@
 
 // ADC
 // 数模转化参数
-#define ADC_CHANNEL_NUM 1        // 数模转化通道数
+#define ADC_CHANNEL_NUM 1 // 数模转化通道数
+
+// 刷新时间
+#define REF_TIME 0.05

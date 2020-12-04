@@ -341,6 +341,27 @@ void Task_OLED(void *Parameters) {
     vTaskDelete(NULL);
 }
 
+void Task_Inertial_Navigation(void *Parameters) {
+    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
+    float      interval     = 0.05;                // 任务运行间隔 s
+    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    float32_t               Data_Mat_INS_Sensor[1] = {0};
+    arm_matrix_instance_f32 Mat_INS_Sensor;
+    arm_mat_init_f32(&Mat_INS_Sensor, 1, 1, (float32_t *) Data_Mat_INS_Sensor);
+
+    while (1) {
+        Mat_INS_Sensor.pData[0] = Gyroscope_EulerData.pitch * ImuData.ax;
+        Kalman_Update(&Kalman_Test, &Mat_INS_Sensor);
+        // DebugData.debug1 = ;
+        // DebugData.debug2 = ;
+        // DebugData.debug3 = ;
+
+        vTaskDelayUntil(&LastWakeTime, intervalms);
+    }
+    vTaskDelete(NULL);
+}
+
 void Task_Sys_Init(void *Parameters) {
 
     //获得 Stone ID
@@ -376,10 +397,13 @@ void Task_Sys_Init(void *Parameters) {
     // }
 
     //模式切换任务
-    xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
+    // xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
 
     // 运动控制任务
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 3, NULL);
+
+    //滤波测试任务
+    xTaskCreate(Task_Inertial_Navigation, "Task_Inertial_Navigation", 500, NULL, 5, NULL);
 
     // DMA发送任务
     // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);

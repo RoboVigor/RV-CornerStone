@@ -22,6 +22,7 @@
 #include "Driver_Gyroscope.h"
 #include "Driver_Protocol.h"
 #include "Driver_Fsm.h"
+#include "Driver_Kalman_Filter.h"
 
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT
@@ -68,6 +69,17 @@ __HANDLE_EXT PWM_Type PWM_Test;
 
 // CAN
 __HANDLE_EXT Motor_Type *Can1_Device[12], *Can2_Device[12];
+
+// Kalman Filter
+__HANDLE_EXT arm_matrix_instance_f32 Mat_X;
+__HANDLE_EXT arm_matrix_instance_f32 Mat_A;
+__HANDLE_EXT arm_matrix_instance_f32 Mat_P;
+__HANDLE_EXT arm_matrix_instance_f32 Mat_Q;
+__HANDLE_EXT arm_matrix_instance_f32 Mat_R;
+__HANDLE_EXT arm_matrix_instance_f32 Mat_H;
+__HANDLE_EXT arm_matrix_instance_f32 Mat_V;
+__HANDLE_EXT arm_matrix_instance_f32 Mat_K;
+__HANDLE_EXT Kalman_Type             Kalman_Test;
 
 /**
  * @brief 初始化结构体

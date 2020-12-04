@@ -6,6 +6,15 @@
 #include "config.h"
 #include "macro.h"
 
+static float32_t Data_Mat_X[3] = {0, 0, 0};
+static float32_t Data_Mat_A[9] = {1, (REF_TIME), 0.5 * ((REF_TIME) * (REF_TIME)), 0, 1, (REF_TIME), 0, 0, 1};
+static float32_t Data_Mat_P[9] = {10, 1, 1, 1, 1, 1, 1, 1, 1};
+static float32_t Data_Mat_Q[9] = {0.0001, 0, 0, 0, 0.0001, 0, 0, 0, 0, 0.0001};
+static float32_t Data_Mat_R[1] = {10};
+static float32_t Data_Mat_H[3] = {0, 0, 1};
+static float32_t Data_Mat_V[1] = {0};
+static float32_t Data_Mat_K[6] = {0, 0, 0, 0, 0, 0};
+
 void Handle_Init(void) {
     // 底盘电机
     Motor_Init(&Motor_LF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
@@ -29,4 +38,16 @@ void Handle_Init(void) {
     Protocol_Init(&JudgeChannel, &ProtocolData);
     Protocol_Init(&HostChannel, &ProtocolData);
     Protocol_Init(&UserChannel, &ProtocolData);
+
+    // Kalman Filter
+    arm_mat_init_f32(&Mat_X, 3, 1, (float32_t *) Data_Mat_X);
+    arm_mat_init_f32(&Mat_A, 3, 3, (float32_t *) Data_Mat_A);
+    arm_mat_init_f32(&Mat_P, 3, 3, (float32_t *) Data_Mat_P);
+    arm_mat_init_f32(&Mat_Q, 3, 3, (float32_t *) Data_Mat_Q);
+    arm_mat_init_f32(&Mat_R, 1, 1, (float32_t *) Data_Mat_R);
+    arm_mat_init_f32(&Mat_H, 1, 3, (float32_t *) Data_Mat_H);
+    arm_mat_init_f32(&Mat_V, 1, 1, (float32_t *) Data_Mat_V);
+    arm_mat_init_f32(&Mat_K, 3, 2, (float32_t *) Data_Mat_K);
+
+    Kalman_Init(&Kalman_Test, &Mat_X, &Mat_A, &Mat_P, &Mat_Q, &Mat_R, &Mat_H, &Mat_V, &Mat_K);
 }
