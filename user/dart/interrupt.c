@@ -27,7 +27,7 @@ void EXTI9_5_IRQHandler(void) {
         Gyroscope_Update(&Gyroscope_EulerData);
     }
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     if (EXTI_GetITStatus(EXTI_Line5) != RESET) {
         EXTI_ClearFlag(EXTI_Line5);
         EXTI_ClearITPendingBit(EXTI_Line5);

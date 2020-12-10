@@ -19,7 +19,7 @@ void BSP_Init(void) {
     BSP_User_Power_Init();
 #endif
 
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     // 涵道
     BSP_PWM_Set_Port(&PWM_Motor_Duct, PWM_PE9);                    // 180MHz
     BSP_PWM_Init(&PWM_Motor_Duct, 36000, 100, TIM_OCPolarity_Low); // 50Hz

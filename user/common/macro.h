@@ -32,7 +32,7 @@
 #define LASER_OFF GPIO_ResetBits(GPIOG, GPIO_Pin_13) // 激光关闭
 #define LASER_TOGGLE GPIO_ToggleBits(GPIOG, GPIO_Pin_13) // 激光闪烁
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
 #define LASER_ON GPIO_SetBits(GPIOC, GPIO_Pin_8) // 激光开启
 #define LASER_OFF GPIO_ResetBits(GPIOC, GPIO_Pin_8) // 激光关闭
 #define LASER_TOGGLE GPIO_ToggleBits(GPIOC, GPIO_Pin_8) // 激光闪烁
