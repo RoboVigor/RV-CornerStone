@@ -47,7 +47,7 @@ void Task_Blink(void *Parameters) {
         // LED_Run_Horse(); // 跑马灯,建议延时20ms
         vTaskDelayUntil(&LastWakeTime, 200);
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
         LED_Run_Rainbow_Ball(); // 梦幻彩虹灯,建议延时10ms
         vTaskDelayUntil(&LastWakeTime, 10);
 #endif

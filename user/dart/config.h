@@ -16,7 +16,7 @@
 #define GYROSCOPE_LSB 16.384f  // 陀螺仪敏感度
 #define ACCELERATE_LSB 4096.0f // 加速度计敏感度
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
 #define ACCELERATE_LSB 1114.3f // 加速度计敏感度
 #define GYROSCOPE_LSB 938.7f   // 陀螺仪敏感度
 #define MAGNETIC_LSB 3.33f     // 磁力计敏感度
