@@ -8,7 +8,7 @@
 
 static float32_t Data_Mat_X[3] = {0, 0, 0};
 static float32_t Data_Mat_A[9] = {1, (REF_TIME), 0.5 * ((REF_TIME) * (REF_TIME)), 0, 1, (REF_TIME), 0, 0, 1};
-static float32_t Data_Mat_P[9] = {10, 1, 1, 1, 1, 1, 1, 1, 1};
+static float32_t Data_Mat_P[9] = {10, 0, 0, 0, 1, 0, 0, 0, 1};
 static float32_t Data_Mat_Q[9] = {0.0001, 0, 0, 0, 0.0001, 0, 0, 0, 0, 0.0001};
 static float32_t Data_Mat_R[1] = {10};
 static float32_t Data_Mat_H[3] = {0, 0, 1};
