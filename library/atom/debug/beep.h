@@ -14,7 +14,7 @@
 #define BEEP_ARR (TIM12->ARR)
 #define BEEP_CH (TIM12->CCR1)
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
 #define BEEP_ON (TIM4->CCR3 = 599)
 #define BEEP_OFF (TIM4->CCR3 = 0)
 
