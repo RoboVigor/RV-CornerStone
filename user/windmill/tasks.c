@@ -21,8 +21,15 @@ void Task_Windmill(void *Parameters) {
     float      interval     = 0.005;               // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    int targetSpeed = 0;
-    PID_Init(&PID_WindmillSpeed, 50, 20, 250, 12000, 12000);
+    float targetSpeed         = 0;
+    float targetSpeedStart    = 0;
+    float targetSpeedStop     = 0;
+    float targetSpeedRamp     = 0;
+    float targetSpeedProgress = 0;
+    float lastTargetSpeed     = 0;
+
+    PID_Init(&PID_WindmillSpeed, 100, 20, 500, 8000, 8000);
+    Filter_WindmillSpeed.windowSize = 20;
 
     while (1) {
 
@@ -34,20 +41,30 @@ void Task_Windmill(void *Parameters) {
         //     targetSpeed = -1 * CHOOSER(60, 0, 0);
         // }
         targetSpeed = CHOOSEL(10, 0, 0);
-        // PID_WindmillSpeed.i = CHOOSER(10, 20, 30);
-        // PID_WindmillSpeed.p = CHOOSER(50, 100, 150);
-        PID_WindmillSpeed.d = CHOOSER(100, 200, 300);
+        if (targetSpeed != lastTargetSpeed) {
+            PID_WindmillSpeed.output_I = 0;
+            targetSpeedStart           = targetSpeedRamp;
+            targetSpeedStop            = targetSpeed;
+            targetSpeedProgress        = 0;
+        }
+        lastTargetSpeed     = targetSpeed;
+        targetSpeedRamp     = RAMP(targetSpeedStart, targetSpeedStop, targetSpeedProgress);
+        targetSpeedProgress = targetSpeedProgress > 1 ? targetSpeedProgress : (targetSpeedProgress + 0.005);
+        // PID_WindmillSpeed.i = CHOOSER(5, 20, 40);
+        // PID_WindmillSpeed.p = CHOOSER(50, 100, 200);
+        // PID_WindmillSpeed.d = CHOOSER(3000, 1000, 200);
 
         Filter_Update(&Filter_WindmillSpeed, Motor_Windmill.speed / 19.2);
+        Filter_Update_Moving_Average(&Filter_WindmillSpeed);
 
         // 计算输出电流PID
-        PID_Calculate(&PID_WindmillSpeed, targetSpeed, Filter_WindmillSpeed.movingAverage);
+        PID_Calculate(&PID_WindmillSpeed, targetSpeedRamp, Filter_WindmillSpeed.movingAverage);
 
         // 输出电流值到电调(安全起见默认注释此行)
         Motor_Windmill.input = PID_WindmillSpeed.output;
 
-        DebugData.debug1 = PID_WindmillSpeed.target;
-        DebugData.debug2 = PID_WindmillSpeed.feedback;
+        DebugData.debug1 = PID_WindmillSpeed.target * 1000;
+        DebugData.debug2 = PID_WindmillSpeed.feedback * 1000;
         DebugData.debug3 = PID_WindmillSpeed.output;
         DebugData.debug4 = PID_WindmillSpeed.output_D;
 
