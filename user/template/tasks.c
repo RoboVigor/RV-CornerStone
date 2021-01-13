@@ -1,6 +1,6 @@
 /**
- * @brief 甩锅小车
- * @version 1.2.0
+ * @brief 大风车 A板
+ * @version 1.7.0
  */
 #include "main.h"
 

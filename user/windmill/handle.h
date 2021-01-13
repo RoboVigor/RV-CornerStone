@@ -39,8 +39,9 @@ __HANDLE_EXT uint8_t RotateMode, SafetyMode;
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 电机
-__HANDLE_EXT Motor_Type Motor_Windmill;
-__HANDLE_EXT PID_Type   PID_WindmillSpeed;
+__HANDLE_EXT Motor_Type  Motor_Windmill;
+__HANDLE_EXT PID_Type    PID_WindmillSpeed;
+__HANDLE_EXT Filter_Type Filter_WindmillSpeed;
 
 // 遥控器
 __HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];

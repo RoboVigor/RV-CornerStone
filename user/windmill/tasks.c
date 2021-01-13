@@ -1,5 +1,5 @@
 /**
- * @brief 大风车
+ * @brief 大风车 C板
  * @version 1.7.0
  */
 #include "main.h"
@@ -10,13 +10,6 @@ void Task_Control(void *Parameters) {
     int        intervalms   = interval * 1000; // 任务运行间隔 ms
     while (1) {
         SafetyMode = (RIGHT_SWITCH_BOTTOM && LEFT_SWITCH_BOTTOM);
-        if (RIGHT_SWITCH_TOP) {
-            RotateMode = 0;
-        } else if (RIGHT_SWITCH_MIDDLE) {
-            RotateMode = 1;
-        } else if (RIGHT_SWITCH_BOTTOM) {
-            RotateMode = 2;
-        }
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
@@ -29,26 +22,34 @@ void Task_Windmill(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     int targetSpeed = 0;
-    PID_Init(&PID_WindmillSpeed, 100, 0, 0, 1000, 1000);
+    PID_Init(&PID_WindmillSpeed, 50, 20, 250, 12000, 12000);
 
     while (1) {
 
-        // if (RotateMode == 0) {
-        //     targetSpeed = 360;
-        // } else if (RotateMode == 1) {
+        // if (LEFT_SWITCH_TOP) {
+        //     targetSpeed = CHOOSER(60, 0, 0);
+        // } else if (LEFT_SWITCH_MIDDLE) {
         //     targetSpeed = 0;
-        // } else if (RotateMode == 2) {
-        //     targetSpeed = -360;
+        // } else if (LEFT_SWITCH_BOTTOM) {
+        //     targetSpeed = -1 * CHOOSER(60, 0, 0);
         // }
-        targetSpeed = 360;
+        targetSpeed = CHOOSEL(10, 0, 0);
+        // PID_WindmillSpeed.i = CHOOSER(10, 20, 30);
+        // PID_WindmillSpeed.p = CHOOSER(50, 100, 150);
+        PID_WindmillSpeed.d = CHOOSER(100, 200, 300);
+
+        Filter_Update(&Filter_WindmillSpeed, Motor_Windmill.speed / 19.2);
 
         // 计算输出电流PID
-        PID_Calculate(&PID_WindmillSpeed, targetSpeed, Motor_Windmill.speed * RPM2RPS);
+        PID_Calculate(&PID_WindmillSpeed, targetSpeed, Filter_WindmillSpeed.movingAverage);
 
         // 输出电流值到电调(安全起见默认注释此行)
         Motor_Windmill.input = PID_WindmillSpeed.output;
-        // DebugData.debug1 = Motor_Windmill.speed;
-        // DebugData.debug2 = remoteData.rx;
+
+        DebugData.debug1 = PID_WindmillSpeed.target;
+        DebugData.debug2 = PID_WindmillSpeed.feedback;
+        DebugData.debug3 = PID_WindmillSpeed.output;
+        DebugData.debug4 = PID_WindmillSpeed.output_D;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -97,8 +98,14 @@ void Task_Can_Send(void *Parameters) {
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
+#ifdef STM32F427_437xx
+        LED_Run_Horse_XP(); // XP开机动画,建议延时200ms
+        vTaskDelayUntil(&LastWakeTime, 200);
+#endif
+#ifdef STM32F40_41xxx
         LED_Run_Rainbow_Ball();
         vTaskDelayUntil(&LastWakeTime, 10);
+#endif
     }
 
     vTaskDelete(NULL);
@@ -129,14 +136,14 @@ void Task_Sys_Init(void *Parameters) {
 
     // 低级任务
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
+
+    // 等待遥控器开启
+    while (!remoteData.state) {
+    }
 
     // 运动控制任务
     xTaskCreate(Task_Windmill, "Task_Windmill", 400, NULL, 5, NULL);
-
-    // 等待遥控器开启
-    // while (!remoteData.state) {
-    // }
 
     //模式切换任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
