@@ -614,8 +614,8 @@ void Task_Fire_Frict(void *Parameters) {
     int motorRSpeed;
     int targetSpeed = 0;
 
-    PID_Init(&PID_FireL, 55, 0, 0, 16384, 1200);
-    PID_Init(&PID_FireR, 50, 0, 0, 16384, 1200);
+    PID_Init(&PID_FireL, 70, 0, 0, 16384, 1200);
+    PID_Init(&PID_FireR, 70, 0, 0, 16384, 1200);
 
     while (1) {
 
@@ -627,6 +627,8 @@ void Task_Fire_Frict(void *Parameters) {
 
         motorLSpeed = Motor_FL.speed / 19.2;
         motorRSpeed = Motor_FR.speed / 19.2;
+
+        PID_FireL.d = CHOOSER(3, 3, 10);
 
         if (FrictEnabled) {
             if (ProtocolData.judge.robotState.shooter_heat0_speed_limit == 15)
@@ -640,6 +642,7 @@ void Task_Fire_Frict(void *Parameters) {
         } else {
             targetSpeed = 0;
         }
+        targetSpeed = FrictEnabled ? 307 : 0;
 
         PID_Calculate(&PID_FireL, targetSpeed, motorLSpeed);
         PID_Calculate(&PID_FireR, -1 * targetSpeed, motorRSpeed);
@@ -647,8 +650,10 @@ void Task_Fire_Frict(void *Parameters) {
         Motor_FL.input = PID_FireL.output;
         Motor_FR.input = PID_FireR.output;
 
-        // DebugData.debug1 = Motor_FL.speed;
-        // DebugData.debug2 = Motor_FR.speed;
+        DebugData.debug1 = motorLSpeed * 1000;
+        DebugData.debug2 = motorRSpeed * 1000;
+        DebugData.debug3 = targetSpeed * 1000;
+        DebugData.debug4 = Motor_FL.speed * 1000;
         // DebugData.debug3 = Motor_Pitch.position;
         // DebugData.debug4 = PID_FireR.output;
         // DebugData.debug5 = -1 * targetSpeed;
