@@ -30,7 +30,7 @@ void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
     MPU6500_Initialize();
     MPU6500_EnableInt();
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     while (BMI088_init()) {
     }
     ist8310_init();
@@ -46,7 +46,7 @@ void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
         }
     }
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     beta = 5;
     while (1) {
         LED_Set_Colour(GyroscopeData->startupCounter / GYROSCOPE_START_UP_DELAY * 255, 0, 0);
@@ -88,7 +88,7 @@ int Gyroscope_Update(GyroscopeData_Type *GyroscopeData) {
     ImuData.gx = ((((int16_t) mpu_buf[10]) << 8) | mpu_buf[11]) - ImuData.gx_bias;
 #endif
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     static uint8_t buf[8];
 
     BMI088_accel_read_muli_reg(BMI088_ACCEL_XOUT_L, buf, 6);
@@ -130,7 +130,7 @@ void Gyroscope_Solve(GyroscopeData_Type *GyroscopeData) {
     xAcc   = (float) (ImuData.ax / ACCELERATE_LSB);
     yAcc   = (float) (ImuData.ay / ACCELERATE_LSB);
     zAcc   = (float) (ImuData.az / ACCELERATE_LSB);
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     xMag = (float) (ImuData.mx / MAGNETIC_LSB);
     yMag = (float) (ImuData.my / MAGNETIC_LSB);
     zMag = (float) (ImuData.mz / MAGNETIC_LSB);
@@ -140,7 +140,7 @@ void Gyroscope_Solve(GyroscopeData_Type *GyroscopeData) {
 #ifdef STM32F427_437xx
     MadgwickAHRSupdateIMU(xSpeed, ySpeed, zSpeed, xAcc, yAcc, zAcc);
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     MadgwickAHRSupdate(xSpeed, ySpeed, zSpeed, xAcc, yAcc, zAcc, xMag, yMag, zMag);
 #endif
 

@@ -28,7 +28,7 @@ void BSP_CAN_Init(void) {
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_CAN2);
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_CAN2);
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -52,7 +52,7 @@ void BSP_CAN_Init(void) {
     CAN_InitStructure.CAN_BS1 = CAN_BS1_9tq;
     CAN_InitStructure.CAN_BS2 = CAN_BS2_5tq;
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     CAN_InitStructure.CAN_BS1 = CAN_BS1_10tq;
     CAN_InitStructure.CAN_BS2 = CAN_BS2_3tq;
 #endif
@@ -81,7 +81,7 @@ void BSP_CAN_Init(void) {
     CAN_InitStructure.CAN_BS1 = CAN_BS1_9tq;
     CAN_InitStructure.CAN_BS2 = CAN_BS2_5tq;
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     CAN_InitStructure.CAN_BS1 = CAN_BS1_10tq;
     CAN_InitStructure.CAN_BS2 = CAN_BS2_3tq;
 #endif
@@ -212,7 +212,7 @@ void BSP_DBUS_Init(uint8_t *remoteBuffer) {
     DMA_Init(DMA2_Stream2, &DMA_InitStructure);
     DMA_Cmd(DMA2_Stream2, ENABLE);
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     BSP_USART_Init(USART3,
                    RCC_AHB1Periph_GPIOC,
                    GPIO_AF_USART3,
@@ -415,7 +415,7 @@ void BSP_Laser_Init(void) {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOG, &GPIO_InitStructure);
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -503,7 +503,7 @@ void BSP_IMU_Init(void) {
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStructure);
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     GPIO_InitTypeDef GPIO_InitStructure;
     // CS1_ACCEL(PA4)
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -968,7 +968,7 @@ void BSP_LED_Init(void) {
     GPIO_Init(GPIOG, &GPIO_InitStructure);             // 初始化
     GPIO_SetBits(GPIOG, 0x01FE);                       // GPIOG1-8设置高,灯灭
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     BSP_PWM_Set_Port(&PWM_RED, PWM_PH12);   // 90MHz
     BSP_PWM_Set_Port(&PWM_GREEN, PWM_PH11); // 90MHz
     BSP_PWM_Set_Port(&PWM_BLUE, PWM_PH10);  // 90MHz
@@ -1105,7 +1105,7 @@ void BSP_Beep_Init(void) {
 
     TIM_Cmd(TIM12, ENABLE); //使能TIM12
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);  // TIM4时钟使能
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE); //使能GPIOD时钟
 

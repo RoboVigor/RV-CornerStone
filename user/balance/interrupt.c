@@ -5,60 +5,23 @@
 #include "interrupt.h"
 #include "main.h"
 
-/**
- * @brief EXTI4 加速度计中断
- */
-void EXTI4_IRQHandler(void) {
-    if (EXTI_GetITStatus(EXTI_Line4) != RESET) {
-        EXTI_ClearFlag(EXTI_Line4);
-        EXTI_ClearITPendingBit(EXTI_Line4);
-        Gyroscope_Update(&Gyroscope_EulerData);
-    }
-}
-
-/**
- * @brief EXTI9_5 陀螺仪中断
- */
+// EXTI9_5 陀螺仪中断
 void EXTI9_5_IRQHandler(void) {
-#ifdef STM32F427_437xx
+    uint8_t suc;
     if (EXTI_GetITStatus(EXTI_Line8) != RESET) {
         EXTI_ClearFlag(EXTI_Line8);
         EXTI_ClearITPendingBit(EXTI_Line8);
         Gyroscope_Update(&Gyroscope_EulerData);
     }
-#endif
-#ifdef STM32F40_41xxx
-    if (EXTI_GetITStatus(EXTI_Line5) != RESET) {
-        EXTI_ClearFlag(EXTI_Line5);
-        EXTI_ClearITPendingBit(EXTI_Line5);
-        Gyroscope_Update(&Gyroscope_EulerData);
-    }
-#endif
 }
 
-/**
- * @brief EXTI3 磁力计中断
- */
-void EXTI3_IRQHandler(void) {
-    if (EXTI_GetITStatus(EXTI_Line3) != RESET) {
-        EXTI_ClearFlag(EXTI_Line3);
-        EXTI_ClearITPendingBit(EXTI_Line3);
-        Gyroscope_Update(&Gyroscope_EulerData);
-    }
-}
-
-/**
- * @brief USART1 串口中断
- */
+// DBus空闲中断(USART1)
 void USART1_IRQHandler(void) {
-    uint8_t  tmp;
-    uint16_t len;
-    int      i;
+    uint8_t UARTtemp;
 
-    tmp = USART1->DR;
-    tmp = USART1->SR;
+    UARTtemp = USART1->DR;
+    UARTtemp = USART1->SR;
 
-#ifdef STM32F427_437xx
     // disabe DMA
     DMA_Disable(USART1_Rx);
 
@@ -69,11 +32,10 @@ void USART1_IRQHandler(void) {
 
     // enable DMA
     DMA_Enable(USART1_Rx, DBUS_LENGTH + DBUS_BACK_LENGTH);
-#endif
 }
 
 /**
- * @brief USART3
+ * @brief USART3 串口中断
  */
 void USART3_IRQHandler(void) {
     uint8_t tmp;
@@ -81,17 +43,6 @@ void USART3_IRQHandler(void) {
     // clear IDLE flag
     tmp = USART3->DR;
     tmp = USART3->SR;
-
-    // disabe DMA
-    DMA_Disable(USART3_Rx);
-
-    //数据量正确
-    if (DMA_Get_Stream(USART3_Rx)->NDTR == DBUS_BACK_LENGTH) {
-        DBus_Update(&remoteData, &keyboardData, &mouseData, remoteBuffer); //解码
-    }
-
-    // enable DMA
-    DMA_Enable(USART3_Rx, DBUS_LENGTH + DBUS_BACK_LENGTH);
 }
 
 /**
@@ -105,6 +56,18 @@ void USART6_IRQHandler(void) {
     // clear IDLE flag
     tmp = USART6->DR;
     tmp = USART6->SR;
+
+    // disabe DMA
+    DMA_Disable(USART6_Rx);
+
+    // unpack
+    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(USART6_Rx);
+    for (i = 0; i < len; i++) {
+        Protocol_Unpack(&JudgeChannel, JudgeChannel.receiveBuf[i]);
+    }
+
+    // enable DMA
+    DMA_Enable(USART6_Rx, Protocol_Buffer_Length);
 }
 
 /**
@@ -118,6 +81,18 @@ void UART7_IRQHandler(void) {
     // clear IDLE flag
     tmp = UART7->DR;
     tmp = UART7->SR;
+
+    // disabe DMA
+    DMA_Disable(UART7_Rx);
+
+    // unpack
+    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART7_Rx);
+    for (i = 0; i < len; i++) {
+        Protocol_Unpack(&UserChannel, UserChannel.receiveBuf[i]);
+    }
+
+    // enable DMA
+    DMA_Enable(UART7_Rx, Protocol_Buffer_Length);
 }
 
 /**
@@ -131,18 +106,36 @@ void UART8_IRQHandler(void) {
     // clear IDLE flag
     tmp = UART8->DR;
     tmp = UART8->SR;
+
+    // disabe DMA
+    DMA_Disable(UART8_Rx);
+
+    // unpack
+    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART8_Rx);
+    for (i = 0; i < len; i++) {
+        Protocol_Unpack(&HostChannel, HostChannel.receiveBuf[i]);
+    }
+
+    // enable DMA
+    DMA_Enable(UART8_Rx, Protocol_Buffer_Length);
 }
 
 // CAN1数据接收中断服务函数
 void CAN1_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
-    int      position;
-    int      speed;
+    int      i;
 
     // 读取数据
     CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
-    position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-    speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+
+    // 安排数据
+    if (CanRxData.StdId < 0x500) {
+        Motor_Update(Can1_Device[ESC_ID(CanRxData.StdId)], CanRxData.Data);
+    } else {
+        for (i = 0; i < 8; i++) {
+            Protocol_Unpack(&UserChannel, CanRxData.Data[i]);
+        }
+    }
 }
 
 // void CAN1_SCE_IRQHandler(void) {
@@ -153,13 +146,13 @@ void CAN1_RX0_IRQHandler(void) {
 // CAN2数据接收中断服务函数
 void CAN2_RX0_IRQHandler(void) {
     CanRxMsg CanRxData;
-    int      position;
-    int      speed;
+    int      data[8];
 
     // 读取数据
     CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
-    position = (short) ((int) CanRxData.Data[0] << 8 | CanRxData.Data[1]);
-    speed    = (short) ((int) CanRxData.Data[2] << 8 | CanRxData.Data[3]);
+
+    //安排数据
+    Motor_Update(Can2_Device[ESC_ID(CanRxData.StdId)], CanRxData.Data);
 }
 
 // TIM2 高频计数器

@@ -14,7 +14,7 @@
 #ifdef STM32F427_437xx
 #include "mpu6500_driver.h"
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
 #include "BMI088driver.h"
 #include "ist8310driver.h"
 #endif
