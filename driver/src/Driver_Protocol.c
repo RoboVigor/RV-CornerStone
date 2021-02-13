@@ -1,4 +1,5 @@
 #include "Driver_Protocol.h"
+#include "Driver_Bridge.h"
 #include "vegmath.h"
 
 uint8_t  ProtocolDataLengthArray[64] = {PROTOCOL_HOST_LENGTH_FUNCTION(COMMA), PROTOCOL_JUDGE_LENGTH_FUNCTION(COMMA), PROTOCOL_USER_LENGTH_FUNCTION(COMMA)};

@@ -21,6 +21,7 @@
 #include "mpu6500_driver.h"
 #include "Driver_Gyroscope.h"
 #include "Driver_Protocol.h"
+#include "Driver_Bridge.h"
 #include "Driver_Fsm.h"
 
 #ifdef __HANDLE_GLOBALS
@@ -66,8 +67,8 @@ __HANDLE_EXT Protocol_Channel_Type JudgeChannel, HostChannel, UserChannel;
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test;
 
-// CAN
-__HANDLE_EXT Motor_Type *Can1_Device[12], *Can2_Device[12];
+// 总线
+__HANDLE_EXT Bridge_Type BridgeData;
 
 /**
  * @brief 初始化结构体

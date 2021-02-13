@@ -192,14 +192,13 @@ void Task_Board_Communication(void *Parameters) {
     float      interval     = 0.1;                 // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    uint16_t id;         // 通讯ID
-    uint16_t dataLength; // 数据长度
+    uint16_t commandID; // 通讯ID
 
     while (1) {
 
         // 板间通信
         if (Board_Id == 1) {
-            id                                 = 0x501;
+            commandID                          = 0x501;
             ProtocolData.user.boardAlpha.data1 = 1.11;
             ProtocolData.user.boardAlpha.data2 = 2.22;
             ProtocolData.user.boardAlpha.data3 = 3.33;
@@ -207,21 +206,15 @@ void Task_Board_Communication(void *Parameters) {
         }
 
         if (Board_Id == 2) {
-            id                                = 0x502;
+            commandID                         = 0x502;
             ProtocolData.user.boardBeta.data1 = 0;
             ProtocolData.user.boardBeta.data2 = 0;
             ProtocolData.user.boardBeta.data3 = 0;
             ProtocolData.user.boardBeta.data4 = 1.11;
         }
 
-        // USART发送
-        DMA_Disable(UART7_Tx);
-        dataLength = Protocol_Pack(&UserChannel, id);
-        DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-
-        // Can发送
-        dataLength = Protocol_Pack(&UserChannel, id);
-        Can_Send_Msg(CAN1, id, UserChannel.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        // 发送数据
+        Bridge_Send_Protocol(&BridgeData, &UserChannel, commandID);
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -264,32 +257,8 @@ void Task_Can_Send(void *Parameters) {
     float      interval     = 0.01;                // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    CAN_TypeDef *Canx[2]          = {CAN1, CAN2};
-    Motor_Type **Canx_Device[2]   = {Can1_Device, Can2_Device};
-    uint16_t     Can_Send_Id[3]   = {0x200, 0x1ff, 0x2ff};
-    uint16_t     Can_ESC_Id[3][4] = {{0x201, 0x202, 0x203, 0x204}, {0x205, 0x206, 0x207, 0x208}, {0x209, 0x020a, 0x20b, 0x20c}};
-
-    int         i, j, k;        // CAN序号 发送ID序号 电调ID序号
-    int         isNotEmpty = 0; // 同一发送ID下是否有电机
-    Motor_Type *motor;          // 根据i,j,k锁定电机
-    int16_t     currents[4];    // CAN发送电流
-
     while (1) {
-        for (i = 0; i < 2; i++) {
-            for (j = 0; j < 3; j++) {
-                isNotEmpty = 0;
-                for (k = 0; k < 4; k++) {
-                    motor       = *(Canx_Device[i] + ESC_ID(Can_ESC_Id[j][k]));
-                    currents[k] = (motor && motor->inputEnabled) ? motor->input : 0;
-                    isNotEmpty  = isNotEmpty || (motor && motor->inputEnabled);
-                }
-                if (isNotEmpty && !SafetyMode) {
-                    Can_Send(Canx[i], Can_Send_Id[j], currents[0], currents[1], currents[2], currents[3]);
-                } else if (isNotEmpty && SafetyMode) {
-                    Can_Send(Canx[i], Can_Send_Id[j], 0, 0, 0, 0);
-                }
-            }
-        }
+        Bridge_Send_Motor(&BridgeData, SafetyMode);
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }

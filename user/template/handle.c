@@ -13,12 +13,6 @@ void Handle_Init(void) {
     Motor_Init(&Motor_RB, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
     Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
 
-    // CAN外设
-    Can1_Device[ESC_ID(0x201)] = &Motor_LF;
-    Can1_Device[ESC_ID(0x202)] = &Motor_LB;
-    Can1_Device[ESC_ID(0x203)] = &Motor_RB;
-    Can1_Device[ESC_ID(0x204)] = &Motor_RF;
-
     // 陀螺仪设置静态误差
     Gyroscope_Set_Bias(&ImuData, -4, 3, 1);
 

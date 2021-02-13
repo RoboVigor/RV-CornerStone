@@ -17,7 +17,7 @@ void BSP_Init(void) {
     BSP_User_Power_Init();
     // BSP_OLED_Init();
 
-    // Judge (USART6)
+    // USART
     BSP_USART6_Init(115200, USART_IT_IDLE);
     BSP_DMA_Init(USART6_Tx, JudgeChannel.sendBuf, Protocol_Buffer_Length);
     BSP_DMA_Init(USART6_Rx, JudgeChannel.receiveBuf, Protocol_Buffer_Length);
@@ -29,8 +29,6 @@ void BSP_Init(void) {
 
     // Host (UART8)
     BSP_UART8_Init(115200, USART_IT_IDLE);
-    BSP_DMA_Init(UART8_Tx, HostChannel.sendBuf, Protocol_Buffer_Length);
-    BSP_DMA_Init(UART8_Rx, HostChannel.receiveBuf, Protocol_Buffer_Length);
 
     // PWM
     // BSP_PWM_Set_Port(&PWM_Test, PWM_PD12);
@@ -38,4 +36,15 @@ void BSP_Init(void) {
 
     // ADC
     BSP_ADC1_Init(ADC_CHANNEL_NUM, ADC_Channel6, 0);
+
+    // 总线设置
+    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LF);
+    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
+    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RB);
+    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
+    // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x501, &HostChannel);
+    // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x502, &UserChannel);
+    Bridge_Bind(&BridgeData, USART_BRIDGE, 6, &JudgeChannel);
+    Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &UserChannel);
+    Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &HostChannel);
 }

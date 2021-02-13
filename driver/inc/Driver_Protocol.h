@@ -25,6 +25,7 @@
 #include "protocol_host.h"
 #include "protocol_judge.h"
 #include "protocol_user.h"
+#include "config.h"
 
 #define PROTOCOL_DATA_LENGTH         PROTOCOL_HOST_LENGTH_FUNCTION(PLUS)+PROTOCOL_JUDGE_LENGTH_FUNCTION(PLUS)+PROTOCOL_USER_LENGTH_FUNCTION(PLUS)
 #define PROTOCOL_DATA_LENGTH_ARRAY  {PROTOCOL_DATA_LENGTH_FUNCTION(COMMA)}
@@ -61,6 +62,8 @@ typedef enum {
 } protocol_state_e;
 
 typedef struct {
+    uint32_t         deviceID;                           // 串口ID
+    uint8_t          bridgeType;                         // 总线类型
     uint8_t          sendBuf[Protocol_Buffer_Length];    // DMA发送缓存
     uint8_t          receiveBuf[Protocol_Buffer_Length]; // DMA接收缓存
     uint8_t          packet[Protocol_Buffer_Length];     // 有效字节数组
