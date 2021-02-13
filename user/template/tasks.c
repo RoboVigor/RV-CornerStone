@@ -199,19 +199,19 @@ void Task_Board_Communication(void *Parameters) {
 
         // 板间通信
         if (Board_Id == 1) {
-            id                                 = 0x501;
-            ProtocolData.user.boardAlpha.data1 = 1.11;
-            ProtocolData.user.boardAlpha.data2 = 2.22;
-            ProtocolData.user.boardAlpha.data3 = 3.33;
-            ProtocolData.user.boardAlpha.data4 = 4.44;
+            id                            = 0x501;
+            ProtocolData.boardAlpha.data1 = 1.11;
+            ProtocolData.boardAlpha.data2 = 2.22;
+            ProtocolData.boardAlpha.data3 = 3.33;
+            ProtocolData.boardAlpha.data4 = 4.44;
         }
 
         if (Board_Id == 2) {
-            id                                = 0x502;
-            ProtocolData.user.boardBeta.data1 = 0;
-            ProtocolData.user.boardBeta.data2 = 0;
-            ProtocolData.user.boardBeta.data3 = 0;
-            ProtocolData.user.boardBeta.data4 = 1.11;
+            id                           = 0x502;
+            ProtocolData.boardBeta.data1 = 0;
+            ProtocolData.boardBeta.data2 = 0;
+            ProtocolData.boardBeta.data3 = 0;
+            ProtocolData.boardBeta.data4 = 1.11;
         }
 
         // USART发送
@@ -227,8 +227,8 @@ void Task_Board_Communication(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = ProtocolData.user.boardAlpha.data1 * 1000;
-        // DebugData.debug2 = ProtocolData.user.boardBeta.data4 * 1000;
+        // DebugData.debug1 = ProtocolData.boardAlpha.data1 * 1000;
+        // DebugData.debug2 = ProtocolData.boardBeta.data4 * 1000;
     }
     vTaskDelete(NULL);
 }
@@ -244,9 +244,9 @@ void Task_Vision_Communication(void *Parameters) {
     while (1) {
 
         // 视觉通信
-        ProtocolData.host.autoaimData.yaw_angle_diff   = 1.23;
-        ProtocolData.host.autoaimData.pitch_angle_diff = 4.56;
-        ProtocolData.host.autoaimData.biu_biu_state    = 7;
+        ProtocolData.autoaimData.yaw_angle_diff   = 1.23;
+        ProtocolData.autoaimData.pitch_angle_diff = 4.56;
+        ProtocolData.autoaimData.biu_biu_state    = 7;
 
         // DMA重启
         DMA_Disable(UART8_Tx);

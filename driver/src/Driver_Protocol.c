@@ -1,9 +1,7 @@
 #include "Driver_Protocol.h"
 
-uint8_t  ProtocolDataLengthArray[64] = {PROTOCOL_HOST_LENGTH_FUNCTION(COMMA), PROTOCOL_JUDGE_LENGTH_FUNCTION(COMMA), PROTOCOL_USER_LENGTH_FUNCTION(COMMA)};
-uint16_t ProtocolDataIdArray[64]     = {PROTOCOL_HOST_ID_ARRAY, PROTOCOL_JUDGE_ID_ARRAY, PROTOCOL_USER_ID_ARRAY, 0};
-
-extern Protocol_Data_Type ProtocolData;
+uint8_t  ProtocolDataLengthArray[64] = ProtocolDataLengthList;
+uint16_t ProtocolDataIdArray[64]     = ProtocolDataIdList;
 
 void Protocol_Get_Packet_Info(uint16_t id, uint16_t *offset, uint16_t *length) {
     int i   = 0;
@@ -21,7 +19,7 @@ void Protocol_Get_Packet_Info(uint16_t id, uint16_t *offset, uint16_t *length) {
     return;
 }
 
-void Protocol_Init(Protocol_Channel_Type *channel, Protocol_Data_Type *data) {
+void Protocol_Init(Protocol_Channel_Type *channel, Protocol_Type *data) {
     channel->state = STATE_IDLE;
     channel->step  = STEP_HEADER_SOF;
     channel->data  = data->data;
