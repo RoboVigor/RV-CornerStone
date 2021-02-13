@@ -259,8 +259,7 @@ void Task_Can_Send(void *Parameters) {
 
     while (1) {
         Bridge_Send_Motor(&BridgeData, SafetyMode);
-        // 发送频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
+        vTaskDelayUntil(&LastWakeTime, intervalms); // 发送频率
     }
     vTaskDelete(NULL);
 }
