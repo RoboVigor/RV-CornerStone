@@ -1,6 +1,9 @@
 /**
  * @brief 机器人参数
+ * @note  默认参数及参数列表见 default_config.h
  */
+
+#include "default_config.h"
 
 // 调试
 #define DEBUG_ENABLED 0 // 调试开关
