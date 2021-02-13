@@ -86,13 +86,6 @@ typedef struct {
     };
 } Protocol_Data_Type;
 
-unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength, unsigned char ucCRC8);
-unsigned int  Verify_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength);
-void          Append_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength);
-uint16_t      Get_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength, uint16_t wCRC);
-uint32_t      Verify_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
-void          Append_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
-
 void     Protocol_Get_Packet_Info(uint16_t id, uint16_t *offset, uint16_t *length);
 void     Protocol_Init(Protocol_Channel_Type *channel, Protocol_Data_Type *data);
 void     Protocol_Update(Protocol_Channel_Type *channel);
