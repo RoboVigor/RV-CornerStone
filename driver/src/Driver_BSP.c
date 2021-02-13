@@ -28,7 +28,7 @@ void BSP_CAN_Init(void) {
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_CAN2);
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_CAN2);
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -52,7 +52,7 @@ void BSP_CAN_Init(void) {
     CAN_InitStructure.CAN_BS1 = CAN_BS1_9tq;
     CAN_InitStructure.CAN_BS2 = CAN_BS2_5tq;
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     CAN_InitStructure.CAN_BS1 = CAN_BS1_10tq;
     CAN_InitStructure.CAN_BS2 = CAN_BS2_3tq;
 #endif
@@ -81,7 +81,7 @@ void BSP_CAN_Init(void) {
     CAN_InitStructure.CAN_BS1 = CAN_BS1_9tq;
     CAN_InitStructure.CAN_BS2 = CAN_BS2_5tq;
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     CAN_InitStructure.CAN_BS1 = CAN_BS1_10tq;
     CAN_InitStructure.CAN_BS2 = CAN_BS2_3tq;
 #endif
@@ -212,7 +212,7 @@ void BSP_DBUS_Init(uint8_t *remoteBuffer) {
     DMA_Init(DMA2_Stream2, &DMA_InitStructure);
     DMA_Cmd(DMA2_Stream2, ENABLE);
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     BSP_USART_Init(USART3,
                    RCC_AHB1Periph_GPIOC,
                    GPIO_AF_USART3,
@@ -415,7 +415,7 @@ void BSP_Laser_Init(void) {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOG, &GPIO_InitStructure);
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -503,7 +503,7 @@ void BSP_IMU_Init(void) {
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStructure);
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     GPIO_InitTypeDef GPIO_InitStructure;
     // CS1_ACCEL(PA4)
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -640,6 +640,7 @@ void BSP_IMU_Init(void) {
 
     // TIM10
     TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
+    TIM_OCInitTypeDef       TIM_OCInitStructure;
     // CH1(PF6)
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
     GPIO_PinAFConfig(GPIOF, GPIO_PinSource6, GPIO_AF_TIM10); // GPIOA1复用为定时器10
@@ -651,12 +652,22 @@ void BSP_IMU_Init(void) {
     GPIO_Init(GPIOF, &GPIO_InitStructure);                   //初始化
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, ENABLE);
-    TIM_TimeBaseInitStructure.TIM_Period        = 1 - 1;
-    TIM_TimeBaseInitStructure.TIM_Prescaler     = 5000 - 1;
+    TIM_TimeBaseInitStructure.TIM_Period        = 50 - 1;
+    TIM_TimeBaseInitStructure.TIM_Prescaler     = 100 - 1;
     TIM_TimeBaseInitStructure.TIM_CounterMode   = TIM_CounterMode_Up;
     TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-    TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStructure);
-    TIM_Cmd(TIM2, ENABLE);
+    TIM_TimeBaseInit(TIM10, &TIM_TimeBaseInitStructure);
+
+    TIM_OCInitStructure.TIM_OCMode      = TIM_OCMode_PWM2;        // 选择定时器模式:TIM脉冲宽度调制模式2
+    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; // 比较输出使能
+    TIM_OCInitStructure.TIM_OCPolarity  = TIM_OCPolarity_Low;     // 输出极性:TIM输出比较极性低
+    TIM_OCInitStructure.TIM_Pulse       = 5;                      // Pulse
+    TIM_OC1Init(TIM10, &TIM_OCInitStructure);                     // 根据指定的参数初始化外设
+    TIM_OC1PreloadConfig(TIM10, TIM_OCPreload_Enable);            // 使能TIM在CCR1上的预装载寄存器
+    TIM_ARRPreloadConfig(TIM10, ENABLE);                          // ARPE使能
+    TIM_Cmd(TIM10, ENABLE);
+
+    TIM_SetCompare1(TIM10, 0);
 
     // 模拟I2C
     // I2C_SCL(PA8) I2C_SDA(PC9)
@@ -968,13 +979,13 @@ void BSP_LED_Init(void) {
     GPIO_Init(GPIOG, &GPIO_InitStructure);             // 初始化
     GPIO_SetBits(GPIOG, 0x01FE);                       // GPIOG1-8设置高,灯灭
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     BSP_PWM_Set_Port(&PWM_RED, PWM_PH12);   // 90MHz
     BSP_PWM_Set_Port(&PWM_GREEN, PWM_PH11); // 90MHz
     BSP_PWM_Set_Port(&PWM_BLUE, PWM_PH10);  // 90MHz
-    BSP_PWM_Init(&PWM_RED, 255, 200, TIM_OCPolarity_Low);
-    BSP_PWM_Init(&PWM_GREEN, 255, 200, TIM_OCPolarity_Low);
-    BSP_PWM_Init(&PWM_BLUE, 255, 200, TIM_OCPolarity_Low);
+    BSP_PWM_Init(&PWM_RED, 200, 255, TIM_OCPolarity_Low);
+    BSP_PWM_Init(&PWM_GREEN, 200, 255, TIM_OCPolarity_Low);
+    BSP_PWM_Init(&PWM_BLUE, 200, 255, TIM_OCPolarity_Low);
     LED_Set_Colour(0, 0, 0);
 #endif
 }
@@ -1105,7 +1116,7 @@ void BSP_Beep_Init(void) {
 
     TIM_Cmd(TIM12, ENABLE); //使能TIM12
 #endif
-#ifdef STM32F407xx
+#ifdef STM32F40_41xxx
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);  // TIM4时钟使能
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE); //使能GPIOD时钟
 
@@ -1180,17 +1191,9 @@ uint8_t KTV_Play(Song_Type song) {
     return 0;
 }
 
-void BSP_I2C2_Init(void) {
-    //占坑
-}
-
-void BSP_Button_Init(void) {
-    //占坑
-}
-
 void BSP_OLED_Init(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
-
+#ifdef STM32F427_437xx
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE); //使能时钟
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;         //复用功能 SPI
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -1248,6 +1251,18 @@ void BSP_OLED_Init(void) {
     SPI_Cmd(SPI1, ENABLE);
     SPI_TIModeCmd(SPI1, DISABLE);
     SPI_CalculateCRC(SPI1, DISABLE);
+#endif
+#ifdef STM32F407xx
+    // I2C_SCL(PF1) I2C_SDA(PF0)
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0 | GPIO_Pin_1;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOF, &GPIO_InitStructure);
+#endif
 }
 
 void BSP_ADC_Init(ADC_TypeDef *ADCx,
@@ -1311,4 +1326,57 @@ void BSP_ADC_Init(ADC_TypeDef *ADCx,
 void BSP_ADC1_Init(uint32_t ADC_NbrOfConversion, uint32_t ADC_Channel, uint16_t interruptFlag) {
     BSP_ADC_Init(ADC1, RCC_APB2, RCC_APB2Periph_ADC1, ADC_NbrOfConversion, ADC_Channel, 2, interruptFlag);
     ADC_SoftwareStartConv(ADC1);
+}
+
+/**
+ * @brief ADC2初始化
+ * @param ADC_NbrOfConversion 转换数量
+ * @param ADC_Channel 通道选择
+ * @param interruptFlag 有无中断
+ */
+void BSP_ADC2_Init(uint32_t ADC_NbrOfConversion, uint32_t ADC_Channel, uint16_t interruptFlag) {
+    BSP_ADC_Init(ADC2, RCC_APB2, RCC_APB2Periph_ADC2, ADC_NbrOfConversion, ADC_Channel, 2, interruptFlag);
+    ADC_SoftwareStartConv(ADC2);
+}
+
+/**
+ * @brief ADC3初始化
+ * @param ADC_NbrOfConversion 转换数量
+ * @param ADC_Channel 通道选择
+ * @param interruptFlag 有无中断
+ */
+void BSP_ADC3_Init(uint32_t ADC_NbrOfConversion, uint32_t ADC_Channel, uint16_t interruptFlag) {
+    BSP_ADC_Init(ADC3, RCC_APB2, RCC_APB2Periph_ADC3, ADC_NbrOfConversion, ADC_Channel, 2, interruptFlag);
+    ADC_SoftwareStartConv(ADC3);
+}
+
+void BSP_Button_Init(void) {
+    GPIO_InitTypeDef GPIO_InitStructure;
+#ifdef STM32F427_437xx
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_2;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+#endif
+#ifdef STM32F407xx
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+#endif
+}
+
+uint8_t Is_Button_Pressed(void) {
+#ifdef STM32F427_437xx
+    return GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_2);
+#endif
+#ifdef STM32F407xx
+    return !GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0);
+#endif
 }

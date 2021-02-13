@@ -13,8 +13,10 @@
 #define GYROSCOPE_START_UP_DELAY_ENABLED 1      // 开机解算延迟开关
 #define GYROSCOPE_START_UP_DELAY 1700           // 开机解算延迟量
 #define GYROSCOPE_YAW_FILTER_THRESHOLD 0.003f   // 零飘修正阈值
-#define GYROSCOPE_LSB 16.384f                   // 陀螺仪敏感度 2^16/4000
-#define ACCELERATE_LSB 4096.0f                  // 加速度计敏感度 2^16/16
+#define GYROSCOPE_LSB 16.384f                   // 陀螺仪敏感度
+#define ACCELERATE_LSB 4096.0f                  // 加速度计敏感度
+#define GYROSCOPE_FREQ 0x03                     // 陀螺仪频率 0x09/100Hz 0x04/200Hz 0x03/250Hz 0x01/500Hz 0x00/1000Hz
+#define SAMPLE_FREQ 250.0f                      // 结算采样频率
 
 // 底盘
 #define CHASSIS_MOTOR_REDUCTION_RATE 19.2f  // 底盘电机减速比

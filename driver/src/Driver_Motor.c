@@ -28,7 +28,7 @@ void Motor_Update(volatile Motor_Type *motor, uint8_t data[8]) {
     motor->position      = position;
     motor->speed         = speed;
     motor->actualCurrent = (actualCurrent / 16384.0) * 20;
-    motor->torque        = 24 * motor->actualCurrent / (speed * PI / 30.0 / motor->reductionRate + 2);
+    motor->torque        = MAX(24 * motor->actualCurrent, 0) / (speed * PI / 30.0 / motor->reductionRate + 2);
     motor->temperature   = temperature;
 
     //如果启用了连续角度计算
