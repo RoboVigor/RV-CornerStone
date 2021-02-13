@@ -1,7 +1,7 @@
 #include "beep.h"
 
 void Beep_Init(void) {
-    // 移至BSP_Beep_Init()
+    // BSP_Beep_Init()
 }
 
 const uint16_t tone_tab[] = {
@@ -51,6 +51,8 @@ const Sound_Tone_Type Music_Scope_Soul[Music_Len_Soul] = {
     Mi3M, Mi3M, Mi3M, Mi3M, Mi3M,   Mi3M, Mi3M, Mi3M,   Re2M, Re2M, Re2M, Re2M, Do1M, Do1M,   Do1M, Do1M, Re2M, Re2M, Re2M, Re2M, Mi3M,  Mi3M, Mi3M,   Mi3M,
     Do1M, Do1M, Do1M, Do1M, Silent, Do1M, Do1M, Do1M,   Do1M, Mi3M, Mi3M, Mi3M, Mi3M, Silent, Mi3M, Mi3M, Mi3M, Mi3M, Do1M, Do1M, Do1M,  Do1M, Silent, Do1M,
     Do1M, Do1M, Do1M, Mi3M, Mi3M,   Mi3M, Mi3M, Silent, Mi3M, Mi3M, Mi3M, Mi3M, Do1M, Do1M,   Do1M, Do1M, Do1M, Do1M, Do1M, Do1M, Silent};
+
+const Sound_Tone_Type Music_Scope_Bird[Music_Len_Bird]={Silent};
 
 void Sing(Sound_Tone_Type tone) {
     if (Silent == tone)
