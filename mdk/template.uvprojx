@@ -641,6 +641,11 @@
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Fsm.c</FilePath>
             </File>
+            <File>
+              <FileName>Driver_Bridge.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Bridge.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
