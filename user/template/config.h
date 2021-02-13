@@ -5,6 +5,9 @@
 
 #include "default_config.h"
 
+// 总线设置
+#define CAN_DEVICE_ID 0x501 // 发送数据时CAN标准帧中的ID 0x501-0x503
+
 // 调试
 #define DEBUG_ENABLED 0          // 调试开关
 #define SERIAL_DEBUG_PORT USART6 // 串口调试端口
@@ -28,4 +31,4 @@
 
 // ADC
 // 数模转化参数
-#define ADC_CHANNEL_NUM 1        // 数模转化通道数
+#define ADC_CHANNEL_NUM 1 // 数模转化通道数

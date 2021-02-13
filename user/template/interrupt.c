@@ -39,10 +39,7 @@ void USART1_IRQHandler(void) {
  */
 void USART3_IRQHandler(void) {
     uint8_t tmp;
-
-    // clear IDLE flag
-    tmp = USART3->DR;
-    tmp = USART3->SR;
+    Bridge_Receive_USART(&BridgeData, USART_BRIDGE, 3);
 }
 
 /**
