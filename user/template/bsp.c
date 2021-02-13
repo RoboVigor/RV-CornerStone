@@ -21,8 +21,8 @@ void BSP_Init(void) {
     BSP_USART6_Init(115200, USART_IT_IDLE);
     BSP_UART7_Init(115200, USART_IT_IDLE);
     BSP_UART8_Init(115200, USART_IT_IDLE);
-    BSP_DMA_Init(UART8_Tx, HostChannel.sendBuf, Protocol_Buffer_Length);
-    BSP_DMA_Init(UART8_Rx, HostChannel.receiveBuf, Protocol_Buffer_Length);
+    BSP_DMA_Init(UART8_Tx, Node_Host.sendBuf, Protocol_Buffer_Length);
+    BSP_DMA_Init(UART8_Rx, Node_Host.receiveBuf, Protocol_Buffer_Length);
 
     // PWM
     // BSP_PWM_Set_Port(&PWM_Test, PWM_PD12);

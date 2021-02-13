@@ -177,7 +177,7 @@ void Task_Chassis(void *Parameters) {
 
 //         // DMA重启
 //         DMA_Disable(USART6_Tx);
-//         Protocol_Pack(&JudgeChannel, dataLength, id);
+//         Protocol_Pack(&Node_Judge, dataLength, id);
 //         DMA_Enable(USART6_Tx, length);
 
 //         // 发送频率
@@ -216,12 +216,12 @@ void Task_Board_Communication(void *Parameters) {
 
         // USART发送
         DMA_Disable(UART7_Tx);
-        dataLength = Protocol_Pack(&UserChannel, id);
+        dataLength = Protocol_Pack(&Node_Board[0], id);
         DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
         // Can发送
-        dataLength = Protocol_Pack(&UserChannel, id);
-        Can_Send_Msg(CAN1, id, UserChannel.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        dataLength = Protocol_Pack(&Node_Board[0], id);
+        Can_Send_Msg(CAN1, id, Node_Board[0].sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -250,7 +250,7 @@ void Task_Vision_Communication(void *Parameters) {
 
         // DMA重启
         DMA_Disable(UART8_Tx);
-        dataLength = Protocol_Pack(&HostChannel, id);
+        dataLength = Protocol_Pack(&Node_Host, id);
         DMA_Enable(UART8_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
         // 发送频率

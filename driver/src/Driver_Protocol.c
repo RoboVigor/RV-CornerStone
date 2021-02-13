@@ -19,23 +19,23 @@ void Protocol_Get_Packet_Info(uint16_t id, uint16_t *offset, uint16_t *length) {
     return;
 }
 
-void Protocol_Init(Protocol_Channel_Type *channel, Protocol_Type *data) {
-    channel->state = STATE_IDLE;
-    channel->step  = STEP_HEADER_SOF;
-    channel->data  = data->data;
+void Protocol_Init(Node_Type *node, Protocol_Type *data) {
+    node->state = STATE_IDLE;
+    node->step  = STEP_HEADER_SOF;
+    node->data  = data->data;
 }
 
-void Protocol_Update(Protocol_Channel_Type *channel) {
+void Protocol_Update(Node_Type *node) {
     int i = 0;
 
-    channel->state = STATE_WORK;
+    node->state = STATE_WORK;
 
     for (i = 0; i < Protocol_Buffer_Length; i++) {
-        Protocol_Unpack(channel, channel->receiveBuf[i]);
+        Protocol_Unpack(node, node->receiveBuf[i]);
     }
 }
 
-uint16_t Protocol_Pack(Protocol_Channel_Type *channel, uint16_t id) {
+uint16_t Protocol_Pack(Node_Type *node, uint16_t id) {
     int      i;
     uint16_t index    = 0;
     uint16_t packetId = id;
@@ -48,7 +48,7 @@ uint16_t Protocol_Pack(Protocol_Channel_Type *channel, uint16_t id) {
     uint16_t CRC16_INIT = 0xffff;
     uint16_t dataCRC16;
 
-    channel->state = STATE_WORK;
+    node->state = STATE_WORK;
 
     // get memory address
     Protocol_Get_Packet_Info(id, &offset, &dataLength);
@@ -60,114 +60,114 @@ uint16_t Protocol_Pack(Protocol_Channel_Type *channel, uint16_t id) {
     }
 
     // Header SOF
-    channel->sendBuf[index++] = PROTOCOL_HEADER;
+    node->sendBuf[index++] = PROTOCOL_HEADER;
 
     // Data Length
-    channel->sendBuf[index++] = (dataLength) &0xff;
-    channel->sendBuf[index++] = (dataLength) >> 8;
+    node->sendBuf[index++] = (dataLength) &0xff;
+    node->sendBuf[index++] = (dataLength) >> 8;
 
     // Frame SEQ
-    channel->sendBuf[index++]++;
+    node->sendBuf[index++]++;
 
     // Header CRC8
-    channel->sendBuf[index++] = Get_CRC8_Check_Sum(channel->sendBuf, PROTOCOL_HEADER_SIZE - 1, CRC8_INIT);
+    node->sendBuf[index++] = Get_CRC8_Check_Sum(node->sendBuf, PROTOCOL_HEADER_SIZE - 1, CRC8_INIT);
 
     // Cmd ID
-    channel->sendBuf[index++] = (packetId) &0xff;
-    channel->sendBuf[index++] = (packetId) >> 8;
+    node->sendBuf[index++] = (packetId) &0xff;
+    node->sendBuf[index++] = (packetId) >> 8;
 
     // Clear
     for (i = PROTOCOL_HEADER_CMDID_LEN; i < Protocol_Buffer_Length; i++) {
-        channel->sendBuf[i] = 0x00;
+        node->sendBuf[i] = 0x00;
     }
 
     // Data
-    begin_p = channel->data + offset;
+    begin_p = node->data + offset;
     for (i = 0; i < dataLength; i++) {
-        channel->sendBuf[index++] = *(begin_p + i);
+        node->sendBuf[index++] = *(begin_p + i);
     }
 
     // Data CRC16
-    dataCRC16                 = Get_CRC16_Check_Sum(channel->sendBuf, PROTOCOL_HEADER_CMDID_LEN + dataLength, CRC16_INIT);
-    channel->sendBuf[index++] = (dataCRC16) &0xff;
-    channel->sendBuf[index++] = (dataCRC16) >> 8;
+    dataCRC16              = Get_CRC16_Check_Sum(node->sendBuf, PROTOCOL_HEADER_CMDID_LEN + dataLength, CRC16_INIT);
+    node->sendBuf[index++] = (dataCRC16) &0xff;
+    node->sendBuf[index++] = (dataCRC16) >> 8;
 
-    send_p = channel->sendBuf;
+    send_p = node->sendBuf;
     for (i = 0; i < index; i++) {
-        *send_p++ = channel->sendBuf[i];
+        *send_p++ = node->sendBuf[i];
     }
 
     return dataLength;
 }
 
-void Protocol_Unpack(Protocol_Channel_Type *channel, uint8_t byte) {
+void Protocol_Unpack(Node_Type *node, uint8_t byte) {
 
-    channel->state = STATE_WORK;
+    node->state = STATE_WORK;
 
-    switch (channel->step) {
+    switch (node->step) {
     case STEP_HEADER_SOF: {
         if (byte == PROTOCOL_HEADER) {
-            channel->packet[channel->index++] = byte;
-            channel->step                     = STEP_LENGTH_LOW;
+            node->packet[node->index++] = byte;
+            node->step                  = STEP_LENGTH_LOW;
         } else {
-            channel->index = 0;
+            node->index = 0;
         }
     } break;
 
     case STEP_LENGTH_LOW: {
-        channel->dataLength               = byte;
-        channel->packet[channel->index++] = byte;
-        channel->step                     = STEP_LENGTH_HIGH;
+        node->dataLength            = byte;
+        node->packet[node->index++] = byte;
+        node->step                  = STEP_LENGTH_HIGH;
     } break;
 
     case STEP_LENGTH_HIGH: {
-        channel->dataLength |= byte << 8;
-        channel->packet[channel->index++] = byte;
-        if (channel->dataLength < 114) {
-            channel->step = STEP_FRAME_SEQ;
+        node->dataLength |= byte << 8;
+        node->packet[node->index++] = byte;
+        if (node->dataLength < 114) {
+            node->step = STEP_FRAME_SEQ;
         } else {
-            channel->step  = STEP_HEADER_SOF;
-            channel->index = 0;
+            node->step  = STEP_HEADER_SOF;
+            node->index = 0;
         }
     } break;
 
     case STEP_FRAME_SEQ: {
-        channel->packet[channel->index++] = byte;
-        channel->step                     = STEP_HEADER_CRC8;
+        node->packet[node->index++] = byte;
+        node->step                  = STEP_HEADER_CRC8;
     } break;
 
     case STEP_HEADER_CRC8: {
-        channel->packet[channel->index++] = byte;
-        if (Verify_CRC8_Check_Sum(channel->packet, PROTOCOL_HEADER_SIZE)) {
-            channel->step = STEP_DATA_CRC16;
+        node->packet[node->index++] = byte;
+        if (Verify_CRC8_Check_Sum(node->packet, PROTOCOL_HEADER_SIZE)) {
+            node->step = STEP_DATA_CRC16;
         } else {
-            channel->index = 0;
-            channel->step  = STEP_HEADER_SOF;
+            node->index = 0;
+            node->step  = STEP_HEADER_SOF;
         }
     } break;
 
     case STEP_DATA_CRC16: {
-        if (channel->index < (PROTOCOL_HEADER_CRC_CMDID_LEN + channel->dataLength)) {
-            channel->packet[channel->index++] = byte;
+        if (node->index < (PROTOCOL_HEADER_CRC_CMDID_LEN + node->dataLength)) {
+            node->packet[node->index++] = byte;
         }
-        if (channel->index >= (PROTOCOL_HEADER_CRC_CMDID_LEN + channel->dataLength)) {
-            channel->packet[channel->index++] = byte;
-            channel->index                    = 0;
-            channel->step                     = STEP_HEADER_SOF;
-            if (Verify_CRC16_Check_Sum(channel->packet, PROTOCOL_HEADER_CRC_CMDID_LEN + channel->dataLength)) {
-                Protocol_Load(channel);
+        if (node->index >= (PROTOCOL_HEADER_CRC_CMDID_LEN + node->dataLength)) {
+            node->packet[node->index++] = byte;
+            node->index                 = 0;
+            node->step                  = STEP_HEADER_SOF;
+            if (Verify_CRC16_Check_Sum(node->packet, PROTOCOL_HEADER_CRC_CMDID_LEN + node->dataLength)) {
+                Protocol_Load(node);
             }
         }
     } break;
 
     default: {
-        channel->step  = STEP_HEADER_SOF;
-        channel->index = 0;
+        node->step  = STEP_HEADER_SOF;
+        node->index = 0;
     } break;
     }
 }
 
-void Protocol_Load(Protocol_Channel_Type *channel) {
+void Protocol_Load(Node_Type *node) {
     int      i;
     uint8_t *begin_p;
     uint16_t dataId = 0;
@@ -175,23 +175,23 @@ void Protocol_Load(Protocol_Channel_Type *channel) {
     uint16_t offset;
 
     // seq
-    channel->seq = channel->packet[3];
+    node->seq = node->packet[3];
 
     // id
-    channel->id = (channel->packet[PROTOCOL_HEADER_SIZE + 1] << 8) + channel->packet[PROTOCOL_HEADER_SIZE];
-    if (channel->id == 0x301) {
-        dataId = (channel->packet[PROTOCOL_HEADER_CMDID_LEN + 1] << 8) + channel->packet[PROTOCOL_HEADER_CMDID_LEN];
+    node->id = (node->packet[PROTOCOL_HEADER_SIZE + 1] << 8) + node->packet[PROTOCOL_HEADER_SIZE];
+    if (node->id == 0x301) {
+        dataId = (node->packet[PROTOCOL_HEADER_CMDID_LEN + 1] << 8) + node->packet[PROTOCOL_HEADER_CMDID_LEN];
     } else {
-        dataId = channel->id;
+        dataId = node->id;
     }
 
     // get memory address
     Protocol_Get_Packet_Info(dataId, &offset, &dataLength);
 
     // load
-    begin_p = channel->data + offset;
-    for (i = 0; i < channel->dataLength; i++) {
-        *(begin_p + i) = channel->packet[PROTOCOL_HEADER_CMDID_LEN + i];
+    begin_p = node->data + offset;
+    for (i = 0; i < node->dataLength; i++) {
+        *(begin_p + i) = node->packet[PROTOCOL_HEADER_CMDID_LEN + i];
     }
 }
 
@@ -221,7 +221,7 @@ unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLengt
 
 /*
 ** Descriptions: CRC8 Verify function
-** Input: Data to Verify,channel length = Data + checksum
+** Input: Data to Verify,node length = Data + checksum
 ** Output: True or False (CRC Verify Result)
 */
 unsigned int Verify_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength) {
@@ -233,7 +233,7 @@ unsigned int Verify_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLen
 
 /*
 ** Descriptions: append CRC8 to the end of data
-** Input: Data to CRC and append,channel length = Data + checksum
+** Input: Data to CRC and append,node length = Data + checksum
 ** Output: True or False (CRC Verify Result)
 */
 void Append_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength) {
@@ -263,7 +263,7 @@ const uint16_t wCRC_Table[256] = {
 
 /*
 ** Descriptions: CRC16 checksum function
-** Input: Data to check,channel length, initialized checksum
+** Input: Data to check,node length, initialized checksum
 ** Output: CRC checksum
 */
 uint16_t Get_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength, uint16_t wCRC) {
@@ -280,7 +280,7 @@ uint16_t Get_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength, uint16_t wC
 
 /*
 ** Descriptions: CRC16 Verify function
-** Input: Data to Verify,channel length = Data + checksum
+** Input: Data to Verify,node length = Data + checksum
 ** Output: True or False (CRC Verify Result)
 */
 uint32_t Verify_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength) {
@@ -294,7 +294,7 @@ uint32_t Verify_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength) {
 
 /*
 ** Descriptions: append CRC16 to the end of data
-** Input: Data to CRC and append,channel length = Data + checksum
+** Input: Data to CRC and append,node length = Data + checksum
 ** Output: True or False (CRC Verify Result)
 */
 void Append_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength) {

@@ -47,20 +47,20 @@ typedef enum {
 typedef enum {
     STATE_IDLE = 0,
     STATE_WORK = 1,
-} protocol_state_e;
+} Protocol_state_e;
 
 typedef struct {
-    uint8_t          sendBuf[Protocol_Buffer_Length];    // DMA发送缓存
-    uint8_t          receiveBuf[Protocol_Buffer_Length]; // DMA接收缓存
-    uint8_t          packet[Protocol_Buffer_Length];     // 有效字节数组
-    uint8_t    step;                               // 当前解包步骤
-    protocol_state_e state;                              // 当前工作状态
-    uint16_t         index;                              // 当前包字节序
-    uint16_t         dataLength;                         // 包数据长度
-    uint16_t         seq;                                // 包序号
-    uint16_t         id;                                 // 包编号
-    uint8_t *        data;                               // 数据存放地址
-} Protocol_Channel_Type;
+    uint8_t  sendBuf[Protocol_Buffer_Length];    // DMA发送缓存
+    uint8_t  receiveBuf[Protocol_Buffer_Length]; // DMA接收缓存
+    uint8_t  packet[Protocol_Buffer_Length];     // 有效字节数组
+    uint8_t  step;                               // 当前解包步骤
+    uint8_t  state;                              // 当前工作状态
+    uint16_t index;                              // 当前包字节序
+    uint16_t dataLength;                         // 包数据长度
+    uint16_t seq;                                // 包序号
+    uint16_t id;                                 // 包编号
+    uint8_t *data;                               // 数据存放地址
+} Node_Type;
 
 unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength, unsigned char ucCRC8);
 unsigned int  Verify_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength);
@@ -70,10 +70,10 @@ uint32_t      Verify_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
 void          Append_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
 
 void     Protocol_Get_Packet_Info(uint16_t id, uint16_t *offset, uint16_t *length);
-void     Protocol_Init(Protocol_Channel_Type *channel, Protocol_Type *data);
-void     Protocol_Update(Protocol_Channel_Type *channel);
-void     Protocol_Unpack(Protocol_Channel_Type *channel, uint8_t byte);
-void     Protocol_Load(Protocol_Channel_Type *channel);
-uint16_t Protocol_Pack(Protocol_Channel_Type *channel, uint16_t id);
+void     Protocol_Init(Node_Type *node, Protocol_Type *data);
+void     Protocol_Update(Node_Type *node);
+void     Protocol_Unpack(Node_Type *node, uint8_t byte);
+void     Protocol_Load(Node_Type *node);
+uint16_t Protocol_Pack(Node_Type *node, uint16_t id);
 
 #endif
