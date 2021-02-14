@@ -193,28 +193,22 @@ void Task_Board_Communication(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     uint16_t commandID; // 通讯ID
+    uint16_t length;
 
     while (1) {
 
-        // 板间通信
-        if (Board_Id == 1) {
-            commandID                          = 0x501;
-            ProtocolData.user.boardAlpha.data1 = 1.11;
-            ProtocolData.user.boardAlpha.data2 = 2.22;
-            ProtocolData.user.boardAlpha.data3 = 3.33;
-            ProtocolData.user.boardAlpha.data4 = 4.44;
-        }
-
-        if (Board_Id == 2) {
-            commandID                         = 0x502;
-            ProtocolData.user.boardBeta.data1 = 0;
-            ProtocolData.user.boardBeta.data2 = 0;
-            ProtocolData.user.boardBeta.data3 = 0;
-            ProtocolData.user.boardBeta.data4 = 1.11;
-        }
+        // 修改数据
+        commandID                          = 0x501;
+        ProtocolData.user.boardAlpha.data1 = 1.11;
+        ProtocolData.user.boardAlpha.data2 = 2.22;
+        ProtocolData.user.boardAlpha.data3 = 3.33;
+        ProtocolData.user.boardAlpha.data4 = 4.44;
 
         // 发送数据
         Bridge_Send_Protocol(&BridgeData, &UserChannel, commandID);
+        // DMA_Disable(USART6_Tx);
+        // length = Protocol_Pack(&JudgeChannel, id);
+        // DMA_Enable(USART6_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN+length);
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
