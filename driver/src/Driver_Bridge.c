@@ -8,8 +8,8 @@ void Bridge_Bind(Bridge_Type *bridge, uint8_t type, uint32_t deviceID, void *han
         if (IS_CAN) {
             CAN_CHANNEL = channel;
         } else {
-            BSP_DMA_Init(USART[deviceID].Rx, channel->sendBuf, Protocol_Buffer_Length);
-            BSP_DMA_Init(USART[deviceID].Tx, channel->receiveBuf, Protocol_Buffer_Length);
+            BSP_DMA_Init(USARTx_Rx, channel->receiveBuf, Protocol_Buffer_Length);
+            BSP_DMA_Init(USARTx_Tx, channel->sendBuf, Protocol_Buffer_Length);
             USART_CHANNEL = channel;
         }
         channel->deviceID   = deviceID;

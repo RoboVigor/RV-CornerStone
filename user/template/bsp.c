@@ -18,9 +18,9 @@ void BSP_Init(void) {
     // BSP_OLED_Init();
 
     // USART
-    BSP_USART6_Init(115200, USART_IT_IDLE);
-    BSP_UART7_Init(115200, USART_IT_IDLE);
-    BSP_UART8_Init(115200, USART_IT_IDLE);
+    // BSP_USART6_Init(115200, USART_IT_IDLE);
+    // BSP_UART7_Init(115200, USART_IT_IDLE);
+    // BSP_UART8_Init(115200, USART_IT_IDLE);
 
     // PWM
     // BSP_PWM_Set_Port(&PWM_Test, PWM_PD12);
@@ -36,7 +36,7 @@ void BSP_Init(void) {
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
     // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x501, &HostChannel);
     // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x502, &UserChannel);
-    Bridge_Bind(&BridgeData, USART_BRIDGE, 6, &JudgeChannel);
-    Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &UserChannel);
-    Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &HostChannel);
+    // Bridge_Bind(&BridgeData, USART_BRIDGE, 6, &JudgeChannel);
+    // Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &UserChannel);
+    // Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &HostChannel);
 }
