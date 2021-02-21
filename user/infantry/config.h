@@ -26,6 +26,7 @@
 #define FIRE_MOTOR_REDUCTION_RATE 19.2f // 射击电机减速比
 
 //云台配置
+#define GIMBAL_IS_LOOP 1 // 该步兵拥有滑环
 #define GIMBAL_MOTOR_REDUCTION_RATE 1.0f // 云台电机减速比
 
 // 陀螺仪设置

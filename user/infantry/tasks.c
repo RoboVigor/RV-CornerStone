@@ -15,7 +15,11 @@ void Task_Control(void *Parameters) {
             //遥控器模式
             PsShootEnabled = 0;
             // PsAimEnabled   = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
-            SwingMode     = (LEFT_SWITCH_TOP && !RIGHT_SWITCH_MIDDLE) ? 3 : 0;
+            if (LEFT_SWITCH_TOP && !RIGHT_SWITCH_MIDDLE) {
+                SwingMode = (GIMBAL_IS_LOOP) ? 3 : 1;
+            } else {
+                SwingMode = 0;
+            }
             MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP;
             FrictEnabled  = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP);
             StirEnabled   = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP) && RIGHT_SWITCH_TOP;
@@ -37,7 +41,7 @@ void Task_Control(void *Parameters) {
             MagzineOpened = keyboardData.F;
             // 小陀螺
             if (keyboardData.C) {
-                SwingMode = 3;
+                SwingMode = (GIMBAL_IS_LOOP) ? 3 : 1;
             } else if (keyboardData.V) {
                 SwingMode = 0;
             }
