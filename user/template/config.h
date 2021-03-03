@@ -28,7 +28,3 @@
 
 // DMA
 #define DMA_BUFFER_LENGTH 128 // DMA发送接收长度
-
-// ADC
-// 数模转化参数
-#define ADC_CHANNEL_NUM 1 // 数模转化通道数

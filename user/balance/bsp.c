@@ -37,5 +37,5 @@ void BSP_Init(void) {
     // BSP_PWM_Init(&PWM_Test, 9000, 200, TIM_OCPolarity_Low);
 
     // ADC
-    BSP_ADC1_Init(ADC_CHANNEL_NUM, ADC_Channel6, 0);
+    BSP_ADC1_Init(1, ADC_Channel6, 0);
 }
