@@ -22,6 +22,8 @@
 
 // clang-format off
 
+#include "FreeRTOS.h"
+#include "task.h"
 #include "protocol.h"
 #include "config.h"
 
@@ -50,14 +52,16 @@ typedef enum {
 } Protocol_state_e;
 
 typedef struct {
-    // Bridge
+    // Bridge相关
     uint8_t  bridgeType; // 总线类型
-    uint32_t deviceID;   // USART ID / CAN ID
-    // Send
+    uint32_t deviceID;   // USART编号(3,6,7,8) / 电机电调ID / CAN设备(0x501-0x505)
+    // 存储相关
+    ProtocolData_Type *protocolData;
+    // 发送相关
     uint8_t  sendBuf[Protocol_Buffer_Length]; // DMA发送缓存
     uint16_t sendingSeq;                      // 待发送包序号
     uint16_t sentSeq;                         // 已发送包序号
-    // Receive
+    // 接收相关
     uint8_t  receiveBuf[Protocol_Buffer_Length]; // DMA接收缓存
     uint8_t  packet[Protocol_Buffer_Length];     // 有效字节数组
     uint8_t  step;                               // 当前解包步骤
@@ -69,8 +73,22 @@ typedef struct {
     uint8_t *data;                               // 数据存放地址
 } Node_Type;
 
-void     Protocol_Get_Packet_Info(uint16_t id, uint16_t *offset, uint16_t *length);
-void     Protocol_Init(Node_Type *node, Protocol_Type *data);
+typedef struct {
+    // 协议定义
+    uint16_t id;     // 编号
+    uint16_t length; // 数据段长度
+    // 存储相关
+    uint16_t offset; // 寄存器偏移
+    // 接收相关
+    uint16_t receiving;    // 是否接收并解包该协议 @todo:未实现
+    uint16_t receiveCount; // 接收计数 @todo:未实现
+    // 发送相关
+    float         frequency;  // 发送频率 (实际发送频率会略低一些) todo:未实现
+    TaskHandle_t *taskHandle; // 发送任务 @todo:未实现
+} ProtocolInfo_Type;
+
+void     Protocol_Get_Info(uint16_t id, uint16_t *offset, uint16_t *length);
+void     Protocol_Init(Node_Type *node, ProtocolData_Type *data);
 void     Protocol_Update(Node_Type *node);
 void     Protocol_Unpack(Node_Type *node, uint8_t byte);
 void     Protocol_Load(Node_Type *node);

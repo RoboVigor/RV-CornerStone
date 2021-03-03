@@ -1,30 +1,36 @@
 #include "Driver_Protocol.h"
 #include "Driver_Bridge.h"
 #include "vegmath.h"
+#include <string.h>
 
-uint8_t  ProtocolDataLengthArray[64] = ProtocolDataLengthList;
-uint16_t ProtocolDataIdArray[64]     = ProtocolDataIdList;
+ProtocolInfo_Type ProtocolInfoList[] = PROTOCOL_INFO_LIST;
 
-void Protocol_Get_Packet_Info(uint16_t id, uint16_t *offset, uint16_t *length) {
-    int i   = 0;
-    *offset = 0;
-    *length = 0;
-    while (ProtocolDataIdArray[i] != 0) {
-        if (ProtocolDataIdArray[i] == id) {
-            *length = ProtocolDataLengthArray[i];
-            return;
-        } else {
-            *offset += ProtocolDataLengthArray[i];
-            i++;
+ProtocolInfo_Type *Protocol_Get_Info_Handle(uint16_t id) {
+    int i = 0;
+    for (i = 0; i < sizeof(ProtocolInfoList); i++) {
+        if (ProtocolInfoList[i].id == id) {
+            return &ProtocolInfoList[i];
         }
     }
-    return;
+    return &ProtocolInfoList[sizeof(ProtocolInfoList) - 1];
 }
 
-void Protocol_Init(Node_Type *node, Protocol_Type *data) {
-    node->state = STATE_IDLE;
-    node->step  = STEP_HEADER_SOF;
-    node->data  = data->data;
+void Protocol_Init(Node_Type *node, ProtocolData_Type *protocolData) {
+    uint16_t i = 0, sum = 0;
+
+    // 初始化节点
+    node->state        = STATE_IDLE;
+    node->step         = STEP_HEADER_SOF;
+    node->data         = protocolData->data;
+    node->protocolData = protocolData;
+
+    // 初始化协议
+    if (ProtocolInfoList[1].offset == 0) {
+        for (i = 0; i < sizeof(ProtocolInfoList); i++) {
+            ProtocolInfoList[i].offset = sum;
+            sum += ProtocolInfoList[i].length;
+        }
+    }
 }
 
 void Protocol_Update(Node_Type *node) {
@@ -38,22 +44,17 @@ void Protocol_Update(Node_Type *node) {
 }
 
 uint16_t Protocol_Pack(Node_Type *node, uint16_t id) {
-    int      i;
-    uint16_t index    = 0;
-    uint16_t packetId = id;
-    uint16_t dataId   = id;
-    uint8_t *begin_p;
-    uint8_t *send_p;
-    uint16_t dataLength;
-    uint16_t offset;
-    uint8_t  CRC8_INIT  = 0xff;
-    uint16_t CRC16_INIT = 0xffff;
-    uint16_t dataCRC16;
+    ProtocolInfo_Type *protocolInfo;
+    uint16_t           dataLength, offset, dataCRC16, i = 0, index = 0, packetId = id, dataId = id;
+    uint8_t *          begin_p;
+    uint8_t *          send_p;
 
     node->state = STATE_WORK;
 
-    // get memory address
-    Protocol_Get_Packet_Info(id, &offset, &dataLength);
+    // Protocol Info
+    protocolInfo = Protocol_Get_Info_Handle(id);
+    offset       = protocolInfo->offset;
+    dataLength   = protocolInfo->length;
 
     // TaoWaMode
     if (id >= 0xF000) {
@@ -72,7 +73,7 @@ uint16_t Protocol_Pack(Node_Type *node, uint16_t id) {
     node->sendBuf[index++]++;
 
     // Header CRC8
-    node->sendBuf[index++] = Get_CRC8_Check_Sum(node->sendBuf, PROTOCOL_HEADER_SIZE - 1, CRC8_INIT);
+    node->sendBuf[index++] = Get_CRC8_Check_Sum(node->sendBuf, PROTOCOL_HEADER_SIZE - 1);
 
     // Cmd ID
     node->sendBuf[index++] = (packetId) &0xff;
@@ -90,7 +91,7 @@ uint16_t Protocol_Pack(Node_Type *node, uint16_t id) {
     }
 
     // Data CRC16
-    dataCRC16              = Get_CRC16_Check_Sum(node->sendBuf, PROTOCOL_HEADER_CMDID_LEN + dataLength, CRC16_INIT);
+    dataCRC16              = Get_CRC16_Check_Sum(node->sendBuf, PROTOCOL_HEADER_CMDID_LEN + dataLength);
     node->sendBuf[index++] = (dataCRC16) &0xff;
     node->sendBuf[index++] = (dataCRC16) >> 8;
 
@@ -170,11 +171,9 @@ void Protocol_Unpack(Node_Type *node, uint8_t byte) {
 }
 
 void Protocol_Load(Node_Type *node) {
-    int      i;
-    uint8_t *begin_p;
-    uint16_t dataId = 0;
-    uint16_t dataLength;
-    uint16_t offset;
+    ProtocolInfo_Type *protocolInfo;
+    uint16_t           i = 0, dataId = 0, dataLength, offset;
+    uint8_t *          begin_p;
 
     // seq
     node->receiveSeq = node->packet[3];
@@ -188,7 +187,9 @@ void Protocol_Load(Node_Type *node) {
     }
 
     // get memory address
-    Protocol_Get_Packet_Info(dataId, &offset, &dataLength);
+    protocolInfo = Protocol_Get_Info_Handle(dataId);
+    offset       = protocolInfo->offset;
+    dataLength   = protocolInfo->length;
 
     // load
     begin_p = node->data + offset;
