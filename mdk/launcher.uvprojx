@@ -10,12 +10,13 @@
       <TargetName>Target 1</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060183::V5.06 update 2 (build 183)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F427II</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.15.0</PackID>
-          <PackURL>http://www.keil.com/pack/</PackURL>
+          <PackID>Keil.STM32F4xx_DFP.2.13.0</PackID>
+          <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x200000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -84,6 +85,8 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
+            <nStopA1X>0</nStopA1X>
+            <nStopA2X>0</nStopA2X>
           </AfterMake>
           <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
@@ -122,47 +125,6 @@
             <HexOffset>0</HexOffset>
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
-          <Simulator>
-            <UseSimulator>0</UseSimulator>
-            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
-            <RestoreBreakpoints>1</RestoreBreakpoints>
-            <RestoreWatchpoints>1</RestoreWatchpoints>
-            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
-            <RestoreFunctions>1</RestoreFunctions>
-            <RestoreToolbox>1</RestoreToolbox>
-            <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
-            <RestoreSysVw>1</RestoreSysVw>
-          </Simulator>
-          <Target>
-            <UseTarget>1</UseTarget>
-            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
-            <RestoreBreakpoints>1</RestoreBreakpoints>
-            <RestoreWatchpoints>1</RestoreWatchpoints>
-            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
-            <RestoreFunctions>0</RestoreFunctions>
-            <RestoreToolbox>1</RestoreToolbox>
-            <RestoreTracepoints>1</RestoreTracepoints>
-            <RestoreSysVw>1</RestoreSysVw>
-          </Target>
-          <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>6</TargetSelection>
-          <SimDlls>
-            <CpuDll></CpuDll>
-            <CpuDllArguments></CpuDllArguments>
-            <PeripheralDll></PeripheralDll>
-            <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
-          </SimDlls>
-          <TargetDlls>
-            <CpuDll></CpuDll>
-            <CpuDllArguments></CpuDllArguments>
-            <PeripheralDll></PeripheralDll>
-            <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
-            <Driver>Segger\JL2CM3.dll</Driver>
-          </TargetDlls>
         </DebugOption>
         <Utilities>
           <Flash1>
@@ -227,6 +189,7 @@
             <useUlib>0</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
+            <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
             <RwSelD>3</RwSelD>
             <CodeSel>0</CodeSel>
@@ -361,11 +324,17 @@
             <uSurpInc>0</uSurpInc>
             <uC99>0</uC99>
             <useXO>0</useXO>
+            <v6Lang>1</v6Lang>
+            <v6LangP>1</v6LangP>
+            <vShortEn>1</vShortEn>
+            <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
             <VariousControls>
               <MiscControls>--gnu</MiscControls>
               <Define>STM32F427_437xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\user\sentry;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\library\vegmath</IncludePath>
+              <IncludePath>..\core;..\bsp\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\user\template;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\library\vegmath;..\driver\inc;..\library\oled</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -405,6 +374,9 @@
         </TargetArmAds>
       </TargetOption>
       <Groups>
+        <Group>
+          <GroupName>bsp</GroupName>
+        </Group>
         <Group>
           <GroupName>core</GroupName>
           <Files>
@@ -564,14 +536,19 @@
               <FilePath>..\library\vegmath\vegmath.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f4xx_spi.c</FileName>
+              <FileName>oled.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\library\std\src\stm32f4xx_spi.c</FilePath>
+              <FilePath>..\library\oled\oled.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_adc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\library\std\src\stm32f4xx_adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\std\src\stm32f4xx_spi.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -619,6 +596,11 @@
               <FilePath>..\driver\src\Driver_Gyroscope.c</FilePath>
             </File>
             <File>
+              <FileName>Driver_BSP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_BSP.c</FilePath>
+            </File>
+            <File>
               <FileName>Driver_Protocol.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Protocol.c</FilePath>
@@ -627,11 +609,6 @@
               <FileName>Driver_Fsm.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Fsm.c</FilePath>
-            </File>
-            <File>
-              <FileName>Driver_BSP.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\src\Driver_BSP.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -666,42 +643,62 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_sentry</GroupName>
+          <GroupName>user_launcher</GroupName>
           <Files>
-            <File>
-              <FileName>bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\sentry\bsp.c</FilePath>
-            </File>
             <File>
               <FileName>handle.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\sentry\handle.c</FilePath>
-            </File>
-            <File>
-              <FileName>interrupt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\sentry\interrupt.c</FilePath>
+              <FilePath>..\user\launcher\handle.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\sentry\main.c</FilePath>
+              <FilePath>..\user\launcher\main.c</FilePath>
             </File>
             <File>
               <FileName>task_debug.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\sentry\task_debug.c</FilePath>
+              <FilePath>..\user\launcher\task_debug.c</FilePath>
             </File>
             <File>
-              <FileName>tasks.c</FileName>
+              <FileName>interrupt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\sentry\tasks.c</FilePath>
+              <FilePath>..\user\launcher\interrupt.c</FilePath>
+            </File>
+            <File>
+              <FileName>config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\launcher\config.h</FilePath>
             </File>
             <File>
               <FileName>handle.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\user\sentry\handle.h</FilePath>
+              <FilePath>..\user\launcher\handle.h</FilePath>
+            </File>
+            <File>
+              <FileName>main.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\launcher\main.h</FilePath>
+            </File>
+            <File>
+              <FileName>rtos.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\launcher\rtos.h</FilePath>
+            </File>
+            <File>
+              <FileName>tasks.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\launcher\tasks.c</FilePath>
+            </File>
+            <File>
+              <FileName>tasks.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\launcher\tasks.h</FilePath>
+            </File>
+            <File>
+              <FileName>bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\launcher\bsp.c</FilePath>
             </File>
           </Files>
         </Group>

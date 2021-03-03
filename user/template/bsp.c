@@ -34,9 +34,9 @@ void BSP_Init(void) {
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RB);
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
-    // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x501, &HostChannel);
-    // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x502, &UserChannel);
-    // Bridge_Bind(&BridgeData, USART_BRIDGE, 6, &JudgeChannel);
-    // Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &UserChannel);
-    Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &HostChannel);
+    // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x501, &Node_Host);
+    // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x502, &Node_Board[0]);
+    // Bridge_Bind(&BridgeData, USART_BRIDGE, 6, &Node_Judge);
+    // Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &Node_Board[0]);
+    Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &Node_Host);
 }

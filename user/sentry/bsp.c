@@ -30,22 +30,18 @@ void BSP_Init(void) {
     BSP_User_Power_Init();
     BSP_Optoelectronic_Input();
 
-    // snail 电机pwm输出
-    BSP_PWM_Set_Port(&PWM_Snail1, PWM_PD12);
-    BSP_PWM_Init(&PWM_Snail1, 180, 1250, TIM_OCPolarity_Low);
-    BSP_PWM_Set_Port(&PWM_Snail2, PWM_PD13);
-    BSP_PWM_Init(&PWM_Snail2, 180, 1250, TIM_OCPolarity_Low);
-
     // USART
     // BSP_USART2_Init(9600, USART_IT_RXNE);
 
     // Judge (USART6)
     BSP_USART6_Init(115200, USART_IT_IDLE);
-    BSP_DMA_USART6_RX_Init(Judge.receiveBuf, Protocol_Buffer_Length);
-    BSP_DMA_USART6_TX_Init(Judge.sendBuf, Protocol_Buffer_Length);
+    BSP_DMA_Init(USART6_Tx, JudgeChannel.sendBuf, Protocol_Buffer_Length);
+    BSP_DMA_Init(USART6_Rx, JudgeChannel.receiveBuf, Protocol_Buffer_Length);
 
-    // Ps (USART3)
-    BSP_USART3_Init(115200, USART_IT_IDLE);
-    BSP_DMA_USART3_RX_Init(Ps.receiveBuf, Protocol_Buffer_Length);
-    BSP_DMA_USART3_TX_Init(Ps.sendBuf, Protocol_Buffer_Length);
+    // PS (UART8)
+    BSP_UART8_Init(115200, USART_IT_IDLE);
+    BSP_DMA_Init(UART8_Tx, HostChannel.sendBuf, Protocol_Buffer_Length);
+    BSP_DMA_Init(UART8_Rx, HostChannel.receiveBuf, Protocol_Buffer_Length);
+
+    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
 }

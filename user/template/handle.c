@@ -20,7 +20,7 @@ void Handle_Init(void) {
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
 
     // 通讯协议初始化
-    Protocol_Init(&JudgeChannel, &ProtocolData);
-    Protocol_Init(&HostChannel, &ProtocolData);
-    Protocol_Init(&UserChannel, &ProtocolData);
+    Protocol_Init(&Node_Judge, &ProtocolData);
+    Protocol_Init(&Node_Host, &ProtocolData);
+    Protocol_Init(&Node_Board[0], &ProtocolData);
 }

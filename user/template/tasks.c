@@ -177,7 +177,7 @@ void Task_Chassis(void *Parameters) {
 
 //         // DMA重启
 //         DMA_Disable(USART6_Tx);
-//         Protocol_Pack(&JudgeChannel, dataLength, id);
+//         Protocol_Pack(&Node_Judge, dataLength, id);
 //         DMA_Enable(USART6_Tx, length);
 
 //         // 发送频率
@@ -198,24 +198,24 @@ void Task_Board_Communication(void *Parameters) {
     while (1) {
 
         // 修改数据
-        commandID                          = 0x501;
-        ProtocolData.user.boardAlpha.data1 = remoteData.lx;
-        ProtocolData.user.boardAlpha.data2 = remoteData.ly;
-        ProtocolData.user.boardAlpha.data3 = remoteData.rx;
-        ProtocolData.user.boardAlpha.data4 = remoteData.ry;
+        commandID                     = 0x501;
+        ProtocolData.boardAlpha.data1 = remoteData.lx;
+        ProtocolData.boardAlpha.data2 = remoteData.ly;
+        ProtocolData.boardAlpha.data3 = remoteData.rx;
+        ProtocolData.boardAlpha.data4 = remoteData.ry;
 
         // 发送数据
-        Bridge_Send_Protocol(&BridgeData, &HostChannel, commandID);
+        Bridge_Send_Protocol(&BridgeData, &Node_Host, commandID);
         // DMA_Disable(USART6_Tx);
-        // length = Protocol_Pack(&JudgeChannel, id);
+        // length = Protocol_Pack(&Node_Judge, id);
         // DMA_Enable(USART6_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN+length);
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = ProtocolData.user.boardAlpha.data1 * 1000;
-        // DebugData.debug2 = ProtocolData.user.boardBeta.data4 * 1000;
+        // DebugData.debug1 = ProtocolData.boardAlpha.data1 * 1000;
+        // DebugData.debug2 = ProtocolData.boardBeta.data4 * 1000;
     }
     vTaskDelete(NULL);
 }
@@ -231,13 +231,13 @@ void Task_Vision_Communication(void *Parameters) {
     while (1) {
 
         // 视觉通信
-        ProtocolData.host.autoaimData.yaw_angle_diff   = 1.23;
-        ProtocolData.host.autoaimData.pitch_angle_diff = 4.56;
-        ProtocolData.host.autoaimData.biu_biu_state    = 7;
+        ProtocolData.autoaimData.yaw_angle_diff   = 1.23;
+        ProtocolData.autoaimData.pitch_angle_diff = 4.56;
+        ProtocolData.autoaimData.biu_biu_state    = 7;
 
         // DMA重启
         DMA_Disable(UART8_Tx);
-        dataLength = Protocol_Pack(&HostChannel, id);
+        dataLength = Protocol_Pack(&Node_Host, id);
         DMA_Enable(UART8_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
         // 发送频率
@@ -345,7 +345,7 @@ void Task_Sys_Init(void *Parameters) {
 
     // DMA发送任务
     // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
 
     // Can发送任务

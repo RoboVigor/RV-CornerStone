@@ -9,7 +9,6 @@
 #include "rtos.h"
 #include "vegmath.h"
 #include "config.h"
-#include "oled.h"
 #include "Driver_BSP.h"
 #include "Driver_Filter.h"
 #include "Driver_Magic.h"
@@ -21,7 +20,6 @@
 #include "mpu6500_driver.h"
 #include "Driver_Gyroscope.h"
 #include "Driver_Protocol.h"
-#include "Driver_Bridge.h"
 #include "Driver_Fsm.h"
 
 #ifdef __HANDLE_GLOBALS
@@ -30,17 +28,18 @@
 #define __HANDLE_EXT extern
 #endif
 
-// Stone ID
-__HANDLE_EXT uint8_t Board_Id, Robot_Id;
-
-// 功能开关
-__HANDLE_EXT uint8_t SafetyMode;
-
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 电机
-__HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
+__HANDLE_EXT Motor_Type Motor_Charge;
+__HANDLE_EXT PID_Type   PID_Charge;
+
+// 舵机
+__HANDLE_EXT PWM_Type PWM_Hook_L, PWM_Hook_R;
+
+// 运动控制标志
+__HANDLE_EXT uint8_t ChargeMode, ReleaseMode, HookMode, SafetyMode;
 
 // 遥控器
 __HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
@@ -56,19 +55,12 @@ __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 __HANDLE_EXT MagicHandle_Type magic;
 __HANDLE_EXT DebugData_Type   DebugData;
 
-// 底盘
-__HANDLE_EXT ChassisData_Type ChassisData;
-__HANDLE_EXT PID_Type         PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
-
 // 通讯协议
-__HANDLE_EXT Protocol_Type ProtocolData;
-__HANDLE_EXT Node_Type     Node_Judge, Node_Host, Node_Board[3];
+__HANDLE_EXT Protocol_Data_Type    ProtocolData;
+__HANDLE_EXT Protocol_Channel_Type JudgeChannel, HostChannel, UserChannel;
 
-// PWM
-__HANDLE_EXT PWM_Type PWM_Test;
-
-// 总线
-__HANDLE_EXT Bridge_Type BridgeData;
+// CAN
+__HANDLE_EXT Motor_Type *Can1_Device[12], *Can2_Device[12];
 
 /**
  * @brief 初始化结构体

@@ -10,9 +10,7 @@
  * @note    单位 bit
  */
 
-#define PROTOCOL_PACK_LENGTH_0501 19
-#define PROTOCOL_PACK_LENGTH_0502 16
-#define PROTOCOL_PACK_LENGTH_0503 16
+#define PROTOCOL_PACK_LENGTH_0501 6
 #define PROTOCOL_PACK_LENGTH_F201 PROTOCOL_PACK_0301_HEADER + 16
 
 /**
@@ -22,46 +20,16 @@
 typedef struct {
     union {
         struct {
-            uint8_t remoteBuffer[PROTOCOL_PACK_LENGTH_0501];
+            int16_t remoteRx;
+            int16_t remoteRy;
+            uint8_t remoteSwL;
+            uint8_t remoteSwR;
         };
         struct {
             uint8_t data[PROTOCOL_PACK_LENGTH_0501];
         };
     };
-} shared_remote_buffer_t;
-
-typedef struct {
-    union {
-        struct {
-            uint32_t data1 : 29;
-            uint8_t  fetchMode : 1;
-            uint8_t  goMode : 1;
-            uint8_t  milkMode : 1;
-            float    fetchVelocity;
-            float    data3;
-            float    data4;
-        };
-        struct {
-            uint8_t data[PROTOCOL_PACK_LENGTH_0502];
-        };
-    };
-} board_fetch_data_t;
-
-typedef struct {
-    union {
-        struct {
-            uint32_t data1 : 23;
-            uint8_t  raiseMode : 1;
-            uint8_t  fetchState;
-            float    chassisVelocityX;
-            float    chassisVelocityY;
-            float    gimbalVelocityYaw;
-        };
-        struct {
-            uint8_t data[PROTOCOL_PACK_LENGTH_0503];
-        };
-    };
-} board_chassis_data_t;
+} board_interactive_data_t;
 
 typedef struct {
     union {
@@ -92,11 +60,9 @@ typedef struct {
 
 #define PROTOCOL_USER_LENGTH_FUNCTION(f)     \
         PROTOCOL_PACK_LENGTH_0501             \
-      f PROTOCOL_PACK_LENGTH_0502             \
-      f PROTOCOL_PACK_LENGTH_0503             \
       f PROTOCOL_PACK_LENGTH_F201
 
-#define PROTOCOL_USER_ID_ARRAY 0x0501,0x0502,0x0503,0xF201
+#define PROTOCOL_USER_ID_ARRAY 0x0501,0xF201
 #define PROTOCOL_USER_LENGTH   PROTOCOL_USER_LENGTH_FUNCTION(PLUS)
 
 // clang-format on
@@ -108,9 +74,7 @@ typedef struct {
 typedef struct {
     union {
         struct {
-            board_fetch_data_t       remote;             // 遥控器
-            board_fetch_data_t       fetch;              // 抓取
-            board_chassis_data_t     chassis;            // 底盘
+            board_interactive_data_t boardGimbalUp;      // 板间通讯(上云台)
             robot_interactive_data_t robotCommunication; // 车间通讯
         };
         struct {
