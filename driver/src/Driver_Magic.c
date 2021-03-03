@@ -1,71 +1,53 @@
 #include "Driver_Magic.h"
-#include "math.h"
-#include "string.h"
-#include "sys.h"
-#include "config.h"
+#include "Driver_Filter.h"
+#include "macro.h"
 
-#define Magic_Init_Handle Magic_Init
+void Raise_Error(Node_Type *node, uint16_t code, char *text) {
+    node->protocolData->errorInfo.code = code;
+    strcpy(node->protocolData->errorInfo.text, text);
+    Bridge_Send_Protocol_Once(node, 0x6666);
+}
 
-//标准库需要的支持函数
-struct __FILE {
-    int handle;
-};
+void Send_Debug_Info(Node_Type *node, DebugData_Type debugData) {
+    node->protocolData->debugInfo.debugData = debugData;
+    Bridge_Send_Protocol_Once(node, 0x1024);
+}
 
-FILE __stdout;
-
-//重定义fputc函数
-#ifdef SERIAL_DEBUG_PORT
-int fputc(int ch, FILE *f) {
-    //循环发送,直到发送完毕
-    while ((SERIAL_DEBUG_PORT->SR) & 0X40 == 0) {
+void Clibrate_Gyroscope() {
+    TickType_t  LastWakeTime      = xTaskGetTickCount();
+    Filter_Type Filter_Sampling   = {.count = 0};
+    int32_t     totalSampleNumber = 3000;
+    int16_t     printEvery        = 100;
+    Filter_Update(&Filter_Sampling, ABS(Gyroscope_Get_Filter_Diff()));
+    Filter_Update_Sample(&Filter_Sampling);
+    if (Filter_Sampling.count % printEvery == 0) {
+        printf("#%d\r\n average: %f\r\n max: %f\r\n min: %f\r\n\r\n",
+               Filter_Sampling.count,
+               Filter_Sampling.movingAverage,
+               Filter_Sampling.max,
+               Filter_Sampling.min);
     }
-    SERIAL_DEBUG_PORT->DR = (u8) ch;
-    return ch;
-}
-#else
-int fputc(int ch, FILE *f) {
-    return ITM_SendChar(ch);
-}
-
-//重定义fgetc函数
-volatile int32_t ITM_RxBuffer;
-int              fgetc(FILE *f) {
-    while (ITM_CheckChar() != 1)
-        __NOP();
-    return ITM_ReceiveChar();
-}
-#endif
-
-void Magic_Init(MagicHandle_Type *magic, int defaultValue) {
-    magic->defaultValue = defaultValue;
-}
-
-int lastResult   = -1; // 记录接收到的调试数据
-int receivedSign = 0;
-
-void Magic_Get_Debug_Value(MagicHandle_Type *magic) {
-    int result = 0;
-    int length = 0;
-
-    if ((magic->sta & 0x8000) > 0) { // 串口接收到调试数据
-        uint8_t i = 0;
-
-        length = magic->sta - 0xC000; // 调试数据的长度
-        result = 0;                   // 调试数据
-
-        for (i = 0; i < length; i++) {
-            result += pow(10.0, length - i - 1) * (magic->buf[i] - 48); // 将串口数据转码
-            magic->buf[i] = 0;                                          // 清空数据缓存
-        }
-        magic->sta   = 0;      // 清空串口的接收缓存
-        lastResult   = result; // 记录接收到的调试数据
-        receivedSign = 1;
-    } else {                              // 串口 没有 接收到调试数据
-        if (receivedSign == 1) {          // 之前 已经 接收过数据
-            result = lastResult;          // 返回上一次接收的调试数据
-        } else {                          // 之前 没有 接收过数据
-            result = magic->defaultValue; // 返回设定的默认值
-        }
+    if (Filter_Sampling.count == totalSampleNumber) {
+        return;
     }
-    magic->value = result;
+}
+
+void Inspect_RTOS() {
+    extern volatile uint32_t ulHighFrequencyTimerTicks;
+    int                      taskDebug_Sign = 0;
+    u8                       pcWriteBuffer[1000];
+    printf("=========================\r\n");
+    printf("time:    %d\r\n", ulHighFrequencyTimerTicks);
+    if (taskDebug_Sign) {
+        printf("\r\nName            Count              Usage\r\n");
+        vTaskGetRunTimeStats((char *) &pcWriteBuffer);
+        printf("%s\r\n", pcWriteBuffer);
+    } else {
+        printf("Name         Status   Priority  RemainStackSize   Number\r\n");
+        vTaskList((char *) &pcWriteBuffer);
+        printf("%s\r\n", pcWriteBuffer);
+    }
+    taskDebug_Sign = taskDebug_Sign ? 0 : 1;
+
+    printf("=========================\r\n\r\n\r\n");
 }
