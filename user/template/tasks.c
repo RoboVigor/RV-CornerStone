@@ -189,7 +189,7 @@ void Task_Chassis(void *Parameters) {
 
 void Task_Board_Communication(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.1;                 // 任务运行间隔 s
+    float      interval     = 0.004;               // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     uint16_t commandID; // 通讯ID
@@ -199,13 +199,13 @@ void Task_Board_Communication(void *Parameters) {
 
         // 修改数据
         commandID                          = 0x501;
-        ProtocolData.user.boardAlpha.data1 = 1.11;
-        ProtocolData.user.boardAlpha.data2 = 2.22;
-        ProtocolData.user.boardAlpha.data3 = 3.33;
-        ProtocolData.user.boardAlpha.data4 = 4.44;
+        ProtocolData.user.boardAlpha.data1 = remoteData.lx;
+        ProtocolData.user.boardAlpha.data2 = remoteData.ly;
+        ProtocolData.user.boardAlpha.data3 = remoteData.rx;
+        ProtocolData.user.boardAlpha.data4 = remoteData.ry;
 
         // 发送数据
-        Bridge_Send_Protocol(&BridgeData, &UserChannel, commandID);
+        Bridge_Send_Protocol(&BridgeData, &HostChannel, commandID);
         // DMA_Disable(USART6_Tx);
         // length = Protocol_Pack(&JudgeChannel, id);
         // DMA_Enable(USART6_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN+length);

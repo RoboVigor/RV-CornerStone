@@ -21,10 +21,10 @@
 typedef struct {
     union {
         struct {
-            float data1;
-            float data2;
-            float data3;
-            float data4;
+            int32_t data1;
+            int32_t data2;
+            int32_t data3;
+            int32_t data4;
         };
         struct {
             uint8_t data[PROTOCOL_PACK_LENGTH_0501];
@@ -38,10 +38,10 @@ typedef struct {
             uint16_t data_cmd_id;
             uint16_t send_id;
             uint16_t receiver_id;
-            float    data1;
-            float    data2;
-            float    data3;
-            float    data4;
+            int32_t  data1;
+            int32_t  data2;
+            int32_t  data3;
+            int32_t  data4;
         };
         struct {
             uint8_t data[PROTOCOL_PACK_LENGTH_F201];
