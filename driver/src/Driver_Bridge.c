@@ -4,22 +4,22 @@ void Bridge_Bind(Bridge_Type *bridge, uint8_t type, uint32_t deviceID, void *han
     if (IS_MOTOR) {
         MOTOR = handle;
     } else {
-        Protocol_Channel_Type *channel = handle;
+        Node_Type *node = handle;
         if (IS_CAN) {
-            CAN_CHANNEL = channel;
+            CAN_NODE = node;
         } else {
-            BSP_DMA_Init(USARTx_Rx, channel->receiveBuf, Protocol_Buffer_Length);
-            BSP_DMA_Init(USARTx_Tx, channel->sendBuf, Protocol_Buffer_Length);
-            USART_CHANNEL = channel;
+            BSP_DMA_Init(USARTx_Rx, node->receiveBuf, Protocol_Buffer_Length);
+            BSP_DMA_Init(USARTx_Tx, node->sendBuf, Protocol_Buffer_Length);
+            USART_NODE = node;
         }
-        channel->deviceID   = deviceID;
-        channel->bridgeType = type;
+        node->deviceID   = deviceID;
+        node->bridgeType = type;
     }
 }
 
 void Bridge_Receive_USART(Bridge_Type *bridge, uint8_t type, uint32_t deviceID) {
-    uint16_t               i, tmp, len;
-    Protocol_Channel_Type *channel = USART_CHANNEL;
+    uint16_t   i, tmp, len;
+    Node_Type *node = USART_NODE;
 
     // clear IDLE flag
     tmp = USARTx->DR;
@@ -31,7 +31,7 @@ void Bridge_Receive_USART(Bridge_Type *bridge, uint8_t type, uint32_t deviceID) 
     // unpack
     len = Protocol_Buffer_Length - DMA_Get_Data_Counter(USARTx_Rx);
     for (i = 0; i < len; i++) {
-        Protocol_Unpack(channel, channel->receiveBuf[i]);
+        Protocol_Unpack(node, node->receiveBuf[i]);
     }
 
     // enable DMA
@@ -39,10 +39,10 @@ void Bridge_Receive_USART(Bridge_Type *bridge, uint8_t type, uint32_t deviceID) 
 }
 
 void Bridge_Receive_CAN(Bridge_Type *bridge, uint8_t type) {
-    uint16_t               i;
-    Protocol_Channel_Type *channel;
-    uint32_t               deviceID;
-    CanRxMsg               CanRxData;
+    uint16_t   i;
+    Node_Type *node;
+    uint32_t   deviceID;
+    CanRxMsg   CanRxData;
 
     // 读取数据
     CAN_Receive(type == CAN1_BRIDGE ? CAN1 : CAN2, CAN_FIFO0, &CanRxData);
@@ -53,8 +53,8 @@ void Bridge_Receive_CAN(Bridge_Type *bridge, uint8_t type) {
         Motor_Update(MOTOR, CanRxData.Data);
     } else {
         for (i = 0; i < CanRxData.DLC; i++) {
-            channel = CAN_CHANNEL;
-            Protocol_Unpack(channel, CanRxData.Data[i]);
+            node = CAN_NODE;
+            Protocol_Unpack(node, CanRxData.Data[i]);
         }
     }
 }
@@ -89,17 +89,17 @@ void Bridge_Send_Motor(Bridge_Type *bridge, uint8_t safetyMode) {
     }
 }
 
-void Bridge_Send_Protocol(Bridge_Type *bridge, Protocol_Channel_Type *channel, uint32_t commandID) {
-    uint32_t deviceID = channel->deviceID;
+void Bridge_Send_Protocol(Bridge_Type *bridge, Node_Type *node, uint32_t commandID) {
+    uint32_t deviceID = node->deviceID;
     uint16_t dataLength;
-    uint8_t  type = channel->bridgeType;
+    uint8_t  type = node->bridgeType;
 
     if (IS_CAN) {
-        dataLength = Protocol_Pack(channel, commandID);
-        Can_Send_Msg(type == CAN1_BRIDGE ? CAN1 : CAN2, CAN_DEVICE_ID, channel->sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        dataLength = Protocol_Pack(node, commandID);
+        Can_Send_Msg(type == CAN1_BRIDGE ? CAN1 : CAN2, CAN_DEVICE_ID, node->sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
     } else {
         DMA_Disable(USARTx_Tx);
-        dataLength = Protocol_Pack(channel, commandID);
+        dataLength = Protocol_Pack(node, commandID);
         DMA_Enable(USARTx_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
     }
 }
