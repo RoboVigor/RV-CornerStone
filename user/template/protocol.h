@@ -1,3 +1,5 @@
+#ifndef __PROTOCOL_H
+#define __PROTOCOL_H
 /**
  * @file    protocol.h
  * @note    Node     command_id
@@ -27,6 +29,17 @@ typedef struct {
     uint32_t end_x : 11;
     uint32_t end_y : 11;
 } graphic_data_struct_t;
+
+typedef struct {
+    int32_t debug1;
+    int32_t debug2;
+    int32_t debug3;
+    int32_t debug4;
+    int32_t debug5;
+    int32_t debug6;
+    int32_t debug7;
+    int32_t debug8;
+} DebugData_Type;
 
 /**
  * @brief   协议列表
@@ -188,7 +201,7 @@ typedef struct {
             uint16_t              send_id;
             uint16_t              receiver_id;
             graphic_data_struct_t grapic_data_struct;
-            uint8_t               data[30];
+            uint8_t               text[30];
         };
         struct {
             uint8_t data[51];
@@ -239,8 +252,70 @@ typedef struct {
     };
 } robot_interactive_data_t;
 
-#define ProtocolDataLengthList {18, 16, 3, 1, 6, 6 + 2, 6 + 15, 6 + 30, 6 + 75, 6 + 105, 6 + 45, 9, 16, 6 + 16};
-#define ProtocolDataIdList {0x0201, 0x202, 0x205, 0x206, 0x207, 0xF100, 0xF101, 0xF102, 0xF103, 0xF104, 0xF110, 0x0401, 0x0501, 0xF201, 0};
+typedef struct {
+    union {
+        struct {
+            uint16_t code;
+            char     text[21];
+        };
+        struct {
+            uint8_t data[23];
+        };
+    };
+} error_data_t;
+
+typedef struct {
+    union {
+        struct {
+            DebugData_Type debugData;
+        };
+        struct {
+            uint8_t data[32];
+        };
+    };
+} DebugInfo_Type;
+
+typedef struct {
+    union {
+        struct {
+            uint16_t code;
+            char     text[21];
+        };
+        struct {
+            uint8_t data[23];
+        };
+    };
+} ErrorInfo_Type;
+
+typedef struct {
+    union {
+        struct {
+            uint8_t status;
+        };
+        struct {
+            uint8_t data[1];
+        };
+    };
+} Heartbeat_Type;
+
+#define PROTOCOL_INFO_LIST                                                                                                                                     \
+    {{0x0201, 18, 1},                                                                                                                                          \
+     {0x202, 16, 1},                                                                                                                                           \
+     {0x205, 3, 1},                                                                                                                                            \
+     {0x206, 1, 1},                                                                                                                                            \
+     {0x207, 6, 1},                                                                                                                                            \
+     {0xF100, 8, 1},                                                                                                                                           \
+     {0xF101, 21, 1},                                                                                                                                          \
+     {0xF102, 36, 1},                                                                                                                                          \
+     {0xF103, 81, 1},                                                                                                                                          \
+     {0xF104, 111, 1},                                                                                                                                         \
+     {0xF110, 51, 1},                                                                                                                                          \
+     {0x0401, 9, 1},                                                                                                                                           \
+     {0x0501, 16, 1},                                                                                                                                          \
+     {0xF201, 22, 1},                                                                                                                                          \
+     {0x120, 32, 1},                                                                                                                                           \
+     {0x1024, 32, 1},                                                                                                                                          \
+     {0x6666, 23, 1}};
 
 /**
  * @brief   协议接口
@@ -263,8 +338,13 @@ typedef union {
         board_interactive_data_t       boardAlpha;             // 板间通讯测试
         board_interactive_data_t       boardBeta;              // 板间通讯测试
         robot_interactive_data_t       robotCommunication;     // 车间通讯测试
+        Heartbeat_Type                 heartbeat;              // 心跳包
+        ErrorInfo_Type                 errorInfo;              // 报错信息
+        DebugInfo_Type                 debugInfo;              // 调试信息
     };
     struct {
         uint8_t data[399];
     };
-} Protocol_Type;
+} ProtocolData_Type;
+
+#endif

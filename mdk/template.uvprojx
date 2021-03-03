@@ -672,19 +672,9 @@
           <GroupName>user_template</GroupName>
           <Files>
             <File>
-              <FileName>handle.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\template\handle.c</FilePath>
-            </File>
-            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\template\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>task_debug.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\template\task_debug.c</FilePath>
             </File>
             <File>
               <FileName>interrupt.c</FileName>
@@ -692,24 +682,9 @@
               <FilePath>..\user\template\interrupt.c</FilePath>
             </File>
             <File>
-              <FileName>config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\template\config.h</FilePath>
-            </File>
-            <File>
               <FileName>handle.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\user\template\handle.h</FilePath>
-            </File>
-            <File>
-              <FileName>main.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\template\main.h</FilePath>
-            </File>
-            <File>
-              <FileName>rtos.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\template\rtos.h</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
@@ -717,14 +692,14 @@
               <FilePath>..\user\template\tasks.c</FilePath>
             </File>
             <File>
-              <FileName>tasks.h</FileName>
+              <FileName>config.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\user\template\tasks.h</FilePath>
+              <FilePath>..\user\template\config.h</FilePath>
             </File>
             <File>
-              <FileName>bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\template\bsp.c</FilePath>
+              <FileName>protocol.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\template\protocol.h</FilePath>
             </File>
           </Files>
         </Group>

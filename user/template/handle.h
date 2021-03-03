@@ -6,7 +6,6 @@
 #include "led.h"
 #include "beep.h"
 #include "key.h"
-#include "rtos.h"
 #include "vegmath.h"
 #include "config.h"
 #include "oled.h"
@@ -53,7 +52,6 @@ __HANDLE_EXT volatile ImuData_Type       ImuData;
 __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 调试数据
-__HANDLE_EXT MagicHandle_Type magic;
 __HANDLE_EXT DebugData_Type   DebugData;
 
 // 底盘
@@ -62,7 +60,7 @@ __HANDLE_EXT PID_Type         PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAng
 
 // 通讯协议
 __HANDLE_EXT ProtocolData_Type ProtocolData;
-__HANDLE_EXT Node_Type         Node_Judge, Node_Host, Node_Board[3];
+__HANDLE_EXT Node_Type         Node_Judge, Node_Host, Node_Board;
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test;

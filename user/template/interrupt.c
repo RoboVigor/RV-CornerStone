@@ -1,9 +1,7 @@
 /**
  * @brief  中断服务函数根据地
  */
-
-#include "interrupt.h"
-#include "main.h"
+#include "handle.h"
 
 // EXTI9_5 陀螺仪中断
 void EXTI9_5_IRQHandler(void) {
