@@ -96,7 +96,7 @@ void Bridge_Send_Protocol(Bridge_Type *bridge, Node_Type *node, uint32_t command
 
     if (IS_CAN) {
         dataLength = Protocol_Pack(node, commandID);
-        Can_Send_Msg(type == CAN1_BRIDGE ? CAN1 : CAN2, CAN_DEVICE_ID, node->sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        Can_Send_Msg(type == CAN1_BRIDGE ? CAN1 : CAN2, commandID, node->sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
     } else {
         DMA_Disable(USARTx_Tx);
         dataLength = Protocol_Pack(node, commandID);
