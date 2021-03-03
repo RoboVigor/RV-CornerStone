@@ -60,9 +60,14 @@ static usart_t USART[] = {{},
 void Bridge_Bind(Bridge_Type *bridge, uint8_t type, uint32_t deviceID, void *handle);
 
 /**
- * @brief 接收数据
+ * @brief 接收串口数据
  */
-void Bridge_Receive(Bridge_Type *bridge, uint8_t type, uint32_t deviceID, uint8_t *data);
+void Bridge_Receive_USART(Bridge_Type *bridge, uint8_t type, uint32_t deviceID);
+
+/**
+ * @brief 接收CAN数据
+ */
+void Bridge_Receive_CAN(Bridge_Type *bridge, uint8_t type);
 
 /**
  * @brief 发送电机数据
