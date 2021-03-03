@@ -89,7 +89,7 @@ void Bridge_Send_Motor(Bridge_Type *bridge, uint8_t safetyMode) {
     }
 }
 
-void Bridge_Send_Protocol(Node_Type *node, uint32_t commandID) {
+void Bridge_Send_Protocol_Once(Node_Type *node, uint32_t commandID) {
     uint32_t deviceID = node->deviceID;
     uint16_t dataLength;
     uint8_t  type = node->bridgeType;
@@ -102,4 +102,7 @@ void Bridge_Send_Protocol(Node_Type *node, uint32_t commandID) {
         dataLength = Protocol_Pack(node, commandID);
         DMA_Enable(USARTx_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
     }
+}
+
+void Bridge_Send_Protocol(Node_Type *node, uint32_t commandID, uint16_t frequency) {
 }

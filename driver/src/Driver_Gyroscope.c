@@ -24,7 +24,7 @@ Filter_Type Filter_Yaw = {.count = 0, .thresholdLB = GYROSCOPE_YAW_FILTER_THRESH
 
 extern ImuData_Type ImuData;
 
-void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
+void Gyroscope_Init(GyroscopeData_Type *GyroscopeData, uint16_t startupDelay) {
     GyroscopeData->startupCounter = 0;
 #ifdef STM32F427_437xx
     MPU6500_Initialize();
@@ -35,28 +35,28 @@ void Gyroscope_Init(GyroscopeData_Type *GyroscopeData) {
     }
     ist8310_init();
 #endif
-#if GYROSCOPE_START_UP_DELAY_ENABLED
+    if (startupDelay != 0) {
 #ifdef STM32F427_437xx
-    beta = 5;
-    while (1) {
-        LED_Set_Progress(GyroscopeData->startupCounter / (GYROSCOPE_START_UP_DELAY / 7) + 1);
-        if (GyroscopeData->startupCounter >= GYROSCOPE_START_UP_DELAY) {
-            beta = 0.1;
-            break;
+        beta = 5;
+        while (1) {
+            LED_Set_Progress(GyroscopeData->startupCounter / (startupDelay / 7) + 1);
+            if (GyroscopeData->startupCounter >= startupDelay) {
+                beta = 0.1;
+                break;
+            }
         }
-    }
 #endif
 #ifdef STM32F40_41xxx
-    beta = 5;
-    while (1) {
-        LED_Set_Colour(GyroscopeData->startupCounter / GYROSCOPE_START_UP_DELAY * 255, 0, 0);
-        if (GyroscopeData->startupCounter >= GYROSCOPE_START_UP_DELAY) {
-            beta = 0.5;
-            break;
+        beta = 5;
+        while (1) {
+            LED_Set_Colour(GyroscopeData->startupCounter / startupDelay * 255, 0, 0);
+            if (GyroscopeData->startupCounter >= startupDelay) {
+                beta = 0.5;
+                break;
+            }
         }
+#endif
     }
-#endif
-#endif
 }
 
 // MPU6500数据读取,成功返回1  失败返回0

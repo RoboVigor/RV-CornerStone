@@ -61,22 +61,32 @@ void Bridge_Bind(Bridge_Type *bridge, uint8_t type, uint32_t deviceID, void *han
 
 /**
  * @brief 接收串口数据
+ * @todo  未测试
  */
 void Bridge_Receive_USART(Bridge_Type *bridge, uint8_t type, uint32_t deviceID);
 
 /**
  * @brief 接收CAN数据
+ * @todo  未测试
  */
 void Bridge_Receive_CAN(Bridge_Type *bridge, uint8_t type);
 
 /**
  * @brief 发送电机数据
+ * @todo  未测试
  */
 void Bridge_Send_Motor(Bridge_Type *bridge, uint8_t safetyMode);
 
 /**
  * @brief 发送协议数据
+ * @todo  未测试
  */
-void Bridge_Send_Protocol(Node_Type *node, uint32_t commandID) {
+void Bridge_Send_Protocol_Once(Node_Type *node, uint32_t commandID);
+
+/**
+ * @brief 按一定频率发送协议数据
+ * @todo  未实现, 考虑通过新建任务实现
+ */
+void Bridge_Send_Protocol(Node_Type *node, uint32_t commandID, uint16_t frequency);
 
 #endif
