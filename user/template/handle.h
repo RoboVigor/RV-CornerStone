@@ -61,8 +61,8 @@ __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type         PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
 // 通讯协议
-__HANDLE_EXT Protocol_Type ProtocolData;
-__HANDLE_EXT Node_Type     Node_Judge, Node_Host, Node_Board[3];
+__HANDLE_EXT ProtocolData_Type ProtocolData;
+__HANDLE_EXT Node_Type         Node_Judge, Node_Host, Node_Board[3];
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test;

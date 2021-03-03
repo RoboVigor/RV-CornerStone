@@ -39,14 +39,14 @@ __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
 
 // 云台
 __HANDLE_EXT Motor_Type Motor_Yaw, Motor_Pitch;
-__HANDLE_EXT PID_Type PID_Cloud_YawAngle, PID_Cloud_YawSpeed, PID_Cloud_PitchAngle, PID_Cloud_PitchSpeed;
-__HANDLE_EXT PID_Type PID_Follow_Angle, PID_Follow_Speed;
+__HANDLE_EXT PID_Type   PID_Cloud_YawAngle, PID_Cloud_YawSpeed, PID_Cloud_PitchAngle, PID_Cloud_PitchSpeed;
+__HANDLE_EXT PID_Type   PID_Follow_Angle, PID_Follow_Speed;
 
 // 遥控器
-__HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
-__HANDLE_EXT Remote_Type remoteData;
+__HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
+__HANDLE_EXT Remote_Type   remoteData;
 __HANDLE_EXT Keyboard_Type keyboardData;
-__HANDLE_EXT Mouse_Type mouseData;
+__HANDLE_EXT Mouse_Type    mouseData;
 
 // 陀螺仪
 __HANDLE_EXT volatile ImuData_Type       ImuData;
@@ -54,21 +54,21 @@ __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 调试数据
 __HANDLE_EXT MagicHandle_Type magic;
-__HANDLE_EXT DebugData_Type DebugData;
+__HANDLE_EXT DebugData_Type   DebugData;
 
 // 底盘
 __HANDLE_EXT ChassisData_Type ChassisData;
-__HANDLE_EXT PID_Type PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
+__HANDLE_EXT PID_Type         PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
 // 通讯协议
-__HANDLE_EXT Protocol_Type Judge, Ps;
+__HANDLE_EXT ProtocolData_Type Judge, Ps;
 
 // 弹舱盖舵机
 __HANDLE_EXT PWM_Type PWM_Magazine_Servo;
 
 //发射机构
-__HANDLE_EXT Motor_Type Motor_Stir;                 // 左/右 摩擦轮 拨弹轮 电机
-__HANDLE_EXT PID_Type PID_StirSpeed, PID_StirAngle; // 拨弹轮 速度/角度 PID
+__HANDLE_EXT Motor_Type Motor_Stir;                   // 左/右 摩擦轮 拨弹轮 电机
+__HANDLE_EXT PID_Type   PID_StirSpeed, PID_StirAngle; // 拨弹轮 速度/角度 PID
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test, PWM_Snail1, PWM_Snail2;

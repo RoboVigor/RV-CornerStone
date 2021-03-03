@@ -62,10 +62,10 @@ __HANDLE_EXT Motor_Type Motor_Upthrow1, Motor_Upthrow2;
 __HANDLE_EXT Motor_Type Motor_Rotate_Left, Motor_Rotate_Right;
 
 // 遥控器
-__HANDLE_EXT uint8_t remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
-__HANDLE_EXT Remote_Type remoteData;
+__HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
+__HANDLE_EXT Remote_Type   remoteData;
 __HANDLE_EXT Keyboard_Type keyboardData;
-__HANDLE_EXT Mouse_Type mouseData;
+__HANDLE_EXT Mouse_Type    mouseData;
 
 // 陀螺仪
 __HANDLE_EXT volatile ImuData_Type       ImuData;
@@ -73,7 +73,7 @@ __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 无线串口调试
 __HANDLE_EXT MagicHandle_Type magic;
-__HANDLE_EXT DebugData_Type DebugData;
+__HANDLE_EXT DebugData_Type   DebugData;
 
 // 底盘
 __HANDLE_EXT ChassisData_Type ChassisData;
@@ -86,7 +86,7 @@ __HANDLE_EXT PID_Type PID_Upthrow1_Angle, PID_Upthrow1_Speed, PID_Upthrow2_Angle
 __HANDLE_EXT PID_Type PID_Rotate_Left_Angle, PID_Rotate_Left_Speed, PID_Rotate_Right_Angle, PID_Rotate_Right_Speed;
 
 // 通讯协议
-__HANDLE_EXT Protocol_Type Judge, Ps, Board;
+__HANDLE_EXT ProtocolData_Type Judge, Ps, Board;
 
 // 调试变量
 __HANDLE_EXT int DebugA, DebugB, DebugC, DebugD, DebugE, DebugF, DebugG, DebugH, DebugI;

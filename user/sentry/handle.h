@@ -70,7 +70,7 @@ __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type         PID_Chassis_Left, PID_Chassis_Right;
 
 // 通讯协议
-__HANDLE_EXT Protocol_Type         ProtocolData;
+__HANDLE_EXT ProtocolData_Type     ProtocolData;
 __HANDLE_EXT Protocol_Channel_Type JudgeChannel, HostChannel, UserChannel;
 
 // 发射机构
