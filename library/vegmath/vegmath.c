@@ -95,7 +95,8 @@ const unsigned char CRC8_TAB[256] = {
     0x97, 0xc9, 0x4a, 0x14, 0xf6, 0xa8, 0x74, 0x2a, 0xc8, 0x96, 0x15, 0x4b, 0xa9, 0xf7, 0xb6, 0xe8, 0x0a, 0x54, 0xd7, 0x89, 0x6b, 0x35,
 };
 
-unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength, unsigned char ucCRC8) {
+unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength) {
+    unsigned char ucCRC8 = CRC8_INIT;
     unsigned char ucIndex;
     while (dwLength--) {
         ucIndex = ucCRC8 ^ (*pchMessage++);
@@ -112,7 +113,7 @@ unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLengt
 unsigned int Verify_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength) {
     unsigned char ucExpected = 0;
     if ((pchMessage == 0) || (dwLength <= 2)) return 0;
-    ucExpected = Get_CRC8_Check_Sum(pchMessage, dwLength - 1, CRC8_INIT);
+    ucExpected = Get_CRC8_Check_Sum(pchMessage, dwLength - 1);
     return (ucExpected == pchMessage[dwLength - 1]);
 }
 
@@ -124,7 +125,7 @@ unsigned int Verify_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLen
 void Append_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength) {
     unsigned char ucCRC = 0;
     if ((pchMessage == 0) || (dwLength <= 2)) return;
-    ucCRC                    = Get_CRC8_Check_Sum((unsigned char *) pchMessage, dwLength - 1, CRC8_INIT);
+    ucCRC                    = Get_CRC8_Check_Sum((unsigned char *) pchMessage, dwLength - 1);
     pchMessage[dwLength - 1] = ucCRC;
 }
 
@@ -151,8 +152,9 @@ const unsigned short wCRC_Table[256] = {
 ** Input: Data to check,channel length, initialized checksum
 ** Output: CRC checksum
 */
-unsigned short Get_CRC16_Check_Sum(unsigned char *pchMessage, unsigned int dwLength, unsigned short wCRC) {
-    unsigned char chData;
+unsigned short Get_CRC16_Check_Sum(unsigned char *pchMessage, unsigned int dwLength) {
+    unsigned short wCRC = CRC_INIT;
+    unsigned char  chData;
     if (pchMessage == 0) {
         return 0xFFFF;
     }
@@ -173,7 +175,7 @@ unsigned int Verify_CRC16_Check_Sum(unsigned char *pchMessage, unsigned int dwLe
     if ((pchMessage == 0) || (dwLength <= 2)) {
         return 0;
     }
-    wExpected = Get_CRC16_Check_Sum(pchMessage, dwLength - 2, CRC_INIT);
+    wExpected = Get_CRC16_Check_Sum(pchMessage, dwLength - 2);
     return ((wExpected & 0xff) == pchMessage[dwLength - 2] && ((wExpected >> 8) & 0xff) == pchMessage[dwLength - 1]);
 }
 
@@ -187,7 +189,7 @@ void Append_CRC16_Check_Sum(unsigned char *pchMessage, unsigned int dwLength) {
     if ((pchMessage == 0) || (dwLength <= 2)) {
         return;
     }
-    wCRC                     = Get_CRC16_Check_Sum((unsigned char *) pchMessage, dwLength - 2, CRC_INIT);
+    wCRC                     = Get_CRC16_Check_Sum((unsigned char *) pchMessage, dwLength - 2);
     pchMessage[dwLength - 2] = (unsigned char) (wCRC & 0x00ff);
     pchMessage[dwLength - 1] = (unsigned char) ((wCRC >> 8) & 0x00ff);
 }
