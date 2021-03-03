@@ -205,7 +205,7 @@ void Task_Board_Communication(void *Parameters) {
         ProtocolData.boardAlpha.data4 = remoteData.ry;
 
         // 发送数据
-        Bridge_Send_Protocol(&BridgeData, &Node_Host, commandID);
+        Bridge_Send_Protocol(&Node_Host, commandID);
         // DMA_Disable(USART6_Tx);
         // length = Protocol_Pack(&Node_Judge, id);
         // DMA_Enable(USART6_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN+length);
