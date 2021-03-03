@@ -50,16 +50,21 @@ typedef enum {
 } Protocol_state_e;
 
 typedef struct {
-    uint32_t deviceID;                           // 串口ID
-    uint8_t  bridgeType;                         // 总线类型
-    uint8_t  sendBuf[Protocol_Buffer_Length];    // DMA发送缓存
+    // Bridge
+    uint8_t  bridgeType; // 总线类型
+    uint32_t deviceID;   // USART ID / CAN ID
+    // Send
+    uint8_t  sendBuf[Protocol_Buffer_Length]; // DMA发送缓存
+    uint16_t sendingSeq;                      // 待发送包序号
+    uint16_t sentSeq;                         // 已发送包序号
+    // Receive
     uint8_t  receiveBuf[Protocol_Buffer_Length]; // DMA接收缓存
     uint8_t  packet[Protocol_Buffer_Length];     // 有效字节数组
     uint8_t  step;                               // 当前解包步骤
     uint8_t  state;                              // 当前工作状态
     uint16_t index;                              // 当前包字节序
     uint16_t dataLength;                         // 包数据长度
-    uint16_t seq;                                // 包序号
+    uint16_t receiveSeq;                         // 包序号
     uint16_t id;                                 // 包编号
     uint8_t *data;                               // 数据存放地址
 } Node_Type;

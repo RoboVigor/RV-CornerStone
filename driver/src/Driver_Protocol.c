@@ -177,7 +177,7 @@ void Protocol_Load(Node_Type *node) {
     uint16_t offset;
 
     // seq
-    node->seq = node->packet[3];
+    node->receiveSeq = node->packet[3];
 
     // id
     node->id = (node->packet[PROTOCOL_HEADER_SIZE + 1] << 8) + node->packet[PROTOCOL_HEADER_SIZE];
