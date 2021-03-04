@@ -21,9 +21,9 @@ typedef enum { CAN1_BRIDGE = 0, CAN2_BRIDGE, USART_BRIDGE } bridge_type_e;
  * @param  motor
  */
 typedef struct {
-    Motor_Type *motors[24];       // [0-11] CAN1, [12-23] CAN2
-    Node_Type * canChannels[10];  // [0-4] CAN1 [0x501-0x505], [5-9] CAN2 [0x501-0x505]
-    Node_Type * usartChannels[4]; // [0-4] USART [3,6,7,8]
+    Motor_Type *motors[24];    // [0-11] CAN1, [12-23] CAN2
+    Node_Type * canNodes[10];  // [0-4] CAN1 [0x501-0x505], [5-9] CAN2 [0x501-0x505]
+    Node_Type * usartNodes[4]; // [0-4] USART [3,6,7,8]
 } Bridge_Type;
 
 typedef struct {
@@ -51,8 +51,8 @@ static usart_t USART[] = {{},
 #define IS_CAN (type != USART_BRIDGE)
 
 #define MOTOR (bridge->motors[deviceID - 0x201 + (type == CAN2_BRIDGE ? 12 : 0)])
-#define CAN_NODE (bridge->canChannels[deviceID - 0x500 + (type == CAN2_BRIDGE ? 5 : 0)])
-#define USART_NODE (bridge->usartChannels[USART[deviceID].bridge_index])
+#define CAN_NODE (bridge->canNodes[deviceID - 0x500 + (type == CAN2_BRIDGE ? 5 : 0)])
+#define USART_NODE (bridge->usartNodes[USART[deviceID].bridge_index])
 
 /**
  * @brief 建立数据桥梁
