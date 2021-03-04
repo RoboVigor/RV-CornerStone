@@ -78,8 +78,8 @@ typedef struct {
     uint16_t id;     // 编号
     uint16_t length; // 数据段长度
     // 接收相关
-    uint16_t receiving;    // 是否接收并解包该协议 @todo:未实现
-    uint16_t receiveCount; // 接收计数 @todo:未实现
+    uint16_t receiving;    // 是否接收并解包该协议 @todo:未测试
+    uint16_t receiveCount; // 接收计数 @todo:未测试
     // 发送相关
     float         frequency;  // 发送频率 (实际发送频率会略低一些) todo:未实现
     TaskHandle_t *taskHandle; // 发送任务 @todo:未实现

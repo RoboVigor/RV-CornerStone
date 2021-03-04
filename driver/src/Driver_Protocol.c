@@ -190,12 +190,14 @@ void Protocol_Load(Node_Type *node) {
 
     // get memory address
     protocolInfo = Protocol_Get_Info_Handle(dataId);
-    offset       = protocolInfo->offset;
-    dataLength   = protocolInfo->length;
+    if (!protocolInfo->receiving) return;
+    offset     = protocolInfo->offset;
+    dataLength = protocolInfo->length;
 
     // load
     begin_p = node->data + offset;
     for (i = 0; i < node->dataLength; i++) {
         *(begin_p + i) = node->packet[PROTOCOL_HEADER_CMDID_LEN + i];
     }
+    protocolInfo->receiveCount += 1;
 }
