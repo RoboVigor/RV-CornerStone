@@ -581,6 +581,11 @@
               <FileType>1</FileType>
               <FilePath>..\library\oled\oled.c</FilePath>
             </File>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\atom\usart\usart.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
