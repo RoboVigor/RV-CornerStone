@@ -96,9 +96,10 @@ void Task_Chassis(void *Parameters) {
 }
 
 void Task_Communication(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.5;                 // 任务运行间隔 s
-    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+    TickType_t         LastWakeTime = xTaskGetTickCount(); // 时钟
+    float              interval     = 0.1;                 // 任务运行间隔 s
+    int                intervalms   = interval * 1000;     // 任务运行间隔 ms
+    ProtocolInfo_Type *protocolInfo = Protocol_Get_Info_Handle(0x501);
 
     while (1) {
 
@@ -115,8 +116,8 @@ void Task_Communication(void *Parameters) {
         // 调试信息
         DebugData.debug1 = ProtocolData.boardAlpha.data1 * 1000;
         DebugData.debug2 = ProtocolData.boardAlpha.data2 * 1000;
-        DebugData.debug3 = ProtocolData.boardAlpha.data3 * 1000;
-        DebugData.debug4 = ProtocolData.boardAlpha.data4 * 1000;
+        DebugData.debug3 = Node_Host.sendSeq;
+        DebugData.debug4 = protocolInfo->receiveCount;
     }
     vTaskDelete(NULL);
 }

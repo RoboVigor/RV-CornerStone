@@ -102,6 +102,8 @@ uint16_t Protocol_Pack(Node_Type *node, uint16_t id) {
         *send_p++ = node->sendBuf[i];
     }
 
+    node->sendSeq = node->sendBuf[3];
+
     return dataLength;
 }
 

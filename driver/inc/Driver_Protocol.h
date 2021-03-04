@@ -61,10 +61,10 @@ typedef struct {
     uint16_t id;     // 编号
     uint16_t length; // 数据段长度
     // 接收相关
-    uint16_t receiving;    // 是否接收并解包该协议 @todo:未测试
-    uint16_t receiveCount; // 接收计数 @todo:未测试
+    uint16_t receiving;    // 是否接收并解包该协议
+    uint16_t receiveCount; // 接收计数
     // 发送相关
-    float         frequency;  // 发送频率 (实际发送频率会略低一些) todo:未实现
+    float         frequency;  // 发送频率 (实际发送频率会略低一些) @todo:未实现
     TaskHandle_t *taskHandle; // 发送任务 @todo:未实现
     // 存储相关
     uint16_t offset; // 寄存器偏移
@@ -79,8 +79,7 @@ typedef struct {
     ProtocolInfo_Type *protocolInfo;
     // 发送相关
     uint8_t  sendBuf[Protocol_Buffer_Length]; // DMA发送缓存
-    uint16_t sendingSeq;                      // 待发送包序号 @todo:未实现
-    uint16_t sentSeq;                         // 已发送包序号 @todo:未实现
+    uint16_t sendSeq;                         // 已发送包序号
     // 接收相关
     uint8_t  receiveBuf[Protocol_Buffer_Length]; // DMA接收缓存
     uint8_t  packet[Protocol_Buffer_Length];     // 有效字节数组
@@ -94,10 +93,10 @@ typedef struct {
     uint16_t waitCount;                          // 需要丢弃的字节数
 } Node_Type;
 
-void     Protocol_Get_Info(uint16_t id, uint16_t *offset, uint16_t *length);
-void     Protocol_Init(Node_Type *node, ProtocolData_Type *data);
-void     Protocol_Update(Node_Type *node);
-void     Protocol_Unpack(Node_Type *node, uint8_t byte);
-uint16_t Protocol_Pack(Node_Type *node, uint16_t id);
+ProtocolInfo_Type *Protocol_Get_Info_Handle(uint16_t id);
+void               Protocol_Init(Node_Type *node, ProtocolData_Type *data);
+void               Protocol_Update(Node_Type *node);
+void               Protocol_Unpack(Node_Type *node, uint8_t byte);
+uint16_t           Protocol_Pack(Node_Type *node, uint16_t id);
 
 #endif
