@@ -4,15 +4,16 @@
 #include <string.h>
 
 ProtocolInfo_Type ProtocolInfoList[] = PROTOCOL_INFO_LIST;
+uint8_t           ProtocolInfoListSize;
 
 ProtocolInfo_Type *Protocol_Get_Info_Handle(uint16_t id) {
     int i = 0;
-    for (i = 0; i < sizeof(ProtocolInfoList); i++) {
+    for (i = 0; i < ProtocolInfoListSize; i++) {
         if (ProtocolInfoList[i].id == id) {
             return &ProtocolInfoList[i];
         }
     }
-    return &ProtocolInfoList[sizeof(ProtocolInfoList) - 1];
+    return &ProtocolInfoList[ProtocolInfoListSize - 1];
 }
 
 void Protocol_Init(Node_Type *node, ProtocolData_Type *protocolData) {
@@ -26,7 +27,8 @@ void Protocol_Init(Node_Type *node, ProtocolData_Type *protocolData) {
 
     // 初始化协议
     if (ProtocolInfoList[1].offset == 0) {
-        for (i = 0; i < sizeof(ProtocolInfoList); i++) {
+        ProtocolInfoListSize = sizeof(ProtocolInfoList) / sizeof(ProtocolInfo_Type);
+        for (i = 0; i < ProtocolInfoListSize; i++) {
             ProtocolInfoList[i].offset = sum;
             sum += ProtocolInfoList[i].length;
         }

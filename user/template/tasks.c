@@ -5,8 +5,6 @@
 #include "config.h"
 #include "macro.h"
 #include "handle.h"
-#include "FreeRTOS.h"
-#include "task.h"
 
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();

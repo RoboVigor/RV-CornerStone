@@ -15,3 +15,5 @@ User:
 - 结构简化: main.c: 原bsp.c + handle.c + Task_Sys_Init(), 删除无用文件
 - protocol.h: 全部协议合并进一个文件，通过代码生成；每个用户独立
 - main.c: Task_Sys_Init相关的一行改为CornerStone_Init();
+Keil:
+- 需要清理user文件夹中删除的文件，并手动填加library\atom\usart\usart.c至library中

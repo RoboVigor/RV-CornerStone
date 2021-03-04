@@ -1,4 +1,3 @@
-#include "Driver_Magic.h"
 #include "mpu6500_driver.h"
 #include "mpu6500_i2c.h"
 #include "mpu6500_IST8310.h"
@@ -36,7 +35,7 @@ void IIC_SDA_Out(void) {
     GPIO_Init(GPIOF, &gpio);
 }
 
-void IIC_SDA_In(void) {	
+void IIC_SDA_In(void) {
     GPIO_InitTypeDef gpio;
     gpio.GPIO_Pin   = GPIO_Pin_9;
     gpio.GPIO_Mode  = GPIO_Mode_IN;

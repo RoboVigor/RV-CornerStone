@@ -6,12 +6,14 @@
 #include "led.h"
 #include "beep.h"
 #include "key.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
 #include "vegmath.h"
 #include "config.h"
 #include "oled.h"
 #include "Driver_BSP.h"
 #include "Driver_Filter.h"
-#include "Driver_Magic.h"
 #include "Driver_PID.h"
 #include "Driver_DBUS.h"
 #include "Driver_CAN.h"
@@ -21,6 +23,7 @@
 #include "Driver_Gyroscope.h"
 #include "Driver_Protocol.h"
 #include "Driver_Bridge.h"
+#include "Driver_Magic.h"
 #include "Driver_Fsm.h"
 
 #ifdef __HANDLE_GLOBALS
@@ -52,7 +55,7 @@ __HANDLE_EXT volatile ImuData_Type       ImuData;
 __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 调试数据
-__HANDLE_EXT DebugData_Type   DebugData;
+__HANDLE_EXT DebugData_Type DebugData;
 
 // 底盘
 __HANDLE_EXT ChassisData_Type ChassisData;
