@@ -21,7 +21,7 @@ void Protocol_Init(Node_Type *node, ProtocolData_Type *protocolData) {
 
     // 初始化节点
     node->state        = STATE_IDLE;
-    node->step         = STEP_HEADER_SOF;
+    node->step         = STEP_SOF;
     node->data         = protocolData->data;
     node->protocolData = protocolData;
 
@@ -110,7 +110,7 @@ void Protocol_Unpack(Node_Type *node, uint8_t byte) {
     node->state = STATE_WORK;
 
     switch (node->step) {
-    case STEP_HEADER_SOF: {
+    case STEP_SOF: {
         if (byte == PROTOCOL_HEADER) {
             node->packet[node->index++] = byte;
             node->step                  = STEP_LENGTH_LOW;
@@ -129,75 +129,88 @@ void Protocol_Unpack(Node_Type *node, uint8_t byte) {
         node->dataLength |= byte << 8;
         node->packet[node->index++] = byte;
         if (node->dataLength < 114) {
-            node->step = STEP_FRAME_SEQ;
+            node->step = STEP_SEQ;
         } else {
-            node->step  = STEP_HEADER_SOF;
+            node->step  = STEP_SOF;
             node->index = 0;
         }
     } break;
 
-    case STEP_FRAME_SEQ: {
+    case STEP_SEQ: {
+        node->receiveSeq            = byte;
         node->packet[node->index++] = byte;
-        node->step                  = STEP_HEADER_CRC8;
+        node->step                  = STEP_CRC8;
     } break;
 
-    case STEP_HEADER_CRC8: {
+    case STEP_CRC8: {
         node->packet[node->index++] = byte;
         if (Verify_CRC8_Check_Sum(node->packet, PROTOCOL_HEADER_SIZE)) {
-            node->step = STEP_DATA_CRC16;
+            node->step = STEP_ID_LOW;
         } else {
+            node->step  = STEP_SOF;
             node->index = 0;
-            node->step  = STEP_HEADER_SOF;
         }
     } break;
 
-    case STEP_DATA_CRC16: {
-        if (node->index < (PROTOCOL_HEADER_CRC_CMDID_LEN + node->dataLength)) {
-            node->packet[node->index++] = byte;
+    case STEP_ID_LOW: {
+        node->id                    = byte;
+        node->packet[node->index++] = byte;
+        node->step                  = STEP_ID_HIGH;
+    } break;
+
+    case STEP_ID_HIGH: {
+        node->id |= byte << 8;
+        node->packet[node->index++] = byte;
+        node->protocolInfo          = Protocol_Get_Info_Handle(node->id);
+        if (node->protocolInfo->receiving) {
+            node->step = STEP_DATA;
+        } else {
+            node->waitCount = node->dataLength + PROTOCOL_CRC16_SIZE;
+            node->step      = STEP_WAIT;
         }
-        if (node->index >= (PROTOCOL_HEADER_CRC_CMDID_LEN + node->dataLength)) {
-            node->packet[node->index++] = byte;
-            node->index                 = 0;
-            node->step                  = STEP_HEADER_SOF;
-            if (Verify_CRC16_Check_Sum(node->packet, PROTOCOL_HEADER_CRC_CMDID_LEN + node->dataLength)) {
-                Protocol_Load(node);
-            }
+    } break;
+
+    case STEP_DATA: {
+        node->packet[node->index++] = byte;
+        if (node->index == PROTOCOL_HEADER_CRC_CMDID_LEN + node->dataLength) {
+            node->step = STEP_CRC16;
+        } else {
+            break;
+        }
+    };
+
+    case STEP_CRC16: {
+        if (Verify_CRC16_Check_Sum(node->packet, PROTOCOL_HEADER_CRC_CMDID_LEN + node->dataLength)) {
+            node->step = STEP_LOAD;
+        } else {
+            node->step  = STEP_SOF;
+            node->index = 0;
+            break;
+        }
+    };
+
+    case STEP_LOAD: {
+        uint8_t *begin_p = node->data + node->protocolInfo->offset;
+        uint16_t i;
+        for (i = 0; i < node->dataLength; i++) {
+            *(begin_p + i) = node->packet[PROTOCOL_HEADER_CMDID_LEN + i];
+        }
+        node->protocolInfo->receiveCount += 1;
+        node->step  = STEP_SOF;
+        node->index = 0;
+    } break;
+
+    case STEP_WAIT: {
+        node->waitCount -= 1;
+        if (node->waitCount == 0) {
+            node->step  = STEP_SOF;
+            node->index = 0;
         }
     } break;
 
     default: {
-        node->step  = STEP_HEADER_SOF;
+        node->step  = STEP_SOF;
         node->index = 0;
     } break;
     }
-}
-
-void Protocol_Load(Node_Type *node) {
-    ProtocolInfo_Type *protocolInfo;
-    uint16_t           i = 0, dataId = 0, dataLength, offset;
-    uint8_t *          begin_p;
-
-    // seq
-    node->receiveSeq = node->packet[3];
-
-    // id
-    node->id = (node->packet[PROTOCOL_HEADER_SIZE + 1] << 8) + node->packet[PROTOCOL_HEADER_SIZE];
-    if (node->id == 0x301) {
-        dataId = (node->packet[PROTOCOL_HEADER_CMDID_LEN + 1] << 8) + node->packet[PROTOCOL_HEADER_CMDID_LEN];
-    } else {
-        dataId = node->id;
-    }
-
-    // get memory address
-    protocolInfo = Protocol_Get_Info_Handle(dataId);
-    if (!protocolInfo->receiving) return;
-    offset     = protocolInfo->offset;
-    dataLength = protocolInfo->length;
-
-    // load
-    begin_p = node->data + offset;
-    for (i = 0; i < node->dataLength; i++) {
-        *(begin_p + i) = node->packet[PROTOCOL_HEADER_CMDID_LEN + i];
-    }
-    protocolInfo->receiveCount += 1;
 }
