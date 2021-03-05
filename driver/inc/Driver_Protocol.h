@@ -95,7 +95,6 @@ typedef struct {
 
 ProtocolInfo_Type *Protocol_Get_Info_Handle(uint16_t id);
 void               Protocol_Init(Node_Type *node, ProtocolData_Type *data);
-void               Protocol_Update(Node_Type *node);
 void               Protocol_Unpack(Node_Type *node, uint8_t byte);
 uint16_t           Protocol_Pack(Node_Type *node, uint16_t id);
 

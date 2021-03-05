@@ -288,14 +288,6 @@ typedef struct {
 } ErrorInfo_Type;
 
 typedef struct {
-    union {
-        struct {
-            uint8_t status;
-        };
-        struct {
-            uint8_t data[1];
-        };
-    };
 } Heartbeat_Type;
 
 #define PROTOCOL_INFO_LIST                                                                                                                                     \
@@ -314,7 +306,7 @@ typedef struct {
      {0x0501, 16, 1},                                                                                                                                          \
      {0x0502, 16, 1},                                                                                                                                          \
      {0xF201, 22, 1},                                                                                                                                          \
-     {0x120, 32, 1},                                                                                                                                           \
+     {0x120, 0, 1},                                                                                                                                            \
      {0x1024, 32, 1},                                                                                                                                          \
      {0x6666, 23, 1}};
 
@@ -340,8 +332,8 @@ typedef union {
         board_interactive_data_t       boardBeta;              // 板间通讯测试
         robot_interactive_data_t       robotCommunication;     // 车间通讯测试
         Heartbeat_Type                 heartbeat;              // 心跳包
-        ErrorInfo_Type                 errorInfo;              // 报错信息
         DebugInfo_Type                 debugInfo;              // 调试信息
+        ErrorInfo_Type                 errorInfo;              // 报错信息
     };
     struct {
         uint8_t data[399];

@@ -35,16 +35,6 @@ void Protocol_Init(Node_Type *node, ProtocolData_Type *protocolData) {
     }
 }
 
-void Protocol_Update(Node_Type *node) {
-    int i = 0;
-
-    node->state = STATE_WORK;
-
-    for (i = 0; i < Protocol_Buffer_Length; i++) {
-        Protocol_Unpack(node, node->receiveBuf[i]);
-    }
-}
-
 uint16_t Protocol_Pack(Node_Type *node, uint16_t id) {
     ProtocolInfo_Type *protocolInfo;
     uint16_t           dataLength, offset, dataCRC16, i = 0, index = 0, packetId = id, dataId = id;
@@ -75,14 +65,16 @@ uint16_t Protocol_Pack(Node_Type *node, uint16_t id) {
     node->sendBuf[index++]++;
 
     // Header CRC8
-    node->sendBuf[index++] = Get_CRC8_Check_Sum(node->sendBuf, PROTOCOL_HEADER_SIZE - 1);
+    if (node->bridgeType == USART_BRIDGE) {
+        node->sendBuf[index++] = Get_CRC8_Check_Sum(node->sendBuf, PROTOCOL_HEADER_SIZE - 1);
+    }
 
     // Cmd ID
     node->sendBuf[index++] = (packetId) &0xff;
     node->sendBuf[index++] = (packetId) >> 8;
 
     // Clear
-    for (i = PROTOCOL_HEADER_CMDID_LEN; i < Protocol_Buffer_Length; i++) {
+    for (i = index; i < Protocol_Buffer_Length; i++) {
         node->sendBuf[i] = 0x00;
     }
 
@@ -141,7 +133,11 @@ void Protocol_Unpack(Node_Type *node, uint8_t byte) {
     case STEP_SEQ: {
         node->receiveSeq            = byte;
         node->packet[node->index++] = byte;
-        node->step                  = STEP_CRC8;
+        if (node->bridgeType == USART_BRIDGE) {
+            node->step = STEP_CRC8;
+        } else {
+            node->step = STEP_ID_LOW;
+        }
     } break;
 
     case STEP_CRC8: {
