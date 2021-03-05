@@ -61,7 +61,6 @@ void Bridge_Bind(Bridge_Type *bridge, uint8_t type, uint32_t deviceID, void *han
 
 /**
  * @brief 接收串口数据
- * @todo  未测试
  */
 void Bridge_Receive_USART(Bridge_Type *bridge, uint8_t type, uint32_t deviceID);
 
@@ -84,9 +83,12 @@ void Bridge_Send_Motor(Bridge_Type *bridge, uint8_t safetyMode);
 void Bridge_Send_Protocol_Once(Node_Type *node, uint32_t commandID);
 
 /**
- * @brief 按一定频率发送协议数据
- * @todo  未实现, 考虑通过新建任务实现
+ * @brief 按一定频率自动发送协议数据
  */
 void Bridge_Send_Protocol(Node_Type *node, uint32_t commandID, uint16_t frequency);
 
+/**
+ * @brief 自动发送协议数据用的任务
+ */
+void Task_Send_Protocol(void *Parameters);
 #endif

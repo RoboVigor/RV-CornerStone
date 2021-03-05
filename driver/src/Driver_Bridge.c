@@ -1,4 +1,5 @@
 #include "Driver_Bridge.h"
+#include "Driver_Protocol.h"
 
 void Bridge_Bind(Bridge_Type *bridge, uint8_t type, uint32_t deviceID, void *handle) {
     if (IS_MOTOR) {
@@ -105,4 +106,23 @@ void Bridge_Send_Protocol_Once(Node_Type *node, uint32_t commandID) {
 }
 
 void Bridge_Send_Protocol(Node_Type *node, uint32_t commandID, uint16_t frequency) {
+    ProtocolInfo_Type *protocolInfo = Protocol_Get_Info_Handle(commandID);
+    char               taskName[24];
+    sprintf(taskName, "Task_Send_Protocol_%3x", commandID);
+    if (protocolInfo->taskHandle != 0) {
+        vTaskDelete(protocolInfo->taskHandle);
+    }
+    protocolInfo->node      = node;
+    protocolInfo->frequency = frequency;
+    xTaskCreate(Task_Send_Protocol, taskName, 500, (void *) protocolInfo, 6, protocolInfo->taskHandle);
+}
+
+void Task_Send_Protocol(void *Parameters) {
+    TickType_t         LastWakeTime = xTaskGetTickCount();
+    ProtocolInfo_Type *protocolInfo = Parameters;
+    while (1) {
+        Bridge_Send_Protocol_Once(protocolInfo->node, protocolInfo->id);
+        vTaskDelayUntil(&LastWakeTime, 1000.0 / protocolInfo->frequency);
+    }
+    vTaskDelete(NULL);
 }

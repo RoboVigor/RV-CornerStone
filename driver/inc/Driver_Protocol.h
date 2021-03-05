@@ -64,8 +64,9 @@ typedef struct {
     uint16_t receiving;    // 是否接收并解包该协议
     uint16_t receiveCount; // 接收计数
     // 发送相关
-    float         frequency;  // 发送频率 (实际发送频率会略低一些) @todo:未实现
-    TaskHandle_t *taskHandle; // 发送任务 @todo:未实现
+    void *       node;       // 发送节点
+    float        frequency;  // 发送频率 (实际发送频率会略低一些)
+    TaskHandle_t taskHandle; // 发送任务
     // 存储相关
     uint16_t offset; // 寄存器偏移
 } ProtocolInfo_Type;
