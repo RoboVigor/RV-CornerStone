@@ -271,10 +271,10 @@ void Task_Up_Gimbal(void *Parameters) {
     int directionY = 1;
 
     // 初始化云台PID
-    PID_Init(&PID_Up_Gimbal_Yaw_Angle, 10, 0, 0, 5000, 0);
-    PID_Init(&PID_Up_Gimbal_Yaw_Speed, 250, 0, 0, 12000, 0);
-    PID_Init(&PID_Up_Gimbal_Pitch_Angle, 20, 0.1, 0, 2000, 1000);
-    PID_Init(&PID_Up_Gimbal_Pitch_Speed, 40, 0, 0, 5000, 0);
+    PID_Init(&PID_Up_Gimbal_Yaw_Angle, 30, 0, 0, 5000, 0);
+    PID_Init(&PID_Up_Gimbal_Yaw_Speed, 60, 0, 0, 6000, 0);
+    PID_Init(&PID_Up_Gimbal_Pitch_Angle, 60, 0, 0, 2000, 0);
+    PID_Init(&PID_Up_Gimbal_Pitch_Speed, 120, 0, 0, 15000, 0);
 
     while (1) {
         // 设置反馈
@@ -338,8 +338,8 @@ void Task_Up_Gimbal(void *Parameters) {
         // }
 
         // 设置角度目标
-        if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 90 * interval;
-        if (ABS(remoteData.ry) > 30) pitchAngleTargetControl += remoteData.ry / 660.0f * 90 * interval;
+        if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 9 * interval;
+        if (ABS(remoteData.ry) > 30) pitchAngleTargetControl += remoteData.ry / 660.0f * 3 * interval;
 
         MIAO(yawAngleTargetControl, UP_YAW_ANGLE_MIN - yawAngleTarget, UP_YAW_ANGLE_MAX - yawAngleTarget);
         MIAO(pitchAngleTargetControl, UP_PITCH_ANGLE_MIN - pitchAngleTarget, UP_PITCH_ANGLE_MAX - pitchAngleTarget);
@@ -371,12 +371,12 @@ void Task_Up_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = Motor_Stir.speed;
-        // DebugData.debug2 = ProtocolData.host.autoaimData.biu_biu_state;
-        // DebugData.debug3 = -1 * Gyroscope_EulerData.pitch;
-        // DebugData.debug4 = pitchAngleLimitMin;
-        // DebugData.debug5 = pitchAngleLimitMax;
-        // DebugData.debug6 = pitchAngleTargetPs;
+        DebugData.debug1 = yawAngle * 1000;
+        DebugData.debug2 = yawSpeed;
+        DebugData.debug3 = yawAngleTarget;
+        DebugData.debug4 = PID_Up_Gimbal_Yaw_Angle.output;
+        DebugData.debug5 = PID_Up_Gimbal_Yaw_Speed.output;
+        DebugData.debug6 = Motor_Up_Gimbal_Yaw.input;
         // DebugData.debug7 = pitchAngleTargetControl;
         // DebugData.debug8 = pitchAngleLimitMin - pitchAngleTarget;
     }
@@ -965,11 +965,11 @@ void Task_Sys_Init(void *Parameters) {
     // 运动控制任务
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
 
-    // xTaskCreate(Task_Up_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    xTaskCreate(Task_Up_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Up_Stir, "Task_Stir", 400, NULL, 6, NULL);
     // xTaskCreate(Task_Up_Frict, "Task_Frict", 400, NULL, 6, NULL);
 
-    xTaskCreate(Task_Down_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Down_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Down_Stir, "Task_Stir", 400, NULL, 6, NULL);
     // xTaskCreate(Task_Down_Frict, "Task_Frict", 400, NULL, 6, NULL);
 
