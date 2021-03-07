@@ -318,13 +318,11 @@ void Task_Chassis(void *Parameters) {
     float powerBuffer    = 0;
 
     // 小陀螺
-    float   swingAngle    = 0;
-    int16_t swingMode     = 0;
-    float   swingInterval = 0.45;
-    float   swingTimer    = swingInterval;
-
-    // 猫猫步
-    int8_t swingDir = 1; // 瞬时针猫猫步
+    float   swingAngle       = 0;
+    uint8_t swingModeEnabled = 0;
+    float   swingInterval    = 0.45;
+    float   swingTimer       = swingInterval;
+    int8_t  swingDir         = 1; // 瞬时针猫猫步
 
     // 底盘跟随PID
     float followDeadRegion = 3.0;
@@ -371,8 +369,8 @@ void Task_Chassis(void *Parameters) {
 
         // 小陀螺
         if (SwingMode == 1) {
-            swingMode     = 1;
-            swingInterval = 0.45;
+            swingModeEnabled = 1;
+            swingInterval    = 0.45;
             // 先转45后90转动
             swingTimer += interval;
             if (swingAngle == 0) {
@@ -383,8 +381,8 @@ void Task_Chassis(void *Parameters) {
                 swingTimer = 0;
             }
         } else if (SwingMode == 2) {
-            swingMode     = 1;
-            swingInterval = 0.3;
+            swingModeEnabled = 1;
+            swingInterval    = 0.3;
             // 不规律旋转
             swingTimer += interval;
             if (swingTimer >= swingInterval) {
@@ -392,12 +390,12 @@ void Task_Chassis(void *Parameters) {
                 swingTimer = 0;
             }
         } else if (SwingMode == 3) {
-            swingMode = 1;
+            swingModeEnabled = 1;
             // 匀速旋转
             swingAngle += 1000 * interval;
         } else if (SwingMode == 4) {
-            swingMode     = 1; //猫猫步
-            swingInterval = 0.40;
+            swingModeEnabled = 1; //猫猫步
+            swingInterval    = 0.40;
             // 先顺时旋转至45度位置, 后逆时旋转到-45度位置
             swingTimer += interval;
             if (swingAngle == 0) {
@@ -409,9 +407,9 @@ void Task_Chassis(void *Parameters) {
                 swingTimer = 0;
             }
         } else {
-            if (swingMode) {
-                swingMode       = 0; // 圈数清零
-                Motor_Yaw.round = 0;
+            if (swingModeEnabled) {
+                swingModeEnabled = 0; // 圈数清零
+                Motor_Yaw.round  = 0;
             }
             swingAngle = 0;
         }
