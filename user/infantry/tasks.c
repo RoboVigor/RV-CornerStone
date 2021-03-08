@@ -16,7 +16,7 @@ void Task_Control(void *Parameters) {
             PsShootEnabled = 0;
             // PsAimEnabled   = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
             if (LEFT_SWITCH_TOP && !RIGHT_SWITCH_MIDDLE) {
-                SwingMode = (GIMBAL_IS_LOOP) ? 3 : 4;
+                SwingMode = (HAS_SLIP_RING) ? 3 : 4;
             } else {
                 SwingMode = 0;
             }
@@ -41,7 +41,7 @@ void Task_Control(void *Parameters) {
             MagzineOpened = keyboardData.F;
             // 小陀螺
             if (keyboardData.C) {
-                SwingMode = (GIMBAL_IS_LOOP) ? 3 : 4;
+                SwingMode = (HAS_SLIP_RING) ? 3 : 4;
             } else if (keyboardData.V) {
                 SwingMode = 0;
             }
