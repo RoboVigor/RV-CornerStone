@@ -22,7 +22,7 @@ typedef enum { CAN1_BRIDGE = 0, CAN2_BRIDGE, USART_BRIDGE } bridge_type_e;
  */
 typedef struct {
     Motor_Type *motors[24];    // [0-11] CAN1, [12-23] CAN2
-    Node_Type * canNodes[10];  // [0-4] CAN1 [0x501-0x505], [5-9] CAN2 [0x501-0x505]
+    Node_Type * canNodes[10];  // [0-4] CAN1 [0x500-0x504], [5-9] CAN2 [0x500-0x504]
     Node_Type * usartNodes[4]; // [0-4] USART [3,6,7,8]
 } Bridge_Type;
 

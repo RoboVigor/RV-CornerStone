@@ -74,7 +74,7 @@ typedef struct {
 typedef struct {
     // Bridge相关
     uint8_t  bridgeType; // 总线类型
-    uint32_t deviceID;   // USART编号(3,6,7,8) / 电机电调ID / CAN设备(0x501-0x505)
+    uint32_t deviceID;   // USART编号(3,6,7,8) / 电机电调ID / CAN设备(0x500-0x504)
     // 存储相关
     ProtocolData_Type *protocolData;
     ProtocolInfo_Type *protocolInfo;
