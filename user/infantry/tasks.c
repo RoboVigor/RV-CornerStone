@@ -15,7 +15,11 @@ void Task_Control(void *Parameters) {
             //遥控器模式
             PsShootEnabled = 0;
             // PsAimEnabled   = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
-            SwingMode     = (LEFT_SWITCH_TOP && !RIGHT_SWITCH_MIDDLE) ? 3 : 0;
+            if (LEFT_SWITCH_TOP && !RIGHT_SWITCH_MIDDLE) {
+                SwingMode = (HAS_SLIP_RING) ? 3 : 4;
+            } else {
+                SwingMode = 0;
+            }
             MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP;
             FrictEnabled  = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP);
             StirEnabled   = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP) && RIGHT_SWITCH_TOP;
@@ -37,7 +41,7 @@ void Task_Control(void *Parameters) {
             MagzineOpened = keyboardData.F;
             // 小陀螺
             if (keyboardData.C) {
-                SwingMode = 3;
+                SwingMode = (HAS_SLIP_RING) ? 3 : 4;
             } else if (keyboardData.V) {
                 SwingMode = 0;
             }
@@ -314,10 +318,11 @@ void Task_Chassis(void *Parameters) {
     float powerBuffer    = 0;
 
     // 小陀螺
-    float   swingAngle    = 0;
-    int16_t swingMode     = 0;
-    float   swingInterval = 0.45;
-    float   swingTimer    = swingInterval;
+    float   swingAngle       = 0;
+    uint8_t swingModeEnabled = 0;
+    float   swingInterval    = 0.45;
+    float   swingTimer       = swingInterval;
+    int8_t  swingDir         = 1; // 瞬时针猫猫步
 
     // 底盘跟随PID
     float followDeadRegion = 3.0;
@@ -364,8 +369,8 @@ void Task_Chassis(void *Parameters) {
 
         // 小陀螺
         if (SwingMode == 1) {
-            swingMode     = 1;
-            swingInterval = 0.45;
+            swingModeEnabled = 1;
+            swingInterval    = 0.45;
             // 先转45后90转动
             swingTimer += interval;
             if (swingAngle == 0) {
@@ -376,8 +381,8 @@ void Task_Chassis(void *Parameters) {
                 swingTimer = 0;
             }
         } else if (SwingMode == 2) {
-            swingMode     = 1;
-            swingInterval = 0.3;
+            swingModeEnabled = 1;
+            swingInterval    = 0.3;
             // 不规律旋转
             swingTimer += interval;
             if (swingTimer >= swingInterval) {
@@ -385,13 +390,26 @@ void Task_Chassis(void *Parameters) {
                 swingTimer = 0;
             }
         } else if (SwingMode == 3) {
-            swingMode = 1;
+            swingModeEnabled = 1;
             // 匀速旋转
             swingAngle += 1000 * interval;
+        } else if (SwingMode == 4) {
+            swingModeEnabled = 1; //猫猫步
+            swingInterval    = 0.40;
+            // 先顺时旋转至45度位置, 后逆时旋转到-45度位置
+            swingTimer += interval;
+            if (swingAngle == 0) {
+                swingAngle = 45;
+                // swingTimer = -0.2;
+            } else if (swingTimer >= swingInterval) {
+                swingAngle -= 90 * swingDir;
+                swingDir   = -swingDir;
+                swingTimer = 0;
+            }
         } else {
-            if (swingMode) {
-                swingMode       = 0; // 圈数清零
-                Motor_Yaw.round = 0;
+            if (swingModeEnabled) {
+                swingModeEnabled = 0; // 圈数清零
+                Motor_Yaw.round  = 0;
             }
             swingAngle = 0;
         }
