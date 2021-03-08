@@ -339,7 +339,7 @@
               <MiscControls>--gnu</MiscControls>
               <Define>STM32F427_437xx,USE_STDPERIPH_DRIVER,BOARD_ALPHA</Define>
               <Undefine></Undefine>
-              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\library\vegmath;..\user\fantong-enginner</IncludePath>
+              <IncludePath>..\core;..\bsp\inc;..\driver\inc;..\library\std\inc;..\user;..\library\freertos\include;..\library\freertos\portable\RVDS\ARM_CM4F;..\user\common;..\library\atom\delay;..\library\atom\sys;..\library\atom\usart;..\library\atom\debug;..\library\mpu6500;..\library\vegmath;..\user\fantong-engineer</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -644,42 +644,22 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_fantong-enginner</GroupName>
+          <GroupName>user_fantong-engineer</GroupName>
           <Files>
-            <File>
-              <FileName>config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\fantong-enginner\config.h</FilePath>
-            </File>
-            <File>
-              <FileName>handle.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\fantong-enginner\handle.h</FilePath>
-            </File>
             <File>
               <FileName>interrupt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\fantong-enginner\interrupt.c</FilePath>
+              <FilePath>..\user\fantong-engineer\interrupt.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\fantong-enginner\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>protocol.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\fantong-enginner\protocol.h</FilePath>
+              <FilePath>..\user\fantong-engineer\main.c</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\user\fantong-enginner\tasks.c</FilePath>
-            </File>
-            <File>
-              <FileName>tasks.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\fantong-enginner\tasks.h</FilePath>
+              <FilePath>..\user\fantong-engineer\tasks.c</FilePath>
             </File>
           </Files>
         </Group>
