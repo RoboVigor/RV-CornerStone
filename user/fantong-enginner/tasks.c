@@ -249,10 +249,9 @@ void Task_Gimbal(void *Parameters) {
         MIAO(pitchAngleTargetControl, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
         yawAngleTarget += yawAngleTargetControl;
         pitchAngleTarget += pitchAngleTargetControl;
-				
-				if(1){
-        //if (Node_Board.seq != lastSeq) {
-            // lastSeq = Node_Board.seq;
+
+        if (Node_Board.receiveSeq != lastSeq) {
+            lastSeq = Node_Board.receiveSeq;
             yawAngleTargetControl += ProtocolData.chassis.gimbalVelocityYaw;
             yawAngleTarget += yawAngleTargetControl;
             pitchAngleTarget += pitchAngleTargetControl;
@@ -339,234 +338,234 @@ void Task_Fetch(void *Parameters) {
     RotateDone = 0;
 
     while (1) {
-        // // 设置反馈
-        // xSpeed          = Motor_Fetch_X.speed * RPM2RPS;
-        // pitchLeftAngle  = Motor_Fetch_Left_Pitch.angle;
-        // pitchRightAngle = Motor_Fetch_Right_Pitch.angle;
+        // 设置反馈
+        xSpeed          = Motor_Fetch_X.speed * RPM2RPS;
+        pitchLeftAngle  = Motor_Fetch_Left_Pitch.angle;
+        pitchRightAngle = Motor_Fetch_Right_Pitch.angle;
 
-        // // 抓取状态更新
-        // while (1) {
-        //     if (FetchState == FetchReset) {
-        //         /* 回到默认位置 */
-        //         if (lastFetchState != FetchReset) {
-        //             lastFetchState = FetchState;
-        //             // 爪子归位
-        //             pitchAngleTargetProgress      = 1;
-        //             pitchAngleTargetProgressDelta = 1;
-        //             pitchAngleTargetStart         = pitchLeftAngle;
-        //             pitchAngleTargetStop          = 0;
-        //         }
-        //         // 跳转:爪子和平台已归位
-        //         if (RotateDone) {
-        //             FetchState++;
-        //             continue;
-        //         }
-        //         break;
-        //     } else if (FetchState == FetchWaitRaise) {
-        //         /* 等待抬升 */
-        //         if (1) {
-        //             // if (ProtocolData.fetch.chassisRaised) {
-        //             FetchState++;
-        //             continue;
-        //         }
-        //         break;
-        //     } else if (FetchState == FetchWaitSignal) {
-        //         /* 平台运动,等待抓取信号 */
+        // 抓取状态更新
+        while (1) {
+            if (FetchState == FetchReset) {
+                /* 回到默认位置 */
+                if (lastFetchState != FetchReset) {
+                    lastFetchState = FetchState;
+                    // 爪子归位
+                    pitchAngleTargetProgress      = 1;
+                    pitchAngleTargetProgressDelta = 1;
+                    pitchAngleTargetStart         = pitchLeftAngle;
+                    pitchAngleTargetStop          = 0;
+                }
+                // 跳转:爪子和平台已归位
+                if (RotateDone) {
+                    FetchState++;
+                    continue;
+                }
+                break;
+            } else if (FetchState == FetchWaitRaise) {
+                /* 等待抬升 */
+                if (1) {
+                    // if (ProtocolData.fetch.chassisRaised) {
+                    FetchState++;
+                    continue;
+                }
+                break;
+            } else if (FetchState == FetchWaitSignal) {
+                /* 平台运动,等待抓取信号 */
 
-        //         // 遥控器控制左右移动
-        //         if (FetchMode == 1) {
-        //             if (remoteData.lx > 30) {
-        //                 xSpeedTarget = -200;
-        //             } else if (remoteData.lx < -30) {
-        //                 xSpeedTarget = 200;
-        //             } else if (lastSeq != Node_Board.seq) {
-        //                 xSpeedTarget = ProtocolData.fetch.fetchVelocity;
-        //                 lastSeq      = Node_Board.seq;
-        //             }
-        //         } else {
-        //             xSpeedTarget = 0;
-        //         }
-        //         if (xSpeedTarget == 0 || ABS(Motor_Fetch_X.speed) > 0) {
-        //             timer = xTaskGetTickCount();
-        //         }
-        //         timePassed = xTaskGetTickCount() - timer;
-        //         if (timePassed > 100) {
-        //             ProtocolData.chassis.chassisVelocityY = 0.15 * xSpeedTarget / ABS(xSpeedTarget);
-        //         } else {
-        //             ProtocolData.chassis.chassisVelocityY = 0;
-        //         }
+                // 遥控器控制左右移动
+                if (FetchMode == 1) {
+                    if (remoteData.lx > 30) {
+                        xSpeedTarget = -200;
+                    } else if (remoteData.lx < -30) {
+                        xSpeedTarget = 200;
+                    } else if (lastSeq != Node_Board.receiveSeq) {
+                        xSpeedTarget = ProtocolData.fetch.fetchVelocity;
+                        lastSeq      = Node_Board.receiveSeq;
+                    }
+                } else {
+                    xSpeedTarget = 0;
+                }
+                if (xSpeedTarget == 0 || ABS(Motor_Fetch_X.speed) > 0) {
+                    timer = xTaskGetTickCount();
+                }
+                timePassed = xTaskGetTickCount() - timer;
+                if (timePassed > 100) {
+                    ProtocolData.chassis.chassisVelocityY = 0.15 * xSpeedTarget / ABS(xSpeedTarget);
+                } else {
+                    ProtocolData.chassis.chassisVelocityY = 0;
+                }
 
-        //         // 开始抓取
-        //         if (ProtocolData.fetch.fetchMode || FetchMode == 2) {
-        //             FetchState++;
-        //             continue;
-        //         }
-        //         break;
-        //     } else if (FetchState == FetchRotateOut) {
-        //         /* 转出去 */
-        //         if (lastFetchState != FetchRotateOut) {
-        //             lastFetchState = FetchRotateOut;
-        //             // 转爪子
-        //             pitchAngleTargetProgress      = 0;
-        //             pitchAngleTargetProgressDelta = 0.01;
-        //             pitchAngleTargetStart         = pitchRightAngle;
-        //             pitchAngleTargetStop          = 190;
-        //             RotateDone                    = 0;
-        //         }
-        //         // 跳转:爪子到位
-        //         if (RotateDone) {
-        //             FetchState++;
-        //             continue;
-        //         }
-        //         break;
-        //     } else if (FetchState == FetchLock) {
-        //         /* 夹住弹药箱 */
-        //         if (LOCK_STATE == 0) {
-        //             LOCK_ON;
-        //             // 重置计时器
-        //             timer = xTaskGetTickCount();
-        //         }
-        //         timePassed = xTaskGetTickCount() - timer;
-        //         // 跳转:计时器
-        //         if (timePassed >= 1000) {
-        //             FetchState++;
-        //             continue;
-        //         }
-        //         break;
-        //     } else if (FetchState == FetchRotateIn) {
-        //         /* 转回来 */
-        //         if (lastFetchState != FetchRotateIn) {
-        //             lastFetchState = FetchRotateIn;
-        //             // 转爪子
-        //             pitchAngleTargetProgress      = 0;
-        //             pitchAngleTargetProgressDelta = 0.002;
-        //             pitchAngleTargetStart         = pitchRightAngle;
-        //             pitchAngleTargetStop          = 30;
-        //             RotateDone                    = 0;
-        //         }
-        //         // 跳转:爪子到位
-        //         if (RotateDone) {
-        //             FetchState++;
-        //             continue;
-        //         }
-        //         break;
-        //     } else if (FetchState == FetchEating) {
-        //         /* 喂食 */
-        //         if (lastFetchState != FetchEating) {
-        //             lastFetchState = FetchEating;
-        //             // 重置计时器
-        //             timer = xTaskGetTickCount();
-        //         }
-        //         timePassed = xTaskGetTickCount() - timer;
-        //         // 跳转:喂食完毕
-        //         if (timePassed >= 2000) {
-        //             FetchState++;
-        //             continue;
-        //         }
-        //         break;
-        //     } else if (FetchState == FetchThrow) {
-        //         /* 扔弹药箱 */
-        //         if (lastFetchState != FetchThrow) {
-        //             lastFetchState = FetchThrow;
-        //             // 转爪子
-        //             pitchAngleTargetProgress      = 0;
-        //             pitchAngleTargetProgressDelta = 0.1;
-        //             pitchAngleTargetStart         = pitchRightAngle;
-        //             pitchAngleTargetStop          = 160;
-        //             RotateDone                    = 0;
-        //             // PID_Fetch_Pitch_Left.p        = 1500;
-        //             // PID_Fetch_Pitch_Left.d        = 8000;
-        //         }
-        //         // 松开爪子
-        //         if (pitchRightAngle >= 20) {
-        //             LOCK_OFF;
-        //             // PID_Fetch_Pitch_Left.p = 350;
-        //             // PID_Fetch_Pitch_Left.d = 3000;
-        //         }
-        //         // 跳转:爪子到位
-        //         if (pitchRightAngle >= 50 && RotateDone) {
-        //             FetchState++;
-        //             continue;
-        //         }
-        //         break;
-        //     } else if (FetchState == FetchUnlock) {
-        //         /* 收回爪子 */
-        //         if (lastFetchState != FetchUnlock) {
-        //             lastFetchState = FetchUnlock;
-        //             // 转爪子
-        //             pitchAngleTargetProgress      = 0;
-        //             pitchAngleTargetProgressDelta = 0.1;
-        //             pitchAngleTargetStart         = pitchRightAngle;
-        //             pitchAngleTargetStop          = 0;
-        //             RotateDone                    = 0;
-        //         }
-        //         // 跳转:爪子到位
-        //         if (RotateDone) {
-        //             FetchState++;
-        //             continue;
-        //         }
-        //         break;
-        //     } else if (FetchState == FetchDone) {
-        //         /* 抓取完成 */
-        //         FetchState = FetchWaitSignal;
-        //         break;
-        //     }
+                // 开始抓取
+                if (ProtocolData.fetch.fetchMode || FetchMode == 2) {
+                    FetchState++;
+                    continue;
+                }
+                break;
+            } else if (FetchState == FetchRotateOut) {
+                /* 转出去 */
+                if (lastFetchState != FetchRotateOut) {
+                    lastFetchState = FetchRotateOut;
+                    // 转爪子
+                    pitchAngleTargetProgress      = 0;
+                    pitchAngleTargetProgressDelta = 0.01;
+                    pitchAngleTargetStart         = pitchRightAngle;
+                    pitchAngleTargetStop          = 190;
+                    RotateDone                    = 0;
+                }
+                // 跳转:爪子到位
+                if (RotateDone) {
+                    FetchState++;
+                    continue;
+                }
+                break;
+            } else if (FetchState == FetchLock) {
+                /* 夹住弹药箱 */
+                if (LOCK_STATE == 0) {
+                    LOCK_ON;
+                    // 重置计时器
+                    timer = xTaskGetTickCount();
+                }
+                timePassed = xTaskGetTickCount() - timer;
+                // 跳转:计时器
+                if (timePassed >= 1000) {
+                    FetchState++;
+                    continue;
+                }
+                break;
+            } else if (FetchState == FetchRotateIn) {
+                /* 转回来 */
+                if (lastFetchState != FetchRotateIn) {
+                    lastFetchState = FetchRotateIn;
+                    // 转爪子
+                    pitchAngleTargetProgress      = 0;
+                    pitchAngleTargetProgressDelta = 0.002;
+                    pitchAngleTargetStart         = pitchRightAngle;
+                    pitchAngleTargetStop          = 30;
+                    RotateDone                    = 0;
+                }
+                // 跳转:爪子到位
+                if (RotateDone) {
+                    FetchState++;
+                    continue;
+                }
+                break;
+            } else if (FetchState == FetchEating) {
+                /* 喂食 */
+                if (lastFetchState != FetchEating) {
+                    lastFetchState = FetchEating;
+                    // 重置计时器
+                    timer = xTaskGetTickCount();
+                }
+                timePassed = xTaskGetTickCount() - timer;
+                // 跳转:喂食完毕
+                if (timePassed >= 2000) {
+                    FetchState++;
+                    continue;
+                }
+                break;
+            } else if (FetchState == FetchThrow) {
+                /* 扔弹药箱 */
+                if (lastFetchState != FetchThrow) {
+                    lastFetchState = FetchThrow;
+                    // 转爪子
+                    pitchAngleTargetProgress      = 0;
+                    pitchAngleTargetProgressDelta = 0.1;
+                    pitchAngleTargetStart         = pitchRightAngle;
+                    pitchAngleTargetStop          = 160;
+                    RotateDone                    = 0;
+                    // PID_Fetch_Pitch_Left.p        = 1500;
+                    // PID_Fetch_Pitch_Left.d        = 8000;
+                }
+                // 松开爪子
+                if (pitchRightAngle >= 20) {
+                    LOCK_OFF;
+                    // PID_Fetch_Pitch_Left.p = 350;
+                    // PID_Fetch_Pitch_Left.d = 3000;
+                }
+                // 跳转:爪子到位
+                if (pitchRightAngle >= 50 && RotateDone) {
+                    FetchState++;
+                    continue;
+                }
+                break;
+            } else if (FetchState == FetchUnlock) {
+                /* 收回爪子 */
+                if (lastFetchState != FetchUnlock) {
+                    lastFetchState = FetchUnlock;
+                    // 转爪子
+                    pitchAngleTargetProgress      = 0;
+                    pitchAngleTargetProgressDelta = 0.1;
+                    pitchAngleTargetStart         = pitchRightAngle;
+                    pitchAngleTargetStop          = 0;
+                    RotateDone                    = 0;
+                }
+                // 跳转:爪子到位
+                if (RotateDone) {
+                    FetchState++;
+                    continue;
+                }
+                break;
+            } else if (FetchState == FetchDone) {
+                /* 抓取完成 */
+                FetchState = FetchWaitSignal;
+                break;
+            }
+        }
+
+        // 更新斜坡
+        if (pitchAngleTargetProgress < 1) {
+            pitchAngleTargetProgress += pitchAngleTargetProgressDelta;
+        }
+        pitchAngleTarget = RAMP(pitchAngleTargetStart, pitchAngleTargetStop, pitchAngleTargetProgress);
+        // pitchAngleTarget = 20 + remoteData.ry / 6.0;
+
+        // 测试爪子
+        // if (remoteData.rx > 50) {
+        //     pitchAngleTarget = 170;
+        // } else if (remoteData.rx < 50) {
+        //     pitchAngleTarget = 20;
         // }
 
-        // // 更新斜坡
-        // if (pitchAngleTargetProgress < 1) {
-        //     pitchAngleTargetProgress += pitchAngleTargetProgressDelta;
+        // //测试GO
+        // if (remoteData.ry > 50) {
+        //     GO_OUT;
+        // } else if (remoteData.ry < -50) {
+        //     GO_BACK;
         // }
-        // pitchAngleTarget = RAMP(pitchAngleTargetStart, pitchAngleTargetStop, pitchAngleTargetProgress);
-        // // pitchAngleTarget = 20 + remoteData.ry / 6.0;
 
-        // // 测试爪子
-        // // if (remoteData.rx > 50) {
-        // //     pitchAngleTarget = 170;
-        // // } else if (remoteData.rx < 50) {
-        // //     pitchAngleTarget = 20;
-        // // }
+        // //测试LOCK
+        // if (remoteData.ly > 50) {
+        //     LOCK_ON;
+        // } else if (remoteData.ly < -50) {
+        //     LOCK_OFF;
+        // }
 
-        // // //测试GO
-        // // if (remoteData.ry > 50) {
-        // //     GO_OUT;
-        // // } else if (remoteData.ry < -50) {
-        // //     GO_BACK;
-        // // }
+        // PID_Fetch_Pitch_Left.d  = CHOOSER(3000, 4000, 5000);
+        // PID_Fetch_Pitch_Right.d = PID_Fetch_Pitch_Left.d;
 
-        // // //测试LOCK
-        // // if (remoteData.ly > 50) {
-        // //     LOCK_ON;
-        // // } else if (remoteData.ly < -50) {
-        // //     LOCK_OFF;
-        // // }
+        // DebugData.debug1 = timePassed;
+        // DebugData.debug2 = ProtocolData.chassis.chassisVelocityX;
+        // DebugData.debug3 = ProtocolData.chassis.chassisVelocityY;
+        // DebugData.debug4 = Motor_Fetch_X.speed;
+        // DebugData.debug5 = xSpeedTarget;
+        // DebugData.debug6 = xSpeedTarget == 0 || Motor_Fetch_X.speed > 0;
+        // 计算PID
+        PID_Calculate(&PID_Fetch_X, xSpeedTarget, xSpeed);
+        PID_Calculate(&PID_Fetch_Pitch_Left, -1 * pitchAngleTarget, pitchLeftAngle);
+        PID_Calculate(&PID_Fetch_Pitch_Right, pitchAngleTarget, pitchRightAngle);
 
-        // // PID_Fetch_Pitch_Left.d  = CHOOSER(3000, 4000, 5000);
-        // // PID_Fetch_Pitch_Right.d = PID_Fetch_Pitch_Left.d;
+        // 更新状态量
+        RotateDone = pitchAngleTargetProgress >= 1 && ABS(lastPitchLeftAngle - pitchLeftAngle) < 1;
 
-        // // DebugData.debug1 = timePassed;
-        // // DebugData.debug2 = ProtocolData.chassis.chassisVelocityX;
-        // // DebugData.debug3 = ProtocolData.chassis.chassisVelocityY;
-        // // DebugData.debug4 = Motor_Fetch_X.speed;
-        // // DebugData.debug5 = xSpeedTarget;
-        // // DebugData.debug6 = xSpeedTarget == 0 || Motor_Fetch_X.speed > 0;
-        // // 计算PID
-        // PID_Calculate(&PID_Fetch_X, xSpeedTarget, xSpeed);
-        // PID_Calculate(&PID_Fetch_Pitch_Left, -1 * pitchAngleTarget, pitchLeftAngle);
-        // PID_Calculate(&PID_Fetch_Pitch_Right, pitchAngleTarget, pitchRightAngle);
+        // 输出电流
+        Motor_Fetch_X.input           = PID_Fetch_X.output;
+        Motor_Fetch_Left_Pitch.input  = PID_Fetch_Pitch_Left.output;
+        Motor_Fetch_Right_Pitch.input = PID_Fetch_Pitch_Right.output;
 
-        // // 更新状态量
-        // RotateDone = pitchAngleTargetProgress >= 1 && ABS(lastPitchLeftAngle - pitchLeftAngle) < 1;
+        // 更新过去值
+        lastPitchLeftAngle = pitchLeftAngle;
 
-        // // 输出电流
-        // Motor_Fetch_X.input           = PID_Fetch_X.output;
-        // Motor_Fetch_Left_Pitch.input  = PID_Fetch_Pitch_Left.output;
-        // Motor_Fetch_Right_Pitch.input = PID_Fetch_Pitch_Right.output;
-
-        // // 更新过去值
-        // lastPitchLeftAngle = pitchLeftAngle;
-
-        // // 更新频率
+        // 更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
 
