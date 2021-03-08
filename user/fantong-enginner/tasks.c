@@ -2,7 +2,10 @@
  * @brief 工程
  * @version 1.2.0
  */
-#include "main.h"
+#include "tasks.h"
+#include "config.h"
+#include "macro.h"
+#include "handle.h"
 
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
@@ -34,30 +37,16 @@ void Task_Board_Communication(void *Parameters) {
         // 板间通信
         if (BOARD_CHASSIS) {
             // id = 0x501;
-            // ProtocolData.user.fetch.fetchMode = FetchMode;
-            // ProtocolData.user.fetch.milkMode  = MilkMode;
+            // ProtocolData.fetch.fetchMode = FetchMode;
+            // ProtocolData.fetch.milkMode  = MilkMode;
         } else if (BOARD_FETCH) {
-            id                                          = 0x502;
-            ProtocolData.user.chassis.raiseMode         = RaiseMode;
-            ProtocolData.user.chassis.gimbalVelocityYaw = 1.123;
-
-            // USART发送
-            DMA_Disable(UART7_Tx);
-            dataLength = Protocol_Pack(&UserChannel, id);
-            DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+            ProtocolData.chassis.raiseMode         = RaiseMode;
+            ProtocolData.chassis.gimbalVelocityYaw = 1.123;
+            Bridge_Send_Protocol_Once(&Node_Board, 0x502);
         }
-
-        // Can发送
-        // dataLength = Protocol_Pack(&UserChannel, id);
-        // Can_Send_Msg(CAN1, id, UserChannel.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
-
-        ProtocolData.user.chassis.fetchState = 3;
-        Protocol_Pack(&UserChannel, 0x502);
-
-        // 调试信息
     }
     vTaskDelete(NULL);
 }
@@ -72,27 +61,27 @@ void Task_Remote_Share(void *Parameters) {
     uint16_t dataLength; // 数据长度
 
     while (1) {
-        if (remoteShareHost) {
-            // host: 打包遥控器数据
-            id = 0x501;
-            for (i = 0; i < 19; i++) {
-                ProtocolData.user.remote.data[i] = remoteBuffer[i];
-            }
-            DMA_Disable(UART7_Tx);
-            dataLength = Protocol_Pack(&UserChannel, id);
-            DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-        } else if (remoteShareClient) {
-            // client: 更新遥控器数据
-            DBus_Update(&remoteData, &keyboardData, &mouseData, ProtocolData.user.remote.data);
-        } else {
-            // client: 等待遥控器数据
-            for (i = 0; i < 19; i++) {
-                if (ProtocolData.user.remote.data[i] != 0) {
-                    remoteShareClient = 1;
-                    continue;
-                }
-            }
-        }
+        // if (remoteShareHost) {
+        //     // host: 打包遥控器数据
+        //     id = 0x501;
+        //     for (i = 0; i < 19; i++) {
+        //         ProtocolData.remote.data[i] = remoteBuffer[i];
+        //     }
+        //     DMA_Disable(UART7_Tx);
+        //     dataLength = Protocol_Pack(&Node_Board, id);
+        //     DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        // } else if (remoteShareClient) {
+        //     // client: 更新遥控器数据
+        //     DBus_Update(&remoteData, &keyboardData, &mouseData, ProtocolData.remote.data);
+        // } else {
+        //     // client: 等待遥控器数据
+        //     for (i = 0; i < 19; i++) {
+        //         if (ProtocolData.remote.data[i] != 0) {
+        //             remoteShareClient = 1;
+        //             continue;
+        //         }
+        //     }
+        // }
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -147,8 +136,8 @@ void Task_Chassis(void *Parameters) {
         // 根据控制模式设定运动
         vx = -remoteData.lx / 660.0f * 8.0;
         vy = remoteData.ly / 660.0f * 12.0;
-        vx += ProtocolData.user.chassis.chassisVelocityX;
-        vy += ProtocolData.user.chassis.chassisVelocityY;
+        vx += ProtocolData.chassis.chassisVelocityX;
+        vy += ProtocolData.chassis.chassisVelocityY;
 
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
@@ -260,10 +249,11 @@ void Task_Gimbal(void *Parameters) {
         MIAO(pitchAngleTargetControl, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
         yawAngleTarget += yawAngleTargetControl;
         pitchAngleTarget += pitchAngleTargetControl;
-
-        if (UserChannel.seq != lastSeq) {
-            lastSeq = UserChannel.seq;
-            yawAngleTargetControl += ProtocolData.user.chassis.gimbalVelocityYaw;
+				
+				if(1){
+        //if (Node_Board.seq != lastSeq) {
+            // lastSeq = Node_Board.seq;
+            yawAngleTargetControl += ProtocolData.chassis.gimbalVelocityYaw;
             yawAngleTarget += yawAngleTargetControl;
             pitchAngleTarget += pitchAngleTargetControl;
         }
@@ -301,34 +291,9 @@ void Task_Can_Send(void *Parameters) {
     float      interval     = 0.01;                // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    CAN_TypeDef *Canx[2]          = {CAN1, CAN2};
-    Motor_Type **Canx_Device[2]   = {Can1_Device, Can2_Device};
-    uint16_t     Can_Send_Id[3]   = {0x200, 0x1ff, 0x2ff};
-    uint16_t     Can_ESC_Id[3][4] = {{0x201, 0x202, 0x203, 0x204}, {0x205, 0x206, 0x207, 0x208}, {0x209, 0x020a, 0x20b, 0x20c}};
-
-    int         i, j, k;        // CAN序号 发送ID序号 电调ID序号
-    int         isNotEmpty = 0; // 同一发送ID下是否有电机
-    Motor_Type *motor;          // 根据i,j,k锁定电机
-    int16_t     currents[4];    // CAN发送电流
-
     while (1) {
-        for (i = 0; i < 2; i++) {
-            for (j = 0; j < 3; j++) {
-                isNotEmpty = 0;
-                for (k = 0; k < 4; k++) {
-                    motor       = *(Canx_Device[i] + ESC_ID(Can_ESC_Id[j][k]));
-                    currents[k] = (motor && motor->inputEnabled) ? motor->input : 0;
-                    isNotEmpty  = isNotEmpty || (motor && motor->inputEnabled);
-                }
-                if (isNotEmpty && !SafetyMode) {
-                    Can_Send(Canx[i], Can_Send_Id[j], currents[0], currents[1], currents[2], currents[3]);
-                } else if (isNotEmpty && SafetyMode) {
-                    Can_Send(Canx[i], Can_Send_Id[j], 0, 0, 0, 0);
-                }
-            }
-        }
-        // 发送频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
+        Bridge_Send_Motor(&BridgeData, SafetyMode);
+        vTaskDelayUntil(&LastWakeTime, intervalms); // 发送频率
     }
     vTaskDelete(NULL);
 }
@@ -374,234 +339,234 @@ void Task_Fetch(void *Parameters) {
     RotateDone = 0;
 
     while (1) {
-        // 设置反馈
-        xSpeed          = Motor_Fetch_X.speed * RPM2RPS;
-        pitchLeftAngle  = Motor_Fetch_Left_Pitch.angle;
-        pitchRightAngle = Motor_Fetch_Right_Pitch.angle;
+        // // 设置反馈
+        // xSpeed          = Motor_Fetch_X.speed * RPM2RPS;
+        // pitchLeftAngle  = Motor_Fetch_Left_Pitch.angle;
+        // pitchRightAngle = Motor_Fetch_Right_Pitch.angle;
 
-        // 抓取状态更新
-        while (1) {
-            if (FetchState == FetchReset) {
-                /* 回到默认位置 */
-                if (lastFetchState != FetchReset) {
-                    lastFetchState = FetchState;
-                    // 爪子归位
-                    pitchAngleTargetProgress      = 1;
-                    pitchAngleTargetProgressDelta = 1;
-                    pitchAngleTargetStart         = pitchLeftAngle;
-                    pitchAngleTargetStop          = 0;
-                }
-                // 跳转:爪子和平台已归位
-                if (RotateDone) {
-                    FetchState++;
-                    continue;
-                }
-                break;
-            } else if (FetchState == FetchWaitRaise) {
-                /* 等待抬升 */
-                if (1) {
-                    // if (ProtocolData.user.fetch.chassisRaised) {
-                    FetchState++;
-                    continue;
-                }
-                break;
-            } else if (FetchState == FetchWaitSignal) {
-                /* 平台运动,等待抓取信号 */
+        // // 抓取状态更新
+        // while (1) {
+        //     if (FetchState == FetchReset) {
+        //         /* 回到默认位置 */
+        //         if (lastFetchState != FetchReset) {
+        //             lastFetchState = FetchState;
+        //             // 爪子归位
+        //             pitchAngleTargetProgress      = 1;
+        //             pitchAngleTargetProgressDelta = 1;
+        //             pitchAngleTargetStart         = pitchLeftAngle;
+        //             pitchAngleTargetStop          = 0;
+        //         }
+        //         // 跳转:爪子和平台已归位
+        //         if (RotateDone) {
+        //             FetchState++;
+        //             continue;
+        //         }
+        //         break;
+        //     } else if (FetchState == FetchWaitRaise) {
+        //         /* 等待抬升 */
+        //         if (1) {
+        //             // if (ProtocolData.fetch.chassisRaised) {
+        //             FetchState++;
+        //             continue;
+        //         }
+        //         break;
+        //     } else if (FetchState == FetchWaitSignal) {
+        //         /* 平台运动,等待抓取信号 */
 
-                // 遥控器控制左右移动
-                if (FetchMode == 1) {
-                    if (remoteData.lx > 30) {
-                        xSpeedTarget = -200;
-                    } else if (remoteData.lx < -30) {
-                        xSpeedTarget = 200;
-                    } else if (lastSeq != UserChannel.seq) {
-                        xSpeedTarget = ProtocolData.user.fetch.fetchVelocity;
-                        lastSeq      = UserChannel.seq;
-                    }
-                } else {
-                    xSpeedTarget = 0;
-                }
-                if (xSpeedTarget == 0 || ABS(Motor_Fetch_X.speed) > 0) {
-                    timer = xTaskGetTickCount();
-                }
-                timePassed = xTaskGetTickCount() - timer;
-                if (timePassed > 100) {
-                    ProtocolData.user.chassis.chassisVelocityY = 0.15 * xSpeedTarget / ABS(xSpeedTarget);
-                } else {
-                    ProtocolData.user.chassis.chassisVelocityY = 0;
-                }
+        //         // 遥控器控制左右移动
+        //         if (FetchMode == 1) {
+        //             if (remoteData.lx > 30) {
+        //                 xSpeedTarget = -200;
+        //             } else if (remoteData.lx < -30) {
+        //                 xSpeedTarget = 200;
+        //             } else if (lastSeq != Node_Board.seq) {
+        //                 xSpeedTarget = ProtocolData.fetch.fetchVelocity;
+        //                 lastSeq      = Node_Board.seq;
+        //             }
+        //         } else {
+        //             xSpeedTarget = 0;
+        //         }
+        //         if (xSpeedTarget == 0 || ABS(Motor_Fetch_X.speed) > 0) {
+        //             timer = xTaskGetTickCount();
+        //         }
+        //         timePassed = xTaskGetTickCount() - timer;
+        //         if (timePassed > 100) {
+        //             ProtocolData.chassis.chassisVelocityY = 0.15 * xSpeedTarget / ABS(xSpeedTarget);
+        //         } else {
+        //             ProtocolData.chassis.chassisVelocityY = 0;
+        //         }
 
-                // 开始抓取
-                if (ProtocolData.user.fetch.fetchMode || FetchMode == 2) {
-                    FetchState++;
-                    continue;
-                }
-                break;
-            } else if (FetchState == FetchRotateOut) {
-                /* 转出去 */
-                if (lastFetchState != FetchRotateOut) {
-                    lastFetchState = FetchRotateOut;
-                    // 转爪子
-                    pitchAngleTargetProgress      = 0;
-                    pitchAngleTargetProgressDelta = 0.01;
-                    pitchAngleTargetStart         = pitchRightAngle;
-                    pitchAngleTargetStop          = 190;
-                    RotateDone                    = 0;
-                }
-                // 跳转:爪子到位
-                if (RotateDone) {
-                    FetchState++;
-                    continue;
-                }
-                break;
-            } else if (FetchState == FetchLock) {
-                /* 夹住弹药箱 */
-                if (LOCK_STATE == 0) {
-                    LOCK_ON;
-                    // 重置计时器
-                    timer = xTaskGetTickCount();
-                }
-                timePassed = xTaskGetTickCount() - timer;
-                // 跳转:计时器
-                if (timePassed >= 1000) {
-                    FetchState++;
-                    continue;
-                }
-                break;
-            } else if (FetchState == FetchRotateIn) {
-                /* 转回来 */
-                if (lastFetchState != FetchRotateIn) {
-                    lastFetchState = FetchRotateIn;
-                    // 转爪子
-                    pitchAngleTargetProgress      = 0;
-                    pitchAngleTargetProgressDelta = 0.002;
-                    pitchAngleTargetStart         = pitchRightAngle;
-                    pitchAngleTargetStop          = 30;
-                    RotateDone                    = 0;
-                }
-                // 跳转:爪子到位
-                if (RotateDone) {
-                    FetchState++;
-                    continue;
-                }
-                break;
-            } else if (FetchState == FetchEating) {
-                /* 喂食 */
-                if (lastFetchState != FetchEating) {
-                    lastFetchState = FetchEating;
-                    // 重置计时器
-                    timer = xTaskGetTickCount();
-                }
-                timePassed = xTaskGetTickCount() - timer;
-                // 跳转:喂食完毕
-                if (timePassed >= 2000) {
-                    FetchState++;
-                    continue;
-                }
-                break;
-            } else if (FetchState == FetchThrow) {
-                /* 扔弹药箱 */
-                if (lastFetchState != FetchThrow) {
-                    lastFetchState = FetchThrow;
-                    // 转爪子
-                    pitchAngleTargetProgress      = 0;
-                    pitchAngleTargetProgressDelta = 0.1;
-                    pitchAngleTargetStart         = pitchRightAngle;
-                    pitchAngleTargetStop          = 160;
-                    RotateDone                    = 0;
-                    // PID_Fetch_Pitch_Left.p        = 1500;
-                    // PID_Fetch_Pitch_Left.d        = 8000;
-                }
-                // 松开爪子
-                if (pitchRightAngle >= 20) {
-                    LOCK_OFF;
-                    // PID_Fetch_Pitch_Left.p = 350;
-                    // PID_Fetch_Pitch_Left.d = 3000;
-                }
-                // 跳转:爪子到位
-                if (pitchRightAngle >= 50 && RotateDone) {
-                    FetchState++;
-                    continue;
-                }
-                break;
-            } else if (FetchState == FetchUnlock) {
-                /* 收回爪子 */
-                if (lastFetchState != FetchUnlock) {
-                    lastFetchState = FetchUnlock;
-                    // 转爪子
-                    pitchAngleTargetProgress      = 0;
-                    pitchAngleTargetProgressDelta = 0.1;
-                    pitchAngleTargetStart         = pitchRightAngle;
-                    pitchAngleTargetStop          = 0;
-                    RotateDone                    = 0;
-                }
-                // 跳转:爪子到位
-                if (RotateDone) {
-                    FetchState++;
-                    continue;
-                }
-                break;
-            } else if (FetchState == FetchDone) {
-                /* 抓取完成 */
-                FetchState = FetchWaitSignal;
-                break;
-            }
-        }
-
-        // 更新斜坡
-        if (pitchAngleTargetProgress < 1) {
-            pitchAngleTargetProgress += pitchAngleTargetProgressDelta;
-        }
-        pitchAngleTarget = RAMP(pitchAngleTargetStart, pitchAngleTargetStop, pitchAngleTargetProgress);
-        // pitchAngleTarget = 20 + remoteData.ry / 6.0;
-
-        // 测试爪子
-        // if (remoteData.rx > 50) {
-        //     pitchAngleTarget = 170;
-        // } else if (remoteData.rx < 50) {
-        //     pitchAngleTarget = 20;
+        //         // 开始抓取
+        //         if (ProtocolData.fetch.fetchMode || FetchMode == 2) {
+        //             FetchState++;
+        //             continue;
+        //         }
+        //         break;
+        //     } else if (FetchState == FetchRotateOut) {
+        //         /* 转出去 */
+        //         if (lastFetchState != FetchRotateOut) {
+        //             lastFetchState = FetchRotateOut;
+        //             // 转爪子
+        //             pitchAngleTargetProgress      = 0;
+        //             pitchAngleTargetProgressDelta = 0.01;
+        //             pitchAngleTargetStart         = pitchRightAngle;
+        //             pitchAngleTargetStop          = 190;
+        //             RotateDone                    = 0;
+        //         }
+        //         // 跳转:爪子到位
+        //         if (RotateDone) {
+        //             FetchState++;
+        //             continue;
+        //         }
+        //         break;
+        //     } else if (FetchState == FetchLock) {
+        //         /* 夹住弹药箱 */
+        //         if (LOCK_STATE == 0) {
+        //             LOCK_ON;
+        //             // 重置计时器
+        //             timer = xTaskGetTickCount();
+        //         }
+        //         timePassed = xTaskGetTickCount() - timer;
+        //         // 跳转:计时器
+        //         if (timePassed >= 1000) {
+        //             FetchState++;
+        //             continue;
+        //         }
+        //         break;
+        //     } else if (FetchState == FetchRotateIn) {
+        //         /* 转回来 */
+        //         if (lastFetchState != FetchRotateIn) {
+        //             lastFetchState = FetchRotateIn;
+        //             // 转爪子
+        //             pitchAngleTargetProgress      = 0;
+        //             pitchAngleTargetProgressDelta = 0.002;
+        //             pitchAngleTargetStart         = pitchRightAngle;
+        //             pitchAngleTargetStop          = 30;
+        //             RotateDone                    = 0;
+        //         }
+        //         // 跳转:爪子到位
+        //         if (RotateDone) {
+        //             FetchState++;
+        //             continue;
+        //         }
+        //         break;
+        //     } else if (FetchState == FetchEating) {
+        //         /* 喂食 */
+        //         if (lastFetchState != FetchEating) {
+        //             lastFetchState = FetchEating;
+        //             // 重置计时器
+        //             timer = xTaskGetTickCount();
+        //         }
+        //         timePassed = xTaskGetTickCount() - timer;
+        //         // 跳转:喂食完毕
+        //         if (timePassed >= 2000) {
+        //             FetchState++;
+        //             continue;
+        //         }
+        //         break;
+        //     } else if (FetchState == FetchThrow) {
+        //         /* 扔弹药箱 */
+        //         if (lastFetchState != FetchThrow) {
+        //             lastFetchState = FetchThrow;
+        //             // 转爪子
+        //             pitchAngleTargetProgress      = 0;
+        //             pitchAngleTargetProgressDelta = 0.1;
+        //             pitchAngleTargetStart         = pitchRightAngle;
+        //             pitchAngleTargetStop          = 160;
+        //             RotateDone                    = 0;
+        //             // PID_Fetch_Pitch_Left.p        = 1500;
+        //             // PID_Fetch_Pitch_Left.d        = 8000;
+        //         }
+        //         // 松开爪子
+        //         if (pitchRightAngle >= 20) {
+        //             LOCK_OFF;
+        //             // PID_Fetch_Pitch_Left.p = 350;
+        //             // PID_Fetch_Pitch_Left.d = 3000;
+        //         }
+        //         // 跳转:爪子到位
+        //         if (pitchRightAngle >= 50 && RotateDone) {
+        //             FetchState++;
+        //             continue;
+        //         }
+        //         break;
+        //     } else if (FetchState == FetchUnlock) {
+        //         /* 收回爪子 */
+        //         if (lastFetchState != FetchUnlock) {
+        //             lastFetchState = FetchUnlock;
+        //             // 转爪子
+        //             pitchAngleTargetProgress      = 0;
+        //             pitchAngleTargetProgressDelta = 0.1;
+        //             pitchAngleTargetStart         = pitchRightAngle;
+        //             pitchAngleTargetStop          = 0;
+        //             RotateDone                    = 0;
+        //         }
+        //         // 跳转:爪子到位
+        //         if (RotateDone) {
+        //             FetchState++;
+        //             continue;
+        //         }
+        //         break;
+        //     } else if (FetchState == FetchDone) {
+        //         /* 抓取完成 */
+        //         FetchState = FetchWaitSignal;
+        //         break;
+        //     }
         // }
 
-        // //测试GO
-        // if (remoteData.ry > 50) {
-        //     GO_OUT;
-        // } else if (remoteData.ry < -50) {
-        //     GO_BACK;
+        // // 更新斜坡
+        // if (pitchAngleTargetProgress < 1) {
+        //     pitchAngleTargetProgress += pitchAngleTargetProgressDelta;
         // }
+        // pitchAngleTarget = RAMP(pitchAngleTargetStart, pitchAngleTargetStop, pitchAngleTargetProgress);
+        // // pitchAngleTarget = 20 + remoteData.ry / 6.0;
 
-        // //测试LOCK
-        // if (remoteData.ly > 50) {
-        //     LOCK_ON;
-        // } else if (remoteData.ly < -50) {
-        //     LOCK_OFF;
-        // }
+        // // 测试爪子
+        // // if (remoteData.rx > 50) {
+        // //     pitchAngleTarget = 170;
+        // // } else if (remoteData.rx < 50) {
+        // //     pitchAngleTarget = 20;
+        // // }
 
-        // PID_Fetch_Pitch_Left.d  = CHOOSER(3000, 4000, 5000);
-        // PID_Fetch_Pitch_Right.d = PID_Fetch_Pitch_Left.d;
+        // // //测试GO
+        // // if (remoteData.ry > 50) {
+        // //     GO_OUT;
+        // // } else if (remoteData.ry < -50) {
+        // //     GO_BACK;
+        // // }
 
-        // DebugData.debug1 = timePassed;
-        // DebugData.debug2 = ProtocolData.user.chassis.chassisVelocityX;
-        // DebugData.debug3 = ProtocolData.user.chassis.chassisVelocityY;
-        // DebugData.debug4 = Motor_Fetch_X.speed;
-        // DebugData.debug5 = xSpeedTarget;
-        // DebugData.debug6 = xSpeedTarget == 0 || Motor_Fetch_X.speed > 0;
-        // 计算PID
-        PID_Calculate(&PID_Fetch_X, xSpeedTarget, xSpeed);
-        PID_Calculate(&PID_Fetch_Pitch_Left, -1 * pitchAngleTarget, pitchLeftAngle);
-        PID_Calculate(&PID_Fetch_Pitch_Right, pitchAngleTarget, pitchRightAngle);
+        // // //测试LOCK
+        // // if (remoteData.ly > 50) {
+        // //     LOCK_ON;
+        // // } else if (remoteData.ly < -50) {
+        // //     LOCK_OFF;
+        // // }
 
-        // 更新状态量
-        RotateDone = pitchAngleTargetProgress >= 1 && ABS(lastPitchLeftAngle - pitchLeftAngle) < 1;
+        // // PID_Fetch_Pitch_Left.d  = CHOOSER(3000, 4000, 5000);
+        // // PID_Fetch_Pitch_Right.d = PID_Fetch_Pitch_Left.d;
 
-        // 输出电流
-        Motor_Fetch_X.input           = PID_Fetch_X.output;
-        Motor_Fetch_Left_Pitch.input  = PID_Fetch_Pitch_Left.output;
-        Motor_Fetch_Right_Pitch.input = PID_Fetch_Pitch_Right.output;
+        // // DebugData.debug1 = timePassed;
+        // // DebugData.debug2 = ProtocolData.chassis.chassisVelocityX;
+        // // DebugData.debug3 = ProtocolData.chassis.chassisVelocityY;
+        // // DebugData.debug4 = Motor_Fetch_X.speed;
+        // // DebugData.debug5 = xSpeedTarget;
+        // // DebugData.debug6 = xSpeedTarget == 0 || Motor_Fetch_X.speed > 0;
+        // // 计算PID
+        // PID_Calculate(&PID_Fetch_X, xSpeedTarget, xSpeed);
+        // PID_Calculate(&PID_Fetch_Pitch_Left, -1 * pitchAngleTarget, pitchLeftAngle);
+        // PID_Calculate(&PID_Fetch_Pitch_Right, pitchAngleTarget, pitchRightAngle);
 
-        // 更新过去值
-        lastPitchLeftAngle = pitchLeftAngle;
+        // // 更新状态量
+        // RotateDone = pitchAngleTargetProgress >= 1 && ABS(lastPitchLeftAngle - pitchLeftAngle) < 1;
 
-        // 更新频率
+        // // 输出电流
+        // Motor_Fetch_X.input           = PID_Fetch_X.output;
+        // Motor_Fetch_Left_Pitch.input  = PID_Fetch_Pitch_Left.output;
+        // Motor_Fetch_Right_Pitch.input = PID_Fetch_Pitch_Right.output;
+
+        // // 更新过去值
+        // lastPitchLeftAngle = pitchLeftAngle;
+
+        // // 更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
 
@@ -653,7 +618,7 @@ void Task_Go(void *Parameters) {
     float      interval     = 0.005;               // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
     while (1) {
-        if (ProtocolData.user.fetch.goMode) {
+        if (ProtocolData.fetch.goMode) {
             GO_OUT;
         } else {
             GO_BACK;
@@ -953,58 +918,5 @@ void Task_Snail(void *Parameters) {
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
-    vTaskDelete(NULL);
-}
-
-void Task_Sys_Init(void *Parameters) {
-
-    //获得 Stone ID
-    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
-
-    // 初始化全局变量
-    Handle_Init();
-
-    // 初始化硬件
-    BSP_Init();
-
-    // 初始化陀螺仪
-    if (BOARD_CHASSIS) {
-        Gyroscope_Init(&Gyroscope_EulerData);
-    }
-
-    xTaskCreate(Task_Remote_Share, "Task_Remote_Share", 500, NULL, 9, NULL);
-
-    // 等待遥控器开启
-    while (!remoteData.state) {
-    }
-
-    // 低级任务
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
-
-    //模式切换任务
-    xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
-
-    // Can发送任务
-    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 5, NULL);
-
-    // 板间通讯
-    // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
-
-    // 运动控制任务
-    if (BOARD_CHASSIS) {
-        xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-        xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-        xTaskCreate(Task_Raise, "Task_Raise", 400, NULL, 5, NULL); // 抬升
-        // xTaskCreate(Task_Rescue, "Task_Rescue", 400, NULL, 5, NULL); // 救援
-        xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 5, NULL);
-        xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 5, NULL);
-    } else if (BOARD_FETCH) {
-        xTaskCreate(Task_Fetch, "Task_Fetch", 400, NULL, 5, NULL);
-        xTaskCreate(Task_Milk, "Task_Milk", 400, NULL, 5, NULL);
-        xTaskCreate(Task_Go, "Task_Go", 400, NULL, 5, NULL);
-    }
-
-    // 完成使命
     vTaskDelete(NULL);
 }
