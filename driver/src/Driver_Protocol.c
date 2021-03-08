@@ -134,6 +134,7 @@ void Protocol_Unpack(Node_Type *node, uint8_t byte) {
         node->receiveSeq            = byte;
         node->packet[node->index++] = byte;
         if (node->bridgeType == USART_BRIDGE) {
+            // @todo: 条件加上裁判系统
             node->step = STEP_CRC8;
         } else {
             node->step = STEP_ID_LOW;
