@@ -14,8 +14,8 @@
         <TargetCommonOption>
           <Device>STM32F427II</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.1.0.8</PackID>
-          <PackURL>http://www.keil.com/pack</PackURL>
+          <PackID>Keil.STM32F4xx_DFP.2.15.0</PackID>
+          <PackURL>http://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x200000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -659,9 +659,14 @@
           <GroupName>user_drone</GroupName>
           <Files>
             <File>
-              <FileName>bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\drone\bsp.c</FilePath>
+              <FileName>config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\drone\config.h</FilePath>
+            </File>
+            <File>
+              <FileName>handle.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\drone\handle.h</FilePath>
             </File>
             <File>
               <FileName>interrupt.c</FileName>
@@ -674,9 +679,9 @@
               <FilePath>..\user\drone\main.c</FilePath>
             </File>
             <File>
-              <FileName>task_debug.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\drone\task_debug.c</FilePath>
+              <FileName>protocol.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\drone\protocol.h</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
@@ -684,9 +689,9 @@
               <FilePath>..\user\drone\tasks.c</FilePath>
             </File>
             <File>
-              <FileName>handle.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\drone\handle.c</FilePath>
+              <FileName>tasks.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\drone\tasks.h</FilePath>
             </File>
           </Files>
         </Group>

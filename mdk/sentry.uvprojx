@@ -573,6 +573,11 @@
               <FileType>1</FileType>
               <FilePath>..\library\std\src\stm32f4xx_adc.c</FilePath>
             </File>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\atom\usart\usart.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -632,6 +637,11 @@
               <FileName>Driver_BSP.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_BSP.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_Bridge.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Bridge.c</FilePath>
             </File>
           </Files>
         </Group>
