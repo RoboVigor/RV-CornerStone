@@ -172,7 +172,7 @@ void Protocol_Unpack(Node_Type *node, uint8_t byte) {
             break;
         }
         // receive or throw the packet
-        if (node->protocolInfo->receiving) {
+        if (node->protocolInfo->receive) {
             node->step = STEP_DATA;
         } else {
             node->waitCount = node->dataLength + PROTOCOL_CRC16_SIZE;

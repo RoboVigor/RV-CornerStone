@@ -61,7 +61,7 @@ typedef struct {
     uint16_t id;     // 编号
     uint16_t length; // 数据段长度
     // 接收相关
-    uint16_t receiving;    // 是否接收并解包该协议
+    uint16_t receive;      // 是否接收并解包该协议
     uint16_t receiveCount; // 接收计数
     // 发送相关
     void *       node;       // 发送节点
