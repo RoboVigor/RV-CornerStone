@@ -35,7 +35,7 @@ void Protocol_Init(Node_Type *node, ProtocolData_Type *protocolData) {
     }
 }
 
-uint16_t Protocol_Pack(Node_Type *node, uint16_t id) {
+int16_t Protocol_Pack(Node_Type *node, uint16_t id) {
     ProtocolInfo_Type *protocolInfo;
     uint16_t           dataLength, offset, dataCRC16, i = 0, index = 0, packetId = id, dataId = id;
     uint8_t *          begin_p;
@@ -47,6 +47,11 @@ uint16_t Protocol_Pack(Node_Type *node, uint16_t id) {
     protocolInfo = Protocol_Get_Info_Handle(id);
     offset       = protocolInfo->offset;
     dataLength   = protocolInfo->length;
+
+    // Protocol Not Found
+    if (protocolInfo->id != id) {
+        return -1;
+    }
 
     // TaoWaMode
     if (id >= 0xF000) {
@@ -105,7 +110,7 @@ void Protocol_Unpack(Node_Type *node, uint8_t byte) {
 
     switch (node->step) {
     case STEP_SOF: {
-        if (byte == PROTOCOL_HEADER) {
+        if (byte == PROTOCOL_HEADER && node->isFirstByte) {
             node->packet[node->index++] = byte;
             node->step                  = STEP_LENGTH_LOW;
         } else {
@@ -160,6 +165,13 @@ void Protocol_Unpack(Node_Type *node, uint8_t byte) {
         node->id |= byte << 8;
         node->packet[node->index++] = byte;
         node->protocolInfo          = Protocol_Get_Info_Handle(node->id);
+        // Protocol Not Found
+        if (node->protocolInfo->id != node->id) {
+            node->step  = STEP_SOF;
+            node->index = 0;
+            break;
+        }
+        // receive or throw the packet
         if (node->protocolInfo->receiving) {
             node->step = STEP_DATA;
         } else {
