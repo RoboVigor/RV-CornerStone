@@ -9,7 +9,10 @@
  * 有任何问题请联系qq：740670513
  */
 
-#include "main.h"
+#include "tasks.h"
+#include "config.h"
+#include "macro.h"
+#include "handle.h"
 
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
@@ -37,34 +40,9 @@ void Task_Can_Send(void *Parameters) {
     float      interval     = 0.01;                // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    CAN_TypeDef *Canx[2]          = {CAN1, CAN2};
-    Motor_Type **Canx_Device[2]   = {Can1_Device, Can2_Device};
-    uint16_t     Can_Send_Id[3]   = {0x200, 0x1ff, 0x2ff};
-    uint16_t     Can_ESC_Id[3][4] = {{0x201, 0x202, 0x203, 0x204}, {0x205, 0x206, 0x207, 0x208}, {0x209, 0x020a, 0x20b, 0x20c}};
-
-    int         i, j, k;        // CAN序号 发送ID序号 电调ID序号
-    int         isNotEmpty = 0; // 同一发送ID下是否有电机
-    Motor_Type *motor;          // 根据i,j,k锁定电机
-    int16_t     currents[4];    // CAN发送电流
-
     while (1) {
-        for (i = 0; i < 2; i++) {
-            for (j = 0; j < 3; j++) {
-                isNotEmpty = 0;
-                for (k = 0; k < 4; k++) {
-                    motor       = *(Canx_Device[i] + ESC_ID(Can_ESC_Id[j][k]));
-                    currents[k] = (motor && motor->inputEnabled) ? motor->input : 0;
-                    isNotEmpty  = isNotEmpty || (motor && motor->inputEnabled);
-                }
-                if (isNotEmpty && !SafetyMode) {
-                    Can_Send(Canx[i], Can_Send_Id[j], currents[0], currents[1], currents[2], currents[3]);
-                } else if (isNotEmpty && SafetyMode) {
-                    Can_Send(Canx[i], Can_Send_Id[j], 0, 0, 0, 0);
-                }
-            }
-        }
-        // 发送频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
+        Bridge_Send_Motor(&BridgeData, SafetyMode);
+        vTaskDelayUntil(&LastWakeTime, intervalms); // 发送频率
     }
     vTaskDelete(NULL);
 }
@@ -253,26 +231,26 @@ void Task_Gimbal(void *Parameters) {
         yawAngleTarget += yawAngleTargetControl;
         pitchAngleTarget += pitchAngleTargetControl;
 
-        // 视觉辅助
-        if (!PsAimEnabled) {
-            lastSeq = HostChannel.seq;
-            yawAngleTargetControl += yawAngleTargetPs;
-            pitchAngleTargetControl += pitchAngleTargetPs;
-            yawAngleTarget += yawAngleTargetPs;
-            pitchAngleTarget += pitchAngleTargetPs;
-            yawAngleTargetPs   = 0;
-            pitchAngleTargetPs = 0;
-        } else {
-            if (lastSeq != HostChannel.seq) {
-                lastSeq = HostChannel.seq;
-                yawAngleTargetPs += ProtocolData.host.autoaimData.yaw_angle_diff;
-                pitchAngleTargetPs -= ProtocolData.host.autoaimData.pitch_angle_diff;
-            }
-        }
-        MIAO(yawAngleTargetPs, GIMBAL_YAW_MIN - yawAngleTarget, GIMBAL_YAW_MAX - yawAngleTarget);
-        MIAO(pitchAngleTargetPs, GIMBAL_PITCH_MIN - pitchAngleTarget, GIMBAL_PITCH_MAX - pitchAngleTarget);
-        yawAngleTarget += yawAngleTargetPs;
-        pitchAngleTarget += pitchAngleTargetPs;
+        // // 视觉辅助
+        // if (!PsAimEnabled) {
+        //     lastSeq = Node_Host.seq;
+        //     yawAngleTargetControl += yawAngleTargetPs;
+        //     pitchAngleTargetControl += pitchAngleTargetPs;
+        //     yawAngleTarget += yawAngleTargetPs;
+        //     pitchAngleTarget += pitchAngleTargetPs;
+        //     yawAngleTargetPs   = 0;
+        //     pitchAngleTargetPs = 0;
+        // } else {
+        //     if (lastSeq != Node_Host.seq) {
+        //         lastSeq = Node_Host.seq;
+        //         yawAngleTargetPs += ProtocolData.host.autoaimData.yaw_angle_diff;
+        //         pitchAngleTargetPs -= ProtocolData.host.autoaimData.pitch_angle_diff;
+        //     }
+        // }
+        // MIAO(yawAngleTargetPs, GIMBAL_YAW_MIN - yawAngleTarget, GIMBAL_YAW_MAX - yawAngleTarget);
+        // MIAO(pitchAngleTargetPs, GIMBAL_PITCH_MIN - pitchAngleTarget, GIMBAL_PITCH_MAX - pitchAngleTarget);
+        // yawAngleTarget += yawAngleTargetPs;
+        // pitchAngleTarget += pitchAngleTargetPs;
 
         //开机时pitch轴匀速抬起
         pitchAngleTargetRamp = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
@@ -410,36 +388,6 @@ void Task_Fire(void *Parameters) {
 //     }
 //     vTaskDelete(NULL);
 // }
-
-void Task_Sys_Init(void *Parameters) {
-
-    //获得 Stone ID
-    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
-
-    // 初始化全局变量
-    Handle_Init();
-
-    // 初始化硬件
-    BSP_Init();
-
-    // 初始化陀螺仪
-    Gyroscope_Init(&Gyroscope_EulerData);
-
-    TIM5CH1_CAPTURE_STA = 0;
-    while (!remoteData.state) {
-    }
-
-    // 功能任务
-    xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 7, NULL);
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
-    xTaskCreate(Task_Gimbal, "Task_Gimbal", 800, NULL, 5, NULL);
-    xTaskCreate(Task_Snail, "Task_Snail", 500, NULL, 6, NULL);
-    xTaskCreate(Task_Fire, "Task_Fire", 500, NULL, 7, NULL);
-    xTaskCreate(Task_Control, "Task_Control", 500, NULL, 4, NULL);
-    // 完成使命
-    vTaskDelete(NULL);
-}
 
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();

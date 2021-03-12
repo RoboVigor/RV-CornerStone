@@ -874,6 +874,32 @@
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
+    <File>
+      <GroupNumber>4</GroupNumber>
+      <FileNumber>49</FileNumber>
+      <FileType>5</FileType>
+      <tvExp>0</tvExp>
+      <Focus>1</Focus>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\user\common\protocol_host.h</PathWithFileName>
+      <FilenameWithoutPath>protocol_host.h</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>4</GroupNumber>
+      <FileNumber>50</FileNumber>
+      <FileType>5</FileType>
+      <tvExp>0</tvExp>
+      <Focus>1</Focus>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\user\common\protocol_judge.h</PathWithFileName>
+      <FilenameWithoutPath>protocol_judge.h</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
   </Group>
 
   <Group>
@@ -884,8 +910,8 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>5</GroupNumber>
-      <FileNumber>49</FileNumber>
-      <FileType>5</FileType>
+      <FileNumber>51</FileNumber>
+      <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -897,10 +923,10 @@
     </File>
     <File>
       <GroupNumber>5</GroupNumber>
-      <FileNumber>50</FileNumber>
-      <FileType>5</FileType>
-      <tvExp>0</tvExp>
-      <Focus>0</Focus>
+      <FileNumber>52</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>1</tvExp>
+      <Focus>1</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\user\sentry\handle.h</PathWithFileName>
@@ -910,7 +936,7 @@
     </File>
     <File>
       <GroupNumber>5</GroupNumber>
-      <FileNumber>51</FileNumber>
+      <FileNumber>53</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -923,7 +949,7 @@
     </File>
     <File>
       <GroupNumber>5</GroupNumber>
-      <FileNumber>52</FileNumber>
+      <FileNumber>54</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -936,8 +962,8 @@
     </File>
     <File>
       <GroupNumber>5</GroupNumber>
-      <FileNumber>53</FileNumber>
-      <FileType>5</FileType>
+      <FileNumber>55</FileNumber>
+      <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -949,7 +975,7 @@
     </File>
     <File>
       <GroupNumber>5</GroupNumber>
-      <FileNumber>54</FileNumber>
+      <FileNumber>56</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -962,7 +988,7 @@
     </File>
     <File>
       <GroupNumber>5</GroupNumber>
-      <FileNumber>55</FileNumber>
+      <FileNumber>57</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
