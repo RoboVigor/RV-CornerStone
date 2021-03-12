@@ -576,6 +576,11 @@
               <FileType>1</FileType>
               <FilePath>..\library\vegmath\vegmath.c</FilePath>
             </File>
+            <File>
+              <FileName>Driver_Bridge.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Bridge.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -662,16 +667,6 @@
           <GroupName>user_true-hero</GroupName>
           <Files>
             <File>
-              <FileName>bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\true-hero\bsp.c</FilePath>
-            </File>
-            <File>
-              <FileName>handle.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\true-hero\handle.c</FilePath>
-            </File>
-            <File>
               <FileName>interrupt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\true-hero\interrupt.c</FilePath>
@@ -680,11 +675,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\true-hero\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>task_debug.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\true-hero\task_debug.c</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
@@ -700,16 +690,6 @@
               <FileName>handle.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\user\true-hero\handle.h</FilePath>
-            </File>
-            <File>
-              <FileName>main.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\true-hero\main.h</FilePath>
-            </File>
-            <File>
-              <FileName>rtos.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\true-hero\rtos.h</FilePath>
             </File>
             <File>
               <FileName>tasks.h</FileName>
