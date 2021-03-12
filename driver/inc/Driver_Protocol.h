@@ -61,7 +61,7 @@ typedef struct {
     uint16_t id;     // 编号
     uint16_t length; // 数据段长度
     // 接收相关
-    uint16_t receiving;    // 是否接收并解包该协议
+    uint16_t receive;      // 是否接收并解包该协议
     uint16_t receiveCount; // 接收计数
     // 发送相关
     void *       node;       // 发送节点
@@ -92,11 +92,12 @@ typedef struct {
     uint16_t id;                                 // 包编号
     uint8_t *data;                               // 数据存放地址
     uint16_t waitCount;                          // 需要丢弃的字节数
+    uint16_t isFirstByte;                        // 当前字节是否为包的第一位 @todo: 未测试
 } Node_Type;
 
 ProtocolInfo_Type *Protocol_Get_Info_Handle(uint16_t id);
 void               Protocol_Init(Node_Type *node, ProtocolData_Type *data);
 void               Protocol_Unpack(Node_Type *node, uint8_t byte);
-uint16_t           Protocol_Pack(Node_Type *node, uint16_t id);
+int16_t            Protocol_Pack(Node_Type *node, uint16_t id);
 
 #endif

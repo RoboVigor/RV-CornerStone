@@ -32,6 +32,7 @@ void Bridge_Receive_USART(Bridge_Type *bridge, uint8_t type, uint32_t deviceID) 
     // unpack
     len = Protocol_Buffer_Length - DMA_Get_Data_Counter(USARTx_Rx);
     for (i = 0; i < len; i++) {
+        node->isFirstByte = 1; // @todo: 了解USART DMA的工作方式, 更新该变量
         Protocol_Unpack(node, node->receiveBuf[i]);
     }
 
@@ -54,7 +55,8 @@ void Bridge_Receive_CAN(Bridge_Type *bridge, uint8_t type) {
         Motor_Update(MOTOR, CanRxData.Data);
     } else {
         for (i = 0; i < CanRxData.DLC; i++) {
-            node = CAN_NODE;
+            node              = CAN_NODE;
+            node->isFirstByte = i == 0 ? 1 : 0;
             Protocol_Unpack(node, CanRxData.Data[i]);
         }
     }
