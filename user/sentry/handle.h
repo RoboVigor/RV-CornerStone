@@ -6,13 +6,14 @@
 #include "led.h"
 #include "beep.h"
 #include "key.h"
-#include "rtos.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
 #include "vegmath.h"
 #include "stdlib.h"
 #include "limits.h"
 #include "Driver_BSP.h"
 #include "Driver_Filter.h"
-#include "Driver_Magic.h"
 #include "Driver_PID.h"
 #include "Driver_DBUS.h"
 #include "Driver_CAN.h"
@@ -20,6 +21,8 @@
 #include "Driver_Chassis.h"
 #include "mpu6500_driver.h"
 #include "Driver_Gyroscope.h"
+#include "Driver_Bridge.h"
+#include "Driver_Magic.h"
 #include "Driver_Protocol.h"
 #include "Driver_Fsm.h"
 
@@ -61,17 +64,17 @@ __HANDLE_EXT volatile ImuData_Type       ImuData;
 __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 调试数据
-__HANDLE_EXT MagicHandle_Type magic;
-__HANDLE_EXT DebugData_Type   DebugData;
-__HANDLE_EXT int              debug1, debug2, debug3;
+__HANDLE_EXT DebugData_Type DebugData;
+
+__HANDLE_EXT int debug1, debug2, debug3;
 
 // 底盘
 __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type         PID_Chassis_Left, PID_Chassis_Right;
 
 // 通讯协议
-__HANDLE_EXT ProtocolData_Type     ProtocolData;
-__HANDLE_EXT Protocol_Channel_Type JudgeChannel, HostChannel, UserChannel;
+__HANDLE_EXT ProtocolData_Type ProtocolData;
+__HANDLE_EXT Node_Type         Node_Judge, Node_Host, Node_Board;
 
 // 发射机构
 __HANDLE_EXT Motor_Type Motor_Up_Stir, Motor_Down_Stir;                                                 // 左/右 摩擦轮 拨弹轮 电机
@@ -81,7 +84,7 @@ __HANDLE_EXT PID_Type   PID_Up_Stir_Speed, PID_Up_Stir_Angle, PID_Down_Stir_Spee
 __HANDLE_EXT int Left_State, Right_State;
 
 // CAN
-__HANDLE_EXT Motor_Type *Can1_Device[12], *Can2_Device[12];
+__HANDLE_EXT Bridge_Type BridgeData;
 
 /**
  * @brief 初始化结构体

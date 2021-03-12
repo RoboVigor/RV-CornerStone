@@ -2,7 +2,10 @@
  * @brief 哨兵
  * @version 1.2.0
  */
-#include "main.h"
+#include "tasks.h"
+#include "config.h"
+#include "macro.h"
+#include "handle.h"
 
 #define IS_DOWN_BOARD Board_Id == 1
 #define IS_UP_BOARD Board_Id == 2
@@ -100,12 +103,11 @@ void Task_Chassis(void *Parameters) {
     while (1) {
         // 视觉系统
         if (!PsEnabled) {
-            lastSeq = HostChannel.seq;
+            lastSeq = Node_Host.receiveSeq;
             visionCounter++;
-        } else if (lastSeq != HostChannel.seq) {
-            lastSeq = HostChannel.seq;
-            if (ProtocolData.host.autoaimData.yaw_angle_diff == 0 && ProtocolData.host.autoaimData.pitch_angle_diff == 0 &&
-                ProtocolData.host.autoaimData.biu_biu_state == 0) {
+        } else if (lastSeq != Node_Host.receiveSeq) {
+            lastSeq = Node_Host.receiveSeq;
+            if (ProtocolData.autoaimData.yaw_angle_diff == 0 && ProtocolData.autoaimData.pitch_angle_diff == 0 && ProtocolData.autoaimData.biu_biu_state == 0) {
                 visionCounter++;
             } else {
                 visionCounter = 0;
@@ -116,13 +118,13 @@ void Task_Chassis(void *Parameters) {
         }
 
         // 挨打
-        if (ProtocolData.judge.robotState.remain_HP == lastBlood) {
+        if (ProtocolData.robotState.remain_HP == lastBlood) {
             hurtCounter++;
         } else {
             hurtCounter = 0;
             motionType  = 2;
         }
-        lastBlood = ProtocolData.judge.robotState.remain_HP;
+        lastBlood = ProtocolData.robotState.remain_HP;
 
         // 巡逻
         if ((visionCounter >= maxVisionTimeout) && (hurtCounter >= maxHurtTimeout)) {
@@ -211,8 +213,8 @@ void Task_Chassis(void *Parameters) {
         }
 
         // 功率限制
-        power       = ProtocolData.judge.powerHeatData.chassis_power;                      // 裁判系统功率
-        powerBuffer = ProtocolData.judge.powerHeatData.chassis_power_buffer;               // 裁判系统功率缓冲
+        power       = ProtocolData.powerHeatData.chassis_power;                            // 裁判系统功率
+        powerBuffer = ProtocolData.powerHeatData.chassis_power_buffer;                     // 裁判系统功率缓冲
         targetPower = 20.0 - WANG(160.0 - ChassisData.powerBuffer, 0, 160) / 160.0 * 20.0; // 设置目标功率
         Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval);      // 根据功率限幅
 
@@ -291,17 +293,17 @@ void Task_Up_Gimbal(void *Parameters) {
         //     // pitchAngleTargetControl += pitchAngleTargetPs;
         //     yawAngleTargetPs   = 0;
         //     pitchAngleTargetPs = 0;
-        //     lastSeq            = HostChannel.seq;
+        //     lastSeq            = Node_Host.receiveSeq;
         //     counter++;
-        // } else if (lastSeq != HostChannel.seq) {
-        //     lastSeq = HostChannel.seq;
-        //     if (ProtocolData.host.autoaimData.yaw_angle_diff == 0 && ProtocolData.host.autoaimData.pitch_angle_diff == 0 &&
-        //         ProtocolData.host.autoaimData.biu_biu_state == 0) {
+        // } else if (lastSeq != Node_Host.receiveSeq) {
+        //     lastSeq = Node_Host.receiveSeq;
+        //     if (ProtocolData.autoaimData.yaw_angle_diff == 0 && ProtocolData.autoaimData.pitch_angle_diff == 0 &&
+        //         ProtocolData.autoaimData.biu_biu_state == 0) {
         //         counter++;
         //     } else {
         //         counter = 0;
-        //         yawAngleTargetPs += ProtocolData.host.autoaimData.yaw_angle_diff;
-        //         pitchAngleTargetPs += ProtocolData.host.autoaimData.pitch_angle_diff;
+        //         yawAngleTargetPs += ProtocolData.autoaimData.yaw_angle_diff;
+        //         pitchAngleTargetPs += ProtocolData.autoaimData.pitch_angle_diff;
         //     }
         // } else {
         //     counter++;
@@ -372,7 +374,7 @@ void Task_Up_Gimbal(void *Parameters) {
 
         // 调试信息
         // DebugData.debug1 = Motor_Stir.speed;
-        // DebugData.debug2 = ProtocolData.host.autoaimData.biu_biu_state;
+        // DebugData.debug2 = ProtocolData.autoaimData.biu_biu_state;
         // DebugData.debug3 = -1 * Gyroscope_EulerData.pitch;
         // DebugData.debug4 = pitchAngleLimitMin;
         // DebugData.debug5 = pitchAngleLimitMax;
@@ -436,17 +438,17 @@ void Task_Down_Gimbal(void *Parameters) {
         //     // pitchAngleTargetControl += pitchAngleTargetPs;
         //     yawAngleTargetPs   = 0;
         //     pitchAngleTargetPs = 0;
-        //     lastSeq            = HostChannel.seq;
+        //     lastSeq            = Node_Host.receiveSeq;
         //     counter++;
-        // } else if (lastSeq != HostChannel.seq) {
-        //     lastSeq = HostChannel.seq;
-        //     if (ProtocolData.host.autoaimData.yaw_angle_diff == 0 && ProtocolData.host.autoaimData.pitch_angle_diff == 0 &&
-        //         ProtocolData.host.autoaimData.biu_biu_state == 0) {
+        // } else if (lastSeq != Node_Host.receiveSeq) {
+        //     lastSeq = Node_Host.receiveSeq;
+        //     if (ProtocolData.autoaimData.yaw_angle_diff == 0 && ProtocolData.autoaimData.pitch_angle_diff == 0 &&
+        //         ProtocolData.autoaimData.biu_biu_state == 0) {
         //         counter++;
         //     } else {
         //         counter = 0;
-        //         yawAngleTargetPs += ProtocolData.host.autoaimData.yaw_angle_diff;
-        //         pitchAngleTargetPs += ProtocolData.host.autoaimData.pitch_angle_diff;
+        //         yawAngleTargetPs += ProtocolData.autoaimData.yaw_angle_diff;
+        //         pitchAngleTargetPs += ProtocolData.autoaimData.pitch_angle_diff;
         //     }
         // } else {
         //     counter++;
@@ -567,17 +569,17 @@ void Task_Up_Stir(void *Parameters) {
         }
 
         // // 热量限制
-        // calmDown = (ProtocolData.judge.powerHeatData.shooter_heat0 > 400) ? 1 : 0;
+        // calmDown = (ProtocolData.powerHeatData.shooter_heat0 > 400) ? 1 : 0;
 
         // // 视觉系统
         // if (!PsEnabled) {
-        //     lastSeq = HostChannel.seq;
+        //     lastSeq = Node_Host.receiveSeq;
         //     counter++;
-        // } else if (lastSeq != HostChannel.seq) {
-        //     lastSeq = HostChannel.seq;
-        //     if (ProtocolData.host.autoaimData.biu_biu_state == 0) {
-        //         // if (ProtocolData.host.autoaimData.yaw_angle_diff == 0 && ProtocolData.host.autoaimData.pitch_angle_diff == 0 &&
-        //         // ProtocolData.host.autoaimData.biu_biu_state == 0) {
+        // } else if (lastSeq != Node_Host.receiveSeq) {
+        //     lastSeq = Node_Host.receiveSeq;
+        //     if (ProtocolData.autoaimData.biu_biu_state == 0) {
+        //         // if (ProtocolData.autoaimData.yaw_angle_diff == 0 && ProtocolData.autoaimData.pitch_angle_diff == 0 &&
+        //         // ProtocolData.autoaimData.biu_biu_state == 0) {
         //         counter++;
         //     } else {
         //         counter   = 0;
@@ -595,10 +597,10 @@ void Task_Up_Stir(void *Parameters) {
         // }
 
         // if (!PsEnabled) {
-        //     lastSeq = HostChannel.seq;
-        // } else if (lastSeq != HostChannel.seq) {
-        //     lastSeq   = HostChannel.seq;
-        //     shootMode = ProtocolData.host.autoaimData.biu_biu_state;
+        //     lastSeq = Node_Host.receiveSeq;
+        // } else if (lastSeq != Node_Host.receiveSeq) {
+        //     lastSeq   = Node_Host.receiveSeq;
+        //     shootMode = ProtocolData.autoaimData.biu_biu_state;
         // } else {
         //     shootMode = 0;
         // }
@@ -643,7 +645,7 @@ void Task_Up_Stir(void *Parameters) {
 
         // 调试信息
 
-        // DebugData.debug2 = ProtocolData.host.autoaimData.biu_biu_state;
+        // DebugData.debug2 = ProtocolData.autoaimData.biu_biu_state;
         // DebugData.debug3 = shootMode;
     }
 
@@ -688,17 +690,17 @@ void Task_Down_Stir(void *Parameters) {
         }
 
         // // 热量限制
-        // calmDown = (ProtocolData.judge.powerHeatData.shooter_heat0 > 400) ? 1 : 0;
+        // calmDown = (ProtocolData.powerHeatData.shooter_heat0 > 400) ? 1 : 0;
 
         // // 视觉系统
         // if (!PsEnabled) {
-        //     lastSeq = HostChannel.seq;
+        //     lastSeq = Node_Host.receiveSeq;
         //     counter++;
-        // } else if (lastSeq != HostChannel.seq) {
-        //     lastSeq = HostChannel.seq;
-        //     if (ProtocolData.host.autoaimData.biu_biu_state == 0) {
-        //         // if (ProtocolData.host.autoaimData.yaw_angle_diff == 0 && ProtocolData.host.autoaimData.pitch_angle_diff == 0 &&
-        //         // ProtocolData.host.autoaimData.biu_biu_state == 0) {
+        // } else if (lastSeq != Node_Host.receiveSeq) {
+        //     lastSeq = Node_Host.receiveSeq;
+        //     if (ProtocolData.autoaimData.biu_biu_state == 0) {
+        //         // if (ProtocolData.autoaimData.yaw_angle_diff == 0 && ProtocolData.autoaimData.pitch_angle_diff == 0 &&
+        //         // ProtocolData.autoaimData.biu_biu_state == 0) {
         //         counter++;
         //     } else {
         //         counter   = 0;
@@ -716,10 +718,10 @@ void Task_Down_Stir(void *Parameters) {
         // }
 
         // if (!PsEnabled) {
-        //     lastSeq = HostChannel.seq;
-        // } else if (lastSeq != HostChannel.seq) {
-        //     lastSeq   = HostChannel.seq;
-        //     shootMode = ProtocolData.host.autoaimData.biu_biu_state;
+        //     lastSeq = Node_Host.receiveSeq;
+        // } else if (lastSeq != Node_Host.receiveSeq) {
+        //     lastSeq   = Node_Host.receiveSeq;
+        //     shootMode = ProtocolData.autoaimData.biu_biu_state;
         // } else {
         //     shootMode = 0;
         // }
@@ -764,7 +766,7 @@ void Task_Down_Stir(void *Parameters) {
 
         // 调试信息
 
-        // DebugData.debug2 = ProtocolData.host.autoaimData.biu_biu_state;
+        // DebugData.debug2 = ProtocolData.autoaimData.biu_biu_state;
         // DebugData.debug3 = shootMode;
     }
 
@@ -848,34 +850,9 @@ void Task_Can_Send(void *Parameters) {
     float      interval     = 0.01;                // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    CAN_TypeDef *Canx[2]          = {CAN1, CAN2};
-    Motor_Type **Canx_Device[2]   = {Can1_Device, Can2_Device};
-    uint16_t     Can_Send_Id[3]   = {0x200, 0x1ff, 0x2ff};
-    uint16_t     Can_ESC_Id[3][4] = {{0x201, 0x202, 0x203, 0x204}, {0x205, 0x206, 0x207, 0x208}, {0x209, 0x020a, 0x20b, 0x20c}};
-
-    int         i, j, k;        // CAN序号 发送ID序号 电调ID序号
-    int         isNotEmpty = 0; // 同一发送ID下是否有电机
-    Motor_Type *motor;          // 根据i,j,k锁定电机
-    int16_t     currents[4];    // CAN发送电流
-
     while (1) {
-        for (i = 0; i < 2; i++) {
-            for (j = 0; j < 3; j++) {
-                isNotEmpty = 0;
-                for (k = 0; k < 4; k++) {
-                    motor       = *(Canx_Device[i] + ESC_ID(Can_ESC_Id[j][k]));
-                    currents[k] = (motor && motor->inputEnabled) ? motor->input : 0;
-                    isNotEmpty  = isNotEmpty || (motor && motor->inputEnabled);
-                }
-                if (isNotEmpty && !SafetyMode) {
-                    Can_Send(Canx[i], Can_Send_Id[j], currents[0], currents[1], currents[2], currents[3]);
-                } else if (isNotEmpty && SafetyMode) {
-                    Can_Send(Canx[i], Can_Send_Id[j], 0, 0, 0, 0);
-                }
-            }
-        }
-        // 发送频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
+        Bridge_Send_Motor(&BridgeData, SafetyMode);
+        vTaskDelayUntil(&LastWakeTime, intervalms); // 发送频率
     }
     vTaskDelete(NULL);
 }
@@ -889,24 +866,25 @@ void Task_Board_Communication(void *Parameters) {
     uint16_t dataLength;
 
     while (1) {
-        if (IS_DOWN_BOARD) {
-            id                                        = 0x501;
-            ProtocolData.user.boardGimbalUp.remoteRx  = remoteData.rx;
-            ProtocolData.user.boardGimbalUp.remoteRy  = remoteData.ry;
-            ProtocolData.user.boardGimbalUp.remoteSwL = remoteData.switchLeft;
-            ProtocolData.user.boardGimbalUp.remoteSwR = remoteData.switchRight;
-        } else if (IS_UP_BOARD) {
-            remoteData.rx          = ProtocolData.user.boardGimbalUp.remoteRx;
-            remoteData.ry          = ProtocolData.user.boardGimbalUp.remoteRy;
-            remoteData.switchLeft  = ProtocolData.user.boardGimbalUp.remoteSwL;
-            remoteData.switchRight = ProtocolData.user.boardGimbalUp.remoteSwR;
-        }
+        // if (IS_DOWN_BOARD) {
+        //     id                                        = 0x501;
+        //     ProtocolData.user.boardGimbalUp.remoteRx  = remoteData.rx;
+        //     ProtocolData.user.boardGimbalUp.remoteRy  = remoteData.ry;
+        //     ProtocolData.user.boardGimbalUp.remoteSwL = remoteData.switchLeft;
+        //     ProtocolData.user.boardGimbalUp.remoteSwR = remoteData.switchRight;
+        // } else if (IS_UP_BOARD) {
+        //     remoteData.rx          = ProtocolData.user.boardGimbalUp.remoteRx;
+        //     remoteData.ry          = ProtocolData.user.boardGimbalUp.remoteRy;
+        //     remoteData.switchLeft  = ProtocolData.user.boardGimbalUp.remoteSwL;
+        //     remoteData.switchRight = ProtocolData.user.boardGimbalUp.remoteSwR;
+        //     Bridge_Send_Protocol_Once(&Node_Board, 0x501);
+        // }
 
-        // Can发送
-        dataLength = Protocol_Pack(&UserChannel, id);
-        Can_Send_Msg(CAN1, id, UserChannel.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        // // Can发送
+        // dataLength = Protocol_Pack(&UserChannel, id);
+        // Can_Send_Msg(CAN1, id, UserChannel.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
-        // 发送频率
+        // // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
@@ -930,56 +908,4 @@ void Task_Startup_Music(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, 350);
     }
     vTaskDelete(NULL);
-}
-
-void Task_Sys_Init(void *Parameters) {
-
-    // 初始化全局变量
-    Handle_Init();
-
-    // 初始化硬件
-    BSP_Init();
-
-    // 初始化陀螺仪
-    Gyroscope_Init(&Gyroscope_EulerData);
-
-    // 调试任务
-#if DEBUG_ENABLED
-    // xTaskCreate(Task_Debug_RTOS_State, "Task_Debug_RTOS_State", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Debug_Gyroscope_Sampling, "Task_Debug_Gyroscope_Sampling", 400, NULL, 6,
-    // NULL);
-#endif
-
-    // 低级任务
-    // xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 10, NULL);
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
-
-    // 等待遥控器开启
-    while (!remoteData.state) {
-    }
-
-    //模式切换任务
-    xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
-
-    // 运动控制任务
-    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-
-    // xTaskCreate(Task_Up_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Up_Stir, "Task_Stir", 400, NULL, 6, NULL);
-    // xTaskCreate(Task_Up_Frict, "Task_Frict", 400, NULL, 6, NULL);
-
-    xTaskCreate(Task_Down_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Down_Stir, "Task_Stir", 400, NULL, 6, NULL);
-    // xTaskCreate(Task_Down_Frict, "Task_Frict", 400, NULL, 6, NULL);
-
-    // DMA发送任务
-    // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
-
-    // Can发送任务
-    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);
-
-    // 完成使命
-    vTaskDelete(NULL);
-    vTaskDelay(10);
 }
