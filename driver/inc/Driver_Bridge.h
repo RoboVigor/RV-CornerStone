@@ -77,10 +77,16 @@ void Bridge_Receive_CAN(Bridge_Type *bridge, uint8_t type);
 void Bridge_Send_Motor(Bridge_Type *bridge, uint8_t safetyMode);
 
 /**
- * @brief 发送协议数据
- * @todo  未测试
+ * @brief  释放发送锁
  */
-void Bridge_Send_Protocol_Once(Node_Type *node, uint32_t commandID);
+void Bridge_Release_Lock_USART(Bridge_Type *bridge, uint8_t type, uint32_t deviceID);
+
+/**
+ * @brief  发送协议数据
+ * @todo   未测试
+ * @return 0=节点被占用, 1=成功
+ */
+uint8_t Bridge_Send_Protocol_Once(Node_Type *node, uint32_t commandID);
 
 /**
  * @brief 按一定频率自动发送协议数据

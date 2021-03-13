@@ -92,19 +92,40 @@ void Bridge_Send_Motor(Bridge_Type *bridge, uint8_t safetyMode) {
     }
 }
 
-void Bridge_Send_Protocol_Once(Node_Type *node, uint32_t commandID) {
+void Bridge_Release_Lock_USART(Bridge_Type *bridge, uint8_t type, uint32_t deviceID) {
+    uint16_t   i, tmp, len;
+    Node_Type *node = USART_NODE;
+    node->sendLock  = 0;
+}
+
+extern DMA_Type DMA_Table[10];
+
+extern DebugData_Type DebugData;
+
+uint8_t Bridge_Send_Protocol_Once(Node_Type *node, uint32_t commandID) {
     uint32_t deviceID = node->deviceID;
     uint16_t dataLength;
     uint8_t  type = node->bridgeType;
+    DMA_Type dma  = DMA_Table[USARTx_Tx];
+
+    if (node->sendLock) return 0;
+    node->sendLock = 1;
 
     if (IS_CAN) {
         dataLength = Protocol_Pack(node, commandID);
         Can_Send_Msg(type == CAN1_BRIDGE ? CAN1 : CAN2, CAN_DEVICE_ID, node->sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
     } else {
+        while (DMA_GetFlagStatus(dma.DMAx_Streamy, dma.DMA_FLAG_TCIFx) != SET) {
+        }
         DMA_Disable(USARTx_Tx);
         dataLength = Protocol_Pack(node, commandID);
         DMA_Enable(USARTx_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        while (DMA_GetFlagStatus(dma.DMAx_Streamy, dma.DMA_FLAG_TCIFx) != SET) {
+        }
     }
+
+    node->sendLock = 0;
+    return 1;
 }
 
 void Bridge_Send_Protocol(Node_Type *node, uint32_t commandID, uint16_t frequency) {
@@ -122,8 +143,14 @@ void Bridge_Send_Protocol(Node_Type *node, uint32_t commandID, uint16_t frequenc
 void Task_Send_Protocol(void *Parameters) {
     TickType_t         LastWakeTime = xTaskGetTickCount();
     ProtocolInfo_Type *protocolInfo = Parameters;
+    uint8_t            isSuccess;
     while (1) {
-        Bridge_Send_Protocol_Once(protocolInfo->node, protocolInfo->id);
+        isSuccess = 0;
+        while (!isSuccess) {
+            isSuccess = Bridge_Send_Protocol_Once(protocolInfo->node, protocolInfo->id);
+            vTaskDelayUntil(&LastWakeTime, 3);
+        }
+        // isSuccess = Bridge_Send_Protocol_Once(protocolInfo->node, protocolInfo->id);
         vTaskDelayUntil(&LastWakeTime, 1000.0 / protocolInfo->frequency);
     }
     vTaskDelete(NULL);

@@ -81,6 +81,7 @@ typedef struct {
     // 发送相关
     uint8_t  sendBuf[Protocol_Buffer_Length]; // DMA发送缓存
     uint16_t sendSeq;                         // 已发送包序号
+    uint8_t  sendLock;                        // 发送锁
     // 接收相关
     uint8_t  receiveBuf[Protocol_Buffer_Length]; // DMA接收缓存
     uint8_t  packet[Protocol_Buffer_Length];     // 有效字节数组

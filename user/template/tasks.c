@@ -97,10 +97,10 @@ void Task_Chassis(void *Parameters) {
 
 void Task_Communication(void *Parameters) {
     TickType_t         LastWakeTime = xTaskGetTickCount(); // 时钟
-    float              interval     = 0.1;                 // 任务运行间隔 s
+    float              interval     = 0.001;               // 任务运行间隔 s
     int                intervalms   = interval * 1000;     // 任务运行间隔 ms
     ProtocolInfo_Type *protocolInfo = Protocol_Get_Info_Handle(0x501);
-
+    extern DMA_Type    DMA_Table[10];
     while (1) {
 
         // 修改数据
@@ -108,16 +108,19 @@ void Task_Communication(void *Parameters) {
         ProtocolData.boardAlpha.data2 = 2;
         ProtocolData.boardAlpha.data3 = 3;
         ProtocolData.boardAlpha.data4 = 4;
-        Bridge_Send_Protocol_Once(&Node_Host, 0x501);
+
+        // 建议在main.c中使用Bridge_Send_Protocol
+        // Bridge_Send_Protocol_Once(&Node_Host, 0x501);
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = ProtocolData.boardAlpha.data1 * 1000;
-        DebugData.debug2 = ProtocolData.boardAlpha.data2 * 1000;
-        DebugData.debug3 = Node_Host.sendSeq;
-        DebugData.debug4 = protocolInfo->receiveCount;
+        // DebugData.debug1 = ProtocolData.boardAlpha.data1 * 1000;
+        // DebugData.debug2 = ProtocolData.boardAlpha.data2 * 1000;
+        // DebugData.debug3 = Node_Host.sendSeq;
+        // DebugData.debug3 = Node_Host.sendLock;
+        // DebugData.debug4 = protocolInfo->receiveCount;
     }
     vTaskDelete(NULL);
 }
