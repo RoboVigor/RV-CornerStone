@@ -100,8 +100,6 @@ void Bridge_Release_Lock_USART(Bridge_Type *bridge, uint8_t type, uint32_t devic
 
 extern DMA_Type DMA_Table[10];
 
-extern DebugData_Type DebugData;
-
 uint8_t Bridge_Send_Protocol_Once(Node_Type *node, uint32_t commandID) {
     uint32_t deviceID = node->deviceID;
     uint16_t dataLength;
