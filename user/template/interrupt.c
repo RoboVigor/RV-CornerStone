@@ -1,9 +1,7 @@
 /**
  * @brief  中断服务函数根据地
  */
-
-#include "interrupt.h"
-#include "main.h"
+#include "handle.h"
 
 // EXTI9_5 陀螺仪中断
 void EXTI9_5_IRQHandler(void) {
@@ -39,122 +37,44 @@ void USART1_IRQHandler(void) {
  */
 void USART3_IRQHandler(void) {
     uint8_t tmp;
-
-    // clear IDLE flag
-    tmp = USART3->DR;
-    tmp = USART3->SR;
+    Bridge_Receive_USART(&BridgeData, USART_BRIDGE, 3);
 }
 
 /**
  * @brief USART6 串口中断
  */
 void USART6_IRQHandler(void) {
-    uint8_t  tmp;
-    uint16_t len;
-    int      i;
-
-    // clear IDLE flag
-    tmp = USART6->DR;
-    tmp = USART6->SR;
-
-    // disabe DMA
-    DMA_Disable(USART6_Rx);
-
-    // unpack
-    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(USART6_Rx);
-    for (i = 0; i < len; i++) {
-        Protocol_Unpack(&JudgeChannel, JudgeChannel.receiveBuf[i]);
-    }
-    吧
-
-        // enable DMA
-        DMA_Enable(USART6_Rx, Protocol_Buffer_Length);
+    Bridge_Receive_USART(&BridgeData, USART_BRIDGE, 6);
 }
 
 /**
  * @brief UART7 串口中断
  */
 void UART7_IRQHandler(void) {
-    uint8_t  tmp;
-    uint16_t len;
-    int      i;
-
-    // clear IDLE flag
-    tmp = UART7->DR;
-    tmp = UART7->SR;
-
-    // disabe DMA
-    DMA_Disable(UART7_Rx);
-
-    // unpack
-    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART7_Rx);
-    for (i = 0; i < len; i++) {
-        Protocol_Unpack(&UserChannel, UserChannel.receiveBuf[i]);
-    }
-
-    // enable DMA
-    DMA_Enable(UART7_Rx, Protocol_Buffer_Length);
+    Bridge_Receive_USART(&BridgeData, USART_BRIDGE, 7);
 }
 
 /**
  * @brief UART8 串口中断
  */
 void UART8_IRQHandler(void) {
-    uint8_t  tmp;
-    uint16_t len;
-    int      i;
-
-    // clear IDLE flag
-    tmp = UART8->DR;
-    tmp = UART8->SR;
-
-    // disabe DMA
-    DMA_Disable(UART8_Rx);
-
-    // unpack
-    len = Protocol_Buffer_Length - DMA_Get_Data_Counter(UART8_Rx);
-    for (i = 0; i < len; i++) {
-        Protocol_Unpack(&HostChannel, HostChannel.receiveBuf[i]);
-    }
-
-    // enable DMA
-    DMA_Enable(UART8_Rx, Protocol_Buffer_Length);
+    Bridge_Receive_USART(&BridgeData, USART_BRIDGE, 8);
 }
 
 // CAN1数据接收中断服务函数
 void CAN1_RX0_IRQHandler(void) {
-    CanRxMsg CanRxData;
-    int      i;
+    Bridge_Receive_CAN(&BridgeData, CAN1_BRIDGE);
+}
 
-    // 读取数据
-    CAN_Receive(CAN1, CAN_FIFO0, &CanRxData);
-
-    // 安排数据
-    if (CanRxData.StdId < 0x500) {
-        Motor_Update(Can1_Device[ESC_ID(CanRxData.StdId)], CanRxData.Data);
-    } else {
-        for (i = 0; i < 8; i++) {
-            Protocol_Unpack(&UserChannel, CanRxData.Data[i]);
-        }
-    }
+// CAN2数据接收中断服务函数
+void CAN2_RX0_IRQHandler(void) {
+    Bridge_Receive_CAN(&BridgeData, CAN2_BRIDGE);
 }
 
 // void CAN1_SCE_IRQHandler(void) {
 //     RED_LIGHT_ON;
 //     CAN_ClearITPendingBit(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR);
 // }
-
-// CAN2数据接收中断服务函数
-void CAN2_RX0_IRQHandler(void) {
-    CanRxMsg CanRxData;
-    int      data[8];
-
-    // 读取数据
-    CAN_Receive(CAN2, CAN_FIFO0, &CanRxData);
-
-    //安排数据
-    Motor_Update(Can2_Device[ESC_ID(CanRxData.StdId)], CanRxData.Data);
-}
 
 // TIM2 高频计数器
 extern volatile uint32_t ulHighFrequencyTimerTicks;
@@ -174,7 +94,8 @@ void TIM2_IRQHandler(void) {
  */
 
 void NMI_Handler(void) {
-    printf("NMI_Handler");
+    while (1) {
+    }
 }
 
 /**
@@ -183,7 +104,8 @@ void NMI_Handler(void) {
  * @return None
  */
 void HardFault_Handler(void) {
-    printf("HardFault_Handler");
+    while (1) {
+    }
 }
 
 /**
@@ -192,7 +114,8 @@ void HardFault_Handler(void) {
  * @return None
  */
 void MemManage_Handler(void) {
-    printf("MemManage_Handler");
+    while (1) {
+    }
 }
 
 /**
@@ -201,7 +124,8 @@ void MemManage_Handler(void) {
  * @return None
  */
 void BusFault_Handler(void) {
-    printf("BusFault_Handler");
+    while (1) {
+    }
 }
 
 /**
@@ -210,7 +134,8 @@ void BusFault_Handler(void) {
  * @return None
  */
 void UsageFault_Handler(void) {
-    printf("UsageFault_Handler");
+    while (1) {
+    }
 }
 
 /**
@@ -219,7 +144,8 @@ void UsageFault_Handler(void) {
  * @return None
  */
 void DebugMon_Handler(void) {
-    printf("DebugMon_Handler");
+    while (1) {
+    }
 }
 
 // /**
@@ -228,7 +154,7 @@ void DebugMon_Handler(void) {
 //  * @return None
 //  */
 // void SVC_Handler(void) {
-//     //printf("SVC_Handler");
+//     //while(1){}
 // }
 
 // /**
@@ -237,7 +163,7 @@ void DebugMon_Handler(void) {
 //  * @return None
 //  */
 // void PendSV_Handler(void) {
-//     //printf("PendSV_Handler");
+//     //while(1){}
 // }
 
 // /**
@@ -246,5 +172,5 @@ void DebugMon_Handler(void) {
 //  * @return None
 //  */
 // void SysTick_Handler(void) {
-//     //printf("SysTick_Handler");
+//     //while(1){}
 // }
