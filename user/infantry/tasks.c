@@ -470,9 +470,9 @@ void Task_Chassis(void *Parameters) {
         Motor_RF.input = PID_RFCM.output * ChassisData.powerScale;
 
         // 调试信息
-        // DebugData.debug1 = Motor_Stir.angle;
-        // DebugData.debug2 = PID_StirSpeed.output;
-        // DebugData.debug3 = PID_StirAngle.output;
+         DebugData.debug1 = Motor_Stir.angle;
+         DebugData.debug2 = PID_StirSpeed.output;
+         DebugData.debug3 = PID_StirAngle.output;
         // DebugData.debug4 = Motor_RF.position;
         // DebugData.debug5 = Motor_RB.position;
         // DebugData.debug4 = vx * 1000;

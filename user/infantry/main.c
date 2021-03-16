@@ -146,7 +146,7 @@ int main(void) {
     // 等待遥控器开启
     while (!remoteData.state) {
     }
-
+    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     //模式切换任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
 
@@ -160,7 +160,7 @@ int main(void) {
     xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
 
     // DMA发送任务
-    // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
     // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
 
     
