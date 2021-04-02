@@ -61,25 +61,25 @@ int main(void) {
 
     // 云台电机
     // 上
-    Motor_Init(&Motor_Up_Gimbal_Yaw, 36, ENABLE, ENABLE);
-    Motor_Init(&Motor_Up_Gimbal_Pitch, 36, ENABLE, ENABLE);
+    Motor_Init(&Motor_Up_Gimbal_Yaw, 36.0f, ENABLE, DISABLE);
+    Motor_Init(&Motor_Up_Gimbal_Pitch, 36.0f, ENABLE, DISABLE);
     // 下
-    Motor_Init(&Motor_Down_Gimbal_Yaw, 1, ENABLE, ENABLE);
+    Motor_Init(&Motor_Down_Gimbal_Yaw, 36.0f, ENABLE, ENABLE);
     Motor_Init(&Motor_Down_Gimbal_Pitch, 1, ENABLE, ENABLE);
 
     // 摩擦轮电机
     // 上
-    Motor_Init(&Motor_Up_Frict_Left, 1, DISABLE, ENABLE);
-    Motor_Init(&Motor_Up_Frict_Right, 1, DISABLE, ENABLE);
+    Motor_Init(&Motor_Up_Frict_Left, 1, DISABLE, DISABLE);
+    Motor_Init(&Motor_Up_Frict_Right, 1, DISABLE, DISABLE);
     // 下
     Motor_Init(&Motor_Down_Frict_Left, 1, DISABLE, ENABLE);
     Motor_Init(&Motor_Down_Frict_Right, 1, DISABLE, ENABLE);
 
     // 拨弹电机
     // 上
-    Motor_Init(&Motor_Up_Stir, 36.0f, DISABLE, ENABLE);
+    Motor_Init(&Motor_Up_Stir, 36.0f, DISABLE, DISABLE);
     // 下
-    Motor_Init(&Motor_Down_Stir, 36.0f, ENABLE, ENABLE);
+    Motor_Init(&Motor_Down_Stir, 36.0f, ENABLE, DISABLE);
 
     // Motor_Up_Gimbal_Pitch.positionBias   = ;
     // Motor_Up_Gimbal_Pitch.position       = ;
@@ -156,7 +156,7 @@ int main(void) {
 
     xTaskCreate(Task_Down_Gimbal, "Task_Down_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Down_Stir, "Task_Down_Stir", 400, NULL, 6, NULL);
-    // xTaskCreate(Task_Down_Frict, "Task_Down_Frict", 400, NULL, 6, NULL); // √
+    xTaskCreate(Task_Down_Frict, "Task_Down_Frict", 400, NULL, 6, NULL); // √
 
     // DMA发送任务
     // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
