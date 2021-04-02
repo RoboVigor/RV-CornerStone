@@ -29,11 +29,11 @@ void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
         // FrictEnabled = remoteData.switchRight == 2;
-        FrictEnabled = 1;
+        FrictEnabled = 0;
         // LaserEnabled = remoteData.switchLeft == 3;
         // StirEnabled  = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
         // StirEnabled = remoteData.switchLeft == 2;
-        StirEnabled = 1;
+        StirEnabled = remoteData.switchRight == 3;
         // PsEnabled   = remoteData.switchLeft == 2;
         // AutoMode    = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
         SafetyMode = remoteData.switchRight == 2;
@@ -518,14 +518,14 @@ void Task_Down_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = pitchAngleTargetControl;
-        DebugData.debug2 = Motor_Down_Gimbal_Pitch.angle * 100;
-        DebugData.debug3 = pitchAngleTarget;
-        DebugData.debug4 = pitchSpeed;
-        DebugData.debug5 = Motor_Down_Gimbal_Pitch.input;
-        DebugData.debug6 = PID_Down_Gimbal_Pitch_Speed.output;
-        DebugData.debug7 = remoteData.ry;
-        DebugData.debug8 = PID_Down_Gimbal_Pitch_Angle.output;
+        // DebugData.debug1 = pitchAngleTargetControl;
+        // DebugData.debug2 = Motor_Down_Gimbal_Pitch.angle * 100;
+        // DebugData.debug3 = pitchAngleTarget;
+        // DebugData.debug4 = pitchSpeed;
+        // DebugData.debug5 = Motor_Down_Gimbal_Pitch.input;
+        // DebugData.debug6 = PID_Down_Gimbal_Pitch_Speed.output;
+        // DebugData.debug7 = remoteData.ry;
+        // DebugData.debug8 = PID_Down_Gimbal_Pitch_Angle.output;
         // DebugData.debug8 = pitchAngleLimitMin - pitchAngleTarget;
     }
     vTaskDelete(NULL);
@@ -665,7 +665,7 @@ void Task_Down_Stir(void *Parameters) {
     int counter2 = 0;
 
     // PID 初始化
-    PID_Init(&PID_Down_Stir_Speed, 12, 0, 0, 6000, 3000);
+    PID_Init(&PID_Down_Stir_Speed, 8, 0, 0, 6000, 3000);
 
     // 热量限制
     int calmDown = 0; // 1:冷却
@@ -765,9 +765,8 @@ void Task_Down_Stir(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-
-        // DebugData.debug2 = ProtocolData.autoaimData.biu_biu_state;
-        // DebugData.debug3 = shootMode;
+        DebugData.debug1 = Motor_Down_Stir.position;
+        DebugData.debug2 = targetSpeed;
     }
 
     vTaskDelete(NULL);
@@ -787,7 +786,7 @@ void Task_Up_Frict(void *Parameters) {
     PID_Init(&PID_Up_Frict_Right_Speed, 50, 0, 0, 16384, 2000);
 
     while (1) {
-        targetSpeed = CHOOSER(0, 200, 300);
+        targetSpeed = CHOOSEL(0, 200, 400);
 
         motorUpLeftSpeed  = Motor_Up_Frict_Left.speed / 19.2f;
         motorUpRightSpeed = Motor_Up_Frict_Right.speed / 19.2f;
@@ -803,6 +802,9 @@ void Task_Up_Frict(void *Parameters) {
             Motor_Up_Frict_Left.input  = PID_Up_Frict_Left_Speed.output;
             Motor_Up_Frict_Right.input = PID_Up_Frict_Right_Speed.output;
         };
+
+        // DebugData.debug1 = Motor_Up_Frict_Left.speed;
+        // DebugData.debug1 = Motor_Up_Frict_Left.position;
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -823,7 +825,7 @@ void Task_Down_Frict(void *Parameters) {
     PID_Init(&PID_Down_Frict_Right_Speed, 50, 0, 0, 16384, 2000);
 
     while (1) {
-        targetSpeed = CHOOSER(0, 200, 300);
+        targetSpeed = CHOOSEL(0, 200, 300);
 
         motorDownLeftSpeed  = Motor_Down_Frict_Left.speed / 19.2f;
         motorDownRightSpeed = Motor_Down_Frict_Right.speed / 19.2f;
