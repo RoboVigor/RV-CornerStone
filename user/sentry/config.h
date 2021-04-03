@@ -15,9 +15,13 @@
 #define IMU_GY_BIAS -6 // GY静态误差
 #define IMU_GZ_BIAS -1 // GZ静态误差
 
+// 主控板编号
+#define BOARD_UP (Board_Id == 2)
+#define BOARD_DOWN (Board_Id == 0)
+
 // 陀螺仪
-#define BOARD_FRONT_IS_UP 0                     // 板子正面朝下
-#define BOARD_SHORT_SIDE_IS_PARALLEL_TO_PITCH 0 // 板子短边朝下
+#define BOARD_FRONT_IS_UP 1                     // 板子正面朝下
+#define BOARD_SHORT_SIDE_IS_PARALLEL_TO_PITCH 1 // 板子短边朝下
 #define GYROSCOPE_YAW_FILTER_THRESHOLD 0.005f   // 零飘修正阈值
 #define GYROSCOPE_LSB 16.384f                   // 陀螺仪敏感度 2^16/4000
 #define ACCELERATE_LSB 4096.0f                  // 加速度计敏感度 2^16/16
@@ -30,21 +34,21 @@
 
 // 云台
 // 上
-#define UP_YAW_ANGLE_MIN -110
-#define UP_YAW_ANGLE_MAX 110
-#define UP_PITCH_ANGLE_MIN -35
-#define UP_PITCH_ANGLE_MAX 15
-#define AUTO_UP_YAW_ANGLE_MIN -110
-#define AUTO_UP_YAW_ANGLE_MAX 110
-#define AUTO_UP_PITCH_ANGLE_MIN -35
-#define AUTO_UP_PITCH_ANGLE_MAX -5
+#define UP_GIMBAL_YAW_MIN -110
+#define UP_GIMBAL_YAW_MAX 110
+#define UP_GIMBAL_PITCH_MIN -35
+#define UP_GIMBAL_PITCH_MAX 15
+#define AUTO_UP_GIMBAL_YAW_MIN -110
+#define AUTO_UP_GIMBAL_YAW_MAX 110
+#define AUTO_UP_GIMBAL_PITCH_MIN -35
+#define AUTO_UP_GIMBAL_PITCH_MAX -5
 
 // 下
-#define DOWN_YAW_ANGLE_MIN 575
-#define DOWN_YAW_ANGLE_MAX 110
-#define DOWN_PITCH_ANGLE_MIN -7000
-#define DOWN_PITCH_ANGLE_MAX -5900
-#define AUTO_DOWN_YAW_ANGLE_MIN -110
-#define AUTO_DOWN_YAW_ANGLE_MAX 110
-#define AUTO_DOWN_PITCH_ANGLE_MIN -35
-#define AUTO_DOWN_PITCH_ANGLE_MAX -5
+#define DOWN_GIMBAL_YAW_MIN 575
+#define DOWN_GIMBAL_YAW_MAX 110
+#define DOWN_GIMBAL_PITCH_MIN -7000
+#define DOWN_GIMBAL_PITCH_MAX -5900
+#define AUTO_DOWN_GIMBAL_YAW_MIN -110
+#define AUTO_DOWN_GIMBAL_YAW_MAX 110
+#define AUTO_DOWN_GIMBAL_PITCH_MIN -35
+#define AUTO_DOWN_GIMBAL_PITCH_MAX -5

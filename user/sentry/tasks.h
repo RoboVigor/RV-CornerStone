@@ -1,7 +1,6 @@
 #ifndef __TASKS_H
 #define __TASKS_H
 
-void Task_Safe_Mode(void *Parameters);
 void Task_Control(void *Parameters);
 void Task_Chassis(void *Parameters);
 void Task_Up_Gimbal(void *Parameters);

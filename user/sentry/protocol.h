@@ -221,19 +221,33 @@ typedef struct {
         };
     };
 } ext_gimbal_aim_data_t;
+
 typedef struct {
     union {
         struct {
-            int32_t data1;
-            int32_t data2;
-            int32_t data3;
-            int32_t data4;
+            float yaw;
+            float pitch;
+            float roll;
+            float yawoffset;
         };
         struct {
             uint8_t data[16];
         };
     };
-} board_interactive_data_t;
+} board_Down_Gyroscope_data_t;
+
+typedef struct {
+    union {
+        struct {
+            int16_t gx;
+            int16_t gy;
+            int16_t gz;
+        };
+        struct {
+            uint8_t data[6];
+        };
+    };
+} board_Down_Imu_data_t;
 
 typedef struct {
     union {
@@ -304,7 +318,7 @@ typedef struct {
      {0xF110, 51, 1},                                                                                                                                          \
      {0x0401, 9, 1},                                                                                                                                           \
      {0x0501, 16, 1},                                                                                                                                          \
-     {0x0502, 16, 1},                                                                                                                                          \
+     {0x0502, 6, 1},                                                                                                                                           \
      {0xF201, 22, 1},                                                                                                                                          \
      {0x120, 0, 1},                                                                                                                                            \
      {0x1024, 32, 1},                                                                                                                                          \
@@ -328,15 +342,15 @@ typedef union {
         client_custom_graphic_seven_t  clientGraphicSeven;     // 客户端自定义绘制七个图形
         client_custom_character_t      clientGraphicCharacter; // 客户端自定义绘制字符
         ext_gimbal_aim_data_t          autoaimData;            // 视觉自瞄数据
-        board_interactive_data_t       boardAlpha;             // 板间通讯测试
-        board_interactive_data_t       boardBeta;              // 板间通讯测试
+        board_Down_Gyroscope_data_t    boardDownGyroscopeData; // 下云台陀螺仪系统数据
+        board_Down_Imu_data_t          boardDownImuData;       // 下云台惯性测量单元数据
         robot_interactive_data_t       robotCommunication;     // 车间通讯测试
         Heartbeat_Type                 heartbeat;              // 心跳包
         DebugInfo_Type                 debugInfo;              // 调试信息
         ErrorInfo_Type                 errorInfo;              // 报错信息
     };
     struct {
-        uint8_t data[399];
+        uint8_t data[460];
     };
 } ProtocolData_Type;
 

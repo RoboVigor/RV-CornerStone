@@ -10,33 +10,17 @@
 #define IS_DOWN_BOARD Board_Id == 1
 #define IS_UP_BOARD Board_Id == 2
 
-void Task_Safe_Mode(void *Parameters) {
-    while (1) {
-        if (remoteData.switchRight == 2 && remoteData.switchLeft == 2) {
-            vTaskSuspendAll();
-            while (1) {
-                Motor_Down_Gimbal_Yaw.input   = 0;
-                Motor_Down_Gimbal_Pitch.input = 0;
-                vTaskDelay(2);
-            }
-        }
-        vTaskDelay(2);
-    }
-    vTaskDelete(NULL);
-}
-
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        // FrictEnabled = remoteData.switchRight == 2;
-        FrictEnabled = 1;
+        FrictEnabled = RIGHT_SWITCH_MIDDLE;
         // LaserEnabled = remoteData.switchLeft == 3;
         // StirEnabled  = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
         // StirEnabled = remoteData.switchLeft == 2;
-        StirEnabled = remoteData.switchRight == 3;
+        StirEnabled = RIGHT_SWITCH_MIDDLE;
         // PsEnabled   = remoteData.switchLeft == 2;
         // AutoMode    = (remoteData.switchLeft == 2) && (remoteData.switchRight == 1);
-        SafetyMode = remoteData.switchRight == 2;
+        SafetyMode = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
 
         // if ((remoteData.switchLeft == 1 && remoteData.switchRight == 1) || (!remoteData.state)) {
         //     FrictEnabled = 1;
@@ -267,6 +251,11 @@ void Task_Up_Gimbal(void *Parameters) {
     int counter    = 0;
     int maxTimeout = 500 / intervalms;
 
+    // Pitch轴斜坡参数
+    float pitchRampProgress    = 0;
+    float pitchRampStart       = Gyroscope_EulerData.pitch - 90;
+    float pitchAngleTargetRamp = 0;
+
     // 自动转头
     int directionX = 1;
     int directionY = 1;
@@ -278,11 +267,15 @@ void Task_Up_Gimbal(void *Parameters) {
     PID_Init(&PID_Up_Gimbal_Pitch_Speed, 4.9, 1.2, 0.5, 5000, 0);
 
     while (1) {
+        // 重置目标
+        yawAngleTarget   = 0;
+        pitchAngleTarget = 0;
+
         // 设置反馈
-        yawAngle   = Motor_Up_Gimbal_Yaw.position;
-        yawSpeed   = Motor_Up_Gimbal_Yaw.speed * RPM2RPS;
-        pitchAngle = Motor_Up_Gimbal_Pitch.position;
-        pitchSpeed = Motor_Up_Gimbal_Pitch.speed * RPM2RPS;
+        yawAngle   = -1 * Gyroscope_EulerData.yaw;    // 逆时针为正
+        yawSpeed   = ImuData.gy / GYROSCOPE_LSB;      // 逆时针为正
+        pitchAngle = Gyroscope_EulerData.pitch - 90;  // 逆时针为正
+        pitchSpeed = -1 * ImuData.gx / GYROSCOPE_LSB; // 逆时针为正
 
         // 视觉系统
         // if (!PsEnabled) {
@@ -335,12 +328,26 @@ void Task_Up_Gimbal(void *Parameters) {
         // } else if (pitchAngleTarget <= autoPitchAngleLimitMin) {
         //     directionY = 1;
         // }
-        MIAO(yawAngleTarget, UP_YAW_ANGLE_MIN, UP_YAW_ANGLE_MAX);
-        MIAO(pitchAngleTarget, UP_PITCH_ANGLE_MIN, UP_PITCH_ANGLE_MAX);
+        // 遥控器输入角度目标
+        if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 360 * interval;
+        if (ABS(remoteData.ry) > 30) pitchAngleTargetControl -= remoteData.ry / 660.0f * 360 * interval;
+        MIAO(pitchAngleTargetControl, UP_GIMBAL_PITCH_MIN, UP_GIMBAL_PITCH_MAX);
+        yawAngleTarget += yawAngleTargetControl;
+        pitchAngleTarget += pitchAngleTargetControl;
 
-        // 设置角度目标
-        if (ABS(remoteData.rx) > 30) yawAngleTarget += remoteData.rx / 660.0f * 90 * interval;
-        if (ABS(remoteData.ry) > 30) pitchAngleTarget += remoteData.ry / 660.0f * 90 * interval;
+        //视觉补偿
+        MIAO(pitchAngleTargetPs, UP_GIMBAL_PITCH_MIN - pitchAngleTarget, UP_GIMBAL_PITCH_MAX - pitchAngleTarget);
+        yawAngleTarget += yawAngleTargetPs;
+        pitchAngleTarget += pitchAngleTargetPs;
+
+        // 限制云台运动范围
+        MIAO(pitchAngleTarget, UP_GIMBAL_PITCH_MIN, UP_GIMBAL_PITCH_MAX);
+
+        // 开机时pitch轴匀速抬起
+        pitchAngleTargetRamp = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
+        if (pitchRampProgress < 1) {
+            pitchRampProgress += 0.01f;
+        }
 
         // 计算PID
         PID_Calculate(&PID_Up_Gimbal_Yaw_Angle, yawAngleTarget, yawAngle);
@@ -356,8 +363,8 @@ void Task_Up_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        DebugData.debug1 = Motor_Up_Gimbal_Yaw.position;
-        DebugData.debug2 = Motor_Up_Gimbal_Pitch.position;
+        // DebugData.debug1 = Motor_Up_Gimbal_Yaw.position;
+        // DebugData.debug2 = Motor_Up_Gimbal_Pitch.position;
         // DebugData.debug2 = ProtocolData.autoaimData.biu_biu_state;
         // DebugData.debug3 = -1 * Gyroscope_EulerData.pitch;
         // DebugData.debug4 = pitchAngleLimitMin;
@@ -397,22 +404,31 @@ void Task_Down_Gimbal(void *Parameters) {
     int counter    = 0;
     int maxTimeout = 500 / intervalms;
 
+    // Pitch轴斜坡参数
+    float pitchRampProgress    = 0;
+    float pitchRampStart       = Gyroscope_EulerData.pitch - 90;
+    float pitchAngleTargetRamp = 0;
+
     // 自动转头
     int directionX = 1;
     int directionY = 1;
 
     // 初始化云台PID
-    PID_Init(&PID_Down_Gimbal_Yaw_Angle, 2, 0, 0, 500, 1000);
-    PID_Init(&PID_Down_Gimbal_Yaw_Speed, 0.4, 0, 0, 2000, 1000);
-    PID_Init(&PID_Down_Gimbal_Pitch_Angle, 4.9, 1.2, 0.5, 16384, 500);
-    PID_Init(&PID_Down_Gimbal_Pitch_Speed, 6.9, 1.2, 0.5, 16384, 1000);
+    PID_Init(&PID_Down_Gimbal_Yaw_Angle, 10, 0, 0, 5000, 0);
+    PID_Init(&PID_Down_Gimbal_Yaw_Speed, 250, 0, 0, 12000, 0);
+    PID_Init(&PID_Down_Gimbal_Pitch_Angle, 4.9, 1.2, 0.5, 16384, 1000);
+    PID_Init(&PID_Down_Gimbal_Pitch_Speed, 4.9, 1.2, 0.5, 16384, 0);
 
     while (1) {
+        // 重置目标
+        yawAngleTarget   = 0;
+        pitchAngleTarget = 0;
+
         // 设置反馈
-        yawAngle   = Motor_Down_Gimbal_Yaw.position;
-        yawSpeed   = Motor_Down_Gimbal_Yaw.speed * RPM2RPS;
-        pitchAngle = -1 * Motor_Down_Gimbal_Pitch.position;
-        pitchSpeed = Motor_Down_Gimbal_Pitch.speed * RPM2RPS;
+        yawAngle   = -1 * ProtocolData.boardDownGyroscopeData.yaw;          // 逆时针为正
+        yawSpeed   = ProtocolData.boardDownImuData.gy / GYROSCOPE_LSB;      // 逆时针为正
+        pitchAngle = ProtocolData.boardDownGyroscopeData.pitch - 90;        // 逆时针为正
+        pitchSpeed = -1 * ProtocolData.boardDownImuData.gx / GYROSCOPE_LSB; // 逆时针为正
 
         // 视觉系统
         // if (!PsEnabled) {
@@ -465,13 +481,26 @@ void Task_Down_Gimbal(void *Parameters) {
         // } else if (pitchAngleTarget <= autoPitchAngleLimitMin) {
         //     directionY = 1;
         // }
+        // 遥控器输入角度目标
+        if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.lx / 660.0f * 360 * interval;
+        if (ABS(remoteData.ry) > 30) pitchAngleTargetControl -= remoteData.ly / 660.0f * 360 * interval;
+        MIAO(pitchAngleTargetControl, DOWN_GIMBAL_PITCH_MIN, DOWN_GIMBAL_PITCH_MAX);
+        yawAngleTarget += yawAngleTargetControl;
+        pitchAngleTarget += pitchAngleTargetControl;
 
-        MIAO(yawAngleTarget, DOWN_YAW_ANGLE_MIN, DOWN_YAW_ANGLE_MAX);
-        MIAO(pitchAngleTarget, DOWN_PITCH_ANGLE_MIN, DOWN_PITCH_ANGLE_MAX);
+        //视觉补偿
+        MIAO(pitchAngleTargetPs, DOWN_GIMBAL_PITCH_MIN - pitchAngleTarget, DOWN_GIMBAL_PITCH_MAX - pitchAngleTarget);
+        yawAngleTarget += yawAngleTargetPs;
+        pitchAngleTarget += pitchAngleTargetPs;
 
-        // 设置角度目标
-        if (ABS(remoteData.rx) > 30) yawAngleTarget += remoteData.rx / 660.0f * 30000 * interval;
-        if (ABS(remoteData.ry) > 30) pitchAngleTarget += remoteData.ry / 660.0f * 3000 * interval;
+        // 限制云台运动范围
+        MIAO(pitchAngleTarget, DOWN_GIMBAL_PITCH_MIN, DOWN_GIMBAL_PITCH_MAX);
+
+        // 开机时pitch轴匀速抬起
+        pitchAngleTargetRamp = RAMP(pitchRampStart, pitchAngleTarget, pitchRampProgress);
+        if (pitchRampProgress < 1) {
+            pitchRampProgress += 0.01f;
+        }
 
         // 计算PID
         PID_Calculate(&PID_Down_Gimbal_Yaw_Angle, yawAngleTarget, yawAngle);
@@ -481,21 +510,19 @@ void Task_Down_Gimbal(void *Parameters) {
 
         // 输出电流
         Motor_Down_Gimbal_Yaw.input   = PID_Down_Gimbal_Yaw_Speed.output;
-        Motor_Down_Gimbal_Pitch.input = -1 * PID_Down_Gimbal_Pitch_Speed.output;
+        Motor_Down_Gimbal_Pitch.input = PID_Down_Gimbal_Pitch_Speed.output;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = pitchAngleTargetControl;
-        // DebugData.debug1 = pitchAngleTargetControl;
-        // DebugData.debug2 = Motor_Down_Gimbal_Pitch.position;
-        // DebugData.debug3 = pitchAngle;
-        // DebugData.debug4 = pitchAngleTarget;
-        // DebugData.debug5 = Motor_Down_Gimbal_Pitch.input;
-        // DebugData.debug6 = PID_Down_Gimbal_Pitch_Speed.output;
-        // DebugData.debug7 = remoteData.ry;
-        // DebugData.debug8 = PID_Down_Gimbal_Pitch_Angle.output;
+        // DebugData.debug1 = Board_Id;
+        // DebugData.debug2 = ProtocolData.boardDownGyroscopeData.yaw;
+        // DebugData.debug3 = ProtocolData.boardDownGyroscopeData.pitch;
+        // DebugData.debug4 = Gyroscope_EulerData.yaw;
+        // DebugData.debug5 = Gyroscope_EulerData.pitch;
+        // DebugData.debug6 = pitchAngleTargetPs;
+        // DebugData.debug7 = pitchAngleTargetControl;
         // DebugData.debug8 = pitchAngleLimitMin - pitchAngleTarget;
     }
     vTaskDelete(NULL);
@@ -614,9 +641,8 @@ void Task_Up_Stir(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-
-        DebugData.debug1 = Motor_Up_Stir.speed;
-        DebugData.debug2 = targetSpeed;
+        // DebugData.debug1 = Motor_Up_Stir.speed;
+        // DebugData.debug2 = targetSpeed;
     }
 
     vTaskDelete(NULL);
@@ -830,34 +856,34 @@ void Task_Can_Send(void *Parameters) {
 }
 
 void Task_Board_Communication(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.005;               // 任务运行间隔 s
-    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
-
-    uint16_t id;
-    uint16_t dataLength;
+    TickType_t         LastWakeTime = xTaskGetTickCount(); // 时钟
+    float              interval     = 0.005;               // 任务运行间隔 s
+    int                intervalms   = interval * 1000;     // 任务运行间隔 ms
+    ProtocolInfo_Type *protocolInfo = Protocol_Get_Info_Handle(0x501);
 
     while (1) {
-        // if (IS_DOWN_BOARD) {
-        //     id                                        = 0x501;
-        //     ProtocolData.user.boardGimbalUp.remoteRx  = remoteData.rx;
-        //     ProtocolData.user.boardGimbalUp.remoteRy  = remoteData.ry;
-        //     ProtocolData.user.boardGimbalUp.remoteSwL = remoteData.switchLeft;
-        //     ProtocolData.user.boardGimbalUp.remoteSwR = remoteData.switchRight;
-        // } else if (IS_UP_BOARD) {
-        //     remoteData.rx          = ProtocolData.user.boardGimbalUp.remoteRx;
-        //     remoteData.ry          = ProtocolData.user.boardGimbalUp.remoteRy;
-        //     remoteData.switchLeft  = ProtocolData.user.boardGimbalUp.remoteSwL;
-        //     remoteData.switchRight = ProtocolData.user.boardGimbalUp.remoteSwR;
-        //     Bridge_Send_Protocol_Once(&Node_Board, 0x501);
-        // }
+        if (BOARD_UP) {
+        } else if (BOARD_DOWN) {
+            ProtocolData.boardDownGyroscopeData.yaw       = Gyroscope_EulerData.yaw;
+            ProtocolData.boardDownGyroscopeData.pitch     = Gyroscope_EulerData.pitch;
+            ProtocolData.boardDownGyroscopeData.roll      = Gyroscope_EulerData.roll;
+            ProtocolData.boardDownGyroscopeData.yawoffset = Gyroscope_EulerData.yawoffset;
+            Bridge_Send_Protocol_Once(&Node_Board, 0x501);
 
-        // // Can发送
-        // dataLength = Protocol_Pack(&UserChannel, id);
-        // Can_Send_Msg(CAN1, id, UserChannel.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-
-        // // 发送频率
+            ProtocolData.boardDownImuData.gx = ImuData.gx;
+            ProtocolData.boardDownImuData.gy = ImuData.gy;
+            ProtocolData.boardDownImuData.gz = ImuData.gz;
+            Bridge_Send_Protocol_Once(&Node_Board, 0x502);
+        }
+        // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
+
+        DebugData.debug1 = Board_Id;
+        DebugData.debug2 = protocolInfo->receiveCount;
+        DebugData.debug3 = ProtocolData.boardDownGyroscopeData.yaw;
+        DebugData.debug4 = ProtocolData.boardDownGyroscopeData.pitch;
+        DebugData.debug5 = Node_Board.sendSeq;
+        DebugData.debug6 = Node_Board.sendLock;
     }
     vTaskDelete(NULL);
 }
