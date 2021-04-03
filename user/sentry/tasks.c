@@ -274,17 +274,15 @@ void Task_Up_Gimbal(void *Parameters) {
     // 初始化云台PID
     PID_Init(&PID_Up_Gimbal_Yaw_Angle, 10, 0, 0, 5000, 0);
     PID_Init(&PID_Up_Gimbal_Yaw_Speed, 250, 0, 0, 12000, 0);
-    PID_Init(&PID_Up_Gimbal_Pitch_Angle, 20, 0.1, 0, 2000, 1000);
-    PID_Init(&PID_Up_Gimbal_Pitch_Speed, 40, 0, 0, 5000, 0);
+    PID_Init(&PID_Up_Gimbal_Pitch_Angle, 4.9, 1.2, 0.5, 2000, 1000);
+    PID_Init(&PID_Up_Gimbal_Pitch_Speed, 4.9, 1.2, 0.5, 5000, 0);
 
     while (1) {
         // 设置反馈
-        yawAngle         = Motor_Up_Gimbal_Yaw.angle;
-        yawSpeed         = Motor_Up_Gimbal_Yaw.speed * RPM2RPS;
-        pitchAngle       = Motor_Up_Gimbal_Pitch.angle;
-        pitchSpeed       = Motor_Up_Gimbal_Pitch.speed * RPM2RPS;
-        yawAngleTarget   = 0;
-        pitchAngleTarget = 0;
+        yawAngle   = Motor_Up_Gimbal_Yaw.position;
+        yawSpeed   = Motor_Up_Gimbal_Yaw.speed * RPM2RPS;
+        pitchAngle = Motor_Up_Gimbal_Pitch.position;
+        pitchSpeed = Motor_Up_Gimbal_Pitch.speed * RPM2RPS;
 
         // 视觉系统
         // if (!PsEnabled) {
@@ -337,19 +335,12 @@ void Task_Up_Gimbal(void *Parameters) {
         // } else if (pitchAngleTarget <= autoPitchAngleLimitMin) {
         //     directionY = 1;
         // }
-
-        // 设置角度目标
-        if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 90 * interval;
-        if (ABS(remoteData.ry) > 30) pitchAngleTargetControl += remoteData.ry / 660.0f * 90 * interval;
-
-        MIAO(yawAngleTargetControl, UP_YAW_ANGLE_MIN - yawAngleTarget, UP_YAW_ANGLE_MAX - yawAngleTarget);
-        MIAO(pitchAngleTargetControl, UP_PITCH_ANGLE_MIN - pitchAngleTarget, UP_PITCH_ANGLE_MAX - pitchAngleTarget);
-        
-        yawAngleTarget += yawAngleTargetControl;
-        pitchAngleTarget += pitchAngleTargetControl;
-
         MIAO(yawAngleTarget, UP_YAW_ANGLE_MIN, UP_YAW_ANGLE_MAX);
         MIAO(pitchAngleTarget, UP_PITCH_ANGLE_MIN, UP_PITCH_ANGLE_MAX);
+
+        // 设置角度目标
+        if (ABS(remoteData.rx) > 30) yawAngleTarget += remoteData.rx / 660.0f * 90 * interval;
+        if (ABS(remoteData.ry) > 30) pitchAngleTarget += remoteData.ry / 660.0f * 90 * interval;
 
         // 计算PID
         PID_Calculate(&PID_Up_Gimbal_Yaw_Angle, yawAngleTarget, yawAngle);
@@ -365,7 +356,8 @@ void Task_Up_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = Motor_Stir.speed;
+        DebugData.debug1 = Motor_Up_Gimbal_Yaw.position;
+        DebugData.debug2 = Motor_Up_Gimbal_Pitch.position;
         // DebugData.debug2 = ProtocolData.autoaimData.biu_biu_state;
         // DebugData.debug3 = -1 * Gyroscope_EulerData.pitch;
         // DebugData.debug4 = pitchAngleLimitMin;
@@ -412,19 +404,15 @@ void Task_Down_Gimbal(void *Parameters) {
     // 初始化云台PID
     PID_Init(&PID_Down_Gimbal_Yaw_Angle, 2, 0, 0, 500, 1000);
     PID_Init(&PID_Down_Gimbal_Yaw_Speed, 0.4, 0, 0, 2000, 1000);
-    PID_Init(&PID_Down_Gimbal_Pitch_Angle, 4.9, 0.00, 0, 12000, 0);
-    PID_Init(&PID_Down_Gimbal_Pitch_Speed, 4.9, 0.00, 0, 12000, 0);
+    PID_Init(&PID_Down_Gimbal_Pitch_Angle, 4.9, 1.2, 0.5, 16384, 500);
+    PID_Init(&PID_Down_Gimbal_Pitch_Speed, 6.9, 1.2, 0.5, 16384, 1000);
 
     while (1) {
-        // 重置目标
-        yawAngleTarget   = 0;
-        pitchAngleTarget = 0;
-
         // 设置反馈
-        yawAngle   = Motor_Down_Gimbal_Yaw.angle;
+        yawAngle   = Motor_Down_Gimbal_Yaw.position;
         yawSpeed   = Motor_Down_Gimbal_Yaw.speed * RPM2RPS;
-        pitchAngle = Motor_Down_Gimbal_Pitch.angle;
-        pitchSpeed = -1 * Motor_Down_Gimbal_Pitch.speed * RPM2RPS;
+        pitchAngle = -1 * Motor_Down_Gimbal_Pitch.position;
+        pitchSpeed = Motor_Down_Gimbal_Pitch.speed * RPM2RPS;
 
         // 视觉系统
         // if (!PsEnabled) {
@@ -478,18 +466,12 @@ void Task_Down_Gimbal(void *Parameters) {
         //     directionY = 1;
         // }
 
-        // 设置角度目标
-        if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 30000 * interval;
-        if (ABS(remoteData.ry) > 30) pitchAngleTargetControl += remoteData.ry / 660.0f * 3000 * interval;
-
-        MIAO(yawAngleTargetControl, DOWN_YAW_ANGLE_MIN, DOWN_YAW_ANGLE_MAX);
-        MIAO(pitchAngleTargetControl, DOWN_PITCH_ANGLE_MIN, DOWN_PITCH_ANGLE_MAX);
-
-        yawAngleTarget += yawAngleTargetControl;
-        pitchAngleTarget += pitchAngleTargetControl;
-
         MIAO(yawAngleTarget, DOWN_YAW_ANGLE_MIN, DOWN_YAW_ANGLE_MAX);
         MIAO(pitchAngleTarget, DOWN_PITCH_ANGLE_MIN, DOWN_PITCH_ANGLE_MAX);
+
+        // 设置角度目标
+        if (ABS(remoteData.rx) > 30) yawAngleTarget += remoteData.rx / 660.0f * 30000 * interval;
+        if (ABS(remoteData.ry) > 30) pitchAngleTarget += remoteData.ry / 660.0f * 3000 * interval;
 
         // 计算PID
         PID_Calculate(&PID_Down_Gimbal_Yaw_Angle, yawAngleTarget, yawAngle);
@@ -506,14 +488,14 @@ void Task_Down_Gimbal(void *Parameters) {
 
         // 调试信息
         // DebugData.debug1 = pitchAngleTargetControl;
-        DebugData.debug1 = pitchAngleTargetControl;
-        DebugData.debug2 = Motor_Down_Gimbal_Pitch.position;
-        DebugData.debug3 = pitchAngleTarget;
-        DebugData.debug4 = pitchSpeed;
-        DebugData.debug5 = Motor_Down_Gimbal_Pitch.input;
-        DebugData.debug6 = PID_Down_Gimbal_Pitch_Speed.output;
-        DebugData.debug7 = remoteData.ry;
-        DebugData.debug8 = PID_Down_Gimbal_Pitch_Angle.output;
+        // DebugData.debug1 = pitchAngleTargetControl;
+        // DebugData.debug2 = Motor_Down_Gimbal_Pitch.position;
+        // DebugData.debug3 = pitchAngle;
+        // DebugData.debug4 = pitchAngleTarget;
+        // DebugData.debug5 = Motor_Down_Gimbal_Pitch.input;
+        // DebugData.debug6 = PID_Down_Gimbal_Pitch_Speed.output;
+        // DebugData.debug7 = remoteData.ry;
+        // DebugData.debug8 = PID_Down_Gimbal_Pitch_Angle.output;
         // DebugData.debug8 = pitchAngleLimitMin - pitchAngleTarget;
     }
     vTaskDelete(NULL);
@@ -548,7 +530,7 @@ void Task_Up_Stir(void *Parameters) {
     int targetSpeed = 0;
 
     while (1) {
-        targetSpeed = CHOOSEL(0, 200, 300);
+        targetSpeed = -1 * CHOOSEL(0, 200, 300);
 
         PID_Calculate(&PID_Up_Stir_Speed, targetSpeed, Motor_Up_Stir.speed * RPM2RPS);
 
@@ -633,8 +615,8 @@ void Task_Up_Stir(void *Parameters) {
 
         // 调试信息
 
-        // DebugData.debug2 = ProtocolData.autoaimData.biu_biu_state;
-        // DebugData.debug3 = shootMode;
+        DebugData.debug1 = Motor_Up_Stir.speed;
+        DebugData.debug2 = targetSpeed;
     }
 
     vTaskDelete(NULL);

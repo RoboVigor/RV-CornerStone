@@ -61,25 +61,25 @@ int main(void) {
 
     // 云台电机
     // 上
-    Motor_Init(&Motor_Up_Gimbal_Yaw, 36.0f, ENABLE, DISABLE);
-    Motor_Init(&Motor_Up_Gimbal_Pitch, 36.0f, ENABLE, DISABLE);
+    Motor_Init(&Motor_Up_Gimbal_Yaw, 1, ENABLE, DISABLE);
+    Motor_Init(&Motor_Up_Gimbal_Pitch, 1, ENABLE, DISABLE);
     // 下
     Motor_Init(&Motor_Down_Gimbal_Yaw, 36.0f, ENABLE, ENABLE);
     Motor_Init(&Motor_Down_Gimbal_Pitch, 1, ENABLE, ENABLE);
 
     // 摩擦轮电机
     // 上
-    Motor_Init(&Motor_Up_Frict_Left, 1, DISABLE, DISABLE);
-    Motor_Init(&Motor_Up_Frict_Right, 1, DISABLE, DISABLE);
+    Motor_Init(&Motor_Up_Frict_Left, 1, DISABLE, ENABLE);
+    Motor_Init(&Motor_Up_Frict_Right, 1, DISABLE, ENABLE);
     // 下
     Motor_Init(&Motor_Down_Frict_Left, 1, DISABLE, ENABLE);
     Motor_Init(&Motor_Down_Frict_Right, 1, DISABLE, ENABLE);
 
     // 拨弹电机
     // 上
-    Motor_Init(&Motor_Up_Stir, 36.0f, DISABLE, DISABLE);
+    Motor_Init(&Motor_Up_Stir, 36.0f, DISABLE, ENABLE);
     // 下
-    Motor_Init(&Motor_Down_Stir, 36.0f, ENABLE, DISABLE);
+    Motor_Init(&Motor_Down_Stir, 36.0f, DISABLE, ENABLE);
 
     // Motor_Up_Gimbal_Pitch.positionBias   = ;
     // Motor_Up_Gimbal_Pitch.position       = ;
@@ -110,9 +110,9 @@ int main(void) {
 
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_Up_Frict_Left);
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x207, &Motor_Up_Frict_Right);
+    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x209, &Motor_Up_Gimbal_Yaw);
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x208, &Motor_Up_Stir);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x208, &Motor_Up_Gimbal_Yaw);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x204, &Motor_Up_Gimbal_Pitch);
+    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_Up_Gimbal_Pitch);
 
     // 总线设置
     // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x501, &Node_Host);
@@ -150,13 +150,13 @@ int main(void) {
     // 运动控制任务
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
 
-    // xTaskCreate(Task_Up_Gimbal, "Task_Up_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Up_Stir, "Task_Up_Stir", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Up_Gimbal, "Task_Up_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Up_Stir, "Task_Up_Stir", 400, NULL, 6, NULL); // √
     // xTaskCreate(Task_Up_Frict, "Task_Up_Frict", 400, NULL, 6, NULL); // √
 
-    xTaskCreate(Task_Down_Gimbal, "Task_Down_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Down_Stir, "Task_Down_Stir", 400, NULL, 6, NULL);
-    xTaskCreate(Task_Down_Frict, "Task_Down_Frict", 400, NULL, 6, NULL); // √
+    // xTaskCreate(Task_Down_Gimbal, "Task_Down_Gimbal", 500, NULL, 5, NULL); // √
+    // xTaskCreate(Task_Down_Stir, "Task_Down_Stir", 400, NULL, 6, NULL);     // √
+    // xTaskCreate(Task_Down_Frict, "Task_Down_Frict", 400, NULL, 6, NULL); // √
 
     // DMA发送任务
     // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
