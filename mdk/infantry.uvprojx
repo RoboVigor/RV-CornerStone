@@ -15,8 +15,8 @@
         <TargetCommonOption>
           <Device>STM32F427II</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.13.0</PackID>
-          <PackURL>http://www.keil.com/pack</PackURL>
+          <PackID>Keil.STM32F4xx_DFP.2.15.0</PackID>
+          <PackURL>http://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x200000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -542,6 +542,11 @@
               <FileType>1</FileType>
               <FilePath>..\library\vegmath\vegmath.c</FilePath>
             </File>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\library\atom\usart\usart.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -602,6 +607,11 @@
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Fsm.c</FilePath>
             </File>
+            <File>
+              <FileName>Driver_Bridge.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_Bridge.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -628,16 +638,6 @@
           <GroupName>user_loop_infantry</GroupName>
           <Files>
             <File>
-              <FileName>bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\infantry\bsp.c</FilePath>
-            </File>
-            <File>
-              <FileName>handle.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\infantry\handle.c</FilePath>
-            </File>
-            <File>
               <FileName>interrupt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\infantry\interrupt.c</FilePath>
@@ -648,14 +648,14 @@
               <FilePath>..\user\infantry\main.c</FilePath>
             </File>
             <File>
-              <FileName>task_debug.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\infantry\task_debug.c</FilePath>
-            </File>
-            <File>
               <FileName>tasks.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\infantry\tasks.c</FilePath>
+            </File>
+            <File>
+              <FileName>handle.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\infantry\handle.h</FilePath>
             </File>
           </Files>
         </Group>
