@@ -22,12 +22,10 @@
 
 // clang-format off
 
-#include "protocol_host.h"
-#include "protocol_judge.h"
-#include "protocol_user.h"
-
-#define PROTOCOL_DATA_LENGTH         PROTOCOL_HOST_LENGTH_FUNCTION(PLUS)+PROTOCOL_JUDGE_LENGTH_FUNCTION(PLUS)+PROTOCOL_USER_LENGTH_FUNCTION(PLUS)
-#define PROTOCOL_DATA_LENGTH_ARRAY  {PROTOCOL_DATA_LENGTH_FUNCTION(COMMA)}
+#include "FreeRTOS.h"
+#include "task.h"
+#include "protocol.h"
+#include "config.h"
 
 // clang-format on
 
@@ -37,67 +35,70 @@ typedef union {
     uint32_t U32;
     float    F;
     int16_t  I;
-} format_trans_t;
-
-typedef struct {
-    uint8_t  sof;
-    uint16_t data_length;
-    uint8_t  seq;
-    uint8_t  crc8;
-} frame_header_t;
+} Transformer_Type;
 
 typedef enum {
-    STEP_HEADER_SOF  = 0,
-    STEP_LENGTH_LOW  = 1,
-    STEP_LENGTH_HIGH = 2,
-    STEP_FRAME_SEQ   = 3,
-    STEP_HEADER_CRC8 = 4,
-    STEP_DATA_CRC16  = 5,
-} unpack_step_e;
+    STEP_SOF,
+    STEP_LENGTH_LOW,
+    STEP_LENGTH_HIGH,
+    STEP_SEQ,
+    STEP_CRC8,
+    STEP_ID_LOW,
+    STEP_ID_HIGH,
+    STEP_DATA,
+    STEP_CRC16,
+    STEP_LOAD,
+    STEP_WAIT
+} Unpack_step_e;
 
 typedef enum {
     STATE_IDLE = 0,
     STATE_WORK = 1,
-} protocol_state_e;
+} Protocol_state_e;
 
 typedef struct {
-    uint8_t          sendBuf[Protocol_Buffer_Length];    // DMA发送缓存
-    uint8_t          receiveBuf[Protocol_Buffer_Length]; // DMA接收缓存
-    uint8_t          packet[Protocol_Buffer_Length];     // 有效字节数组
-    unpack_step_e    step;                               // 当前解包步骤
-    protocol_state_e state;                              // 当前工作状态
-    uint16_t         index;                              // 当前包字节序
-    uint16_t         dataLength;                         // 包数据长度
-    uint16_t         seq;                                // 包序号
-    uint16_t         id;                                 // 包编号
-    uint8_t *        data;                               // 数据存放地址
-} Protocol_Channel_Type;
+    // 协议定义
+    uint16_t id;     // 编号
+    uint16_t length; // 数据段长度
+    // 接收相关
+    uint16_t receive;      // 是否接收并解包该协议
+    uint16_t receiveCount; // 接收计数
+    // 发送相关
+    void *       node;       // 发送节点
+    float        frequency;  // 发送频率 (实际发送频率会略低一些)
+    TaskHandle_t taskHandle; // 发送任务
+    // 存储相关
+    uint16_t offset; // 寄存器偏移
+} ProtocolInfo_Type;
 
 typedef struct {
-    union {
-        struct {
-            PROTOCOL_HOST_t  host;
-            PROTOCOL_JUDGE_t judge;
-            PROTOCOL_USER_t  user;
-        };
-        struct {
-            uint8_t data[PROTOCOL_DATA_LENGTH];
-        };
-    };
-} Protocol_Data_Type;
+    // Bridge相关
+    uint8_t  bridgeType; // 总线类型
+    uint32_t deviceID;   // USART编号(3,6,7,8) / 电机电调ID / CAN设备(0x500-0x504)
+    // 存储相关
+    ProtocolData_Type *protocolData;
+    ProtocolInfo_Type *protocolInfo;
+    // 发送相关
+    uint8_t  sendBuf[Protocol_Buffer_Length]; // DMA发送缓存
+    uint16_t sendSeq;                         // 已发送包序号
+    uint8_t  sendLock;                        // 发送锁
+    // 接收相关
+    uint8_t  receiveBuf[Protocol_Buffer_Length]; // DMA接收缓存
+    uint8_t  packet[Protocol_Buffer_Length];     // 有效字节数组
+    uint8_t  step;                               // 当前解包步骤
+    uint8_t  state;                              // 当前工作状态
+    uint16_t index;                              // 当前包字节序
+    uint16_t dataLength;                         // 包数据长度
+    uint16_t receiveSeq;                         // 包序号
+    uint16_t id;                                 // 包编号
+    uint8_t *data;                               // 数据存放地址
+    uint16_t waitCount;                          // 需要丢弃的字节数
+    uint16_t isFirstByte;                        // 当前字节是否为包的第一位 @todo: 未测试
+} Node_Type;
 
-unsigned char Get_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength, unsigned char ucCRC8);
-unsigned int  Verify_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength);
-void          Append_CRC8_Check_Sum(unsigned char *pchMessage, unsigned int dwLength);
-uint16_t      Get_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength, uint16_t wCRC);
-uint32_t      Verify_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
-void          Append_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
-
-void     Protocol_Get_Packet_Info(uint16_t id, uint16_t *offset, uint16_t *length);
-void     Protocol_Init(Protocol_Channel_Type *channel, Protocol_Data_Type *data);
-void     Protocol_Update(Protocol_Channel_Type *channel);
-void     Protocol_Unpack(Protocol_Channel_Type *channel, uint8_t byte);
-void     Protocol_Load(Protocol_Channel_Type *channel);
-uint16_t Protocol_Pack(Protocol_Channel_Type *channel, uint16_t id);
+ProtocolInfo_Type *Protocol_Get_Info_Handle(uint16_t id);
+void               Protocol_Init(Node_Type *node, ProtocolData_Type *data);
+void               Protocol_Unpack(Node_Type *node, uint8_t byte);
+int16_t            Protocol_Pack(Node_Type *node, uint16_t id);
 
 #endif

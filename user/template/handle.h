@@ -6,13 +6,14 @@
 #include "led.h"
 #include "beep.h"
 #include "key.h"
-#include "rtos.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
 #include "vegmath.h"
 #include "config.h"
 #include "oled.h"
 #include "Driver_BSP.h"
 #include "Driver_Filter.h"
-#include "Driver_Magic.h"
 #include "Driver_PID.h"
 #include "Driver_DBUS.h"
 #include "Driver_CAN.h"
@@ -21,6 +22,8 @@
 #include "mpu6500_driver.h"
 #include "Driver_Gyroscope.h"
 #include "Driver_Protocol.h"
+#include "Driver_Bridge.h"
+#include "Driver_Magic.h"
 #include "Driver_Fsm.h"
 
 #ifdef __HANDLE_GLOBALS
@@ -52,22 +55,21 @@ __HANDLE_EXT volatile ImuData_Type       ImuData;
 __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 调试数据
-__HANDLE_EXT MagicHandle_Type magic;
-__HANDLE_EXT DebugData_Type   DebugData;
+__HANDLE_EXT DebugData_Type DebugData;
 
 // 底盘
 __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type         PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
 // 通讯协议
-__HANDLE_EXT Protocol_Data_Type    ProtocolData;
-__HANDLE_EXT Protocol_Channel_Type JudgeChannel, HostChannel, UserChannel;
+__HANDLE_EXT ProtocolData_Type ProtocolData;
+__HANDLE_EXT Node_Type         Node_Judge, Node_Host, Node_Board;
 
 // PWM
 __HANDLE_EXT PWM_Type PWM_Test;
 
-// CAN
-__HANDLE_EXT Motor_Type *Can1_Device[12], *Can2_Device[12];
+// 总线
+__HANDLE_EXT Bridge_Type BridgeData;
 
 /**
  * @brief 初始化结构体

@@ -55,8 +55,9 @@ typedef struct {
 
 /**
  * @brief 陀螺仪初始化
+ * @param startupDelay: 等待初始化解算, 0为关闭, 通常取150-300
  */
-void Gyroscope_Init(GyroscopeData_Type *GyroscopeData);
+void Gyroscope_Init(GyroscopeData_Type *GyroscopeData, uint16_t startupDelay);
 
 /**
  * @brief 陀螺仪更新

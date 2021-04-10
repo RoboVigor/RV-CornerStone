@@ -2,7 +2,10 @@
  * @brief 真*英雄
  * @version 1.2.0
  */
-#include "main.h"
+#include "tasks.h"
+#include "config.h"
+#include "macro.h"
+#include "handle.h"
 
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
@@ -236,10 +239,10 @@ void Task_Chassis(void *Parameters) {
     while (1) {
 
         // 设置反馈值
-        motorSpeed  = Motor_Yaw.speed * RPM2RPS;                             // 电机角速度
-        yawAngle    = -1 * Gyroscope_EulerData.yaw;                          // 逆时针为正
-        power       = ProtocolData.judge.powerHeatData.chassis_power;        // 裁判系统功率
-        powerBuffer = ProtocolData.judge.powerHeatData.chassis_power_buffer; // 裁判系统功率缓冲
+        motorSpeed  = Motor_Yaw.speed * RPM2RPS;                       // 电机角速度
+        yawAngle    = -1 * Gyroscope_EulerData.yaw;                    // 逆时针为正
+        power       = ProtocolData.powerHeatData.chassis_power;        // 裁判系统功率
+        powerBuffer = ProtocolData.powerHeatData.chassis_power_buffer; // 裁判系统功率缓冲
 
         // 底盘跟随死区
         if (SwingMode) {
@@ -419,7 +422,7 @@ void Task_Debug_Magic_Send(void *Parameters) {
 void Task_Fire(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
 
-    int     maxShootHeat      = ProtocolData.judge.robotState.shooter_heat1_cooling_limit;
+    int     maxShootHeat      = ProtocolData.robotState.shooter_heat1_cooling_limit;
     uint8_t ShootState        = 0;
     uint8_t limit_switch      = 0;
     uint8_t last_limit_switch = 0;
@@ -516,38 +519,12 @@ void Task_Can_Send(void *Parameters) {
     float      interval     = 0.01;                // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    CAN_TypeDef *Canx[2]          = {CAN1, CAN2};
-    Motor_Type **Canx_Device[2]   = {Can1_Device, Can2_Device};
-    uint16_t     Can_Send_Id[3]   = {0x200, 0x1ff, 0x2ff};
-    uint16_t     Can_ESC_Id[3][4] = {{0x201, 0x202, 0x203, 0x204}, {0x205, 0x206, 0x207, 0x208}, {0x209, 0x020a, 0x20b, 0x20c}};
-
-    int         i, j, k;        // CAN序号 发送ID序号 电调ID序号
-    int         isNotEmpty = 0; // 同一发送ID下是否有电机
-    Motor_Type *motor;          // 根据i,j,k锁定电机
-    int16_t     currents[4];    // CAN发送电流
-
     while (1) {
-        for (i = 0; i < 2; i++) {
-            for (j = 0; j < 3; j++) {
-                isNotEmpty = 0;
-                for (k = 0; k < 4; k++) {
-                    motor       = *(Canx_Device[i] + ESC_ID(Can_ESC_Id[j][k]));
-                    currents[k] = (motor && motor->inputEnabled) ? motor->input : 0;
-                    isNotEmpty  = isNotEmpty || (motor && motor->inputEnabled);
-                }
-                if (isNotEmpty && !SafetyMode) {
-                    Can_Send(Canx[i], Can_Send_Id[j], currents[0], currents[1], currents[2], currents[3]);
-                } else if (isNotEmpty && SafetyMode) {
-                    Can_Send(Canx[i], Can_Send_Id[j], 0, 0, 0, 0);
-                }
-            }
-        }
-        // 发送频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
+        Bridge_Send_Motor(&BridgeData, SafetyMode);
+        vTaskDelayUntil(&LastWakeTime, intervalms); // 发送频率
     }
     vTaskDelete(NULL);
 }
-
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
@@ -566,55 +543,4 @@ void Task_Startup_Music(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, 120);
     }
     vTaskDelete(NULL);
-}
-
-void Task_Sys_Init(void *Parameters) {
-
-    //获得 Stone ID
-    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
-
-    // 初始化全局变量
-    Handle_Init();
-
-    // 初始化硬件
-    BSP_Init();
-
-    // 初始化陀螺仪
-    Gyroscope_Init(&Gyroscope_EulerData);
-
-    // 调试任务
-#if DEBUG_ENABLED
-    // xTaskCreate(Task_Debug_Magic_Receive, "Task_Debug_Magic_Receive", 500,
-    // NULL, 6, NULL); xTaskCreate(Task_Debug_Magic_Send,
-    // "Task_Debug_Magic_Send", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Debug_RTOS_State, "Task_Debug_RTOS_State", 500, NULL, 6,
-    // NULL); xTaskCreate(Task_Debug_Gyroscope_Sampling,
-    // "Task_Debug_Gyroscope_Sampling", 400, NULL, 6, NULL);
-#endif
-
-    // 低级任务
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
-
-    // 等待遥控器开启
-    while (!remoteData.state) {
-    }
-
-    // // 运动控制任务
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 5, NULL);
-
-    //模式切换任务
-    xTaskCreate(Task_Control, "Task_Control", 400, NULL, 4, NULL);
-
-    // 通讯
-    // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
-
-    // Can发送任务
-    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);
-
-    // 完成使命
-    vTaskDelete(NULL);
-    vTaskDelay(10);
 }

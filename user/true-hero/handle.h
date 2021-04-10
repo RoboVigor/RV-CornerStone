@@ -8,16 +8,19 @@
 #include "Driver_Filter.h"
 #include "Driver_Fsm.h"
 #include "Driver_Gyroscope.h"
-#include "Driver_Magic.h"
 #include "Driver_Motor.h"
 #include "Driver_PID.h"
 #include "Driver_Protocol.h"
+#include "Driver_Bridge.h"
+#include "Driver_Magic.h"
 #include "beep.h"
 #include "delay.h"
 #include "key.h"
 #include "led.h"
 #include "mpu6500_driver.h"
-#include "rtos.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
 #include "sys.h"
 #include "vegmath.h"
 
@@ -52,16 +55,15 @@ __HANDLE_EXT volatile ImuData_Type       ImuData;
 __HANDLE_EXT volatile GyroscopeData_Type Gyroscope_EulerData;
 
 // 调试数据
-__HANDLE_EXT MagicHandle_Type magic;
-__HANDLE_EXT DebugData_Type   DebugData;
+__HANDLE_EXT DebugData_Type DebugData;
 
 // 底盘
 __HANDLE_EXT ChassisData_Type ChassisData;
 __HANDLE_EXT PID_Type         PID_LFCM, PID_LBCM, PID_RBCM, PID_RFCM, PID_YawAngle, PID_YawSpeed;
 
 // 通讯协议
-__HANDLE_EXT Protocol_Data_Type    ProtocolData;
-__HANDLE_EXT Protocol_Channel_Type JudgeChannel, HostChannel, UserChannel;
+__HANDLE_EXT ProtocolData_Type ProtocolData;
+__HANDLE_EXT Node_Type         Node_Judge, Node_Host, Node_Board;
 
 //发射机构
 __HANDLE_EXT Motor_Type Motor_LeftFrict, Motor_RightFrict, Motor_Stir3510; // 左/右 摩擦轮 拨弹轮电机
@@ -71,6 +73,9 @@ __HANDLE_EXT PID_Type   PID_LeftFrictSpeed, PID_RightFrictSpeed, PID_Stir3510Spe
 // 功能开关
 __HANDLE_EXT uint8_t ControlMode;
 __HANDLE_EXT uint8_t ShootEnabled, PsEnabled, UpEnabled, ServoEnabled, StirStop, SafetyMode, SwingMode, ShootMode;
+
+// 总线
+__HANDLE_EXT Bridge_Type BridgeData;
 
 // CAN
 __HANDLE_EXT Motor_Type *Can1_Device[12], *Can2_Device[12];

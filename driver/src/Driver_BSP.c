@@ -816,7 +816,6 @@ void BSP_DMA_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, ui
         DMA_InitStructure.DMA_DIR           = DMA_DIR_MemoryToPeripheral;
         DMA_InitStructure.DMA_FIFOMode      = DMA_FIFOMode_Disable;
         DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
-
     } else {
         DMA_InitStructure.DMA_DIR           = DMA_DIR_PeripheralToMemory;
         DMA_InitStructure.DMA_FIFOMode      = DMA_FIFOMode_Enable;
@@ -835,7 +834,8 @@ void BSP_DMA_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, ui
     DMA_InitStructure.DMA_PeripheralBurst    = DMA_PeripheralBurst_Single;
     DMA_Init(dma.DMAx_Streamy, &DMA_InitStructure);
     DMA_Cmd(dma.DMAx_Streamy, ENABLE);
-    // // NVIC
+
+    // NVIC
     // NVIC_InitTypeDef NVIC_InitStructure;
     // NVIC_InitStructure.NVIC_IRQChannel                   = dma.DMAx_Streamy_IRQn;
     // NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
@@ -848,7 +848,7 @@ void DMA_Disable(dma_table_index_e tableIndex) {
     DMA_Type dma;
     dma = DMA_Table[tableIndex];
     DMA_Cmd(dma.DMAx_Streamy, DISABLE);
-    while (DMA_GetFlagStatus(dma.DMAx_Streamy, dma.DMA_IT_TCIFx) != SET) {
+    while (DMA_GetFlagStatus(dma.DMAx_Streamy, dma.DMA_FLAG_TCIFx) != SET) {
     }
 }
 
