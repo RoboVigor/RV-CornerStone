@@ -1,5 +1,5 @@
 #include "Driver_Bridge.h"
-#include "Driver_Protocol.h"
+#pragma pack(8)
 
 void Bridge_Bind(Bridge_Type *bridge, uint8_t type, uint32_t deviceID, void *handle) {
     if (IS_MOTOR) {
@@ -98,13 +98,11 @@ void Bridge_Release_Lock_USART(Bridge_Type *bridge, uint8_t type, uint32_t devic
     node->sendLock  = 0;
 }
 
-extern DMA_Type DMA_Table[10];
-
 uint8_t Bridge_Send_Protocol_Once(Node_Type *node, uint32_t commandID) {
     uint32_t deviceID = node->deviceID;
     uint16_t dataLength;
     uint8_t  type = node->bridgeType;
-    DMA_Type dma  = DMA_Table[USARTx_Tx];
+    // DMA_Type *dma  = ((uint64_t) DMA_Table) + USARTx_Tx * 0x24;
 
     if (node->sendLock) return 0;
     node->sendLock = 1;
@@ -113,13 +111,13 @@ uint8_t Bridge_Send_Protocol_Once(Node_Type *node, uint32_t commandID) {
         dataLength = Protocol_Pack(node, commandID);
         Can_Send_Msg(type == CAN1_BRIDGE ? CAN1 : CAN2, CAN_DEVICE_ID, node->sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
     } else {
-        while (DMA_GetFlagStatus(dma.DMAx_Streamy, dma.DMA_FLAG_TCIFx) != SET) {
-        }
+        // while (DMA_GetFlagStatus(dma->DMAx_Streamy, dma->DMA_FLAG_TCIFx) != SET) {
+        //}
         DMA_Disable(USARTx_Tx);
         dataLength = Protocol_Pack(node, commandID);
         DMA_Enable(USARTx_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-        while (DMA_GetFlagStatus(dma.DMAx_Streamy, dma.DMA_FLAG_TCIFx) != SET) {
-        }
+        // while (DMA_GetFlagStatus(dma->DMAx_Streamy, dma->DMA_FLAG_TCIFx) != SET) {
+        //}
     }
 
     node->sendLock = 0;

@@ -1,3 +1,4 @@
+#define __BSP_GLOBALS
 #include "Driver_BSP.h"
 #include "Driver_DBUS.h"
 #include "math.h"
@@ -780,17 +781,6 @@ void BSP_Stone_Id_Init(uint8_t *Board_Id, uint8_t *Robot_Id) {
 #endif
 }
 
-DMA_Type DMA_Table[10] = {{USART1_BASE, Tx, DMA2, DMA2_Stream7, DMA2_Stream7_IRQn, DMA_Channel_4, DMA_IT_TCIF7, DMA_FLAG_TCIF7, DMA_FLAG_HTIF7},
-                          {USART1_BASE, Rx, DMA2, DMA2_Stream2, DMA2_Stream2_IRQn, DMA_Channel_4, DMA_IT_TCIF2, DMA_FLAG_TCIF2, DMA_FLAG_HTIF2},
-                          {USART3_BASE, Tx, DMA1, DMA1_Stream3, DMA1_Stream3_IRQn, DMA_Channel_4, DMA_IT_TCIF3, DMA_FLAG_TCIF3, DMA_FLAG_HTIF3},
-                          {USART3_BASE, Rx, DMA1, DMA1_Stream1, DMA1_Stream1_IRQn, DMA_Channel_4, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
-                          {USART6_BASE, Tx, DMA2, DMA2_Stream6, DMA2_Stream6_IRQn, DMA_Channel_5, DMA_IT_TCIF6, DMA_FLAG_TCIF6, DMA_FLAG_HTIF6},
-                          {USART6_BASE, Rx, DMA2, DMA2_Stream1, DMA2_Stream1_IRQn, DMA_Channel_5, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
-                          {UART7_BASE, Tx, DMA1, DMA1_Stream1, DMA1_Stream1_IRQn, DMA_Channel_5, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
-                          {UART7_BASE, Rx, DMA1, DMA1_Stream3, DMA1_Stream3_IRQn, DMA_Channel_5, DMA_IT_TCIF3, DMA_FLAG_TCIF3, DMA_FLAG_HTIF3},
-                          {UART8_BASE, Tx, DMA1, DMA1_Stream0, DMA1_Stream0_IRQn, DMA_Channel_5, DMA_IT_TCIF0, DMA_FLAG_TCIF0, DMA_FLAG_HTIF0},
-                          {UART8_BASE, Rx, DMA1, DMA1_Stream6, DMA1_Stream6_IRQn, DMA_Channel_5, DMA_IT_TCIF6, DMA_FLAG_TCIF6, DMA_FLAG_HTIF6}};
-
 void BSP_DMA_Init(dma_table_index_e tableIndex, uint32_t sourceMemoryAddress, uint32_t bufferSize) {
     // DMA
     DMA_Type dma;
@@ -848,8 +838,8 @@ void DMA_Disable(dma_table_index_e tableIndex) {
     DMA_Type dma;
     dma = DMA_Table[tableIndex];
     DMA_Cmd(dma.DMAx_Streamy, DISABLE);
-    while (DMA_GetFlagStatus(dma.DMAx_Streamy, dma.DMA_FLAG_TCIFx) != SET) {
-    }
+    // while (DMA_GetFlagStatus(dma.DMAx_Streamy, dma.DMA_FLAG_TCIFx) != SET) {
+    //}
 }
 
 void DMA_Enable(dma_table_index_e tableIndex, uint16_t length) {
