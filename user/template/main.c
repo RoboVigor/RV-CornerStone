@@ -51,8 +51,9 @@ int main(void) {
     // BSP_OLED_Init();
 
     // USART
-    // BSP_USART6_Init(115200, USART_IT_IDLE);
-    // BSP_UART7_Init(115200, USART_IT_IDLE);
+    // BSP_USART3_Init(115200, USART_IT_IDLE); // Rx故障
+    // BSP_USART6_Init(115200, USART_IT_IDLE); // Tx故障
+    BSP_UART7_Init(115200, USART_IT_IDLE);
     BSP_UART8_Init(115200, USART_IT_IDLE);
 
     // PWM
@@ -69,9 +70,8 @@ int main(void) {
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
     // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x501, &Node_Host);
     // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x502, &Node_Board);
-    // Bridge_Bind(&BridgeData, USART_BRIDGE, 6, &Node_Judge);
-    // Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &Node_Board);
-    Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &Node_Host);
+    Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &Node_Host);
+    Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &Node_Judge);
 
     // 陀螺仪
     Gyroscope_Set_Bias(&ImuData, -4, 3, 1);    // 设置静态误差
@@ -97,8 +97,8 @@ int main(void) {
     xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);           // Can发送任务
 
     // 定义协议发送频率
-    Bridge_Send_Protocol(&Node_Host, 0x120, 1);  // 心跳包
-    Bridge_Send_Protocol(&Node_Host, 0x501, 50); // 板间通讯
+    Bridge_Send_Protocol(&Node_Host, 0x120, 1); // 心跳包
+    // Bridge_Send_Protocol(&Node_Host, 0x501, 50); // 板间通讯
 
     //启动调度,开始执行任务
     vTaskStartScheduler();

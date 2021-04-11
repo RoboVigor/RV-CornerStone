@@ -39,7 +39,6 @@ void USART1_IRQHandler(void) {
  * @note  视觉系统读取
  */
 void USART3_IRQHandler(void) {
-    uint8_t  tmp;
     Bridge_Receive_USART(&BridgeData, USART_BRIDGE, 3);
 }
 

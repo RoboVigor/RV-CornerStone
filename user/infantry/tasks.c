@@ -73,36 +73,36 @@ void Task_Board_Communication(void *Parameters) {
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
     while (1) {
-//         uint16_t id;
-//         uint16_t dataLength;
-//         uint16_t offset = 0;
+        //         uint16_t id;
+        //         uint16_t dataLength;
+        //         uint16_t offset = 0;
 
-//         // 板间通信
-// #ifdef BOARD_ALPHA
-//         id                                 = 0x501;
-//         ProtocolData.boardAlpha.data1 = 1.11;
-//         ProtocolData.boardAlpha.data2 = 2.22;
-//         ProtocolData.boardAlpha.data3 = 3.33;
-//         ProtocolData.boardAlpha.data4 = 4.44;
-// #endif
+        //         // 板间通信
+        // #ifdef BOARD_ALPHA
+        //         id                                 = 0x501;
+        //         ProtocolData.boardAlpha.data1 = 1.11;
+        //         ProtocolData.boardAlpha.data2 = 2.22;
+        //         ProtocolData.boardAlpha.data3 = 3.33;
+        //         ProtocolData.boardAlpha.data4 = 4.44;
+        // #endif
 
-// #ifdef BOARD_BETA
-//         id                                = 0x502;
-//         ProtocolData.boardBeta.data1 = 0;
-//         ProtocolData.boardBeta.data2 = 0;
-//         ProtocolData.boardBeta.data3 = 0;
-//         ProtocolData.boardBeta.data4 = 1.11;
-// #endif
-//         Bridge_Send_Protocol_Once(&Node_Board, 0x501);
-//         // USART发送
-//         DMA_Disable(UART7_Tx);
-//         Protocol_Get_Packet_Info(id, &offset, &dataLength);
-//         dataLength = Protocol_Pack(&Node_Board, id);
-//         DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        // #ifdef BOARD_BETA
+        //         id                                = 0x502;
+        //         ProtocolData.boardBeta.data1 = 0;
+        //         ProtocolData.boardBeta.data2 = 0;
+        //         ProtocolData.boardBeta.data3 = 0;
+        //         ProtocolData.boardBeta.data4 = 1.11;
+        // #endif
+        //         Bridge_Send_Protocol_Once(&Node_Board, 0x501);
+        //         // USART发送
+        //         DMA_Disable(UART7_Tx);
+        //         Protocol_Get_Packet_Info(id, &offset, &dataLength);
+        //         dataLength = Protocol_Pack(&Node_Board, id);
+        //         DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
-//         // Can发送
-//         dataLength = Protocol_Pack(&Node_Board, id);
-//         Can_Send_Msg(CAN1, id, Node_Board.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
+        //         // Can发送
+        //         dataLength = Protocol_Pack(&Node_Board, id);
+        //         Can_Send_Msg(CAN1, id, Node_Board.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
 
         // 发送频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -126,7 +126,7 @@ void Task_Vision_Communication(void *Parameters) {
         // 视觉通信
         ProtocolData.autoaimData.yaw_angle_diff   = 1.23;
         ProtocolData.autoaimData.pitch_angle_diff = 4.56;
-        ProtocolData.autoaimData.biu_biu_state    = 7;
+        // ProtocolData.autoaimData.biu_biu_state    = 7;
 
         // DMA重启
         DMA_Disable(UART8_Tx);
@@ -319,10 +319,13 @@ void Task_Chassis(void *Parameters) {
     float yRampStart    = 0;
     float yTargetRamp   = 0;
 
+    ProtocolInfo_Type *protocolInfoChassisData = Protocol_Get_Info_Handle(0x402);
+    uint16_t           lastCountChassisData    = 0;
+
     while (1) {
         // 设置反馈值
-        motorAngle  = Motor_Yaw.angle;                                       // 电机角度
-        motorSpeed  = Motor_Yaw.speed * RPM2RPS;                             // 电机角速度
+        motorAngle  = Motor_Yaw.angle;                                 // 电机角度
+        motorSpeed  = Motor_Yaw.speed * RPM2RPS;                       // 电机角速度
         power       = ProtocolData.powerHeatData.chassis_power;        // 裁判系统功率
         powerBuffer = ProtocolData.powerHeatData.chassis_power_buffer; // 裁判系统功率缓冲
 
@@ -390,6 +393,9 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output, motorSpeed);
 
         // 设置底盘总体移动速度
+        vx = 0;
+        vy = 0;
+        vw = 0;
         if (ControlMode == 1) {
             vx = -remoteData.lx / 660.0f * 8.0;
             vy = remoteData.ly / 660.0f * 12.0;
@@ -420,6 +426,13 @@ void Task_Chassis(void *Parameters) {
         }
 
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
+
+        // Host control
+        if (protocolInfoChassisData->receiveCount != lastCountChassisData) {
+            vx += ProtocolData.chassisData.vx;
+            vy += ProtocolData.chassisData.vy;
+            vw += ProtocolData.chassisData.vw;
+        }
 
         // test
         // PID_LFCM.p = CHOOSE(8, 20, 32);
@@ -464,24 +477,16 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        Motor_LF.input = PID_LFCM.output * ChassisData.powerScale;
-        Motor_LB.input = PID_LBCM.output * ChassisData.powerScale;
-        Motor_RB.input = PID_RBCM.output * ChassisData.powerScale;
-        Motor_RF.input = PID_RFCM.output * ChassisData.powerScale;
+        // Motor_LF.input = PID_LFCM.output * ChassisData.powerScale;
+        // Motor_LB.input = PID_LBCM.output * ChassisData.powerScale;
+        // Motor_RB.input = PID_RBCM.output * ChassisData.powerScale;
+        // Motor_RF.input = PID_RFCM.output * ChassisData.powerScale;
 
         // 调试信息
-         DebugData.debug1 = Motor_Stir.angle;
-         DebugData.debug2 = PID_StirSpeed.output;
-         DebugData.debug3 = PID_StirAngle.output;
-        // DebugData.debug4 = Motor_RF.position;
-        // DebugData.debug5 = Motor_RB.position;
-        // DebugData.debug4 = vx * 1000;
-        // DebugData.debug4 = Judge.powerHeatData.chassis_power_buffer;
-        // DebugData.debug5 = ChassisData.powerBuffer;
-        // DebugData.debug6 = PID_LFCM.output;
-        // DebugData.debug7 = WANG(60.0 - ChassisData.powerBuffer, 0.0, 30.0) / 30.0 * 1000;
-        // DebugData.debug7 = (1.0 - WANG(ChassisData.powerBuffer, 0.0, 30.0) / 30.0) * 70;
-        // DebugData.debug8 = 80;
+        DebugData.debug1 = vx;
+        DebugData.debug2 = vy;
+        DebugData.debug3 = vw;
+        DebugData.debug4 = protocolInfoChassisData->receiveCount;
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -540,11 +545,11 @@ void Task_Fire_Stir(void *Parameters) {
             PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 14 : 6);
         }
         // 拨弹速度
-        if (ProtocolData.robotState.shooter_heat0_cooling_rate == 20) {
+        if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 20) {
             stirSpeed = 110;
-        } else if (ProtocolData.robotState.shooter_heat0_cooling_rate == 30) {
+        } else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 30) {
             stirSpeed = 140;
-        } else if (ProtocolData.robotState.shooter_heat0_cooling_rate == 40) {
+        } else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 40) {
             stirSpeed = 160;
         }
 
@@ -558,8 +563,8 @@ void Task_Fire_Stir(void *Parameters) {
         }
 
         //热量控制
-        // maxShootHeat = Judge.robotState.shooter_heat0_cooling_limit * 0.8; // todo: why?
-        maxShootHeat = ProtocolData.robotState.shooter_heat0_cooling_limit - 60;
+        // maxShootHeat = Judge.gameRobotstatus.shooter_heat0_cooling_limit * 0.8; // todo: why?
+        maxShootHeat = ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_limit - 60;
 
         // 输入射击模式
         shootMode = shootIdle;
@@ -573,7 +578,7 @@ void Task_Fire_Stir(void *Parameters) {
         // }
         // lastSeq = Ps.autoaimData.seq;
 
-        if (ProtocolData.powerHeatData.shooter_heat0 > maxShootHeat) {
+        if (ProtocolData.powerHeatData.shooter_id1_17mm_cooling_heat > maxShootHeat) {
             shootMode = shootIdle;
         }
 
@@ -622,13 +627,13 @@ void Task_Fire_Frict(void *Parameters) {
         PID_FireL.d = CHOOSER(3, 3, 10);
 
         if (FrictEnabled) {
-            if (ProtocolData.robotState.shooter_heat0_speed_limit == 15)
+            if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
                 targetSpeed = 225;
-            else if (ProtocolData.robotState.shooter_heat0_speed_limit == 18)
+            else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 18)
                 targetSpeed = 260;
-            else if (ProtocolData.robotState.shooter_heat0_speed_limit == 22)
+            else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 22)
                 targetSpeed = 307;
-            else if (ProtocolData.robotState.shooter_heat0_speed_limit == 30)
+            else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 30)
                 targetSpeed = 453;
         } else {
             targetSpeed = 0;
@@ -641,10 +646,10 @@ void Task_Fire_Frict(void *Parameters) {
         Motor_FL.input = PID_FireL.output;
         Motor_FR.input = PID_FireR.output;
 
-        DebugData.debug1 = motorLSpeed * 1000;
-        DebugData.debug2 = motorRSpeed * 1000;
-        DebugData.debug3 = targetSpeed * 1000;
-        DebugData.debug4 = Motor_FL.speed * 1000;
+        // DebugData.debug1 = motorLSpeed * 1000;
+        // DebugData.debug2 = motorRSpeed * 1000;
+        // DebugData.debug3 = targetSpeed * 1000;
+        // DebugData.debug4 = Motor_FL.speed * 1000;
         // DebugData.debug3 = Motor_Pitch.position;
         // DebugData.debug4 = PID_FireR.output;
         // DebugData.debug5 = -1 * targetSpeed;
@@ -674,4 +679,3 @@ void Task_Startup_Music(void *Parameters) {
     }
     vTaskDelete(NULL);
 }
-
