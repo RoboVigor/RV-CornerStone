@@ -19,9 +19,9 @@ void Task_Control(void *Parameters) {
             } else {
                 SwingMode = 0;
             }
-            MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP;
-            FrictEnabled  = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP);
-            StirEnabled   = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP) && RIGHT_SWITCH_TOP;
+            MagzineOpened = LEFT_SWITCH_TOP;
+            FrictEnabled  = LEFT_SWITCH_MIDDLE;
+            StirEnabled   = RIGHT_SWITCH_MIDDLE;
             SafetyMode    = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
             FastShootMode = 0;
         } else if (ControlMode == 2) {
@@ -244,20 +244,22 @@ void Task_Gimbal(void *Parameters) {
         MIAO(yawCurrent, -12000, 12000);
         MIAO(pitchCurrent, -12000, 12000);
 
-        if (Robot_Id == 1) {
+        if (ROBOT_MIAO) {
             Motor_Yaw.input   = yawCurrent;
             Motor_Pitch.input = pitchCurrent;
-        } else if (Robot_Id == 2) {
+        } else if (ROBOT_WANG) {
             Motor_Yaw.input   = yawCurrent;
-            Motor_Pitch.input = -pitchCurrent;
+            Motor_Pitch.input = pitchCurrent;
         }
 
         // 调试信息
         //
-        // DebugData.debug1 = pitchAngleTarget;
-        // DebugData.debug2 = pitchAngleTargetFix;
-        // DebugData.debug3 = pitchAngleTargetFixStable;
-        // DebugData.debug4 = chassisAngle;
+        DebugData.debug1 = Robot_Id;
+        DebugData.debug2 = pitchAngle;
+        DebugData.debug3 = yawAngle;
+        // DebugData.debug4 = ImuData.gz;
+        // DebugData.debug5 = Motor_Yaw.position;
+        // DebugData.debug6 = Motor_Pitch.position;
         // DebugData.debug5 = Motor_Pitch.angle;
         // DebugData.debug6 = PID_Cloud_YawSpeed.output;
         // DebugData.debug7 = yawCurrent;
@@ -483,10 +485,10 @@ void Task_Chassis(void *Parameters) {
         // Motor_RF.input = PID_RFCM.output * ChassisData.powerScale;
 
         // 调试信息
-        DebugData.debug1 = vx;
-        DebugData.debug2 = vy;
-        DebugData.debug3 = vw;
-        DebugData.debug4 = protocolInfoChassisData->receiveCount;
+        // DebugData.debug1 = vx;
+        // DebugData.debug2 = vy;
+        // DebugData.debug3 = vw;
+        // DebugData.debug4 = protocolInfoChassisData->receiveCount;
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -539,10 +541,10 @@ void Task_Fire_Stir(void *Parameters) {
 
     while (1) {
         // 弹舱盖开关
-        if (Robot_Id == 1) {
+        if (ROBOT_MIAO) {
             PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 10 : 5);
-        } else if (Robot_Id == 2) {
-            PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 14 : 6);
+        } else if (ROBOT_WANG) {
+            PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 16 : 6);
         }
         // 拨弹速度
         if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 20) {
