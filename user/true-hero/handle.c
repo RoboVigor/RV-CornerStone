@@ -8,19 +8,19 @@
 
 void Handle_Init(void) {
     // 底盘电机
-    Motor_Init(&Motor_LF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
-    Motor_Init(&Motor_LB, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
-    Motor_Init(&Motor_RB, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
-    Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
+    Motor_Init(&Motor_LF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
+    Motor_Init(&Motor_LB, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
+    Motor_Init(&Motor_RB, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
+    Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
 
     // 发射机构电机
-    Motor_Init(&Motor_LeftFrict, 1, DISABLE, ENABLE);
-    Motor_Init(&Motor_RightFrict, 1, DISABLE, ENABLE);
-    Motor_Init(&Motor_Stir3510, 19.2, DISABLE, ENABLE);
+    Motor_Init(&Motor_LeftFrict, 1, DISABLE, DISABLE);
+    Motor_Init(&Motor_RightFrict, 1, DISABLE, DISABLE);
+    Motor_Init(&Motor_Stir3510, 19.2, ENABLE, ENABLE);
 
     // 云台电机
-    Motor_Init(&Motor_Yaw, 1, ENABLE, ENABLE);
-    Motor_Init(&Motor_Pitch, 1, ENABLE, ENABLE);
+    Motor_Init(&Motor_Yaw, 1, DISABLE, DISABLE);
+    Motor_Init(&Motor_Pitch, 1, DISABLE, DISABLE);
 
     // CAN外设
     Can1_Device[ESC_ID(0x203)] = &Motor_Yaw;
