@@ -6,7 +6,7 @@
 #include "task.h"
 #include "tasks.h"
 // #include "queue.h"
-void BSP_Optoelectronic_Input(void) {
+void BSP_Proximity_Switch_Init(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
 
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -14,7 +14,7 @@ void BSP_Optoelectronic_Input(void) {
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0 | GPIO_Pin_1;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
@@ -48,7 +48,7 @@ int main(void) {
     BSP_Beep_Init();
     BSP_LED_Init();
     BSP_User_Power_Init();
-    BSP_Optoelectronic_Input();
+    BSP_Proximity_Switch_Init();
 
     // USART
     BSP_USART6_Init(115200, USART_IT_IDLE);
@@ -107,9 +107,9 @@ int main(void) {
 
     // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x501, &Node_Host);
     // Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x502, &Node_Board);
-    // Bridge_Bind(&BridgeData, USART_BRIDGE, 6, &Node_Judge);
-    Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &Node_Board);
-    // Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &Node_Host);
+    Bridge_Bind(&BridgeData, USART_BRIDGE, 6, &Node_Board);
+    Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &Node_Host);
+    Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &Node_Judge);
 
     // 陀螺仪
     Motor_Up_Gimbal_Yaw.positionBias   = 0;

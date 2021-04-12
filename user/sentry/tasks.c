@@ -68,7 +68,7 @@ void Task_Chassis(void *Parameters) {
     int      minSpeed;
 
     // 光电开关
-    int optoelectronicDirection = 0;
+    int proximitySwitchDirection = 0;
 
     // 功率限制
     float power;
@@ -183,17 +183,17 @@ void Task_Chassis(void *Parameters) {
         // 光电开关
         Left_State  = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_1);
         Right_State = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0);
-        if (Left_State == 0) {
-            optoelectronicDirection = -1;
+        if (Left_State == 1) {
+            proximitySwitchDirection = -1;
         }
-        if (Right_State == 0) {
-            optoelectronicDirection = 1;
+        if (Right_State == 1) {
+            proximitySwitchDirection = 1;
         }
-        if (optoelectronicDirection != 0) {
-            direction               = optoelectronicDirection;
-            leftTarget              = optoelectronicDirection * ABS(leftTarget);
-            rightTarget             = optoelectronicDirection * ABS(rightTarget);
-            optoelectronicDirection = 0;
+        if (proximitySwitchDirection != 0) {
+            direction                = proximitySwitchDirection;
+            leftTarget               = proximitySwitchDirection * ABS(leftTarget);
+            rightTarget              = proximitySwitchDirection * ABS(rightTarget);
+            proximitySwitchDirection = 0;
         }
 
         // 功率限制
@@ -214,8 +214,8 @@ void Task_Chassis(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试数据
-        // DebugData.debug1 = PID_Stir_Speed.output;
-        // DebugData.debug2 = Right_State;
+        DebugData.debug1 = Left_State;
+        DebugData.debug2 = Right_State;
         // DebugData.debug3 = PID_Chassis_Left.feedback;
         // DebugData.debug4 = timer;
     }
@@ -298,7 +298,7 @@ void Task_Up_Gimbal(void *Parameters) {
         // } else {
         //     counter++;
         // }
-        // MIAO(yawAngleTargetPs, YAW_ANGLE_MIN - yawAngleTarget, YAW_ANGLE_MAX - yawAngleTarget);
+        // MIAO(yawAngleTargetPs, UP_GIMBAL_YAW_MIN - yawAngleTarget, UP_GIMBAL_YAW_MAX - yawAngleTarget);
         // MIAO(pitchAngleTargetPs, pitchAngleLimitMin - pitchAngleTarget, pitchAngleLimitMax - pitchAngleTarget);
         // yawAngleTarget += yawAngleTargetPs;
         // pitchAngleTarget += pitchAngleTargetPs;
@@ -313,14 +313,14 @@ void Task_Up_Gimbal(void *Parameters) {
         //     counter = maxTimeout;
         // }
 
-        // MIAO(yawAngleTargetRotate, YAW_ANGLE_MIN - yawAngleTarget, YAW_ANGLE_MAX - yawAngleTarget);
+        // MIAO(yawAngleTargetRotate, UP_GIMBAL_YAW_MIN - yawAngleTarget, UP_GIMBAL_YAW_MAX - yawAngleTarget);
         // MIAO(pitchAngleTargetRotate, pitchAngleLimitMin - pitchAngleTarget, pitchAngleLimitMax - pitchAngleTarget);
         // yawAngleTarget += yawAngleTargetRotate;
         // pitchAngleTarget += pitchAngleTargetRotate;
 
-        // if (yawAngleTarget >= AUTO_YAW_ANGLE_MAX) {
+        // if (yawAngleTarget >= AUTO_UP_GIMBAL_YAW_MAX) {
         //     directionX = -1;
-        // } else if (yawAngleTarget <= AUTO_YAW_ANGLE_MIN) {
+        // } else if (yawAngleTarget <= AUTO_UP_GIMBAL_YAW_MIN) {
         //     directionX = 1;
         // }
         // if (pitchAngleTarget >= autoPitchAngleLimitMax) {
@@ -451,7 +451,7 @@ void Task_Down_Gimbal(void *Parameters) {
         // } else {
         //     counter++;
         // }
-        // MIAO(yawAngleTargetPs, YAW_ANGLE_MIN - yawAngleTarget, YAW_ANGLE_MAX - yawAngleTarget);
+        // MIAO(yawAngleTargetPs, DOWN_GIMBAL_YAW_MIN - yawAngleTarget, DOWN_GIMBAL_YAW_MAX - yawAngleTarget);
         // MIAO(pitchAngleTargetPs, pitchAngleLimitMin - pitchAngleTarget, pitchAngleLimitMax - pitchAngleTarget);
         // yawAngleTarget += yawAngleTargetPs;
         // pitchAngleTarget += pitchAngleTargetPs;
@@ -466,14 +466,14 @@ void Task_Down_Gimbal(void *Parameters) {
         //     counter = maxTimeout;
         // }
 
-        // MIAO(yawAngleTargetRotate, YAW_ANGLE_MIN - yawAngleTarget, YAW_ANGLE_MAX - yawAngleTarget);
+        // MIAO(yawAngleTargetRotate, DOWN_GIMBAL_YAW_MIN - yawAngleTarget, DOWN_GIMBAL_YAW_MAX - yawAngleTarget);
         // MIAO(pitchAngleTargetRotate, pitchAngleLimitMin - pitchAngleTarget, pitchAngleLimitMax - pitchAngleTarget);
         // yawAngleTarget += yawAngleTargetRotate;
         // pitchAngleTarget += pitchAngleTargetRotate;
 
-        // if (yawAngleTarget >= AUTO_YAW_ANGLE_MAX) {
+        // if (yawAngleTarget >= AUTO_DOWN_GIMBAL_YAW_MIN) {
         //     directionX = -1;
-        // } else if (yawAngleTarget <= AUTO_YAW_ANGLE_MIN) {
+        // } else if (yawAngleTarget <= AUTO_DOWN_GIMBAL_YAW_MIN) {
         //     directionX = 1;
         // }
         // if (pitchAngleTarget >= autoPitchAngleLimitMax) {
