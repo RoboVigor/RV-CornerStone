@@ -62,13 +62,13 @@ int main(void) {
     BSP_ADC1_Init(1, ADC_Channel6, 0);
 
     // 发射机构电机
-    Motor_Init(&Motor_LeftFrict, 1, DISABLE, ENABLE);
-    Motor_Init(&Motor_RightFrict, 1, DISABLE, ENABLE);
-    Motor_Init(&Motor_Stir3510, 19.2, DISABLE, ENABLE);
+    Motor_Init(&Motor_LeftFrict, 1, DISABLE, DISABLE);
+    Motor_Init(&Motor_RightFrict, 1, DISABLE, DISABLE);
+    Motor_Init(&Motor_Stir3510, 19.2, ENABLE, ENABLE);
 
     // 云台电机
-    Motor_Init(&Motor_Yaw, 1, ENABLE, ENABLE);
-    Motor_Init(&Motor_Pitch, 1, ENABLE, ENABLE);
+    Motor_Init(&Motor_Yaw, 1, DISABLE, DISABLE);
+    Motor_Init(&Motor_Pitch, 1, DISABLE, DISABLE);
 
     // CAN外设
     Can1_Device[ESC_ID(0x203)] = &Motor_Yaw;
@@ -126,46 +126,28 @@ int main(void) {
      *                                 任务初始化                                   *
      *******************************************************************************/
 
-    // 低级任务
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
-
-    // 等待遥控器开启
-    while (!remoteData.state) {
-    }
-
-    // // 运动控制任务
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 5, NULL);
-
-    //模式切换任务
-    xTaskCreate(Task_Control, "Task_Control", 400, NULL, 4, NULL);
-
     // 通讯
     // xTaskCreate(Task_Client_Communication, "Task_Client_Communication", 500, NULL, 6, NULL);
 
     // Can发送任务
-    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);
+    // xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);
+
+    // 低优先级任务
+    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL); // 跑马灯/呼吸灯任务
+    // xTaskCreate(Task_OLED, "Task_OLED", 400, NULL, 3, NULL);// OLED 菜单任务
+    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL); // 开机音乐任务
 
     // 等待遥控器开启
     while (!remoteData.state) {
     }
 
-    // 低优先级任务
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL); // 跑马灯/呼吸灯任务
-    // xTaskCreate(Task_OLED, "Task_OLED", 400, NULL, 3, NULL);// OLED 菜单任务
-    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);// 开机音乐任务
-
-    // 等待遥控器开启
-    // while (!remoteData.state) {
-    // }
-
     // 高优先级任务
-    xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL); //模式切换任务
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL); // 底盘运动任务
+    // xTaskCreate(Task_Fire, "Task_Fire", 400, NULL, 5, NULL);
+    // xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL); //模式切换任务
+    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL); // 底盘运动任务
     // xTaskCreate(Task_Communication, "Task_Communication", 500, NULL, 6, NULL); // 通讯测试任务
-    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL); // Can发送任务
+    // xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL); // Can发送任务
 
     // 定义协议发送频率
     // Bridge_Send_Protocol(&Node_Host, 0x120, 1); // 心跳包

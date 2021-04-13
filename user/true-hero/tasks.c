@@ -436,7 +436,7 @@ void Task_Fire(void *Parameters) {
 
     PID_Init(&PID_LeftFrictSpeed, 35, 0.15, 0, 10000, 5000);
     PID_Init(&PID_RightFrictSpeed, 35, 0.1, 0, 10000, 5000);
-    PID_Init(&PID_Stir3510Speed, 85, 0, 0, 16000, 10000); // p=110  120  //300  320
+    PID_Init(&PID_Stir3510Speed, 45, 0.1, 150, 16000, 10000); // p=110  120  //300  320
     // PID_Stir3510Speed.p = CHOOSE(50, 55, 60);
 
     while (1) {
@@ -458,60 +458,45 @@ void Task_Fire(void *Parameters) {
             ShootState = 1;
 
             //限位开关
-            limit_switch = GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_13);
-            if (last_limit_switch != limit_switch) {
-                vTaskDelay(10);
-                if (ShootMode == GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_13)) {
-                    limit_switch      = GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_13);
-                    last_limit_switch = limit_switch;
-                }
-            }
+            // limit_switch = GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_13);
+            // if (last_limit_switch != limit_switch) {
+            //     vTaskDelay(10);
+            //     if (ShootMode == GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_13)) {
+            //         limit_switch      = GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_13);
+            //         last_limit_switch = limit_switch;
+            //     }
+            // }
 
             //目标值设定
             if (ShootState) {
-                if (!limit_switch) {
-                    if (shootTime < 1000) {
-                        PID_Stir3510Speed.p  = 90; // 250
-                        Stir3510_SpeedTarget = -65;
-                        shootTime++;
-                    } else {
-                        Stir3510_SpeedTarget = -65; //-60
-                    }
-                } else if (limit_switch) {
-                    Stir3510_SpeedTarget = ShootMode == 1 ? -70 : 0; //-60
-                    if (ShootMode == 1) {
-                        PID_Stir3510Speed.p = 120; // 280
-                    }
-                } else if (!ShootState) {
-                    Stir3510_SpeedTarget = 0;
-                }
+                // PID_Stir3510Speed.p  = 90;
+                Stir3510_SpeedTarget = -35;
+            } else {
+                Stir3510_SpeedTarget = 0;
             }
 
-        } else {
-            Stir3510_SpeedTarget = 0;
+            PID_Calculate(&PID_Stir3510Speed, Stir3510_SpeedTarget, Motor_Stir3510.speed * RPM2RPS);
+
+            // 输出电流值到电调
+            Motor_LeftFrict.input  = PID_LeftFrictSpeed.output;
+            Motor_RightFrict.input = PID_RightFrictSpeed.output;
+            Motor_Stir3510.input   = PID_Stir3510Speed.output;
+
+            DebugData.debug1 = PID_Stir3510Speed.output;
+            DebugData.debug2 = Motor_Stir3510.speed * RPM2RPS;
+            // DebugData.debug2 = Motor_Stir3510.speed * RPM2RPS;
+            DebugData.debug3 = Stir3510_SpeedTarget;
+            DebugData.debug4 = Motor_Stir3510.angle;
+            DebugData.debug5 = shootTime;
+
+            // DebugData.debug1 = Motor_LeftFrict.speed * RPM2RPS;
+            // DebugData.debug2 = Motor_RightFrict.speed * RPM2RPS;
+            // DebugData.debug3 = frictTargetRamp;
+
+            vTaskDelayUntil(&LastWakeTime, 10);
         }
-
-        PID_Calculate(&PID_Stir3510Speed, Stir3510_SpeedTarget, Motor_Stir3510.speed * RPM2RPS / 2);
-
-        // 输出电流值到电调
-        Motor_LeftFrict.input  = PID_LeftFrictSpeed.output;
-        Motor_RightFrict.input = PID_RightFrictSpeed.output;
-        Motor_Stir3510.input   = PID_Stir3510Speed.output;
-
-        DebugData.debug1 = PID_Stir3510Speed.output;
-        DebugData.debug2 = Motor_Stir3510.speed * RPM2RPS / 2;
-        // DebugData.debug2 = Motor_Stir3510.speed * RPM2RPS;
-        DebugData.debug3 = Stir3510_SpeedTarget;
-        DebugData.debug4 = Motor_Stir3510.angle;
-        DebugData.debug5 = shootTime;
-
-        // DebugData.debug1 = Motor_LeftFrict.speed * RPM2RPS;
-        // DebugData.debug2 = Motor_RightFrict.speed * RPM2RPS;
-        // DebugData.debug3 = frictTargetRamp;
-
-        vTaskDelayUntil(&LastWakeTime, 10);
+        vTaskDelete(NULL);
     }
-    vTaskDelete(NULL);
 }
 
 void Task_Can_Send(void *Parameters) {
@@ -529,7 +514,7 @@ void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
         LED_Run_Horse_XP(); // XP开机动画,建议延时200ms
-        // LED_Run_Horse(); // 跑马灯,建议延时20ms
+        LED_Run_Horse();    // 跑马灯,建议延时20ms
         vTaskDelayUntil(&LastWakeTime, 200);
     }
 
