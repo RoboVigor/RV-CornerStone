@@ -433,7 +433,7 @@ void Task_Fire(void *Parameters) {
 
     PID_Init(&PID_LeftFrictSpeed, 35, 0.15, 0, 10000, 5000);
     PID_Init(&PID_RightFrictSpeed, 35, 0.1, 0, 10000, 5000);
-    PID_Init(&PID_Stir3510Speed, 45, 0.1, 150, 16000, 10000); // p=110  120  //300  320
+    PID_Init(&PID_Stir3510Speed, 35, 0.02, 0, 16000, 10000); // p=110  120  //300  320
 
     // PID_Stir3510Speed.p = CHOOSE(40, 50, 60);
 
@@ -467,7 +467,7 @@ void Task_Fire(void *Parameters) {
 
         //目标值设定
         if (1) {
-            Stir3510_SpeedTarget = -35;
+            Stir3510_SpeedTarget = -25;
         }
         // else {
         //     Stir3510_SpeedTarget = 0;
