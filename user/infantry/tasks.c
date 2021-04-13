@@ -9,7 +9,7 @@ void Task_Control(void *Parameters) {
     LASER_ON;
 
     while (1) {
-        ControlMode = 1;
+        ControlMode = 2;
         if (ControlMode == 1) {
             //遥控器模式
             PsShootEnabled = 0;
@@ -254,9 +254,9 @@ void Task_Gimbal(void *Parameters) {
 
         // 调试信息
         //
-        DebugData.debug1 = Robot_Id;
-        DebugData.debug2 = pitchAngle;
-        DebugData.debug3 = yawAngle;
+        // DebugData.debug1 = Robot_Id;
+        // DebugData.debug2 = pitchAngle;
+        // DebugData.debug3 = yawAngle;
         // DebugData.debug4 = ImuData.gz;
         // DebugData.debug5 = Motor_Yaw.position;
         // DebugData.debug6 = Motor_Pitch.position;
@@ -479,16 +479,16 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_RFCM, ChassisData.rotorSpeed[3], Motor_RF.speed * RPM2RPS);
 
         // 输出电流值到电调
-        // Motor_LF.input = PID_LFCM.output * ChassisData.powerScale;
-        // Motor_LB.input = PID_LBCM.output * ChassisData.powerScale;
-        // Motor_RB.input = PID_RBCM.output * ChassisData.powerScale;
-        // Motor_RF.input = PID_RFCM.output * ChassisData.powerScale;
+        Motor_LF.input = PID_LFCM.output * ChassisData.powerScale;
+        Motor_LB.input = PID_LBCM.output * ChassisData.powerScale;
+        Motor_RB.input = PID_RBCM.output * ChassisData.powerScale;
+        Motor_RF.input = PID_RFCM.output * ChassisData.powerScale;
 
         // 调试信息
-        // DebugData.debug1 = vx;
-        // DebugData.debug2 = vy;
-        // DebugData.debug3 = vw;
-        // DebugData.debug4 = protocolInfoChassisData->receiveCount;
+        DebugData.debug1 = vx;
+        DebugData.debug2 = vy;
+        DebugData.debug3 = keyboardData.W;
+        DebugData.debug4 = 35;
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
