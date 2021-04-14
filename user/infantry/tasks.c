@@ -271,13 +271,13 @@ void Task_Gimbal(void *Parameters) {
         MIAO(yawCurrent, -12000, 12000);
         MIAO(pitchCurrent, -12000, 12000);
 
-        if (Robot_Id == 1) {
-            Motor_Yaw.input   = yawCurrent;
-            Motor_Pitch.input = pitchCurrent;
-        } else if (Robot_Id == 2) {
-            Motor_Yaw.input   = yawCurrent;
-            Motor_Pitch.input = -pitchCurrent;
-        }
+        // if (Robot_Id == 1) {
+        //     Motor_Yaw.input   = yawCurrent;
+        //     Motor_Pitch.input = pitchCurrent;
+        // } else if (Robot_Id == 2) {
+        Motor_Yaw.input   = yawCurrent;
+        Motor_Pitch.input = -pitchCurrent;
+        // }
 
         // 调试信息
         //

@@ -414,10 +414,10 @@ void Task_Down_Gimbal(void *Parameters) {
     int directionY = 1;
 
     // 初始化云台PID
-    PID_Init(&PID_Down_Gimbal_Yaw_Angle, 10, 0, 0, 5000, 0);
-    PID_Init(&PID_Down_Gimbal_Yaw_Speed, 250, 0, 0, 12000, 0);
-    PID_Init(&PID_Down_Gimbal_Pitch_Angle, 4.9, 1.2, 0.5, 16384, 1000);
-    PID_Init(&PID_Down_Gimbal_Pitch_Speed, 4.9, 1.2, 0.5, 16384, 0);
+    PID_Init(&PID_Down_Gimbal_Yaw_Angle, 5, 0, 0, 5000, 0);
+    PID_Init(&PID_Down_Gimbal_Yaw_Speed, 5, 0, 0, 12000, 0);
+    PID_Init(&PID_Down_Gimbal_Pitch_Angle, 5, 0, 0, 16384, 1000);
+    PID_Init(&PID_Down_Gimbal_Pitch_Speed, 5, 0, 0, 16384, 0);
 
     while (1) {
         // 重置目标
@@ -425,10 +425,10 @@ void Task_Down_Gimbal(void *Parameters) {
         pitchAngleTarget = 0;
 
         // 设置反馈
-        yawAngle   = -1 * Gyroscope_EulerData.yaw;    // 逆时针为正
-        yawSpeed   = ImuData.gy / GYROSCOPE_LSB;      // 逆时针为正
-        pitchAngle = Gyroscope_EulerData.pitch - 90;  // 逆时针为正
-        pitchSpeed = -1 * ImuData.gx / GYROSCOPE_LSB; // 逆时针为正
+        yawAngle   = Motor_Down_Gimbal_Yaw.angle;   // 逆时针为正
+        yawSpeed   = Motor_Down_Gimbal_Yaw.speed;   // 逆时针为正
+        pitchAngle = Motor_Down_Gimbal_Pitch.angle; // 逆时针为正
+        pitchSpeed = Motor_Down_Gimbal_Pitch.speed; // 逆时针为正
         // 视觉系统
         // if (!PsEnabled) {
         //     // yawAngleTargetControl += yawAngleTargetPs;
@@ -481,16 +481,16 @@ void Task_Down_Gimbal(void *Parameters) {
         //     directionY = 1;
         // }
         // 遥控器输入角度目标
-        if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.lx / 660.0f * 360 * interval;
-        if (ABS(remoteData.ry) > 30) pitchAngleTargetControl -= remoteData.ly / 660.0f * 360 * interval;
+        if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 1.8;
+        if (ABS(remoteData.ry) > 30) pitchAngleTargetControl -= remoteData.ry / 660.0f * 18;
         MIAO(pitchAngleTargetControl, DOWN_GIMBAL_PITCH_MIN, DOWN_GIMBAL_PITCH_MAX);
         yawAngleTarget += yawAngleTargetControl;
         pitchAngleTarget += pitchAngleTargetControl;
 
-        //视觉补偿
-        MIAO(pitchAngleTargetPs, DOWN_GIMBAL_PITCH_MIN - pitchAngleTarget, DOWN_GIMBAL_PITCH_MAX - pitchAngleTarget);
-        yawAngleTarget += yawAngleTargetPs;
-        pitchAngleTarget += pitchAngleTargetPs;
+        // 视觉补偿
+        // MIAO(pitchAngleTargetPs, DOWN_GIMBAL_PITCH_MIN - pitchAngleTarget, DOWN_GIMBAL_PITCH_MAX - pitchAngleTarget);
+        // yawAngleTarget += yawAngleTargetPs;
+        // pitchAngleTarget += pitchAngleTargetP    s;
 
         // 限制云台运动范围
         MIAO(pitchAngleTarget, DOWN_GIMBAL_PITCH_MIN, DOWN_GIMBAL_PITCH_MAX);
@@ -515,7 +515,13 @@ void Task_Down_Gimbal(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = Board_Id;
+        DebugData.debug1 = pitchAngle;
+        DebugData.debug2 = pitchAngleTarget;
+        DebugData.debug3 = pitchAngleTargetControl;
+        DebugData.debug4 = remoteData.ry;
+        DebugData.debug5 = remoteData.ry / 660.0f * 360;
+        DebugData.debug6 = PID_Down_Gimbal_Pitch_Speed.output;
+        DebugData.debug7 = pitchSpeed;
         // DebugData.debug2 = ProtocolData.boardDownGyroscopeData.yaw;
         // DebugData.debug3 = ProtocolData.boardDownGyroscopeData.pitch;
         // DebugData.debug4 = Gyroscope_EulerData.yaw;

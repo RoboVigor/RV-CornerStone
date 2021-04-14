@@ -34,7 +34,7 @@ int main(void) {
      *******************************************************************************/
 
     // 获得设备ID
-    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
+    // BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
@@ -55,7 +55,7 @@ int main(void) {
     BSP_UART7_Init(115200, USART_IT_IDLE);
     BSP_UART8_Init(115200, USART_IT_IDLE);
 
-    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
+    // BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
     Motor_Init(&Motor_Chassis_Left, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
     Motor_Init(&Motor_Chassis_Right, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
 
@@ -64,7 +64,7 @@ int main(void) {
     // Motor_Init(&Motor_Up_Gimbal_Yaw, 1, ENABLE, DISABLE);
     // Motor_Init(&Motor_Up_Gimbal_Pitch, 1, ENABLE, DISABLE);
     // 下
-    Motor_Init(&Motor_Down_Gimbal_Yaw, 36.0f, ENABLE, ENABLE);
+    Motor_Init(&Motor_Down_Gimbal_Yaw, 36.0f, ENABLE, DISABLE);
     Motor_Init(&Motor_Down_Gimbal_Pitch, 1, ENABLE, ENABLE);
 
     // 摩擦轮电机
@@ -96,7 +96,7 @@ int main(void) {
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_Down_Frict_Left);
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_Down_Frict_Right);
     Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_Down_Stir);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Down_Gimbal_Yaw);
+    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x207, &Motor_Down_Gimbal_Yaw);
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x209, &Motor_Down_Gimbal_Pitch);
 
     // Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_Up_Frict_Left);
@@ -119,8 +119,8 @@ int main(void) {
 
     Motor_Down_Gimbal_Yaw.positionBias   = 0;
     Motor_Down_Gimbal_Yaw.position       = 0;
-    Motor_Down_Gimbal_Pitch.positionBias = 0;
-    Motor_Down_Gimbal_Pitch.position     = 0;
+    Motor_Down_Gimbal_Pitch.positionBias = 5881;
+    Motor_Down_Gimbal_Pitch.position     = 5881;
 
     // if (BOARD_UP) {
     //     Gyroscope_Set_Bias(&ImuData, -52, 18, 1);
@@ -148,7 +148,7 @@ int main(void) {
     // 等待遥控器开启
     while (!remoteData.state) {
     }
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
 
     // xTaskCreate(Task_Up_Gimbal, "Task_Up_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Up_Stir, "Task_Up_Stir", 400, NULL, 6, NULL); // √
