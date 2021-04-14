@@ -52,7 +52,8 @@ void Bridge_Receive_CAN(Bridge_Type *bridge, uint8_t type) {
 
     // 安排数据
     if (IS_MOTOR) {
-        Motor_Update(MOTOR, CanRxData.Data);
+        Motor_Type *motor = MOTOR;
+        Motor_Update(motor, CanRxData.Data);
     } else {
         for (i = 0; i < CanRxData.DLC; i++) {
             node              = CAN_NODE;
