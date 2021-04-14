@@ -1,4 +1,4 @@
-#ifndef __HANDLE_H
+ #ifndef __HANDLE_H
 #define __HANDLE_H
 
 #include "sys.h"
@@ -34,6 +34,10 @@
 
 // Stone Id
 __HANDLE_EXT uint8_t Board_Id, Robot_Id;
+
+//记载当前血量上限，以便当步兵升级血量上限增加时同时增加当前血量
+__HANDLE_EXT uint8_t nowMaxHp;
+
 
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
