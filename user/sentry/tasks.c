@@ -177,7 +177,7 @@ void Task_Chassis(void *Parameters) {
         // 遥控器
         if (ABS(remoteData.lx) > 30) {
             leftTarget  = -1 * remoteData.lx / 660.0f * 600;
-            rightTarget = -1 * remoteData.lx / 660.0f * 600;
+            rightTarget = 1 * remoteData.lx / 660.0f * 600;
         }
 
         // 光电开关
