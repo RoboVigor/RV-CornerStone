@@ -9,7 +9,7 @@ void Task_Control(void *Parameters) {
     LASER_ON;
 
     while (1) {
-        ControlMode = 1;
+        ControlMode = 2;
         if (ControlMode == 1) {
             //遥控器模式
             PsShootEnabled = 0;
@@ -19,9 +19,9 @@ void Task_Control(void *Parameters) {
             } else {
                 SwingMode = 0;
             }
-            MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_BOTTOM;
-            FrictEnabled  = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_MIDDLE;
-            StirEnabled   = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_MIDDLE;
+            MagzineOpened = LEFT_SWITCH_TOP;
+            FrictEnabled  = LEFT_SWITCH_MIDDLE;
+            StirEnabled   = RIGHT_SWITCH_MIDDLE;
             SafetyMode    = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
             FastShootMode = 0;
         } else if (ControlMode == 2) {
@@ -414,29 +414,8 @@ void Task_Chassis(void *Parameters) {
             } else if (yRampProgress > 0.5 && yRampProgress < 1) {
                 yRampProgress += 0.002f;
             }
-
-            switch (robot_level)
-            {
-            case 0:
-                vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 8;
-                vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 12;
-                break;
-            case 1:
-                vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * (8*1.125);
-                vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * (12*1.125);
-                break;
-            case 2:
-                vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * (8*1.25);
-                vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * (12*1.25);
-                break;
-            case 3:
-                vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * (8*1.375);
-                vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * (12*1.375);
-                break;            
-            
-            default:
-                break;
-            }
+            vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 8;
+            vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 12;
 
             if (keyboardData.W == 0 && keyboardData.S == 0) {
                 yRampProgress = 0;
@@ -449,7 +428,6 @@ void Task_Chassis(void *Parameters) {
         }
 
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
-
 
         // Host control
         if (protocolInfoChassisData->receiveCount != lastCountChassisData) {
@@ -568,12 +546,6 @@ void Task_Fire_Stir(void *Parameters) {
         } else if (ROBOT_WANG) {
             PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 16 : 6);
         }
-        //血量（底盘模式：   ；射击结构：    ）
-            remain_HP=remain_HP+(ProtocolData.gameRobotstatus.max_HP-nowMaxHp);
-            nowMaxHp=ProtocolData.gameRobotstatus.max_HP;
-
-
-       
         // 拨弹速度
         if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 20) {
             stirSpeed = 110;
@@ -586,16 +558,6 @@ void Task_Fire_Stir(void *Parameters) {
         // stirSpeed = 143; // 热量：120
         // stirSpeed = 120; // 热量：240
         // stirSpeed = 120; // 热量：360
-        
-        // // 拨弹速度?
-        // if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 10) {
-        //     stirSpeed = 110;
-        // } else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 40) {
-        //     stirSpeed = 140;
-        // } else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 60) {
-        //     stirSpeed = 160;
-        // } else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 80) {
-        //     stirSpeed = 160;
 
         // X模式
         if (FastShootMode) {
@@ -655,11 +617,11 @@ void Task_Fire_Frict(void *Parameters) {
 
     while (1) {
 
-        // if (FrictEnabled) {
-        //     LASER_ON;
-        // } else {
-        //     LASER_OFF;
-        // }
+        if (FrictEnabled) {
+            LASER_ON;
+        } else {
+            LASER_OFF;
+        }
 
         motorLSpeed = Motor_FL.speed / 19.2;
         motorRSpeed = Motor_FR.speed / 19.2;
