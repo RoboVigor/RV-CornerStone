@@ -70,7 +70,7 @@ int main(void) {
         Motor_Yaw.position       = 4110;
         Motor_Pitch.positionBias = 5540;
         Motor_Pitch.position     = 5540;
-        Gyroscope_Set_Bias(&ImuData, 3, 15, 46);
+        Gyroscope_Set_Bias(&ImuData, 15, -29, 0);
     } else if (Robot_Id == 2) {
         Motor_Yaw.positionBias   = 3400;
         Motor_Yaw.position       = 3400;
@@ -95,7 +95,7 @@ int main(void) {
     Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &Node_Judge);
 
     // 陀螺仪
-    // Gyroscope_Init(&Gyroscope_EulerData, 300); // 初始化
+    Gyroscope_Init(&Gyroscope_EulerData, 300); // 初始化
 
     /*******************************************************************************
      *                                 任务初始化                                   *
@@ -118,8 +118,7 @@ int main(void) {
     xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
 
     // DMA发送任务
-    // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Host, "Task_Host", 500, NULL, 6, NULL);
 
     // 定义协议发送频率
     Bridge_Send_Protocol(&Node_Host, 0x120, 1); // 心跳包

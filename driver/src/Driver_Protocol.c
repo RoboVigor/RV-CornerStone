@@ -1,6 +1,7 @@
 #include "Driver_Protocol.h"
 #include "Driver_Bridge.h"
 #include "vegmath.h"
+#include "tasks.h"
 #include <string.h>
 
 ProtocolInfo_Type ProtocolInfoList[] = PROTOCOL_INFO_LIST;
@@ -163,8 +164,10 @@ void Protocol_Unpack(Node_Type *node, uint8_t byte) {
 
     case STEP_ID_HIGH: {
         node->id |= byte << 8;
-        node->packet[node->index++] = byte;
-        node->protocolInfo          = Protocol_Get_Info_Handle(node->id);
+        node->packet[node->index++]     = byte;
+        node->protocolInfo              = Protocol_Get_Info_Handle(node->id);
+        node->protocolInfo->receiveSeq  = node->receiveSeq;
+        node->protocolInfo->receiveTime = xTaskGetTickCount();
         // Protocol Not Found
         if (node->protocolInfo->id != node->id) {
             node->step  = STEP_SOF;

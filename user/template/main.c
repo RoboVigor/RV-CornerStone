@@ -74,7 +74,7 @@ int main(void) {
     Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &Node_Judge);
 
     // 陀螺仪
-    Gyroscope_Set_Bias(&ImuData, -4, 3, 1);    // 设置静态误差
+    Gyroscope_Set_Bias(&ImuData, 0, 0, 0);     // 设置静态误差
     Gyroscope_Init(&Gyroscope_EulerData, 300); // 初始化
 
     /*******************************************************************************
@@ -91,10 +91,10 @@ int main(void) {
     // }
 
     // 高优先级任务
-    xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);             //模式切换任务
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);             // 底盘运动任务
-    xTaskCreate(Task_Communication, "Task_Communication", 500, NULL, 6, NULL); // 通讯测试任务
-    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);           // Can发送任务
+    xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL); //模式切换任务
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL); // 底盘运动任务
+    // xTaskCreate(Task_Communication, "Task_Communication", 500, NULL, 6, NULL); // 通讯测试任务
+    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL); // Can发送任务
 
     // 定义协议发送频率
     Bridge_Send_Protocol(&Node_Host, 0x120, 1); // 心跳包
