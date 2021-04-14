@@ -41,6 +41,9 @@ __HANDLE_EXT uint8_t SafetyMode;
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
+//记载当前血量上限，以便当步兵升级血量上限增加时同时增加当前血量
+__HANDLE_EXT uint8_t nowMaxHp;
+
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
 
