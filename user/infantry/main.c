@@ -20,20 +20,16 @@ int main(void) {
     /*******************************************************************************
      *                                  硬件初始化                                  *
      *******************************************************************************/
-
-    // 获得设备ID
-    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
-
     // 底盘电机
-    Motor_Init(&Motor_LF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
-    Motor_Init(&Motor_LB, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
-    Motor_Init(&Motor_RB, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
-    Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
+    Motor_Init(&Motor_LF, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
+    Motor_Init(&Motor_LB, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
+    Motor_Init(&Motor_RB, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
+    Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
 
     // 发射机构电机
     Motor_Init(&Motor_Stir, STIR_MOTOR_REDUCTION_RATE, ENABLE, ENABLE); //拨弹
-    Motor_Init(&Motor_FL, FIRE_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
-    Motor_Init(&Motor_FR, FIRE_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
+    Motor_Init(&Motor_FL, 1, DISABLE, ENABLE);
+    Motor_Init(&Motor_FR, 1, DISABLE, ENABLE);
 
     // 云台电机
     Motor_Init(&Motor_Yaw, GIMBAL_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);   // 顺时针为正电流
@@ -57,6 +53,9 @@ int main(void) {
     BSP_LED_Init();
     BSP_User_Power_Init();
 
+    // 获得设备ID
+    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
+
     // USART
     BSP_UART7_Init(115200, USART_IT_IDLE);
     BSP_UART8_Init(115200, USART_IT_IDLE);
@@ -65,30 +64,43 @@ int main(void) {
     BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PI0);
     BSP_PWM_Init(&PWM_Magazine_Servo, 9000, 200, TIM_OCPolarity_Low);
 
-    if (Robot_Id == 1) {
+    if (ROBOT_MIAO) {
         Motor_Yaw.positionBias   = 4110;
         Motor_Yaw.position       = 4110;
         Motor_Pitch.positionBias = 5540;
         Motor_Pitch.position     = 5540;
         Gyroscope_Set_Bias(&ImuData, 15, -29, 0);
-    } else if (Robot_Id == 2) {
-        Motor_Yaw.positionBias   = 3400;
-        Motor_Yaw.position       = 3400;
-        Motor_Pitch.positionBias = 7090;
-        Motor_Pitch.position     = 7090;
-        Gyroscope_Set_Bias(&ImuData, 27, -2, 12);
+    } else if (ROBOT_WANG) {
+        Motor_Yaw.positionBias   = 5427;
+        Motor_Yaw.position       = 5427;
+        Motor_Pitch.positionBias = 2628;
+        Motor_Pitch.position     = 2628;
+        Gyroscope_Set_Bias(&ImuData, -8, -16, -7);
     }
 
     // 总线设置
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LF);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RB);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_Pitch);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x209, &Motor_Yaw);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_FL);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_FR);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x207, &Motor_Stir);
+
+    if (ROBOT_MIAO) {
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LF);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_Pitch);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x209, &Motor_Yaw);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_FL);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_FR);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x207, &Motor_Stir);
+    } else if (ROBOT_WANG) {
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LF);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x209, &Motor_Pitch);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x209, &Motor_Yaw);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_FL);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_FR);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x207, &Motor_Stir);
+    }
 
     // 总线设置
     Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &Node_Host);

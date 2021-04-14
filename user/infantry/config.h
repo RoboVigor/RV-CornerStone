@@ -5,6 +5,11 @@
 
 #include "default_config.h"
 
+// 步兵编号
+#define ROBOT_MIAO (Robot_Id == 1)
+#define ROBOT_WANG (Robot_Id == 2)
+#define ROBOT_SHA (Robot_Id == 3)
+
 // 调试
 #define DEBUG_ENABLED 0          // 调试开关
 #define SERIAL_DEBUG_PORT USART6 // 串口调试端口
@@ -33,10 +38,9 @@
 #define BOARD_FRONT_IS_UP 0                     // 板子正面朝上
 #define BOARD_SHORT_SIDE_IS_PARALLEL_TO_PITCH 0 // 板子短边朝下
 
-
-#define GYROSCOPE_YAW_FILTER_THRESHOLD 0.005f   // 零飘修正阈值
-#define GYROSCOPE_LSB 16.384f                   // 陀螺仪敏感度 2^16/4000
-#define ACCELERATE_LSB 4096.0f                  // 加速度计敏感度 2^16/16
+#define GYROSCOPE_YAW_FILTER_THRESHOLD 0.005f // 零飘修正阈值
+#define GYROSCOPE_LSB 16.384f                 // 陀螺仪敏感度 2^16/4000
+#define ACCELERATE_LSB 4096.0f                // 加速度计敏感度 2^16/16
 
 // DMA
 #define DMA_BUFFER_LENGTH 128 // DMA发送接收长度

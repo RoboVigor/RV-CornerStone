@@ -9,20 +9,16 @@ void Task_Control(void *Parameters) {
     LASER_ON;
 
     while (1) {
-        ControlMode = 1;
+        ControlMode = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM ? 2 : 1;
         if (ControlMode == 1) {
             //遥控器模式
             PsShootEnabled = 0;
             PsAimEnabled   = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
-            // if (LEFT_SWITCH_TOP && !RIGHT_SWITCH_MIDDLE) {
-            //     SwingMode = (HAS_SLIP_RING) ? 3 : 4;
-            // } else {
-            //     SwingMode = 0;
-            // }
+            // SwingMode      = (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP) ? (HAS_SLIP_RING ? 3 : 4) : 0;
             MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP;
-            // FrictEnabled  = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP);
+            FrictEnabled  = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP);
             StirEnabled   = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP) && RIGHT_SWITCH_TOP;
-            SafetyMode    = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
+            // SafetyMode     = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
             FastShootMode = 0;
         } else if (ControlMode == 2) {
             //键鼠模式
@@ -164,20 +160,22 @@ void Task_Gimbal(void *Parameters) {
         MIAO(yawCurrent, -12000, 12000);
         MIAO(pitchCurrent, -12000, 12000);
 
-        if (Robot_Id == 1) {
+        if (ROBOT_MIAO) {
             Motor_Yaw.input   = yawCurrent;
             Motor_Pitch.input = pitchCurrent;
-        } else if (Robot_Id == 2) {
+        } else if (ROBOT_WANG) {
             Motor_Yaw.input   = yawCurrent;
-            Motor_Pitch.input = -pitchCurrent;
+            Motor_Pitch.input = pitchCurrent;
         }
 
         // 调试信息
         //
-        // DebugData.debug1 = pitchAngleTarget;
-        // DebugData.debug2 = pitchAngleTargetFix;
-        // DebugData.debug3 = pitchAngleTargetFixStable;
-        // DebugData.debug4 = chassisAngle;
+        // DebugData.debug1 = Robot_Id;
+        // DebugData.debug2 = pitchAngle;
+        // DebugData.debug3 = yawAngle;
+        // DebugData.debug4 = ImuData.gz;
+        // DebugData.debug5 = Motor_Yaw.position;
+        // DebugData.debug6 = Motor_Pitch.position;
         // DebugData.debug5 = Motor_Pitch.angle;
         // DebugData.debug6 = PID_Cloud_YawSpeed.output;
         // DebugData.debug7 = yawCurrent;
@@ -257,7 +255,7 @@ void Task_Chassis(void *Parameters) {
         if (SwingMode) {
             followDeadRegion = 0; // 关闭底盘跟随死区
         } else {
-            followDeadRegion = 3; // 开启底盘跟随死区
+            followDeadRegion = 1; // 开启底盘跟随死区
         }
 
         // 小陀螺
@@ -439,10 +437,6 @@ void Task_Host(void *Parameters) {
         // DebugData.debug2 = ProtocolData.autoaimData.yaw_angle_diff*1000;
         // DebugData.debug3 = HostAutoaimData.pitch_angle_diff*1000;
         // DebugData.debug4 = ProtocolData.autoaimData.pitch_angle_diff*1000;
-        DebugData.debug1 = HostChassisData.vx * 1000;
-        DebugData.debug2 = ProtocolData.chassisData.vx * 1000;
-        DebugData.debug3 = HostChassisData.vy * 1000;
-        DebugData.debug4 = ProtocolData.chassisData.vy * 1000;
 
         vTaskDelayUntil(&LastWakeTime, 8);
     }
@@ -483,10 +477,10 @@ void Task_Fire_Stir(void *Parameters) {
 
     while (1) {
         // 弹舱盖开关
-        if (Robot_Id == 1) {
+        if (ROBOT_MIAO) {
             PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 10 : 5);
-        } else if (Robot_Id == 2) {
-            PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 14 : 6);
+        } else if (ROBOT_WANG) {
+            PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 16 : 6);
         }
         // 拨弹速度
         if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 20) {
@@ -550,9 +544,9 @@ void Task_Fire_Frict(void *Parameters) {
     float      interval     = 0.05;                // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    int motorLSpeed;
-    int motorRSpeed;
-    int targetSpeed = 0;
+    float motorLSpeed;
+    float motorRSpeed;
+    float targetSpeed = 0;
 
     PID_Init(&PID_FireL, 70, 0, 0, 16384, 1200);
     PID_Init(&PID_FireR, 70, 0, 0, 16384, 1200);
@@ -567,8 +561,6 @@ void Task_Fire_Frict(void *Parameters) {
 
         motorLSpeed = Motor_FL.speed / 19.2;
         motorRSpeed = Motor_FR.speed / 19.2;
-
-        PID_FireL.d = CHOOSER(3, 3, 10);
 
         if (FrictEnabled) {
             if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
@@ -587,11 +579,11 @@ void Task_Fire_Frict(void *Parameters) {
         PID_Calculate(&PID_FireL, targetSpeed, motorLSpeed);
         PID_Calculate(&PID_FireR, -1 * targetSpeed, motorRSpeed);
 
-        Motor_FL.input = PID_FireL.output;
-        Motor_FR.input = PID_FireR.output;
+        Motor_FL.input = FrictEnabled ? PID_FireL.output : 0;
+        Motor_FR.input = FrictEnabled ? PID_FireR.output : 0;
 
-        // DebugData.debug1 = motorLSpeed * 1000;
-        // DebugData.debug2 = motorRSpeed * 1000;
+        DebugData.debug1 = Motor_FL.speed * 1000;
+        DebugData.debug2 = targetSpeed * 1000;
         // DebugData.debug3 = targetSpeed * 1000;
         // DebugData.debug4 = Motor_FL.speed * 1000;
         // DebugData.debug3 = Motor_Pitch.position;
