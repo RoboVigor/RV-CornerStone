@@ -28,8 +28,8 @@ int main(void) {
 
     // 发射机构电机
     Motor_Init(&Motor_Stir, STIR_MOTOR_REDUCTION_RATE, ENABLE, ENABLE); //拨弹
-    Motor_Init(&Motor_FL, FIRE_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
-    Motor_Init(&Motor_FR, FIRE_MOTOR_REDUCTION_RATE, DISABLE, ENABLE);
+    Motor_Init(&Motor_FL, 1, DISABLE, ENABLE);
+    Motor_Init(&Motor_FR, 1, DISABLE, ENABLE);
 
     // 云台电机
     Motor_Init(&Motor_Yaw, GIMBAL_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);   // 顺时针为正电流
@@ -69,7 +69,7 @@ int main(void) {
         Motor_Yaw.position       = 4110;
         Motor_Pitch.positionBias = 5540;
         Motor_Pitch.position     = 5540;
-        Gyroscope_Set_Bias(&ImuData, 3, 15, 46);
+        Gyroscope_Set_Bias(&ImuData, 15, -29, 0);
     } else if (ROBOT_WANG) {
         Motor_Yaw.positionBias   = 5427;
         Motor_Yaw.position       = 5427;
@@ -130,8 +130,7 @@ int main(void) {
     xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
 
     // DMA发送任务
-    // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Vision_Communication, "Task_Vision_Communication", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Host, "Task_Host", 500, NULL, 6, NULL);
 
     // 定义协议发送频率
     Bridge_Send_Protocol(&Node_Host, 0x120, 1); // 心跳包

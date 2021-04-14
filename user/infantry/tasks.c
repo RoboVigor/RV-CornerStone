@@ -9,20 +9,16 @@ void Task_Control(void *Parameters) {
     LASER_ON;
 
     while (1) {
-        ControlMode = 2;
+        ControlMode = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM ? 2 : 1;
         if (ControlMode == 1) {
             //遥控器模式
             PsShootEnabled = 0;
-            // PsAimEnabled   = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
-            if (LEFT_SWITCH_TOP && !RIGHT_SWITCH_MIDDLE) {
-                SwingMode = (HAS_SLIP_RING) ? 3 : 4;
-            } else {
-                SwingMode = 0;
-            }
-            MagzineOpened = LEFT_SWITCH_TOP;
-            FrictEnabled  = LEFT_SWITCH_MIDDLE;
-            StirEnabled   = RIGHT_SWITCH_MIDDLE;
-            SafetyMode    = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
+            PsAimEnabled   = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
+            // SwingMode      = (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP) ? (HAS_SLIP_RING ? 3 : 4) : 0;
+            MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP;
+            FrictEnabled  = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP);
+            StirEnabled   = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP) && RIGHT_SWITCH_TOP;
+            // SafetyMode     = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
             FastShootMode = 0;
         } else if (ControlMode == 2) {
             //键鼠模式
@@ -67,78 +63,6 @@ void Task_Can_Send(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_Board_Communication(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.1;                 // 任务运行间隔 s
-    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
-
-    while (1) {
-        //         uint16_t id;
-        //         uint16_t dataLength;
-        //         uint16_t offset = 0;
-
-        //         // 板间通信
-        // #ifdef BOARD_ALPHA
-        //         id                                 = 0x501;
-        //         ProtocolData.boardAlpha.data1 = 1.11;
-        //         ProtocolData.boardAlpha.data2 = 2.22;
-        //         ProtocolData.boardAlpha.data3 = 3.33;
-        //         ProtocolData.boardAlpha.data4 = 4.44;
-        // #endif
-
-        // #ifdef BOARD_BETA
-        //         id                                = 0x502;
-        //         ProtocolData.boardBeta.data1 = 0;
-        //         ProtocolData.boardBeta.data2 = 0;
-        //         ProtocolData.boardBeta.data3 = 0;
-        //         ProtocolData.boardBeta.data4 = 1.11;
-        // #endif
-        //         Bridge_Send_Protocol_Once(&Node_Board, 0x501);
-        //         // USART发送
-        //         DMA_Disable(UART7_Tx);
-        //         Protocol_Get_Packet_Info(id, &offset, &dataLength);
-        //         dataLength = Protocol_Pack(&Node_Board, id);
-        //         DMA_Enable(UART7_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-
-        //         // Can发送
-        //         dataLength = Protocol_Pack(&Node_Board, id);
-        //         Can_Send_Msg(CAN1, id, Node_Board.sendBuf, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-
-        // 发送频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
-
-        // 调试信息
-        // DebugData.debug1 = ProtocolData.boardAlpha.data1 * 1000;
-        // DebugData.debug2 = ProtocolData.boardBeta.data4 * 1000;
-    }
-    vTaskDelete(NULL);
-}
-
-void Task_Vision_Communication(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
-    float      interval     = 0.1;                 // 任务运行间隔 s
-    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
-
-    while (1) {
-        uint16_t id = 0x0401;
-        uint16_t dataLength;
-
-        // 视觉通信
-        ProtocolData.autoaimData.yaw_angle_diff   = 1.23;
-        ProtocolData.autoaimData.pitch_angle_diff = 4.56;
-        // ProtocolData.autoaimData.biu_biu_state    = 7;
-
-        // DMA重启
-        DMA_Disable(UART8_Tx);
-        dataLength = Protocol_Pack(&Node_Host, id);
-        DMA_Enable(UART8_Tx, PROTOCOL_HEADER_CRC_CMDID_LEN + dataLength);
-
-        // 发送频率
-        vTaskDelayUntil(&LastWakeTime, intervalms);
-    }
-    vTaskDelete(NULL);
-}
-
 void Task_Gimbal(void *Parameters) {
     // 任务
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
@@ -161,10 +85,6 @@ void Task_Gimbal(void *Parameters) {
     // 输出量
     int32_t yawCurrent   = 0;
     int32_t pitchCurrent = 0;
-
-    // 视觉系统
-    int16_t lastSeq      = 0;
-    int     autoAimStart = 0;
 
     // Pitch轴斜坡参数
     float pitchRampProgress    = 0;
@@ -199,21 +119,17 @@ void Task_Gimbal(void *Parameters) {
         pitchAngleTarget += pitchAngleTargetControl;
 
         // 视觉辅助
-        // if (!PsAimEnabled) {
-        //     lastSeq = Ps.autoaimData.seq;
-        //     yawAngleTargetControl += yawAngleTargetPs;
-        //     pitchAngleTargetControl += pitchAngleTargetPs;
-        //     yawAngleTarget += yawAngleTargetPs;
-        //     pitchAngleTarget += pitchAngleTargetPs;
-        //     yawAngleTargetPs   = 0;
-        //     pitchAngleTargetPs = 0;
-        // } else if (lastSeq != Ps.autoaimData.seq) {
-        //     lastSeq = Ps.autoaimData.seq;
-        //     yawAngleTargetPs += Ps.autoaimData.yaw_angle_diff;
-        //     pitchAngleTargetPs -= Ps.autoaimData.pitch_angle_diff;
-        // }
-
-        //视觉补偿
+        if (!PsAimEnabled) {
+            yawAngleTargetControl += yawAngleTargetPs;
+            pitchAngleTargetControl += pitchAngleTargetPs;
+            yawAngleTarget += yawAngleTargetPs;
+            pitchAngleTarget += pitchAngleTargetPs;
+            yawAngleTargetPs   = 0;
+            pitchAngleTargetPs = 0;
+        } else {
+            yawAngleTargetPs += HostAutoaimData.yaw_angle_diff;
+            pitchAngleTargetPs += HostAutoaimData.pitch_angle_diff;
+        }
         MIAO(pitchAngleTargetPs, GIMBAL_PITCH_MIN - pitchAngleTarget, GIMBAL_PITCH_MAX - pitchAngleTarget);
         yawAngleTarget += yawAngleTargetPs;
         pitchAngleTarget += pitchAngleTargetPs;
@@ -321,9 +237,6 @@ void Task_Chassis(void *Parameters) {
     float yRampStart    = 0;
     float yTargetRamp   = 0;
 
-    ProtocolInfo_Type *protocolInfoChassisData = Protocol_Get_Info_Handle(0x402);
-    uint16_t           lastCountChassisData    = 0;
-
     while (1) {
         // 设置反馈值
         motorAngle  = Motor_Yaw.angle;                                 // 电机角度
@@ -331,18 +244,18 @@ void Task_Chassis(void *Parameters) {
         power       = ProtocolData.powerHeatData.chassis_power;        // 裁判系统功率
         powerBuffer = ProtocolData.powerHeatData.chassis_power_buffer; // 裁判系统功率缓冲
 
-        // // 视觉专属follow PID
-        // if (PsAimEnabled) {
-        //     PID_Follow_Angle.p = 1;
-        // } else {
-        //     PID_Follow_Angle.p = 1.3;
-        // }
+        // 视觉专属follow PID
+        if (PsAimEnabled) {
+            PID_Follow_Angle.p = 1;
+        } else {
+            PID_Follow_Angle.p = 1.3;
+        }
 
         // 底盘跟随死区
         if (SwingMode) {
             followDeadRegion = 0; // 关闭底盘跟随死区
         } else {
-            followDeadRegion = 3; // 开启底盘跟随死区
+            followDeadRegion = 1; // 开启底盘跟随死区
         }
 
         // 小陀螺
@@ -430,17 +343,8 @@ void Task_Chassis(void *Parameters) {
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
         // Host control
-        if (protocolInfoChassisData->receiveCount != lastCountChassisData) {
-            vx += ProtocolData.chassisData.vx;
-            vy += ProtocolData.chassisData.vy;
-            vw += ProtocolData.chassisData.vw;
-        }
-
-        // test
-        // PID_LFCM.p = CHOOSE(8, 20, 32);
-        // PID_LBCM.p = CHOOSE(8, 20, 32);
-        // PID_RBCM.p = CHOOSE(8, 20, 32);
-        // PID_RFCM.p = CHOOSE(8, 20, 32);
+        vx += HostChassisData.vx;
+        vy += HostChassisData.vy;
 
         // 按条件开启底盘K_I
         if (vx < 0.1 && vy < 0.1 && vw < 0.3) {
@@ -485,10 +389,9 @@ void Task_Chassis(void *Parameters) {
         Motor_RF.input = PID_RFCM.output * ChassisData.powerScale;
 
         // 调试信息
-        DebugData.debug1 = vx;
-        DebugData.debug2 = vy;
-        DebugData.debug3 = keyboardData.W;
-        DebugData.debug4 = 35;
+        // DebugData.debug1 = vx * 1000;
+        // DebugData.debug2 = vwRamp * 1000;
+        // DebugData.debug3 = vw * 1000;
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -496,13 +399,46 @@ void Task_Chassis(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_Debug_Magic_Send(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount();
+void Task_Host(void *Parameters) {
+    TickType_t         LastWakeTime = xTaskGetTickCount();
+    ProtocolInfo_Type *protocolInfo;
+    int16_t            lastReceiveSeq = 0;
+    int64_t            sinceReceive;
     while (1) {
-        taskENTER_CRITICAL(); // 进入临界段
-        // printf();
-        taskEXIT_CRITICAL(); // 退出临界段
-        vTaskDelayUntil(&LastWakeTime, 500);
+        // transmit
+        ProtocolData.gyroscopeData.pitch = Gyroscope_EulerData.pitch;
+        ProtocolData.gyroscopeData.yaw   = Gyroscope_EulerData.yaw;
+        ProtocolData.gyroscopeData.roll  = Gyroscope_EulerData.roll;
+        memcpy(ProtocolData.dbusData.dbusBuffer, remoteBuffer, 19);
+
+        // receive autoaim data
+        protocolInfo = Protocol_Get_Info_Handle(0x401);
+        if (protocolInfo->lastReceiveSeq != protocolInfo->receiveSeq) {
+            memcpy(HostAutoaimData.data, ProtocolData.autoaimData.data, protocolInfo->length);
+            protocolInfo->lastReceiveSeq = protocolInfo->receiveSeq;
+        } else {
+            memset(HostAutoaimData.data, 0, protocolInfo->length);
+        }
+        FacingEnemyMode = HostAutoaimData.yaw_angle_diff != 0 || HostAutoaimData.pitch_angle_diff != 0;
+
+        // receive chassis data
+        protocolInfo = Protocol_Get_Info_Handle(0x402);
+        sinceReceive = xTaskGetTickCount() - protocolInfo->receiveTime;
+        if (sinceReceive > 0 && sinceReceive < 200) {
+            memcpy(HostChassisData.data, ProtocolData.chassisData.data, protocolInfo->length);
+        } else {
+            memset(HostChassisData.data, 0, protocolInfo->length);
+        }
+        DebugData.debug5 = protocolInfo->receiveSeq;
+        DebugData.debug6 = sinceReceive;
+
+        // debug
+        // DebugData.debug1 = HostAutoaimData.yaw_angle_diff*1000;
+        // DebugData.debug2 = ProtocolData.autoaimData.yaw_angle_diff*1000;
+        // DebugData.debug3 = HostAutoaimData.pitch_angle_diff*1000;
+        // DebugData.debug4 = ProtocolData.autoaimData.pitch_angle_diff*1000;
+
+        vTaskDelayUntil(&LastWakeTime, 8);
     }
     vTaskDelete(NULL);
 }
@@ -608,9 +544,9 @@ void Task_Fire_Frict(void *Parameters) {
     float      interval     = 0.05;                // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    int motorLSpeed;
-    int motorRSpeed;
-    int targetSpeed = 0;
+    float motorLSpeed;
+    float motorRSpeed;
+    float targetSpeed = 0;
 
     PID_Init(&PID_FireL, 70, 0, 0, 16384, 1200);
     PID_Init(&PID_FireR, 70, 0, 0, 16384, 1200);
@@ -625,8 +561,6 @@ void Task_Fire_Frict(void *Parameters) {
 
         motorLSpeed = Motor_FL.speed / 19.2;
         motorRSpeed = Motor_FR.speed / 19.2;
-
-        PID_FireL.d = CHOOSER(3, 3, 10);
 
         if (FrictEnabled) {
             if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
@@ -645,11 +579,11 @@ void Task_Fire_Frict(void *Parameters) {
         PID_Calculate(&PID_FireL, targetSpeed, motorLSpeed);
         PID_Calculate(&PID_FireR, -1 * targetSpeed, motorRSpeed);
 
-        Motor_FL.input = PID_FireL.output;
-        Motor_FR.input = PID_FireR.output;
+        Motor_FL.input = FrictEnabled ? PID_FireL.output : 0;
+        Motor_FR.input = FrictEnabled ? PID_FireR.output : 0;
 
-        // DebugData.debug1 = motorLSpeed * 1000;
-        // DebugData.debug2 = motorRSpeed * 1000;
+        DebugData.debug1 = Motor_FL.speed * 1000;
+        DebugData.debug2 = targetSpeed * 1000;
         // DebugData.debug3 = targetSpeed * 1000;
         // DebugData.debug4 = Motor_FL.speed * 1000;
         // DebugData.debug3 = Motor_Pitch.position;
