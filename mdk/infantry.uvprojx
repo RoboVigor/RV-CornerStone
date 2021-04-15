@@ -658,11 +658,6 @@
               <FileType>1</FileType>
               <FilePath>..\user\infantry\tasks.c</FilePath>
             </File>
-            <File>
-              <FileName>handle.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\infantry\handle.h</FilePath>
-            </File>
           </Files>
         </Group>
       </Groups>
