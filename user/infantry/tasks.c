@@ -9,22 +9,16 @@ void Task_Control(void *Parameters) {
     LASER_ON;
 
     while (1) {
-
-        ControlMode = 1;
+        ControlMode = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM ? 2 : 1;
         if (ControlMode == 1) {
             //遥控器模式
             PsShootEnabled = 0;
-            // PsAimEnabled   = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
-            if (LEFT_SWITCH_TOP && !RIGHT_SWITCH_MIDDLE) {
-                SwingMode = (HAS_SLIP_RING) ? 3 : 4;
-            } else {
-                SwingMode = 0;
-            }
-            MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_BOTTOM;
-            FrictEnabled  = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_MIDDLE;
-            StirEnabled   = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_MIDDLE;
-            SafetyMode    = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
-
+            PsAimEnabled   = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
+            // SwingMode      = (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP) ? (HAS_SLIP_RING ? 3 : 4) : 0;
+            MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP;
+            FrictEnabled  = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP);
+            StirEnabled   = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP) && RIGHT_SWITCH_TOP;
+            // SafetyMode     = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
             FastShootMode = 0;
         } else if (ControlMode == 2) {
             //键鼠模式
@@ -333,30 +327,8 @@ void Task_Chassis(void *Parameters) {
             } else if (yRampProgress > 0.5 && yRampProgress < 1) {
                 yRampProgress += 0.002f;
             }
-
-            switch (ProtocolData.gameRobotstatus.robot_level)
-            {
-            case 0:
-                vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 8;
-                vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 12;
-                break;
-            case 1:
-                vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * (8*1.125);
-                vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * (12*1.125);
-                break;
-            case 2:
-                vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * (8*1.25);
-                vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * (12*1.25);
-                break;
-            case 3:
-                vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * (8*1.375);
-                vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * (12*1.375);
-                break;            
-            
-            default:
-                break;
-            }
-
+            vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 8;
+            vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 12;
 
             if (keyboardData.W == 0 && keyboardData.S == 0) {
                 yRampProgress = 0;
@@ -369,7 +341,6 @@ void Task_Chassis(void *Parameters) {
         }
 
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
-
 
         // Host control
         vx += HostChassisData.vx;
@@ -511,37 +482,18 @@ void Task_Fire_Stir(void *Parameters) {
         } else if (ROBOT_WANG) {
             PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 16 : 6);
         }
-       //血量（底盘模式：   ；射击结构：    ）
-
-            ProtocolData.gameRobotstatus.remain_HP=ProtocolData.gameRobotstatus.remain_HP+(ProtocolData.gameRobotstatus.max_HP-nowMaxHp);
-            nowMaxHp=ProtocolData.gameRobotstatus.max_HP;
-
-
-
-       stirSpeed = 140;
-        // // 拨弹速度
-        // if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 20) {
-        //     stirSpeed = 110;
-        // } else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 30) {
-        //     stirSpeed = 140;
-        // } else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 40) {
-        //     stirSpeed = 160;
-        // }
+        // 拨弹速度
+        if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 20) {
+            stirSpeed = 110;
+        } else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 30) {
+            stirSpeed = 140;
+        } else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 40) {
+            stirSpeed = 160;
+        }
 
         // stirSpeed = 143; // 热量：120
         // stirSpeed = 120; // 热量：240
         // stirSpeed = 120; // 热量：360
-               // // 拨弹速度?
-        // if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 10) {
-        //     stirSpeed = 110;
-        // } else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 40) {
-        //     stirSpeed = 140;
-        // } else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 60) {
-        //     stirSpeed = 160;
-        // } else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 80) {
-        //     stirSpeed = 160;
-
-
 
         // X模式
         if (FastShootMode) {
@@ -601,19 +553,18 @@ void Task_Fire_Frict(void *Parameters) {
 
     while (1) {
 
-        // if (FrictEnabled) {
-        //     LASER_ON;
-        // } else {
-        //     LASER_OFF;
-        // }
+        if (FrictEnabled) {
+            LASER_ON;
+        } else {
+            LASER_OFF;
+        }
 
         motorLSpeed = Motor_FL.speed / 19.2;
         motorRSpeed = Motor_FR.speed / 19.2;
 
         if (FrictEnabled) {
-
             if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
-                targetSpeed = 250;
+                targetSpeed = 225;
             else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 18)
                 targetSpeed = 260;
             else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 22)
@@ -623,13 +574,13 @@ void Task_Fire_Frict(void *Parameters) {
         } else {
             targetSpeed = 0;
         }
-        //targetSpeed = FrictEnabled ? 307 : 0;
-        // targetSpeed =70;
+        targetSpeed = FrictEnabled ? 307 : 0;
+
         PID_Calculate(&PID_FireL, targetSpeed, motorLSpeed);
         PID_Calculate(&PID_FireR, -1 * targetSpeed, motorRSpeed);
 
-        Motor_FL.input = FrictEnabled ? PID_FireL.output*0.5 : 0;
-        Motor_FR.input = FrictEnabled ? PID_FireR.output*0.5 : 0;
+        Motor_FL.input = FrictEnabled ? PID_FireL.output : 0;
+        Motor_FR.input = FrictEnabled ? PID_FireR.output : 0;
 
         DebugData.debug1 = Motor_FL.speed * 1000;
         DebugData.debug2 = targetSpeed * 1000;
