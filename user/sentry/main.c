@@ -33,9 +33,6 @@ int main(void) {
      *                                  硬件初始化                                  *
      *******************************************************************************/
 
-    // 获得设备ID
-    // BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
-
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
 
@@ -55,31 +52,23 @@ int main(void) {
     BSP_UART7_Init(115200, USART_IT_IDLE);
     BSP_UART8_Init(115200, USART_IT_IDLE);
 
-    // BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
+    // 获取设备ID
+    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
+
+    // 底盘电机
     Motor_Init(&Motor_Chassis_Left, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
     Motor_Init(&Motor_Chassis_Right, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
 
     // 云台电机
-    // 上
-    // Motor_Init(&Motor_Up_Gimbal_Yaw, 1, ENABLE, DISABLE);
-    // Motor_Init(&Motor_Up_Gimbal_Pitch, 1, ENABLE, DISABLE);
-    // 下
     Motor_Init(&Motor_Down_Gimbal_Yaw, 36.0f, ENABLE, DISABLE);
-    Motor_Init(&Motor_Down_Gimbal_Pitch, 1, ENABLE, ENABLE);
+    Motor_Init(&Motor_Down_Gimbal_Pitch, 1, ENABLE, DISABLE);
 
     // 摩擦轮电机
-    // 上
-    // Motor_Init(&Motor_Up_Frict_Left, 1, DISABLE, ENABLE);
-    // Motor_Init(&Motor_Up_Frict_Right, 1, DISABLE, ENABLE);
-    // 下
-    Motor_Init(&Motor_Down_Frict_Left, 1, ENABLE, ENABLE);
-    Motor_Init(&Motor_Down_Frict_Right, 1, ENABLE, ENABLE);
+    Motor_Init(&Motor_Down_Frict_Left, 1, ENABLE, DISABLE);
+    Motor_Init(&Motor_Down_Frict_Right, 1, ENABLE, DISABLE);
 
     // 拨弹电机
-    // 上
-    // Motor_Init(&Motor_Up_Stir, 36.0f, DISABLE, ENABLE);
-    // 下
-    Motor_Init(&Motor_Down_Stir, 36.0f, ENABLE, ENABLE);
+    Motor_Init(&Motor_Down_Stir, 36.0f, ENABLE, DISABLE);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData);
@@ -99,12 +88,6 @@ int main(void) {
     Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x207, &Motor_Down_Gimbal_Yaw);
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x209, &Motor_Down_Gimbal_Pitch);
 
-    // Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_Up_Frict_Left);
-    // Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x207, &Motor_Up_Frict_Right);
-    // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x208, &Motor_Up_Gimbal_Yaw);
-    // Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x208, &Motor_Up_Stir);
-    // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_Up_Gimbal_Pitch);
-
     // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x501, &Node_Host);
     // Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x502, &Node_Board);
     Bridge_Bind(&BridgeData, USART_BRIDGE, 6, &Node_Board);
@@ -112,21 +95,12 @@ int main(void) {
     Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &Node_Judge);
 
     // 陀螺仪
-    // Motor_Up_Gimbal_Yaw.positionBias   = 0;
-    // Motor_Up_Gimbal_Yaw.position       = 0;
-    // Motor_Up_Gimbal_Pitch.positionBias = 0;
-    // Motor_Up_Gimbal_Pitch.position     = 0;
-
     Motor_Down_Gimbal_Yaw.positionBias   = 0;
     Motor_Down_Gimbal_Yaw.position       = 0;
-    Motor_Down_Gimbal_Pitch.positionBias = 5881;
-    Motor_Down_Gimbal_Pitch.position     = 5881;
+    Motor_Down_Gimbal_Pitch.positionBias = 6600;
+    Motor_Down_Gimbal_Pitch.position     = 6600;
 
-    // if (BOARD_UP) {
-    //     Gyroscope_Set_Bias(&ImuData, -52, 18, 1);
-    // } else if (BOARD_DOWN) {
     Gyroscope_Set_Bias(&ImuData, 10, 27, 13);
-    // }
     Gyroscope_Init(&Gyroscope_EulerData, 300); // 初始化
 
     /*******************************************************************************
@@ -142,24 +116,18 @@ int main(void) {
     // 板间通信
     // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
 
-    // 运动控制任务
-    // if (BOARD_UP) {
-
     // 等待遥控器开启
     while (!remoteData.state) {
     }
-    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
 
-    // xTaskCreate(Task_Up_Gimbal, "Task_Up_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Up_Stir, "Task_Up_Stir", 400, NULL, 6, NULL); // √
-    // xTaskCreate(Task_Up_Frict, "Task_Up_Frict", 400, NULL, 6, NULL); // √
+    xTaskCreate(Task_Down_Gimbal, "Task_Down_Gimbal", 500, NULL, 5, NULL);
+    xTaskCreate(Task_Down_Stir, "Task_Down_Stir", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Down_Frict, "Task_Down_Frict", 400, NULL, 6, NULL);
 
-    xTaskCreate(Task_Down_Gimbal, "Task_Down_Gimbal", 500, NULL, 5, NULL); // √
-    xTaskCreate(Task_Down_Stir, "Task_Down_Stir", 400, NULL, 6, NULL);     // √
-    xTaskCreate(Task_Down_Frict, "Task_Down_Frict", 400, NULL, 6, NULL);   // √
-    // }
     // Can发送任务
     xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);
+
     //启动调度,开始执行任务
     vTaskStartScheduler();
 

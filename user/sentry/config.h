@@ -15,10 +15,6 @@
 #define IMU_GY_BIAS -6 // GY静态误差
 #define IMU_GZ_BIAS -1 // GZ静态误差
 
-// 主控板编号
-#define BOARD_UP (Board_Id == 2)
-#define BOARD_DOWN (Board_Id == 0)
-
 // 陀螺仪
 #define BOARD_FRONT_IS_UP 1                     // 板子正面朝下
 #define BOARD_SHORT_SIDE_IS_PARALLEL_TO_PITCH 1 // 板子短边朝下
@@ -33,22 +29,11 @@
 #define CHASSIS_INVERSE_WHEEL_RADIUS 13.16f //测量值, 麦克纳姆轮半径的倒数
 
 // 云台
-// 上
-#define UP_GIMBAL_YAW_MIN -110
-#define UP_GIMBAL_YAW_MAX 110
-#define UP_GIMBAL_PITCH_MIN -35
-#define UP_GIMBAL_PITCH_MAX 15
-#define AUTO_UP_GIMBAL_YAW_MIN -110
-#define AUTO_UP_GIMBAL_YAW_MAX 110
-#define AUTO_UP_GIMBAL_PITCH_MIN -35
-#define AUTO_UP_GIMBAL_PITCH_MAX -5
-
-// 下
 #define DOWN_GIMBAL_YAW_MIN 575
 #define DOWN_GIMBAL_YAW_MAX 110
-#define DOWN_GIMBAL_PITCH_MIN -580
-#define DOWN_GIMBAL_PITCH_MAX -100
+#define DOWN_GIMBAL_PITCH_MIN -330
+#define DOWN_GIMBAL_PITCH_MAX -270
 #define AUTO_DOWN_GIMBAL_YAW_MIN -110
 #define AUTO_DOWN_GIMBAL_YAW_MAX 110
-#define AUTO_DOWN_GIMBAL_PITCH_MIN -7000
-#define AUTO_DOWN_GIMBAL_PITCH_MAX -5900
+#define AUTO_DOWN_GIMBAL_PITCH_MIN -7800
+#define AUTO_DOWN_GIMBAL_PITCH_MAX -6100
