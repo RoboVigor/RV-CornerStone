@@ -16,9 +16,9 @@ void Task_Control(void *Parameters) {
             PsAimEnabled = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
             // SwingMode     = (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP) ? (HAS_SLIP_RING ? 3 : 4) : 0;
             MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP;
-            FrictEnabled  = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP);
-            StirEnabled   = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP) && RIGHT_SWITCH_TOP;
-            SafetyMode    = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
+            // FrictEnabled  = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP);
+            // StirEnabled   = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP) && RIGHT_SWITCH_TOP;
+            // SafetyMode    = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
             FastShootMode = 0;
         } else if (ControlMode == 2) {
             //键鼠模式
@@ -419,7 +419,8 @@ void Task_Host(void *Parameters) {
         } else {
             memset(HostAutoaimData.data, 0, protocolInfo->length);
         }
-        FacingEnemyMode = HostAutoaimData.yaw_angle_diff != 0 || HostAutoaimData.pitch_angle_diff != 0;
+        FacingEnemyMode  = HostAutoaimData.yaw_angle_diff != 0 || HostAutoaimData.pitch_angle_diff != 0;
+        DebugData.debug5 = protocolInfo->receiveSeq;
 
         // receive chassis data
         protocolInfo = Protocol_Get_Info_Handle(0x402);
@@ -429,12 +430,10 @@ void Task_Host(void *Parameters) {
         } else {
             memset(HostChassisData.data, 0, protocolInfo->length);
         }
-        DebugData.debug5 = protocolInfo->receiveSeq;
-        DebugData.debug6 = sinceReceive;
 
         // debug
-        // DebugData.debug1 = HostAutoaimData.yaw_angle_diff*1000;
-        // DebugData.debug2 = ProtocolData.autoaimData.yaw_angle_diff*1000;
+        DebugData.debug1 = HostAutoaimData.yaw_angle_diff * 1000;
+        DebugData.debug2 = ProtocolData.autoaimData.yaw_angle_diff * 1000;
         // DebugData.debug3 = HostAutoaimData.pitch_angle_diff*1000;
         // DebugData.debug4 = ProtocolData.autoaimData.pitch_angle_diff*1000;
 
