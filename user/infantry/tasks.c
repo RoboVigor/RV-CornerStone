@@ -10,16 +10,21 @@ void Task_Control(void *Parameters) {
 
     while (1) {
         ControlMode = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM ? 2 : 1;
+        // ControlMode = 1;
         if (ControlMode == 1) {
             //遥控器模式
-            // PsShootEnabled = 0;
-            PsAimEnabled = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
-            // SwingMode     = (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP) ? (HAS_SLIP_RING ? 3 : 4) : 0;
-            MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP;
+            MagzineOpened = LEFT_SWITCH_TOP;
+            FrictEnabled  = (LEFT_SWITCH_MIDDLE || LEFT_SWITCH_BOTTOM);
+            StirEnabled   = LEFT_SWITCH_BOTTOM;
+            // PsAimEnabled = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
+            // MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP;
             // FrictEnabled  = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP);
             // StirEnabled   = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP) && RIGHT_SWITCH_TOP;
+            // FastShootMode = 0;
+            // unused
+            // PsShootEnabled = 0;
+            // SwingMode     = (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP) ? (HAS_SLIP_RING ? 3 : 4) : 0;
             // SafetyMode    = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
-            FastShootMode = 0;
         } else if (ControlMode == 2) {
             //键鼠模式
             PsShootEnabled = 0;
@@ -150,9 +155,9 @@ void Task_Gimbal(void *Parameters) {
 
         // 计算PID
         PID_Calculate(&PID_Cloud_YawAngle, yawAngleTarget, -1 * Gyroscope_EulerData.yaw);
-        PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawSpeed);
+        PID_Calculate(&PID_Cloud_YawSpeed, PID_Cloud_YawAngle.output, yawSpeed*1.1);
         PID_Calculate(&PID_Cloud_PitchAngle, pitchAngleTargetRamp, pitchAngle);
-        PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed);
+        PID_Calculate(&PID_Cloud_PitchSpeed, PID_Cloud_PitchAngle.output, pitchSpeed*1.1);
 
         // 输出电流
         yawCurrent   = -20 * PID_Cloud_YawSpeed.output;
@@ -217,8 +222,8 @@ void Task_Chassis(void *Parameters) {
 
     // 底盘跟随PID
     float followDeadRegion = 3.0;
-    PID_Init(&PID_Follow_Angle, 1, 0, 0, 1000, 100);
-    PID_Init(&PID_Follow_Speed, 10, 0, 0, 1000, 0);
+    PID_Init(&PID_Follow_Angle, 1, 0, 0, 900, 100);
+    PID_Init(&PID_Follow_Speed, 10, 0, 0, 900, 0);
 
     // 麦轮速度PID
     PID_Init(&PID_LFCM, 20, 0, 0, 6000, 1200);
@@ -312,7 +317,7 @@ void Task_Chassis(void *Parameters) {
         vy = 0;
         vw = 0;
         if (ControlMode == 1) {
-            vx = -remoteData.lx / 660.0f * 8.0;
+            vx = -remoteData.lx / 660.0f * 12.0;
             vy = remoteData.ly / 660.0f * 12.0;
         } else if (ControlMode == 2) {
             xTargetRamp = RAMP(xRampStart, 660, xRampProgress);
@@ -561,9 +566,9 @@ void Task_Fire_Frict(void *Parameters) {
 
         if (FrictEnabled) {
             if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
-                targetSpeed = 225;
+                targetSpeed = 4650;
             else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 18)
-                targetSpeed = 260;
+                targetSpeed = 5195;
             else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 22)
                 targetSpeed = 307;
             else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 30)
@@ -571,7 +576,8 @@ void Task_Fire_Frict(void *Parameters) {
         } else {
             targetSpeed = 0;
         }
-        targetSpeed = FrictEnabled ? 5894 : 0;
+        //targetSpeed = FrictEnabled ? 5894 : 0;
+        //targetSpeed = CHOOSER(5195,5200,5205);调试用
 
         PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
         PID_Calculate(&PID_FireR, -1 * targetSpeed, Motor_FR.speed);
