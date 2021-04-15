@@ -133,7 +133,9 @@ int main(void) {
     xTaskCreate(Task_Host, "Task_Host", 500, NULL, 6, NULL);
 
     // 定义协议发送频率
-    Bridge_Send_Protocol(&Node_Host, 0x120, 1); // 心跳包
+    Bridge_Send_Protocol(&Node_Host, 0x120, 1);  // 心跳包
+    Bridge_Send_Protocol(&Node_Host, 0x403, 20); // 陀螺仪
+    // Bridge_Send_Protocol(&Node_Host, 0x404, 10); // 遥控器
 
     //启动调度,开始执行任务
     vTaskStartScheduler();

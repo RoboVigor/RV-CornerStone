@@ -12,13 +12,13 @@ void Task_Control(void *Parameters) {
         ControlMode = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM ? 2 : 1;
         if (ControlMode == 1) {
             //遥控器模式
-            PsShootEnabled = 0;
-            PsAimEnabled   = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
-            // SwingMode      = (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP) ? (HAS_SLIP_RING ? 3 : 4) : 0;
+            // PsShootEnabled = 0;
+            PsAimEnabled = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
+            // SwingMode     = (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP) ? (HAS_SLIP_RING ? 3 : 4) : 0;
             MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP;
             FrictEnabled  = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP);
             StirEnabled   = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP) && RIGHT_SWITCH_TOP;
-            // SafetyMode     = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
+            SafetyMode    = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
             FastShootMode = 0;
         } else if (ControlMode == 2) {
             //键鼠模式
@@ -483,6 +483,7 @@ void Task_Fire_Stir(void *Parameters) {
             PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 16 : 6);
         }
         // 拨弹速度
+        stirSpeed = 110;
         if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 20) {
             stirSpeed = 110;
         } else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 30) {
@@ -516,9 +517,9 @@ void Task_Fire_Stir(void *Parameters) {
         // }
         // lastSeq = Ps.autoaimData.seq;
 
-        if (ProtocolData.powerHeatData.shooter_id1_17mm_cooling_heat > maxShootHeat) {
-            shootMode = shootIdle;
-        }
+        // if (ProtocolData.powerHeatData.shooter_id1_17mm_cooling_heat > maxShootHeat) {
+        //     shootMode = shootIdle;
+        // }
 
         // 控制拨弹轮
         if (shootMode == shootIdle) {
@@ -530,8 +531,8 @@ void Task_Fire_Stir(void *Parameters) {
             Motor_Stir.input = PID_StirSpeed.output;
         }
 
-        // DebugData.debug1 = PID_StirSpeed.output;
-        // DebugData.debug2 = shootMode;
+        DebugData.debug1 = PID_StirSpeed.output;
+        DebugData.debug2 = shootMode;
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -548,8 +549,8 @@ void Task_Fire_Frict(void *Parameters) {
     float motorRSpeed;
     float targetSpeed = 0;
 
-    PID_Init(&PID_FireL, 70, 0, 0, 16384, 1200);
-    PID_Init(&PID_FireR, 70, 0, 0, 16384, 1200);
+    PID_Init(&PID_FireL, 3, 0, 0, 16384, 1200);
+    PID_Init(&PID_FireR, 3, 0, 0, 16384, 1200);
 
     while (1) {
 
@@ -558,9 +559,6 @@ void Task_Fire_Frict(void *Parameters) {
         } else {
             LASER_OFF;
         }
-
-        motorLSpeed = Motor_FL.speed / 19.2;
-        motorRSpeed = Motor_FR.speed / 19.2;
 
         if (FrictEnabled) {
             if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
@@ -574,22 +572,17 @@ void Task_Fire_Frict(void *Parameters) {
         } else {
             targetSpeed = 0;
         }
-        targetSpeed = FrictEnabled ? 307 : 0;
+        targetSpeed = FrictEnabled ? 5894 : 0;
 
-        PID_Calculate(&PID_FireL, targetSpeed, motorLSpeed);
-        PID_Calculate(&PID_FireR, -1 * targetSpeed, motorRSpeed);
+        PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
+        PID_Calculate(&PID_FireR, -1 * targetSpeed, Motor_FR.speed);
 
-        Motor_FL.input = FrictEnabled ? PID_FireL.output : 0;
-        Motor_FR.input = FrictEnabled ? PID_FireR.output : 0;
+        Motor_FL.input = PID_FireL.output;
+        Motor_FR.input = PID_FireR.output;
 
-        DebugData.debug1 = Motor_FL.speed * 1000;
-        DebugData.debug2 = targetSpeed * 1000;
-        // DebugData.debug3 = targetSpeed * 1000;
-        // DebugData.debug4 = Motor_FL.speed * 1000;
-        // DebugData.debug3 = Motor_Pitch.position;
-        // DebugData.debug4 = PID_FireR.output;
-        // DebugData.debug5 = -1 * targetSpeed;
-        // DebugData.debug6 = Judge.shootData.bullet_speed;
+        // DebugData.debug1 = Motor_FL.speed * 1000;
+        // DebugData.debug2 = Motor_FL.position;
+        // DebugData.debug3 = PID_FireR.output;
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
