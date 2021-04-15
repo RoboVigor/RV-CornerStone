@@ -229,6 +229,7 @@ void Task_Chassis(void *Parameters) {
         // 调试数据
         DebugData.debug1 = Left_State;
         DebugData.debug2 = Right_State;
+        DebugData.debug3 = ADC_GetConversionValue(ADC1);
         // DebugData.debug3 = PID_Chassis_Left.feedback;
         // DebugData.debug4 = timer;
     }

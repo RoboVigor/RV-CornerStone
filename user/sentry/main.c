@@ -13,10 +13,19 @@ void BSP_Proximity_Switch_Init(void) {
 
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0 | GPIO_Pin_1;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_1;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+
     GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AIN;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_1;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+
+    GPIO_Init(GPIOC, &GPIO_InitStructure);
 }
 
 int main(void) {
@@ -47,6 +56,9 @@ int main(void) {
     BSP_User_Power_Init();
     BSP_Proximity_Switch_Init();
 
+    // ADC 初始化
+    BSP_ADC1_Init(1, ADC_Channel11, 0);
+
     // USART
     BSP_USART6_Init(115200, USART_IT_IDLE);
     BSP_UART7_Init(115200, USART_IT_IDLE);
@@ -56,8 +68,8 @@ int main(void) {
     BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
 
     // 底盘电机
-    Motor_Init(&Motor_Chassis_Left, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
-    Motor_Init(&Motor_Chassis_Right, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
+    Motor_Init(&Motor_Chassis_Left, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, DISABLE);
+    Motor_Init(&Motor_Chassis_Right, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, DISABLE);
 
     // 云台电机
     Motor_Init(&Motor_Down_Gimbal_Yaw, 36.0f, ENABLE, DISABLE);
@@ -117,8 +129,8 @@ int main(void) {
     // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
 
     // 等待遥控器开启
-    while (!remoteData.state) {
-    }
+    // while (!remoteData.state) {
+    // }
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
 
     xTaskCreate(Task_Down_Gimbal, "Task_Down_Gimbal", 500, NULL, 5, NULL);
