@@ -136,6 +136,7 @@ int main(void) {
     Bridge_Send_Protocol(&Node_Host, 0x120, 1);  // 心跳包
     Bridge_Send_Protocol(&Node_Host, 0x403, 20); // 陀螺仪
     // Bridge_Send_Protocol(&Node_Host, 0x404, 10); // 遥控器
+    // Bridge_Send_Protocol(&Node_Judge, 0XF101, 10); // 遥控器
 
     //启动调度,开始执行任务
     vTaskStartScheduler();
