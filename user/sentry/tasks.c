@@ -19,7 +19,7 @@ void Task_Control(void *Parameters) {
         // StirEnabled = remoteData.switchLeft == 2;
         // StirEnabled = LEFT_SWITCH_MIDDLE;
         // PsEnabled   = remoteData.switchLeft == 2;
-        AutoMode   = LEFT_SWITCH_MIDDLE;
+        AutoMode   = 1;
         SafetyMode = LEFT_SWITCH_BOTTOM;
 
         // if ((remoteData.switchLeft == 1 && remoteData.switchRight == 1) || (!remoteData.state)) {
@@ -40,6 +40,9 @@ void Task_Chassis(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.005;               // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+
+    Left_State  = 1;
+    Right_State = 1;
 
     // 目标值
     float leftTarget  = 0;
@@ -73,98 +76,108 @@ void Task_Chassis(void *Parameters) {
     int maxRightTimeout          = 10 / intervalms;
 
     // 功率限制
+    float power_org;
+    float powerBuffer_org;
+
     float power;
     float powerBuffer;
     float targetPower;
 
     // 初始化角速度PID
-    PID_Init(&PID_Chassis_Left, 30, 0, 0, 4000, 2000);
-    PID_Init(&PID_Chassis_Right, 30, 0, 0, 4000, 2000);
+    PID_Init(&PID_Chassis_Left, 15, 1, 0, 20000, 1000);
+    PID_Init(&PID_Chassis_Right, 15, 1, 0, 20000, 1000);
+
+    // 哨兵底盘不动flag
+    float chassSilenceScale = 1.0;
 
     // 初始化底盘
     Chassis_Init(&ChassisData);
+    ChassisData.powerBuffer    = 200;
     ChassisData.maxPower       = 20;
     ChassisData.maxPowerBuffer = 200;
 
     while (1) {
         // 视觉系统
-        if (!PsEnabled) {
-            lastSeq = Node_Host.receiveSeq;
-            visionCounter++;
-        } else if (lastSeq != Node_Host.receiveSeq) {
-            lastSeq = Node_Host.receiveSeq;
-            if (ProtocolData.autoaimData.yaw_angle_diff == 0 && ProtocolData.autoaimData.pitch_angle_diff == 0 && ProtocolData.autoaimData.biu_biu_state == 0) {
-                visionCounter++;
-            } else {
-                visionCounter = 0;
-                motionType    = 2;
-            }
-        } else {
-            visionCounter++;
-        }
+        // if (!PsEnabled) {
+        //     lastSeq = Node_Host.receiveSeq;
+        //     visionCounter++;
+        // } else if (lastSeq != Node_Host.receiveSeq) {
+        //     lastSeq = Node_Host.receiveSeq;
+        //     if (ProtocolData.autoaimData.yaw_angle_diff == 0 && ProtocolData.autoaimData.pitch_angle_diff == 0 && ProtocolData.autoaimData.biu_biu_state ==
+        //     0) {
+        //         visionCounter++;
+        //     } else {
+        //         visionCounter = 0;
+        //         motionType    = 2;
+        //     }
+        // } else {
+        //     visionCounter++;
+        // }
 
         // 挨打
-        if (ProtocolData.robotState.remain_HP == lastBlood) {
-            hurtCounter++;
-        } else {
-            hurtCounter = 0;
-            motionType  = 2;
-        }
-        lastBlood = ProtocolData.robotState.remain_HP;
+        // if (ProtocolData.robotState.remain_HP == lastBlood) {
+        //     hurtCounter++;
+        // } else {
+        //     hurtCounter = 0;
+        //     motionType  = 2;
+        // }
+        // lastBlood = ProtocolData.robotState.remain_HP;
 
         // 巡逻
-        if ((visionCounter >= maxVisionTimeout) && (hurtCounter >= maxHurtTimeout)) {
-            motionType = 1;
-        }
-        if (visionCounter == INT_MAX) {
-            visionCounter = maxVisionTimeout;
-        }
-        if (hurtCounter == INT_MAX) {
-            hurtCounter = maxHurtTimeout;
-        }
+        // if ((visionCounter >= maxVisionTimeout) && (hurtCounter >= maxHurtTimeout)) {
+        //     motionType = 1;
+        // }
+        // if (visionCounter == INT_MAX) {
+        //     visionCounter = maxVisionTimeout;
+        // }
+        // if (hurtCounter == INT_MAX) {
+        //     hurtCounter = maxHurtTimeout;
+        // }
 
         // 随机数生成
-        srand(Motor_Chassis_Left.position);
-        random = rand();
+        // srand(Motor_Chassis_Left.position);
+        // random = rand();
 
         // 设置随机量
-        if ((timer <= 0.0) || (!lastAutoMode) || (lastMotionType != motionType)) {
-            switch (motionType) {
-            case 0: {
-                // 全随机模式
-                maxTime   = 6.0;
-                minTime   = 1.0;
-                maxSpeed  = 600;
-                minSpeed  = 300;
-                direction = (random % 2) * 2 - 1;
-            } break;
+        // if ((timer <= 0.0) || (!lastAutoMode) || (lastMotionType != motionType)) {
+        //     switch (motionType) {
+        //     case 0: {
+        // 全随机模式
+        maxTime = 6.0;
+        minTime = 1.0;
+        // maxSpeed = 600;
+        // minSpeed = 300;
 
-            case 1: {
-                // 巡逻模式
-                maxTime   = 0.0;
-                minTime   = 0.0;
-                maxSpeed  = 600;
-                minSpeed  = 600;
-                direction = direction;
-            } break;
+        // if (timer <= 0) {
+        //     direction = (random % 2) * 2 - 1;
+        // }
+        // } break;
 
-            case 2: {
-                // 左右横跳
-                maxTime   = 2.0;
-                minTime   = 1.0;
-                maxSpeed  = 600;
-                minSpeed  = 600;
-                direction = -direction;
-            } break;
+        // case 1: {
+        //     // 巡逻模式
+        //     maxTime   = 0.0;
+        //     minTime   = 0.0;
+        //     maxSpeed  = 600;
+        //     minSpeed  = 600;
+        //     direction = direction;
+        // } break;
 
-            default:
-                break;
-            }
+        // case 2: {
+        //     // 左右横跳
+        //     maxTime   = 2.0;
+        //     minTime   = 1.0;
+        //     maxSpeed  = 600;
+        //     minSpeed  = 600;
+        //     direction = -direction;
+        // } break;
 
-            timer       = ((float) (random % (int) ((maxTime - minTime) * 10 + 1))) / 10.0 + minTime;
-            leftTarget  = direction * (random % (maxSpeed - minSpeed + 1) + minSpeed);
-            rightTarget = direction * (random % (maxSpeed - minSpeed + 1) + minSpeed);
-        }
+        // default:JH
+        //     break;
+        // }
+
+        // timer       = ((float) (random % (int) ((maxTime - minTime) * 10 + 1))) / 10.0 + minTime;
+        leftTarget  = direction * CHOOSER(550, 500, 450);
+        rightTarget = direction * CHOOSER(550, 500, 450);
 
         timer -= interval;
         lastAutoMode   = AutoMode;
@@ -186,32 +199,28 @@ void Task_Chassis(void *Parameters) {
         Left_State  = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_1);
         Right_State = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0);
 
-        // 右边光电开关损坏，故设置底盘右移超时时间
-        if (Right_State == 0 && proximitySwitchDirection == -1) {
-            rightCounter++;
-        }
-
-        if (rightCounter > maxRightTimeout) {
-            rightCounter             = 0;
-            proximitySwitchDirection = 1;
-        }
-
-        if (Left_State == 1 && proximitySwitchDirection == 1) {
+        if (Left_State == 0) {
             proximitySwitchDirection = -1;
-        }
-        if (Right_State == 1 && proximitySwitchDirection == -1) {
+        } else if (Right_State == 0) {
             proximitySwitchDirection = 1;
         }
         if (proximitySwitchDirection != 0) {
-            direction                = proximitySwitchDirection;
-            leftTarget               = proximitySwitchDirection * ABS(leftTarget);
-            rightTarget              = proximitySwitchDirection * ABS(rightTarget);
-            proximitySwitchDirection = 0;
+            direction   = proximitySwitchDirection;
+            leftTarget  = proximitySwitchDirection * ABS(leftTarget);
+            rightTarget = proximitySwitchDirection * ABS(rightTarget);
         }
 
+        power_org       = ProtocolData.powerHeatData.chassis_power;
+        powerBuffer_org = ProtocolData.powerHeatData.chassis_power_buffer;
+
         // 功率限制
-        power       = ProtocolData.powerHeatData.chassis_power;                            // 裁判系统功率
-        powerBuffer = ProtocolData.powerHeatData.chassis_power_buffer;                     // 裁判系统功率缓冲
+        if (power_org > 1) {
+            power = power_org;
+        }
+        if (powerBuffer_org > 60) {
+            powerBuffer = powerBuffer_org;
+        }                                                                                  // 裁判系统功率
+                                                                                           // 裁判系统功率缓冲
         targetPower = 20.0 - WANG(160.0 - ChassisData.powerBuffer, 0, 160) / 160.0 * 20.0; // 设置目标功率
         Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval);      // 根据功率限幅
 
@@ -219,17 +228,27 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Chassis_Left, -1 * leftTarget, Motor_Chassis_Left.speed * RPM2RPS);
         PID_Calculate(&PID_Chassis_Right, rightTarget, Motor_Chassis_Right.speed * RPM2RPS);
 
+        if (powerBuffer < 80.0) {
+            chassSilenceScale = 0.0;
+        } else if (powerBuffer > 160.0) {
+            chassSilenceScale = 1.0;
+        }
+
         // 输出电流值到电调
-        Motor_Chassis_Left.input  = PID_Chassis_Left.output * ChassisData.powerScale;
-        Motor_Chassis_Right.input = PID_Chassis_Right.output * ChassisData.powerScale;
+        Motor_Chassis_Left.input  = PID_Chassis_Left.output * ChassisData.powerScale * chassSilenceScale;
+        Motor_Chassis_Right.input = PID_Chassis_Right.output * ChassisData.powerScale * chassSilenceScale;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试数据
-        DebugData.debug1 = Left_State;
-        DebugData.debug2 = Right_State;
-        DebugData.debug3 = ADC_GetConversionValue(ADC1);
+        DebugData.debug1 = Motor_Chassis_Left.speed * RPM2RPS;
+        DebugData.debug2 = Motor_Chassis_Right.speed * RPM2RPS;
+        DebugData.debug3 = ProtocolData.powerHeatData.chassis_power;
+        DebugData.debug4 = ProtocolData.powerHeatData.chassis_power_buffer;
+        DebugData.debug5 = power;
+        DebugData.debug6 = powerBuffer;
+        // DebugData.debug4 = Motor_Chassis_Left.angle;
         // DebugData.debug3 = PID_Chassis_Left.feedback;
         // DebugData.debug4 = timer;
     }
@@ -275,20 +294,20 @@ void Task_Down_Gimbal(void *Parameters) {
     int directionY = 1;
 
     // 初始化云台PID
-    PID_Init(&PID_Down_Gimbal_Yaw_Angle, 5, 0, 0, 1000, 0);
-    PID_Init(&PID_Down_Gimbal_Yaw_Speed, 15, 0, 0, 12000, 0);
-    PID_Init(&PID_Down_Gimbal_Pitch_Angle, 8, 0.1, 0, 16384, 1000);
-    PID_Init(&PID_Down_Gimbal_Pitch_Speed, 15, 0, 0, 16384, 0);
+    PID_Init(&PID_Down_Gimbal_Yaw_Angle, 3, 0, 0, 1000, 0);
+    PID_Init(&PID_Down_Gimbal_Yaw_Speed, 15, 0, 0, 10000, 0);
+    PID_Init(&PID_Down_Gimbal_Pitch_Angle, 5, 0.1, 0, 16384, 1000);
+    PID_Init(&PID_Down_Gimbal_Pitch_Speed, 10, 0, 0, 16384, 0);
 
     while (1) {
         // 重置目标
-        yawAngleTarget = 0;
+        // yawAngleTarget = 0;
 
         // 设置反馈
-        yawAngle   = Motor_Down_Gimbal_Yaw.angle;                    // 逆时针为正
-        yawSpeed   = Motor_Down_Gimbal_Yaw.speed;                    // 逆时针为正
-        pitchAngle = -1 * Motor_Down_Gimbal_Pitch.position / 22.753; // 逆时针为正
-        pitchSpeed = Motor_Down_Gimbal_Pitch.speed;                  // 逆时针为正
+        // yawAngle   = Motor_Down_Gimbal_Yaw.angle;                    // 逆时针为正
+        yawSpeed   = Motor_Down_Gimbal_Yaw.speed;           // 逆时针为正
+        pitchAngle = -1 * Motor_Down_Gimbal_Pitch.position; // 逆时针为正
+        pitchSpeed = Motor_Down_Gimbal_Pitch.speed;         // 逆时针为正
 
         // 视觉系统
         // if (!PsEnabled) {
@@ -340,8 +359,8 @@ void Task_Down_Gimbal(void *Parameters) {
         //     directionY = 1;
         // }
         // 遥控器输入角度目标
-        if (ABS(remoteData.rx) > 30) yawAngleTarget += remoteData.rx / 660.0f * 1.8;
-        if (ABS(remoteData.ry) > 30) pitchAngleTarget += remoteData.ry / 660.0f * 18;
+        // if (ABS(remoteData.rx) > 30) yawAngleTarget += remoteData.rx / 660.0f * 1.8;
+        // if (ABS(remoteData.ry) > 30) pitchAngleTarget += remoteData.ry / 660.0f * 18;
 
         // 视觉补偿
         // MIAO(pitchAngleTargetPs, DOWN_GIMBAL_PITCH_MIN - pitchAngleTarget, DOWN_GIMBAL_PITCH_MAX - pitchAngleTarget);
@@ -349,7 +368,7 @@ void Task_Down_Gimbal(void *Parameters) {
         // pitchAngleTarget += pitchAngleTargetPs;
 
         // 限制云台运动范围
-        MIAO(yawAngleTarget, -4095, 4095);
+        // MIAO(yawAngleTarget, -4095, 4095);
         MIAO(pitchAngleTarget, DOWN_GIMBAL_PITCH_MIN, DOWN_GIMBAL_PITCH_MAX);
 
         // 开机时pitch轴匀速抬起
@@ -359,21 +378,23 @@ void Task_Down_Gimbal(void *Parameters) {
         }
 
         // 计算PID
-        PID_Calculate(&PID_Down_Gimbal_Yaw_Angle, yawAngleTarget, yawAngle);
-        PID_Calculate(&PID_Down_Gimbal_Yaw_Speed, PID_Down_Gimbal_Yaw_Angle.output, yawSpeed);
+        // PID_Calculate(&PID_Down_Gimbal_Yaw_Angle, yawAngleTarget, yawAngle);
+        PID_Calculate(&PID_Down_Gimbal_Yaw_Speed, 0, yawSpeed);
+        // PID_Calculate(&PID_Down_Gimbal_Yaw_Speed, 0, yawSpeed);
         PID_Calculate(&PID_Down_Gimbal_Pitch_Angle, pitchAngleTarget, pitchAngle);
         PID_Calculate(&PID_Down_Gimbal_Pitch_Speed, PID_Down_Gimbal_Pitch_Angle.output, pitchSpeed);
 
         // 输出电流
-        Motor_Down_Gimbal_Yaw.input   = -1 * PID_Down_Gimbal_Yaw_Speed.output;
+        Motor_Down_Gimbal_Yaw.input   = PID_Down_Gimbal_Yaw_Speed.output;
         Motor_Down_Gimbal_Pitch.input = -1 * PID_Down_Gimbal_Pitch_Speed.output;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = pitchAngle;
-        // DebugData.debug2 = pitchAngleTarget;
+        // DebugData.debug1 = yawSpeed;
+        // DebugData.debug2 = pitchAngle;
+        // DebugData.debug3 = pitchAngleTarget;
         // DebugData.debug3 = pitchSpeed;
         // DebugData.debug4 = Motor_Down_Gimbal_Yaw.angle;
         // DebugData.debug5 = PID_Down_Gimbal_Yaw_Speed.output;
@@ -522,6 +543,8 @@ void Task_Down_Frict(void *Parameters) {
     // 下
     PID_Init(&PID_Down_Frict_Left_Speed, 50, 0, 0, 16384, 2000);
     PID_Init(&PID_Down_Frict_Right_Speed, 50, 0, 0, 16384, 2000);
+
+    LASER_ON;
 
     while (1) {
         targetSpeed = 200;
