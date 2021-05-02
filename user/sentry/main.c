@@ -61,7 +61,7 @@ int main(void) {
     Motor_Init(&Motor_Chassis_Right, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
 
     // 云台电机
-    Motor_Init(&Motor_Down_Gimbal_Yaw, 36.0f, ENABLE, DISABLE);
+    Motor_Init(&Motor_Down_Gimbal_Yaw, 36.0f, ENABLE, ENABLE);
     Motor_Init(&Motor_Down_Gimbal_Pitch, 1, ENABLE, ENABLE);
 
     // 摩擦轮电机
