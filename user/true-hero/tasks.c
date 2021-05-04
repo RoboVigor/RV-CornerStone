@@ -11,15 +11,15 @@ void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
 
-        // if (remoteData.switchLeft == 1 || remoteData.switchLeft == 3) {
-        ControlMode  = 1;                           //遥控器模式
-        SafetyMode   = RIGHT_SWITCH_BOTTOM;         //安全模式
-        ShootEnabled = !LEFT_SWITCH_BOTTOM;         //射击模式
-        SwingMode    = RIGHT_SWITCH_MIDDLE ? 1 : 0; //大陀螺
-        ShootMode    = LEFT_SWITCH_TOP ? 1 : 0;     // 发射
-        // } else if (remoteData.switchLeft == 2) {
-        //     ControlMode = 2; //键鼠模式
-        // }
+        if (remoteData.switchLeft == 1 || remoteData.switchLeft == 3) {
+            ControlMode  = 1;                           //遥控器模式
+            SafetyMode   = RIGHT_SWITCH_BOTTOM;         //安全模式
+            ShootEnabled = !LEFT_SWITCH_BOTTOM;         //射击模式
+            SwingMode    = RIGHT_SWITCH_MIDDLE ? 1 : 0; //大陀螺
+            ShootMode    = LEFT_SWITCH_TOP ? 1 : 0;     // 发射
+        } else if (remoteData.switchLeft == 2) {
+            ControlMode = 2; //键鼠模式
+        }
         vTaskDelayUntil(&LastWakeTime, 10);
     }
     vTaskDelete(NULL);
@@ -287,44 +287,44 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output,
                       motorSpeed); // 计算航向角角速度PID
 
-        // 设置底盘总体移动速度
-        // if (ControlMode == 1) {
-        vx = -remoteData.lx / 660.0f * 8;
-        vy = remoteData.ly / 660.0f * 12;
-        // } else if (ControlMode == 2) {
-        //     xTargetRamp = RAMP(xRampStart, 660, xRampProgress);
-        //     if (xRampProgress < 0.5) {
-        //         xRampProgress += 0.004f;
-        //     } else if (xRampProgress > 0.5 && xRampProgress < 1) {
-        //         xRampProgress += 0.002f;
-        //     }
-        //     yTargetRamp = RAMP(yRampStart, 660, yRampProgress);
-        //     if (yRampProgress < 0.5) {
-        //         yRampProgress += 0.006f;
-        //     } else if (yRampProgress > 0.5 && yRampProgress < 1) {
-        //         yRampProgress += 0.004f;
-        //     }
-        //     MIAO(xRampProgress, 0, 1);
-        //     MIAO(yRampProgress, 0, 1);
+        设置底盘总体移动速度
+        if (ControlMode == 1) {
+            vx = -remoteData.lx / 660.0f * 8;
+            vy = remoteData.ly / 660.0f * 12;
+        } else if (ControlMode == 2) {
+            xTargetRamp = RAMP(xRampStart, 660, xRampProgress);
+            if (xRampProgress < 0.5) {
+                xRampProgress += 0.004f;
+            } else if (xRampProgress > 0.5 && xRampProgress < 1) {
+                xRampProgress += 0.002f;
+            }
+            yTargetRamp = RAMP(yRampStart, 660, yRampProgress);
+            if (yRampProgress < 0.5) {
+                yRampProgress += 0.006f;
+            } else if (yRampProgress > 0.5 && yRampProgress < 1) {
+                yRampProgress += 0.004f;
+            }
+            MIAO(xRampProgress, 0, 1);
+            MIAO(yRampProgress, 0, 1);
 
-        //     vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 4;
-        //     vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 12;
+            vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 4;
+            vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 12;
 
-        //     if (keyboardData.W == 0 && keyboardData.S == 0) {
-        //         yRampProgress = 0;
-        //         yRampStart    = 0;
-        //     }S
-        //     if (keyboardData.A == 0 && keyboardData.D == 0) {
-        //         xRampProgress = 0;
-        //         xRampStart    = 0;
-        //     }
-        // }
+            if (keyboardData.W == 0 && keyboardData.S == 0) {
+                yRampProgress = 0;
+                yRampStart    = 0;
+            }
+            S if (keyboardData.A == 0 && keyboardData.D == 0) {
+                xRampProgress = 0;
+                xRampStart    = 0;
+            }
+        }
 
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (PID_Follow_Speed.output * DPS2RPS);
-        // if (ABS(remoteData.rx) > 300 || ABS(mouseData.x) > 41) {
-        //     vy = vy / 5.0f;
-        //     vx = vx / 2.0f;
-        // }
+        if (ABS(remoteData.rx) > 300 || ABS(mouseData.x) > 41) {
+            vy = vy / 5.0f;
+            vx = vx / 2.0f;
+        }
 
         // 麦轮解算及限速
         targetPower = 80.0 - WANG(40.0 - ChassisData.powerBuffer, 0, 40) / 40.0 * 80.0; // 设置目标功率

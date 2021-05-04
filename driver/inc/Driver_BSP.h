@@ -89,6 +89,22 @@ typedef struct {
 
 typedef enum { USART1_Tx, USART1_Rx, USART3_Tx, USART3_Rx, USART6_Tx, USART6_Rx, UART7_Tx, UART7_Rx, UART8_Tx, UART8_Rx } dma_table_index_e;
 
+#ifdef __BSP_GLOBALS
+DMA_Type DMA_Table[10] = {{USART1_BASE, Tx, DMA2, DMA2_Stream7, DMA2_Stream7_IRQn, DMA_Channel_4, DMA_IT_TCIF7, DMA_FLAG_TCIF7, DMA_FLAG_HTIF7},
+                          {USART1_BASE, Rx, DMA2, DMA2_Stream2, DMA2_Stream2_IRQn, DMA_Channel_4, DMA_IT_TCIF2, DMA_FLAG_TCIF2, DMA_FLAG_HTIF2},
+                          {USART3_BASE, Tx, DMA1, DMA1_Stream3, DMA1_Stream3_IRQn, DMA_Channel_4, DMA_IT_TCIF3, DMA_FLAG_TCIF3, DMA_FLAG_HTIF3},
+                          {USART3_BASE, Rx, DMA1, DMA1_Stream1, DMA1_Stream1_IRQn, DMA_Channel_4, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
+                          {USART6_BASE, Tx, DMA2, DMA2_Stream6, DMA2_Stream6_IRQn, DMA_Channel_5, DMA_IT_TCIF6, DMA_FLAG_TCIF6, DMA_FLAG_HTIF6},
+                          {USART6_BASE, Rx, DMA2, DMA2_Stream1, DMA2_Stream1_IRQn, DMA_Channel_5, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
+                          {UART7_BASE, Tx, DMA1, DMA1_Stream1, DMA1_Stream1_IRQn, DMA_Channel_5, DMA_IT_TCIF1, DMA_FLAG_TCIF1, DMA_FLAG_HTIF1},
+                          {UART7_BASE, Rx, DMA1, DMA1_Stream3, DMA1_Stream3_IRQn, DMA_Channel_5, DMA_IT_TCIF3, DMA_FLAG_TCIF3, DMA_FLAG_HTIF3},
+                          {UART8_BASE, Tx, DMA1, DMA1_Stream0, DMA1_Stream0_IRQn, DMA_Channel_5, DMA_IT_TCIF0, DMA_FLAG_TCIF0, DMA_FLAG_HTIF0},
+                          {UART8_BASE, Rx, DMA1, DMA1_Stream6, DMA1_Stream6_IRQn, DMA_Channel_5, DMA_IT_TCIF6, DMA_FLAG_TCIF6, DMA_FLAG_HTIF6}};
+
+#else
+extern DMA_Type DMA_Table[10];
+#endif
+
 // Stone ID
 void BSP_Stone_Id_Init(uint8_t *Board_Id, uint8_t *Robot_Id);
 

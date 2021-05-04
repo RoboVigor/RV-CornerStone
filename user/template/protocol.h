@@ -472,7 +472,7 @@ typedef union {
         referee_warning_t              refereeWarning;              // 0X0104 裁判警告信息
         dart_remaining_time_t          dartRemainingtime;           // 0X0105 飞镖发射口倒计
         game_robot_status_t            gameRobotstatus;             // 0X0201 比赛机器人状态
-        power_heat_data_t              powerHeatdata;               // 0X0202 实时功率热量数据
+        power_heat_data_t              powerHeatData;               // 0X0202 实时功率热量数据
         game_robot_pos_t               gameRobotpos;                // 0X0203 机器人位置
         buff_info_t                    buffInfo;                    // 0X0204 机器人增益
         aerial_robot_energy_t          aerialRobotenergy;           // 0X0205 空中机器人能量状态
@@ -493,7 +493,7 @@ typedef union {
         autoaim_data_t                 autoaimData;                 // 0X0401 云台控制
         chassis_data_t                 chassisData;                 // 0X0402 底盘控制
         gyroscope_data_t               gyroscopeData;               // 0X0403 陀螺仪数据
-        dbus_data_t                    dbugData;                    // 0X0404 遥控器及键鼠数据
+        dbus_data_t                    dbusData;                    // 0X0404 遥控器及键鼠数据
         robot_interactive_data_t       robotCommunication;          // 0XF301 学生机器人间通信
         board_interactive_data_t       boardAlpha;                  // 0X0501 主控板间通信
         board_interactive_data_t       boardBeta;                   // 0X0502 主控板间通信

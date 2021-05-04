@@ -44,6 +44,11 @@ __HANDLE_EXT uint8_t FrictEnabled, StirEnabled, MagzineOpened, FastShootMode;
 __HANDLE_EXT uint8_t PsAimEnabled, PsShootEnabled;
 __HANDLE_EXT uint8_t SwingMode, SafetyMode, PigeonMode;
 
+// 上位机
+__HANDLE_EXT uint8_t        FacingEnemyMode;
+__HANDLE_EXT autoaim_data_t HostAutoaimData;
+__HANDLE_EXT chassis_data_t HostChassisData;
+
 // 电机
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
 
