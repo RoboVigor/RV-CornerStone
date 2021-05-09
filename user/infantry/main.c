@@ -67,14 +67,14 @@ int main(void) {
     if (ROBOT_MIAO) {
         Motor_Yaw.positionBias   = 4110;
         Motor_Yaw.position       = 4110;
-        Motor_Pitch.positionBias = 5540;
-        Motor_Pitch.position     = 5540;
-        Gyroscope_Set_Bias(&ImuData, 13, -22, -18);
+        Motor_Pitch.positionBias = 0x3E;
+        Motor_Pitch.position     = 0x3E;
+        Gyroscope_Set_Bias(&ImuData, 24, 13, -2);
     } else if (ROBOT_WANG) {
         Motor_Yaw.positionBias   = 5427;
         Motor_Yaw.position       = 5427;
-        Motor_Pitch.positionBias = 2628;
-        Motor_Pitch.position     = 2628;
+        Motor_Pitch.positionBias = 2786;
+        Motor_Pitch.position     = 2786;
         Gyroscope_Set_Bias(&ImuData, -8, -16, -7);
     }
 
@@ -125,7 +125,7 @@ int main(void) {
 
     // 运动控制任务
     xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
     xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
 
