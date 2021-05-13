@@ -11,8 +11,8 @@
  *          裁判系统  0xF100 - 0xF1FF
  *          车间通讯  0xF200 - 0xF2FF
  * @version judge.yml v1.0
- * @version host.yml v1.0
- * @version user.yml v1.0
+ * @version host.yml v0.1
+ * @version user.yml v0.1
  */
 
 /**********************************************************************
@@ -418,24 +418,6 @@ typedef union {
 
 typedef union {
     struct {
-        int16_t base_joint_position;
-        int16_t base_joint_speed;
-        int16_t shoulder_joint_position;
-        int16_t shoulder_joint_speed;
-        int16_t elbow_joint_position;
-        int16_t elbow_joint_speed;
-        int16_t wrist_joint_1_position;
-        int16_t wrist_joint_1_speed;
-        int16_t wrist_joint_2_position;
-        int16_t wrist_joint_2_speed;
-    };
-    struct {
-        uint8_t data[20];
-    };
-} joint_info_t;
-
-typedef union {
-    struct {
         uint16_t data_cmd_id;
         uint16_t send_id;
         uint16_t receiver_id;
@@ -470,7 +452,7 @@ typedef union {
         {0X0001, 11, 1}, {0X0002, 1, 1}, {0X0003, 32, 1}, {0X0004, 3, 1}, {0X0101, 4, 1}, {0X0102, 4, 1}, {0X0104, 2, 1}, {0X0105, 1, 1}, {0X0201, 27, 1},     \
             {0X0202, 16, 1}, {0X0203, 16, 1}, {0X0204, 1, 1}, {0X0205, 1, 1}, {0X0206, 1, 1}, {0X0207, 7, 1}, {0X0208, 6, 1}, {0X0209, 4, 1}, {0X020A, 12, 1}, \
             {0XF100, 8, 0}, {0XF101, 21, 0}, {0XF102, 36, 0}, {0XF103, 81, 0}, {0XF110, 51, 0}, {0XF104, 111, 0}, {0X1024, 32, 0}, {0X6666, 24, 0},            \
-            {0X0120, 0, 1}, {0X0401, 9, 1}, {0X0402, 12, 1}, {0X0403, 12, 0}, {0X0404, 18, 0}, {0X0405, 20, 0}, {0XF301, 22, 1}, {0X0501, 16, 1}, {            \
+            {0X0120, 0, 1}, {0X0401, 9, 1}, {0X0402, 12, 1}, {0X0403, 12, 0}, {0X0404, 18, 0}, {0XF301, 22, 1}, {0X0501, 16, 1}, {                             \
             0X0502, 16, 1                                                                                                                                      \
         }                                                                                                                                                      \
     }
@@ -511,14 +493,13 @@ typedef union {
         autoaim_data_t                 autoaimData;                 // 0X0401 云台控制
         chassis_data_t                 chassisData;                 // 0X0402 底盘控制
         gyroscope_data_t               gyroscopeData;               // 0X0403 陀螺仪数据
-        dbus_data_t                    dbugData;                    // 0X0404 遥控器及键鼠数据
-        joint_info_t                   jointInfo;                   // 0X0405 工程机械臂数据
+        dbus_data_t                    dbusData;                    // 0X0404 遥控器及键鼠数据
         robot_interactive_data_t       robotCommunication;          // 0XF301 学生机器人间通信
         board_interactive_data_t       boardAlpha;                  // 0X0501 主控板间通信
         board_interactive_data_t       boardBeta;                   // 0X0502 主控板间通信
     };
     struct {
-        uint8_t data[638];
+        uint8_t data[618];
     };
 } ProtocolData_Type;
 

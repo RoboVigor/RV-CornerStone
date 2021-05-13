@@ -3,7 +3,6 @@
 
 void Task_Control(void *Parameters);
 void Task_Manipulator(void *Parameters);
-void Task_Communication(void *Parameters);
 void Task_Blink(void *Parameters);
 void Task_Chassis(void *Parameters);
 void Task_Host(void *Parameters);

@@ -97,25 +97,17 @@ void Task_Chassis(void *Parameters) {
 
 void Task_Communication(void *Parameters) {
     TickType_t         LastWakeTime = xTaskGetTickCount(); // 时钟
-    float              interval     = 0.008;               // 任务运行间隔 s
+    float              interval     = 0.001;               // 任务运行间隔 s
     int                intervalms   = interval * 1000;     // 任务运行间隔 ms
     ProtocolInfo_Type *protocolInfo = Protocol_Get_Info_Handle(0x501);
     extern DMA_Type    DMA_Table[10];
-
-    int8_t i = 0;
     while (1) {
-        i++;
+
         // 修改数据
-        ProtocolData.jointInfo.base_joint_position     = i;
-        ProtocolData.jointInfo.base_joint_speed        = i + 1;
-        ProtocolData.jointInfo.shoulder_joint_position = i + 2;
-        ProtocolData.jointInfo.shoulder_joint_speed    = i + 3;
-        ProtocolData.jointInfo.elbow_joint_position    = i + 4;
-        ProtocolData.jointInfo.elbow_joint_speed       = i + 5;
-        ProtocolData.jointInfo.wrist_joint_1_position  = i + 6;
-        ProtocolData.jointInfo.wrist_joint_1_speed     = i + 7;
-        ProtocolData.jointInfo.wrist_joint_2_position  = i + 8;
-        ProtocolData.jointInfo.wrist_joint_2_speed     = i + 9;
+        ProtocolData.boardAlpha.data1 = 1;
+        ProtocolData.boardAlpha.data2 = 2;
+        ProtocolData.boardAlpha.data3 = 3;
+        ProtocolData.boardAlpha.data4 = 4;
 
         // 建议在main.c中使用Bridge_Send_Protocol
         // Bridge_Send_Protocol_Once(&Node_Host, 0x501);
@@ -138,18 +130,20 @@ void Task_Manipulator(void *Parameters) {
     float      interval     = 0.01;                // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    PID_Init(&PID_Arm_Speed, 40, 3, 0, 16384, 16384);
+    PID_Init(&PID_Arm_Speed, 40, 0, 0, 16384, 16384);
     PID_Init(&PID_Arm_Angle, 0, 0, 0, 16384, 16384);
 
     int armAngle = 0;
     while (1) {
-        // PID_Calculate(&PID_Arm_Speed, (remoteData.ly > 0 ? 1 : -1) * (ABS(remoteData.ly) > 330 ? 200 : 0), Motor_Arm.speed * RPM2RPS);
+
+        PID_Arm_Speed.i = CHOOSEL(1, 3, 10);
+        PID_Calculate(&PID_Arm_Speed, (remoteData.ly > 0 ? 1 : -1) * (ABS(remoteData.ly) > 330 ? 200 : 0), Motor_Arm.speed * RPM2RPS);
 
         // armAngle += remoteData.ly / 660.0f * 50;
         // PID_Calculate(&PID_Arm_Angle, armAngle, Motor_Arm.angle * RPM2RPS);
         // PID_Calculate(&PID_Arm_Speed, PID_Arm_Angle.output, Motor_Arm.speed * RPM2RPS);
 
-        // Motor_Arm.input = PID_Arm_Speed.output;
+        Motor_Arm.input = PID_Arm_Speed.output;
         vTaskDelayUntil(&LastWakeTime, intervalms); // 发送频率
 
         DebugData.debug1 = PID_Arm_Speed.target;
