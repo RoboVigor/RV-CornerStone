@@ -603,7 +603,7 @@ void Task_Fire_Frict(void *Parameters) {
                 targetSpeed *= -1;
             } else {
                 if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
-                    targetSpeed = 4000;
+                    targetSpeed = 4600;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 18)
                     targetSpeed = 5000;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 22)
