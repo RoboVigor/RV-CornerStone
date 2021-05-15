@@ -67,15 +67,15 @@ int main(void) {
     if (ROBOT_MIAO) {
         Motor_Yaw.positionBias   = 4110;
         Motor_Yaw.position       = 4110;
-        Motor_Pitch.positionBias = 0x3E;
-        Motor_Pitch.position     = 0x3E;
-        Gyroscope_Set_Bias(&ImuData, 24, 13, -2);
+        Motor_Pitch.positionBias = 5540;
+        Motor_Pitch.position     = 5540;
+        Gyroscope_Set_Bias(&ImuData, 30, 7, -5);
     } else if (ROBOT_WANG) {
-        Motor_Yaw.positionBias   = 5427;
-        Motor_Yaw.position       = 5427;
-        Motor_Pitch.positionBias = 2786;
-        Motor_Pitch.position     = 2786;
-        Gyroscope_Set_Bias(&ImuData, -8, -16, -7);
+        Motor_Yaw.positionBias   = 5200;
+        Motor_Yaw.position       = 5200;
+        Motor_Pitch.positionBias = 2628;
+        Motor_Pitch.position     = 2628;
+        Gyroscope_Set_Bias(&ImuData, 31, -5, -2);
     }
 
     // 总线设置
