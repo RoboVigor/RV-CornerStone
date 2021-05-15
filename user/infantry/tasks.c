@@ -35,6 +35,7 @@ void Task_Control(void *Parameters) {
             // }
              if ( ControlMode = 2) {
                 FrictEnabled = 1;
+             }    
             // 弹舱盖
             MagzineOpened = keyboardData.F;
             // 小陀螺
