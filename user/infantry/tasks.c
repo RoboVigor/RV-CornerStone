@@ -27,12 +27,14 @@ void Task_Control(void *Parameters) {
             StirEnabled    = mouseData.pressLeft;
             PsAimEnabled   = mouseData.pressRight;
             // 摩擦轮
-            if (keyboardData.G && !keyboardData.Ctrl) {
+            // if (keyboardData.G && !keyboardData.Ctrl) {
+            //     FrictEnabled = 1;
+            // } else if (keyboardData.G && keyboardData.Ctrl) {
+            //     FrictEnabled = 0;
+            //     Key_Disable(&keyboardData, KEY_G, 100);
+            // }
+             if ( ControlMode = 2) {
                 FrictEnabled = 1;
-            } else if (keyboardData.G && keyboardData.Ctrl) {
-                FrictEnabled = 0;
-                Key_Disable(&keyboardData, KEY_G, 100);
-            }
             // 弹舱盖
             MagzineOpened = keyboardData.F;
             // 小陀螺
