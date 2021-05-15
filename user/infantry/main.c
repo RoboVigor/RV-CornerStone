@@ -67,12 +67,12 @@ int main(void) {
     if (ROBOT_MIAO) {
         Motor_Yaw.positionBias   = 4110;
         Motor_Yaw.position       = 4110;
-        Motor_Pitch.positionBias = 5540;
-        Motor_Pitch.position     = 5540;
-        Gyroscope_Set_Bias(&ImuData, 30, 7, -5);
+        Motor_Pitch.positionBias = 0x3E;
+        Motor_Pitch.position     = 0x3E;
+        Gyroscope_Set_Bias(&ImuData, 29, 6, -3);
     } else if (ROBOT_WANG) {
-        Motor_Yaw.positionBias   = 5200;
-        Motor_Yaw.position       = 5200;
+        Motor_Yaw.positionBias   = 5460;
+        Motor_Yaw.position       = 5460;
         Motor_Pitch.positionBias = 2628;
         Motor_Pitch.position     = 2628;
         Gyroscope_Set_Bias(&ImuData, 31, -5, -2);
