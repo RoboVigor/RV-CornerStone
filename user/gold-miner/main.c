@@ -25,8 +25,8 @@ int main(void) {
     // 获得设备ID
     BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
 
-    // 底盘电机
-    Motor_Init(&Motor_Arm, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
+    // 电机
+    Motor_Init(&Motor_Arm, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, DISABLE);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
@@ -85,9 +85,9 @@ int main(void) {
     // 高优先级任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL); //模式切换任务
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL); // 底盘运动任务
-    xTaskCreate(Task_Manipulator, "Task_Manipulator", 400, NULL, 5, NULL); // 机械臂运动任务
-    // xTaskCreate(Task_Communication, "Task_Communication", 500, NULL, 6, NULL); // 通讯测试任务
-    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL); // Can发送任务
+    xTaskCreate(Task_Manipulator, "Task_Manipulator", 400, NULL, 5, NULL);     // 机械臂运动任务
+    xTaskCreate(Task_Communication, "Task_Communication", 500, NULL, 6, NULL); // 通讯测试任务
+    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);           // Can发送任务
 
     // 定义协议发送频率
     Bridge_Send_Protocol(&Node_Host, 0x120, 1); // 心跳包
