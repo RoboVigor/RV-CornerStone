@@ -26,16 +26,13 @@ void Task_Control(void *Parameters) {
             PsShootEnabled = 0;
             StirEnabled    = mouseData.pressLeft;
             PsAimEnabled   = mouseData.pressRight;
-            // 摩擦轮
-            // if (keyboardData.G && !keyboardData.Ctrl) {
-            //     FrictEnabled = 1;
-            // } else if (keyboardData.G && keyboardData.Ctrl) {
-            //     FrictEnabled = 0;
-            //     Key_Disable(&keyboardData, KEY_G, 100);
-            // }
-             if ( ControlMode = 2) {
+            //摩擦轮
+            if (keyboardData.G && !keyboardData.Ctrl) {
                 FrictEnabled = 1;
-             }    
+            } else if (keyboardData.G && keyboardData.Ctrl) {
+                FrictEnabled = 0;
+                Key_Disable(&keyboardData, KEY_G, 100);
+            }   
             // 弹舱盖
             MagzineOpened = keyboardData.F;
             // 小陀螺
@@ -170,11 +167,14 @@ void Task_Gimbal(void *Parameters) {
         } else if (ROBOT_WANG) {
             Motor_Yaw.input   = yawCurrent;
             Motor_Pitch.input = pitchCurrent;
+        } else if (ROBOT_SHARK) {//啥意思
+            Motor_Yaw.input   = yawCurrent;
+            Motor_Pitch.input = pitchCurrent;
         }
 
         // 调试信息
         //
-        if (pitchAngle < 0.1 && pitchAngle > -0.1) {
+        if (pitchAngle < 1 && pitchAngle > -1) {
             DebugData.debug5 = Motor_Pitch.position;
         }
         DebugData.debug1 = pitchAngle * 1000;
@@ -255,7 +255,7 @@ void Task_Chassis(void *Parameters) {
 
         // 视觉专属follow PID
         if (PsAimEnabled) {
-            PID_Follow_Angle.p = 1;
+            PID_Follow_Angle.p = 1.5;
         } else {
             PID_Follow_Angle.p = 1.3;
         }
@@ -348,7 +348,7 @@ void Task_Chassis(void *Parameters) {
                 xRampStart    = 0;
             }
         }
-
+        //底盘跟随云台
         vw = ABS(PID_Follow_Angle.error) < followDeadRegion ? 0 : (-1 * PID_Follow_Speed.output * DPS2RPS);
 
         // Host control
@@ -519,6 +519,8 @@ void Task_Fire_Stir(void *Parameters) {
             PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 10 : 5);
         } else if (ROBOT_WANG) {
             PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 16 : 6);
+        } else if (ROBOT_SHARK) {
+            PWM_Set_Compare(&PWM_Magazine_Servo, MagzineOpened ? 6 : 15);
         }
         // 拨弹速度
         stirSpeed = 110;
@@ -529,7 +531,7 @@ void Task_Fire_Stir(void *Parameters) {
         } else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_rate == 40) {
             stirSpeed = 160;
         }
-        stirSpeed * 1.5;
+        stirSpeed * 3;
 
         // stirSpeed = 143; // 热量：120
         // stirSpeed = 120; // 热量：240
@@ -541,8 +543,7 @@ void Task_Fire_Stir(void *Parameters) {
         }
 
         //热量控制
-        // maxShootHeat = Judge.gameRobotstatus.shooter_heat0_cooling_limit * 0.8; // todo: why?
-        maxShootHeat = ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_limit - ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit * 1.5;
+        maxShootHeat = ProtocolData.gameRobotstatus.shooter_id1_17mm_cooling_limit - ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit * 2;
 
         // 输入射击模式
         shootMode = shootIdle;
@@ -610,7 +611,7 @@ void Task_Fire_Frict(void *Parameters) {
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 30)
                     targetSpeed = 10000;
                 targetSpeed *= -1;
-            } else {
+            } else if (ROBOT_WANG) {
                 if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
                     targetSpeed = 4500;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 18)
@@ -619,13 +620,27 @@ void Task_Fire_Frict(void *Parameters) {
                     targetSpeed = 6000;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 30)
                     targetSpeed = 7000;
+            } else if (ROBOT_SHARK) {//还没测
+                if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
+                    targetSpeed = 4450;
+                else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 18)
+                    targetSpeed = 4900;
+                else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 22)
+                    targetSpeed = 5700;
+                else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 30)
+                    targetSpeed = 7700;
             }
         } else {
             targetSpeed = 0;
         }
-
+        if (ROBOT_SHARK) {
+        PID_Calculate(&PID_FireL, -1 * targetSpeed, Motor_FL.speed);
+        PID_Calculate(&PID_FireR, targetSpeed, Motor_FR.speed);
+        }else {
         PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
         PID_Calculate(&PID_FireR, -1 * targetSpeed, Motor_FR.speed);
+        }
+        
 
         Motor_FL.input = PID_FireL.output;
         Motor_FR.input = PID_FireR.output;

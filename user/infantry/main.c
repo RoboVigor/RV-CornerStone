@@ -67,15 +67,21 @@ int main(void) {
     if (ROBOT_MIAO) {
         Motor_Yaw.positionBias   = 4110;
         Motor_Yaw.position       = 4110;
-        Motor_Pitch.positionBias = 0x3E;
-        Motor_Pitch.position     = 0x3E;
-        Gyroscope_Set_Bias(&ImuData, 29, 6, -3);
+        Motor_Pitch.positionBias = 2800;
+        Motor_Pitch.position     = 2800;
+        Gyroscope_Set_Bias(&ImuData, 30, 4, -7);
     } else if (ROBOT_WANG) {
         Motor_Yaw.positionBias   = 5460;
         Motor_Yaw.position       = 5460;
         Motor_Pitch.positionBias = 2628;
         Motor_Pitch.position     = 2628;
         Gyroscope_Set_Bias(&ImuData, 31, -5, -2);
+    } else if (ROBOT_SHARK) {
+        Motor_Yaw.positionBias   = 6130;
+        Motor_Yaw.position       = 6130;
+        Motor_Pitch.positionBias = 6796;
+        Motor_Pitch.position     = 6796;
+        Gyroscope_Set_Bias(&ImuData, 10, -28, -1);
     }
 
     // 总线设置
@@ -100,6 +106,16 @@ int main(void) {
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_FL);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_FR);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x207, &Motor_Stir);
+    }else if (ROBOT_SHARK) {
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LF);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_FL);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_FR);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_Stir);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x205, &Motor_Pitch);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Yaw);
     }
 
     // 总线设置
