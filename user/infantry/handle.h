@@ -42,7 +42,7 @@ __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 __HANDLE_EXT uint8_t ControlMode;
 __HANDLE_EXT uint8_t FrictEnabled, StirEnabled, MagzineOpened, FastShootMode;
 __HANDLE_EXT uint8_t PsAimEnabled, PsShootEnabled;
-__HANDLE_EXT uint8_t SwingMode, SafetyMode, PigeonMode;
+__HANDLE_EXT uint8_t SwingMode, SafetyMode, PigeonMode,FastmoveMode;
 
 // 上位机
 __HANDLE_EXT uint8_t        FacingEnemyMode;
