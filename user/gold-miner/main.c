@@ -25,8 +25,18 @@ int main(void) {
     // 获得设备ID
     BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
 
-    // 电机
-    Motor_Init(&Motor_Arm, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, DISABLE);
+    // 底盘电机
+    Motor_Init(&Motor_LF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
+    Motor_Init(&Motor_LB, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
+    Motor_Init(&Motor_RB, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
+    Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
+
+    // 机械臂电机
+    Motor_Init(&Motor_Base_Joint, MOTOR_REDUCTION_RATE_6020, ENABLE, ENABLE);
+    Motor_Init(&Motor_Shoulder_Joint, MOTOR_REDUCTION_RATE_3508 * 50, ENABLE, ENABLE);
+    Motor_Init(&Motor_Elbow_Joint, MOTOR_REDUCTION_RATE_3508 * 50, ENABLE, ENABLE);
+    Motor_Init(&Motor_Wrist_Joint_1, MOTOR_REDUCTION_RATE_6020, ENABLE, ENABLE);
+    Motor_Init(&Motor_Wrist_Joint_2, MOTOR_REDUCTION_RATE_2006, ENABLE, ENABLE);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
@@ -61,7 +71,15 @@ int main(void) {
     BSP_ADC1_Init(1, ADC_Channel6, 0);
 
     // 总线设置
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_Arm);
+    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LF);
+    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
+    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RB);
+    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
+    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x205, &Motor_Base_Joint);
+    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_Shoulder_Joint);
+    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_Elbow_Joint);
+    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Wrist_Joint_1);
+    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_Wrist_Joint_2);
     Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &Node_Host);
     Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &Node_Judge);
 
@@ -85,13 +103,13 @@ int main(void) {
     // 高优先级任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL); //模式切换任务
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL); // 底盘运动任务
-    xTaskCreate(Task_Manipulator, "Task_Manipulator", 400, NULL, 5, NULL);     // 机械臂运动任务
+    // xTaskCreate(Task_Manipulator, "Task_Manipulator", 400, NULL, 5, NULL);     // 机械臂运动任务
     xTaskCreate(Task_Communication, "Task_Communication", 500, NULL, 6, NULL); // 通讯测试任务
-    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);           // Can发送任务
+    // xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);           // Can发送任务
 
     // 定义协议发送频率
-    Bridge_Send_Protocol(&Node_Host, 0x120, 1); // 心跳包
-    // Bridge_Send_Protocol(&Node_Host, 0x501, 50); // 板间通讯
+    Bridge_Send_Protocol(&Node_Host, 0x120, 1);   // 心跳包
+    Bridge_Send_Protocol(&Node_Host, 0x405, 250); // 机械臂数据
 
     //启动调度,开始执行任务
     vTaskStartScheduler();

@@ -41,8 +41,11 @@ __HANDLE_EXT uint8_t SafetyMode;
 // TIM
 __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
-// 电机
-__HANDLE_EXT Motor_Type Motor_Arm;
+// 底盘电机
+__HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
+
+// 机械臂
+__HANDLE_EXT Motor_Type Motor_Base_Joint, Motor_Shoulder_Joint, Motor_Elbow_Joint, Motor_Wrist_Joint_1, Motor_Wrist_Joint_2;
 __HANDLE_EXT PID_Type   PID_Arm_Speed, PID_Arm_Angle;
 
 // 遥控器

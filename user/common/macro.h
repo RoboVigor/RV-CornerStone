@@ -8,6 +8,11 @@
 
 // clang-format off
 
+// 电机减速比
+#define MOTOR_REDUCTION_RATE_3508 19.2f
+#define MOTOR_REDUCTION_RATE_6020 1
+#define MOTOR_REDUCTION_RATE_2006 36.0f
+
 // 单位换算
 #define RPM2RPS 0.10471975f // 2 * 3.1415926f / 60.0f, round/min->rad/s
 #define DPS2RPS 0.01745329f // 3.1415926f / 180.0f,    degree/s ->rad/s
