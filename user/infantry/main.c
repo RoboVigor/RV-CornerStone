@@ -77,8 +77,8 @@ int main(void) {
         Motor_Pitch.position     = 2628;
         Gyroscope_Set_Bias(&ImuData, 31, -5, -2);
     } else if (ROBOT_SHARK) {
-        Motor_Yaw.positionBias   = 6130;
-        Motor_Yaw.position       = 6130;
+        Motor_Yaw.positionBias   = 6174;
+        Motor_Yaw.position       = 6174;
         Motor_Pitch.positionBias = 6796;
         Motor_Pitch.position     = 6796;
         Gyroscope_Set_Bias(&ImuData, 10, -28, -1);

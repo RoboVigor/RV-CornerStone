@@ -45,7 +45,7 @@ void Task_Control(void *Parameters) {
             // 高射速模式
             FastShootMode = keyboardData.E;
             //高速移动模式(关闭底盘功率上限，飞坡用)
-            FastmoveMode =keyboardData.Shift
+            FastmoveMode =keyboardData.Shift;
         }
         // 调试视觉用
         // FrictEnabled   = (remoteData.switchLeft == 2) || (remoteData.switchLeft == 1) && (remoteData.switchRight != 2);
