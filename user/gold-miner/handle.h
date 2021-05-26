@@ -45,9 +45,10 @@ __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
 
 // 机械臂
-__HANDLE_EXT Motor_Type Motor_Base_Joint, Motor_Shoulder_Joint, Motor_Elbow_Joint, Motor_Wrist_Joint_1, Motor_Wrist_Joint_2;
-__HANDLE_EXT PID_Type   PID_Arm_Speed, PID_Arm_Angle;
-
+__HANDLE_EXT Motor_Type Motor_BaseJoint, Motor_ShoulderJoint, Motor_ElbowJoint, Motor_WristJoint1, Motor_WristJoint2;
+__HANDLE_EXT PID_Type   PID_BaseJointSpeed, PID_BaseJointAngle,PID_ShoulderJointSpeed, PID_ShoulderJointAngle,
+                        PID_ElbowSpeed, PID_ElbowAngle,PID_WristJoint1Speed, PID_WristJoint1Angle, PID_WristJoint2Speed, PID_WristJoint2Angle;
+  
 // 遥控器
 __HANDLE_EXT uint8_t       remoteBuffer[DBUS_LENGTH + DBUS_BACK_LENGTH];
 __HANDLE_EXT Remote_Type   remoteData;

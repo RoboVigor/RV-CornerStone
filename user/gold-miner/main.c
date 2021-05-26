@@ -32,11 +32,11 @@ int main(void) {
     Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
 
     // 机械臂电机
-    Motor_Init(&Motor_Base_Joint, MOTOR_REDUCTION_RATE_6020, ENABLE, ENABLE);
-    Motor_Init(&Motor_Shoulder_Joint, MOTOR_REDUCTION_RATE_3508 * 50, ENABLE, ENABLE);
-    Motor_Init(&Motor_Elbow_Joint, MOTOR_REDUCTION_RATE_3508 * 50, ENABLE, ENABLE);
-    Motor_Init(&Motor_Wrist_Joint_1, MOTOR_REDUCTION_RATE_6020, ENABLE, ENABLE);
-    Motor_Init(&Motor_Wrist_Joint_2, MOTOR_REDUCTION_RATE_2006, ENABLE, ENABLE);
+    Motor_Init(&Motor_BaseJoint, MOTOR_REDUCTION_RATE_6020, ENABLE, ENABLE);
+    Motor_Init(&Motor_ShoulderJoint, MOTOR_REDUCTION_RATE_3508 * 50, ENABLE, ENABLE);
+    Motor_Init(&Motor_ElbowJoint, MOTOR_REDUCTION_RATE_3508 * 50, ENABLE, ENABLE);
+    Motor_Init(&Motor_WristJoint1, MOTOR_REDUCTION_RATE_6020, ENABLE, ENABLE);
+    Motor_Init(&Motor_WristJoint2, MOTOR_REDUCTION_RATE_3508 * 30, ENABLE, ENABLE);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
@@ -71,15 +71,15 @@ int main(void) {
     BSP_ADC1_Init(1, ADC_Channel6, 0);
 
     // 总线设置
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LF);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RB);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x205, &Motor_Base_Joint);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_Shoulder_Joint);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_Elbow_Joint);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Wrist_Joint_1);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_Wrist_Joint_2);
+    // Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LF);
+    // Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
+    // Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RB);
+    // Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
+    // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x205, &Motor_BaseJoint);
+    // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_ShoulderJoint);
+    // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_ElbowJoint);
+    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_WristJoint1);
+    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_WristJoint2);
     Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &Node_Host);
     Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &Node_Judge);
 
@@ -97,19 +97,19 @@ int main(void) {
     // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);// 开机音乐任务
 
     // 等待遥控器开启
-    // while (!remoteData.state) {
-    // }
+    while (!remoteData.state) {
+    }
 
     // 高优先级任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL); //模式切换任务
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL); // 底盘运动任务
-    // xTaskCreate(Task_Manipulator, "Task_Manipulator", 400, NULL, 5, NULL);     // 机械臂运动任务
+    xTaskCreate(Task_Manipulator, "Task_Manipulator", 400, NULL, 5, NULL);     // 机械臂运动任务
     xTaskCreate(Task_Communication, "Task_Communication", 500, NULL, 6, NULL); // 通讯测试任务
-    // xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);           // Can发送任务
+    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);           // Can发送任务
 
     // 定义协议发送频率
-    Bridge_Send_Protocol(&Node_Host, 0x120, 1);   // 心跳包
-    Bridge_Send_Protocol(&Node_Host, 0x405, 250); // 机械臂数据
+    Bridge_Send_Protocol(&Node_Host, 0x120, 1);  // 心跳包
+    Bridge_Send_Protocol(&Node_Host, 0x405, 50); // 机械臂数据
 
     //启动调度,开始执行任务
     vTaskStartScheduler();

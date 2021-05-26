@@ -12,6 +12,7 @@ void Task_Control(void *Parameters) {
     int        intervalms   = interval * 1000; // 任务运行间隔 ms
     while (1) {
         // SafetyMode = (RIGHT_SWITCH_BOTTOM && LEFT_SWITCH_BOTTOM);
+        SafetyMode = SafetyMode ? 1 : (ABS(remoteData.rx) > 440);
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
     vTaskDelete(NULL);
@@ -97,17 +98,30 @@ void Task_Chassis(void *Parameters) {
 
 void Task_Communication(void *Parameters) {
     TickType_t         LastWakeTime = xTaskGetTickCount(); // 时钟
-    float              interval     = 0.001;               // 任务运行间隔 s
+    float              interval     = 0.002;               // 任务运行间隔 s
     int                intervalms   = interval * 1000;     // 任务运行间隔 ms
     ProtocolInfo_Type *protocolInfo = Protocol_Get_Info_Handle(0x501);
     extern DMA_Type    DMA_Table[10];
-    while (1) {
 
+    int8_t i = 0;
+    while (1) {
+        i++;
         // 修改数据
-        ProtocolData.boardAlpha.data1 = 1;
-        ProtocolData.boardAlpha.data2 = 2;
-        ProtocolData.boardAlpha.data3 = 3;
-        ProtocolData.boardAlpha.data4 = 4;
+        ProtocolData.jointState.base_joint_position     = Motor_BaseJoint.angle;
+        ProtocolData.jointState.base_joint_speed        = Motor_BaseJoint.speed;
+        ProtocolData.jointState.shoulder_joint_position = Motor_ShoulderJoint.angle;
+        ProtocolData.jointState.shoulder_joint_speed    = Motor_ShoulderJoint.speed;
+        ProtocolData.jointState.elbow_joint_position    = Motor_ElbowJoint.angle;
+        ProtocolData.jointState.elbow_joint_speed       = Motor_ElbowJoint.speed;
+        ProtocolData.jointState.wrist_joint_1_position  = Motor_WristJoint1.angle;
+        ProtocolData.jointState.wrist_joint_1_speed     = Motor_WristJoint1.speed;
+        ProtocolData.jointState.wrist_joint_2_position  = Motor_WristJoint2.angle;
+        ProtocolData.jointState.wrist_joint_2_speed     = Motor_WristJoint2.speed;
+
+        // PID_WristJoint1Speed.i = CHOOSEL(1, 2, 3) * CHOOSER(100, 1000, 0);
+        // PID_WristJoint1Speed.p = CHOOSEL(1, 4, 7) * CHOOSER(0.01, 0.1, 1);
+        // PID_WristJoint2Angle.p = CHOOSEL(1, 3, 10) * CHOOSER(0.1, 1, 10);
+        // PID_WristJoint1Speed.p = CHOOSER(4000, 5500, 7000);
 
         // 建议在main.c中使用Bridge_Send_Protocol
         // Bridge_Send_Protocol_Once(&Node_Host, 0x501);
@@ -116,7 +130,9 @@ void Task_Communication(void *Parameters) {
         vTaskDelayUntil(&LastWakeTime, intervalms);
 
         // 调试信息
-        // DebugData.debug1 = ProtocolData.boardAlpha.data1 * 1000;
+        DebugData.debug1 = PID_WristJoint1Angle.target * 1000;
+        DebugData.debug2 = PID_WristJoint1Angle.feedback * 1000;
+        DebugData.debug3 = PID_WristJoint1Angle.output;
         // DebugData.debug2 = ProtocolData.boardAlpha.data2 * 1000;
         // DebugData.debug3 = Node_Host.sendSeq;
         // DebugData.debug3 = Node_Host.sendLock;
@@ -130,25 +146,56 @@ void Task_Manipulator(void *Parameters) {
     float      interval     = 0.01;                // 任务运行间隔 s
     int        intervalms   = interval * 1000;     // 任务运行间隔 ms
 
-    PID_Init(&PID_Arm_Speed, 40, 0, 0, 16384, 16384);
-    PID_Init(&PID_Arm_Angle, 0, 0, 0, 16384, 16384);
+    // 反馈值
+    float base_Jointangle, base_Jointspeed, shoulder_Jointangle, shoulder_Jointspeed, elbow_Jointangle, elbow_Jointspeed;
+    float wrist_Joint_1angle, wrist_Joint_1speed, wrist_Joint_2angle, wrist_Joint_2speed;
 
-    int armAngle = 0;
+    // PID_Init(&PID_BaseJointAngle, 40, 3, 0, 16384, 16384);
+    // PID_Init(&PID_BaseJointSpeed, 0, 0, 0, 16384, 16384);
+    // PID_Init(&PID_ShoulderJointAngle, 40, 3, 0, 16384, 16384);
+    // PID_Init(&PID_ShoulderJointSpeed, 0, 0, 0, 16384, 16384);
+    // PID_Init(&PID_ElbowAngle, 40, 3, 0, 16384, 16384);
+    // PID_Init(&PID_ElbowSpeed, 0, 0, 0, 16384, 16384);
+    PID_Init(&PID_WristJoint1Angle, 0.3, 0, 0, 16384, 16384);
+    PID_Init(&PID_WristJoint1Speed, 4000, 100, 0, 16384, 4000);
+    PID_Init(&PID_WristJoint2Angle, 80, 0, 0, 400, 0);
+    PID_Init(&PID_WristJoint2Speed, 30, 0.75, 0, 15000, 3000);
+
     while (1) {
 
-        PID_Arm_Speed.i = CHOOSEL(1, 3, 10);
-        PID_Calculate(&PID_Arm_Speed, (remoteData.ly > 0 ? 1 : -1) * (ABS(remoteData.ly) > 330 ? 200 : 0), Motor_Arm.speed * RPM2RPS);
+        // PID_Calculate(&PID_BaseJointSpeed, PID_BaseJointSpeed.target, Motor_BaseJoint.speed * RPM2RPS);
+        // PID_Calculate(&PID_ShoulderJointSpeed, PID_ShoulderJointSpeed.target, Motor_ShoulderJoint.speed * RPM2RPS);
+        // PID_Calculate(&PID_ElbowSpeed, PID_ElbowSpeed.target, Motor_ElbowJoint.speed * RPM2RPS);
+        // PID_Calculate(&PID_WristJoint1Speed, PID_WristJoint1Speed.target, Motor_WristJoint1.speed * RPM2RPS);
+        // PID_Calculate(&PID_WristJoint2Speed, PID_WristJoint2Speed.target, Motor_WristJoint2.speed * RPM2RPS);
 
-        // armAngle += remoteData.ly / 660.0f * 50;
-        // PID_Calculate(&PID_Arm_Angle, armAngle, Motor_Arm.angle * RPM2RPS);
-        // PID_Calculate(&PID_Arm_Speed, PID_Arm_Angle.output, Motor_Arm.speed * RPM2RPS);
+        PID_WristJoint1Angle.target = ABS(remoteData.lx) > 100 ? remoteData.lx / 300 * 45 : 0;
+        PID_WristJoint2Angle.target = ABS(remoteData.ly) > 100 ? remoteData.ly / 300 * 15 : 0;
 
-        Motor_Arm.input = PID_Arm_Speed.output;
+        // PID_Calculate(&PID_BaseJointAngle, PID_BaseJointAngle.target, Motor_BaseJoint.angle);
+        // PID_Calculate(&PID_BaseJointSpeed, PID_BaseJointAngle.output, Motor_BaseJoint.speed * RPM2RPS);
+        // PID_Calculate(&PID_ShoulderJointAngle, PID_ShoulderJointAngle.target, Motor_ShoulderJoint.angle);
+        // PID_Calculate(&PID_ShoulderJointSpeed, PID_ShoulderJointAngle.output, Motor_ShoulderJoint.speed * RPM2RPS);
+        // PID_Calculate(&PID_ElbowAngle, PID_ElbowAngle.target, Motor_ElbowJoint.angle);
+        // PID_Calculate(&PID_ElbowSpeed, PID_ElbowAngle.output, Motor_ElbowJoint.speed * RPM2RPS);
+        PID_Calculate(&PID_WristJoint1Angle, PID_WristJoint1Angle.target, Motor_WristJoint1.angle);
+        PID_Calculate(&PID_WristJoint1Speed, PID_WristJoint1Angle.output, Motor_WristJoint1.speed * RPM2RPS);
+        PID_Calculate(&PID_WristJoint2Angle, PID_WristJoint2Angle.target, Motor_WristJoint2.angle);
+        if (ABS(remoteData.ry) > 100) {
+            PID_WristJoint2Angle.output    = remoteData.ry / 330 * 5 * 30;
+            Motor_WristJoint2.positionBias = Motor_WristJoint2.position;
+            Motor_WristJoint2.round        = 0;
+        }
+        PID_Calculate(&PID_WristJoint2Speed, PID_WristJoint2Angle.output, Motor_WristJoint2.speed * RPM2RPS);
+
+        //输出电流到电调
+        Motor_BaseJoint.input     = PID_BaseJointSpeed.output;
+        Motor_ShoulderJoint.input = PID_ShoulderJointSpeed.output;
+        Motor_ElbowJoint.input    = PID_ElbowSpeed.output;
+        Motor_WristJoint1.input   = PID_WristJoint1Speed.output;
+        Motor_WristJoint2.input   = PID_WristJoint2Speed.output;
+
         vTaskDelayUntil(&LastWakeTime, intervalms); // 发送频率
-
-        DebugData.debug1 = PID_Arm_Speed.target;
-        DebugData.debug2 = PID_Arm_Speed.feedback;
-        DebugData.debug3 = PID_Arm_Speed.output;
     }
     vTaskDelete(NULL);
 }
