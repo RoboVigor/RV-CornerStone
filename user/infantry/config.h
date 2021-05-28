@@ -8,7 +8,7 @@
 // 步兵编号
 #define ROBOT_MIAO (Robot_Id == 1)
 #define ROBOT_WANG (Robot_Id == 2)
-#define ROBOT_SHA (Robot_Id == 3)
+#define ROBOT_SHARK (Robot_Id == 3)
 
 // 调试
 #define DEBUG_ENABLED 0          // 调试开关
