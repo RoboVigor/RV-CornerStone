@@ -983,16 +983,29 @@ void BSP_LED_Init(void) {
 uint8_t  LedWarningLock, LedWarningRow;
 uint16_t LedWarningBlinkTimes, LedWarningLastWakeTime;
 
+/**
+ * @brief 设置LED闪烁样式和次数
+ * @param row 共8位表示8个灯,1为亮,0为暗
+ * @param blinkTimes 闪烁次数
+ */
+
 void LED_Set_Warning(uint16_t row, uint16_t blinkTimes) {
     LedWarningRow        = row;
     LedWarningBlinkTimes = blinkTimes;
     LedWarningLock       = 1;
 }
 
+/**
+ * @brief 取消LED报警功能
+ */
 void LED_Cancel_Warning() {
     LedWarningLock = 0;
 }
 
+/**
+ * @brief LED报警任务
+ * @note  LED闪烁,次数等于离线电机ID.
+ */
 void LED_Task_Warning() {
     LedWarningLastWakeTime = xTaskGetTickCount();
     int i;
