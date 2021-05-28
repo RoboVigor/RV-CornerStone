@@ -23,7 +23,7 @@ typedef struct {
     int16_t  positionBias; // 修正转子位置, 默认(-1)会以开机时转子位置为初始位置
     int16_t  positionDiff; // 转子位置差值
     int16_t  speed;        // 转子转速值, RPM
-    uint16_t updateAt;     // 更新电机数据时的tickCount
+    uint16_t updatedAt;    // 更新电机数据时的tickCount
     uint8_t  online;       // 电机是否离线
 
     int8_t  angleEnabled; // 连续角度启用

@@ -1043,7 +1043,7 @@ void LED_Set_Colour(uint16_t red, uint16_t green, uint16_t blue) {
  *        建议每次调用后设置20ms延时
  */
 void LED_Run_Horse() {
-    if (LedWarningLock) LED_Task_Warning();
+    if (LedWarningLock) return LED_Task_Warning();
     static uint16_t LEDHorseRow   = 0;
     static uint16_t LEDHorseState = 0;
     LEDHorseState                 = (LEDHorseState % 26) + 1;
@@ -1060,7 +1060,7 @@ void LED_Run_Horse() {
  *        建议每次调用后设置200ms延时
  */
 void LED_Run_Horse_XP() {
-    if (LedWarningLock) LED_Task_Warning();
+    if (LedWarningLock) return LED_Task_Warning();
     static uint16_t LEDXPRow   = 0;
     static uint16_t LEDXPState = 0;
     LEDXPState                 = (LEDXPState % 11) + 1;

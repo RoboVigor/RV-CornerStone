@@ -103,7 +103,7 @@ void Bridge_Check_Motor_Watchdog(Bridge_Type *bridge) {
     int8_t      vegtableMotorId = -1;
     for (i = 0; i < 24; i++) {
         motor = bridge->motors[i];
-        if (motor != 0 && xTaskGetTickCount() - motor->updateAt > CAN_TIMEOUT) {
+        if (motor != 0 && xTaskGetTickCount() - motor->updatedAt > CAN_TIMEOUT) {
             vegtableMotorId = i;
             motor->online   = 0;
             break;
