@@ -74,7 +74,7 @@ void Bridge_Send_Motor(Bridge_Type *bridge, uint8_t safetyMode) {
     uint32_t            deviceID;
     uint8_t             type;
 
-    Bridge_Check_Motor_Watchdog(); // 检查电机是否在线, 否则强制报警
+    Bridge_Check_Motor_Watchdog(bridge); // 检查电机是否在线, 否则强制报警
 
     for (i = 0; i < 2; i++) {
         type = i == 0 ? CAN1_BRIDGE : CAN2_BRIDGE;
@@ -95,26 +95,26 @@ void Bridge_Send_Motor(Bridge_Type *bridge, uint8_t safetyMode) {
     }
 }
 
-void Bridge_Check_Motor_Watchdog(Bridge_Type *bridge){
-    int i;
-    Motor_Type * motor;
-    int8_t vegtableMotorId = -1;
-    for (i=0; i<12; i++){
+void Bridge_Check_Motor_Watchdog(Bridge_Type *bridge) {
+    int         i;
+    Motor_Type *motor;
+    int8_t      vegtableMotorId = -1;
+    for (i = 0; i < 24; i++) {
         motor = bridge->motors[i];
-        if(motor!=0 && xTaskGetTickCount()-motor->updateAt>CAN_TIMEOUT){
+        if (motor != 0 && xTaskGetTickCount() - motor->updateAt > CAN_TIMEOUT) {
             vegtableMotorId = i;
             break;
         }
     }
-    if(vegtableMotorId!=-1){
+    if (vegtableMotorId != -1) {
         vTaskSuspendAll();
         TickType_t LastWakeTime = xTaskGetTickCount();
-        while(1){
-            for(i=0;i<vegtableMotorId;i++){
+        while (1) {
+            for (i = 0; i < vegtableMotorId; i++) {
                 LED_Set_Progress(8);
                 vTaskDelayUntil(&LastWakeTime, 200);
                 LED_Set_Progress(0);
-                vTaskDelayUntil(&LastWakeTime, 200); 
+                vTaskDelayUntil(&LastWakeTime, 200);
             }
             vTaskDelayUntil(&LastWakeTime, 1000);
         }

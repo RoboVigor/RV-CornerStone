@@ -72,9 +72,14 @@ void Bridge_Receive_CAN(Bridge_Type *bridge, uint8_t type);
 
 /**
  * @brief 发送电机数据
- * @todo  未测试
  */
 void Bridge_Send_Motor(Bridge_Type *bridge, uint8_t safetyMode);
+
+/**
+ * @brief 检查电机是否在线
+ * @warning 如果超过CAN_TIMEOUT未收到数据则停止任务调度并通过LED灯闪烁下线的电机ID
+ */
+void Bridge_Check_Motor_Watchdog(Bridge_Type *bridge);
 
 /**
  * @brief  释放发送锁
