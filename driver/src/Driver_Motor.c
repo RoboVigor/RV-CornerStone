@@ -11,10 +11,13 @@ void Motor_Init(volatile Motor_Type *motor, float reductionRate, int8_t angleEna
 }
 
 void Motor_Update(volatile Motor_Type *motor, uint8_t data[8]) {
+    // 数据解包
     int16_t position      = data[0] << 8 | data[1];
     int16_t speed         = data[2] << 8 | data[3];
     int16_t actualCurrent = data[4] << 8 | data[5];
     int16_t temperature   = data[6];
+    motor->updatedAt      = xTaskGetTickCount();
+    motor->online         = 1;
 
     // 更新转子初始位置
     if (motor->positionBias == -1) {

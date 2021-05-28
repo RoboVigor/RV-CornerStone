@@ -145,6 +145,9 @@ void PWM_Set_Compare(PWM_Type *PWMx, uint32_t compare);
 
 // LED
 void BSP_LED_Init(void);
+void LED_Set_Warning(uint16_t row, uint16_t blinkTimes);
+void LED_Cancel_Warning();
+void LED_Task_Warning();
 void LED_Set_Row(uint16_t row);
 void LED_Set_Progress(uint16_t progress);
 void LED_Set_Colour(uint16_t red, uint16_t green, uint16_t blue);

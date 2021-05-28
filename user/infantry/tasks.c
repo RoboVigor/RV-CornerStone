@@ -21,7 +21,7 @@ void Task_Control(void *Parameters) {
             // FastShootMode = StirEnabled;
             // PsShootEnabled = 0;
             // SwingMode     = (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP) ? (HAS_SLIP_RING ? 3 : 4) : 0;
-            // SafetyMode    = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
+            SafetyMode = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
         } else if (ControlMode == 2) {
             //键鼠模式
             PsShootEnabled = 0;
@@ -33,7 +33,7 @@ void Task_Control(void *Parameters) {
             } else if (keyboardData.G && keyboardData.Ctrl) {
                 FrictEnabled = 0;
                 Key_Disable(&keyboardData, KEY_G, 100);
-            }   
+            }
             // 弹舱盖
             MagzineOpened = keyboardData.F;
             // 小陀螺
@@ -45,7 +45,7 @@ void Task_Control(void *Parameters) {
             // 高射速模式
             FastShootMode = keyboardData.E;
             //高速移动模式(关闭底盘功率上限，飞坡用)
-            FastmoveMode =keyboardData.Shift;
+            FastmoveMode = keyboardData.Shift;
         }
         // 调试视觉用
         // FrictEnabled   = (remoteData.switchLeft == 2) || (remoteData.switchLeft == 1) && (remoteData.switchRight != 2);
@@ -170,7 +170,7 @@ void Task_Gimbal(void *Parameters) {
         } else if (ROBOT_WANG) {
             Motor_Yaw.input   = yawCurrent;
             Motor_Pitch.input = pitchCurrent;
-        } else if (ROBOT_SHARK) {//啥意思
+        } else if (ROBOT_SHARK) { //啥意思
             Motor_Yaw.input   = yawCurrent;
             Motor_Pitch.input = pitchCurrent;
         }
@@ -387,13 +387,12 @@ void Task_Chassis(void *Parameters) {
 
         // Chassis_Limit_Rotor_Speed(&ChassisData, 800);                                 // 设置转子速度上限 (rad/s)
         // Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
-        if (FastmoveMode ==1){
+        if (FastmoveMode == 1) {
             ;
-        }else{  
+        } else {
             Chassis_Limit_Rotor_Speed(&ChassisData, 800);                                 // 设置转子速度上限 (rad/s)
             Chassis_Limit_Power(&ChassisData, targetPower, power, powerBuffer, interval); // 根据功率限幅
-        } 
-        
+        }
 
         // 计算输出电流PID
         PID_Calculate(&PID_LFCM, ChassisData.rotorSpeed[0], Motor_LF.speed * RPM2RPS);
@@ -630,7 +629,7 @@ void Task_Fire_Frict(void *Parameters) {
                     targetSpeed = 6000;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 30)
                     targetSpeed = 7000;
-            } else if (ROBOT_SHARK) {//还没测
+            } else if (ROBOT_SHARK) { //还没测
                 if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
                     targetSpeed = 4450;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 18)
@@ -644,13 +643,12 @@ void Task_Fire_Frict(void *Parameters) {
             targetSpeed = 0;
         }
         if (ROBOT_SHARK) {
-        PID_Calculate(&PID_FireL, -1 * targetSpeed, Motor_FL.speed);
-        PID_Calculate(&PID_FireR, targetSpeed, Motor_FR.speed);
-        }else {
-        PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
-        PID_Calculate(&PID_FireR, -1 * targetSpeed, Motor_FR.speed);
+            PID_Calculate(&PID_FireL, -1 * targetSpeed, Motor_FL.speed);
+            PID_Calculate(&PID_FireR, targetSpeed, Motor_FR.speed);
+        } else {
+            PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
+            PID_Calculate(&PID_FireR, -1 * targetSpeed, Motor_FR.speed);
         }
-        
 
         Motor_FL.input = PID_FireL.output;
         Motor_FR.input = PID_FireR.output;
