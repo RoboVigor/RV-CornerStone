@@ -77,7 +77,8 @@ void Bridge_Send_Motor(Bridge_Type *bridge, uint8_t safetyMode);
 
 /**
  * @brief 检查电机是否在线
- * @warning 如果超过CAN_TIMEOUT未收到数据则停止任务调度并通过LED灯闪烁下线的电机ID
+ * @warning 如果超过CAN_TIMEOUT未收到数据则通过LED灯闪烁离线的电机ID
+ *          靠近RM标志上部的一半灯条闪烁为CAN1, 否则为CAN2, 闪烁次数表示ID
  */
 void Bridge_Check_Motor_Watchdog(Bridge_Type *bridge);
 

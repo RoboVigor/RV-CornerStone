@@ -106,7 +106,7 @@ int main(void) {
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_FL);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_FR);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x207, &Motor_Stir);
-    }else if (ROBOT_SHARK) {
+    } else if (ROBOT_SHARK) {
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LF);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RB);
@@ -140,8 +140,8 @@ int main(void) {
     xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 5, NULL);
 
     // 运动控制任务
-    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-    // xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
     xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
 

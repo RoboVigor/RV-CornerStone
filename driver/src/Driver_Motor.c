@@ -17,6 +17,7 @@ void Motor_Update(volatile Motor_Type *motor, uint8_t data[8]) {
     int16_t actualCurrent = data[4] << 8 | data[5];
     int16_t temperature   = data[6];
     motor->updateAt       = xTaskGetTickCount();
+    motor->online         = 1;
 
     // 更新转子初始位置
     if (motor->positionBias == -1) {

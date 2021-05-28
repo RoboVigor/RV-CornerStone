@@ -4,7 +4,7 @@
 
 // 总线设置
 #define CAN_DEVICE_ID 0x501 // 发送数据时CAN标准帧中的ID 0x501-0x503
-#define CAN_TIMEOUT   1000  // CAN一秒无数据后报警
+#define CAN_TIMEOUT 100     // 电机超过该时间(ms)无数据将报警
 
 // 调试
 #define DEBUG_ENABLED 0          // 调试开关

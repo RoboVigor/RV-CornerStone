@@ -71,20 +71,22 @@ void Bridge_Send_Motor(Bridge_Type *bridge, uint8_t safetyMode) {
     static Motor_Type * motor;                // 根据i,j,k锁定电机
     static int16_t      currents[4];          // CAN发送电流
     int                 i, j, k;              // CAN序号 发送ID序号 电调ID序号
+    int                 motorEnabled;
     uint32_t            deviceID;
     uint8_t             type;
 
-    Bridge_Check_Motor_Watchdog(bridge); // 检查电机是否在线, 否则强制报警
+    Bridge_Check_Motor_Watchdog(bridge); // 检查电机是否在线
 
     for (i = 0; i < 2; i++) {
         type = i == 0 ? CAN1_BRIDGE : CAN2_BRIDGE;
         for (j = 0; j < 3; j++) {
             isNotEmpty = 0;
             for (k = 0; k < 4; k++) {
-                deviceID    = Can_ESC_Id[j][k];
-                motor       = MOTOR;
-                currents[k] = (motor && motor->inputEnabled) ? motor->input : 0;
-                isNotEmpty  = isNotEmpty || (motor && motor->inputEnabled);
+                deviceID     = Can_ESC_Id[j][k];
+                motor        = MOTOR;
+                motorEnabled = motor && motor->inputEnabled && motor->online;
+                currents[k]  = motorEnabled ? motor->input : 0;
+                isNotEmpty   = isNotEmpty || motorEnabled;
             }
             if (isNotEmpty && !safetyMode) {
                 Can_Send(Canx[i], Can_Send_Id[j], currents[0], currents[1], currents[2], currents[3]);
@@ -103,21 +105,18 @@ void Bridge_Check_Motor_Watchdog(Bridge_Type *bridge) {
         motor = bridge->motors[i];
         if (motor != 0 && xTaskGetTickCount() - motor->updateAt > CAN_TIMEOUT) {
             vegtableMotorId = i;
+            motor->online   = 0;
             break;
         }
     }
     if (vegtableMotorId != -1) {
-        vTaskSuspendAll();
-        TickType_t LastWakeTime = xTaskGetTickCount();
-        while (1) {
-            for (i = 0; i < vegtableMotorId; i++) {
-                LED_Set_Progress(8);
-                vTaskDelayUntil(&LastWakeTime, 200);
-                LED_Set_Progress(0);
-                vTaskDelayUntil(&LastWakeTime, 200);
-            }
-            vTaskDelayUntil(&LastWakeTime, 1000);
+        if (vegtableMotorId < 12) {
+            LED_Set_Warning(0b11110000, vegtableMotorId + 1);
+        } else {
+            LED_Set_Warning(0b00001111, vegtableMotorId - 11);
         }
+    } else {
+        LED_Cancel_Warning();
     }
 }
 
