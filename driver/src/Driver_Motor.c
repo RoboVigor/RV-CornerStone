@@ -61,4 +61,5 @@ void Motor_Update(Motor_Type *motor, uint8_t data[8]) {
 void Motor_Set_Angle_Bias(Motor_Type *motor, float angleBias) {
     motor->angleBias     = angleBias;
     motor->angleBiasInit = 1;
+    motor->lastPosition  = -1;
 }
