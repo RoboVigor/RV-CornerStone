@@ -7,6 +7,7 @@ void Motor_Init(Motor_Type *motor, float reductionRate, int8_t angleEnabled, int
     motor->positionBias  = -1; // -1为未赋值状态
     motor->angleBias     = -1; // -1为未赋值状态
     motor->lastPosition  = -1; // -1为未赋值状态
+    motor->online        = 1;
     motor->reductionRate = reductionRate;
     motor->angleEnabled  = angleEnabled;
     motor->inputEnabled  = inputEnabled;
@@ -18,8 +19,12 @@ void Motor_Update(Motor_Type *motor, uint8_t data[8]) {
     int16_t actualCurrent = data[4] << 8 | data[5];
     int16_t temperature   = data[6];
     float   angle         = 0;
-    motor->updatedAt      = xTaskGetTickCount();
-    motor->online         = 1;
+    if (motor->online) {
+        motor->updatedAt = xTaskGetTickCount();
+    } else if (xTaskGetTickCount() - motor->updatedAt >= 6000) {
+        motor->updatedAt = xTaskGetTickCount();
+        motor->online    = 1;
+    }
 
     // 更新转子信息
     motor->position      = position;
