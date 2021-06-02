@@ -63,8 +63,8 @@ typedef struct {
     // 接收相关
     uint16_t   receive;        // 是否接收并解包该协议
     uint16_t   receiveCount;   // 接收计数
-    uint16_t   receiveSeq;     // 接收包序号
-    uint16_t   lastReceiveSeq; // (仅供用户使用)上次接收序号
+    int16_t    receiveSeq;     // 接收包序号
+    int16_t    lastReceiveSeq; // (仅供用户使用)上次接收序号
     TickType_t receiveTime;    // 接收时间
     // 发送相关
     void *       node;       // 发送节点

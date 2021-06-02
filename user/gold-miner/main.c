@@ -70,10 +70,6 @@ int main(void) {
     // ADC
     BSP_ADC1_Init(1, ADC_Channel6, 0);
 
-    // 电机设置
-    Motor_WristJoint1.positionBias = 2110;
-    Motor_WristJoint1.position     = 2110;
-
     // 总线设置
     // Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LF);
     // Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
@@ -81,7 +77,7 @@ int main(void) {
     // Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
     // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x205, &Motor_BaseJoint);
     // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_ShoulderJoint);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_ElbowJoint);
+    // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_ElbowJoint);
     Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_WristJoint1);
     Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_WristJoint2);
     Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &Node_Host);

@@ -67,4 +67,11 @@ void Motor_Update(Motor_Type *motor, uint8_t data[8]);
  */
 void Motor_Set_Angle_Bias(Motor_Type *motor, float angleBias);
 
+/**
+ * @brief 校准连续角度为输入量
+ *
+ * @param calibratedAngle 校准角度
+ */
+void Motor_Calibrate(Motor_Type *motor, float calibratedAngle);
+
 #endif

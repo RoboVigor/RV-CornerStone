@@ -47,7 +47,7 @@ void Motor_Update(Motor_Type *motor, uint8_t data[8]) {
             if (motor->positionBias != -1) {
                 motor->angleBias = motor->positionBias / 8192.0f * 360; // 向下兼容
             } else {
-                motor->angleBias = angle; // 将当前位置设为
+                motor->angleBias = angle; // 将当前位置设为零点
             }
             motor->angleBiasInit = 1;
         }
@@ -62,4 +62,10 @@ void Motor_Set_Angle_Bias(Motor_Type *motor, float angleBias) {
     motor->angleBias     = angleBias;
     motor->angleBiasInit = 1;
     motor->lastPosition  = -1;
+}
+
+void Motor_Calibrate(Motor_Type *motor, float calibratedAngle) {
+    motor->angleBias     = motor->angle + motor->angleBias - calibratedAngle;
+    motor->angle         = calibratedAngle;
+    motor->angleBiasInit = 1;
 }
