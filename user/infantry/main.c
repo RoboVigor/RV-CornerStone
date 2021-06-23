@@ -106,16 +106,16 @@ int main(void) {
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_FL);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_FR);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x207, &Motor_Stir);
-    }else if (ROBOT_SHARK) {
+    } else if (ROBOT_SHARK) {
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LF);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RB);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
         Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_FL);
         Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_FR);
         Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_Stir);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x205, &Motor_Pitch);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Yaw);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_Pitch);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_Yaw);
     }
 
     // 总线设置
