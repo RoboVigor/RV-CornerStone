@@ -7,6 +7,7 @@ void Motor_Init(Motor_Type *motor, float reductionRate, int8_t angleEnabled, int
     motor->positionBias  = -1; // -1为未赋值状态
     motor->angleBias     = -1; // -1为未赋值状态
     motor->lastPosition  = -1; // -1为未赋值状态
+    motor->online        = 1;
     motor->reductionRate = reductionRate;
     motor->angleEnabled  = angleEnabled;
     motor->inputEnabled  = inputEnabled;
@@ -18,8 +19,12 @@ void Motor_Update(Motor_Type *motor, uint8_t data[8]) {
     int16_t actualCurrent = data[4] << 8 | data[5];
     int16_t temperature   = data[6];
     float   angle         = 0;
-    motor->updatedAt      = xTaskGetTickCount();
-    motor->online         = 1;
+    if (motor->online) {
+        motor->updatedAt = xTaskGetTickCount();
+    } else if (xTaskGetTickCount() - motor->updatedAt >= 6000) {
+        motor->updatedAt = xTaskGetTickCount();
+        motor->online    = 1;
+    }
 
     // 更新转子信息
     motor->position      = position;
@@ -47,7 +52,7 @@ void Motor_Update(Motor_Type *motor, uint8_t data[8]) {
             if (motor->positionBias != -1) {
                 motor->angleBias = motor->positionBias / 8192.0f * 360; // 向下兼容
             } else {
-                motor->angleBias = angle; // 将当前位置设为
+                motor->angleBias = angle; // 将当前位置设为零点
             }
             motor->angleBiasInit = 1;
         }
@@ -62,4 +67,10 @@ void Motor_Set_Angle_Bias(Motor_Type *motor, float angleBias) {
     motor->angleBias     = angleBias;
     motor->angleBiasInit = 1;
     motor->lastPosition  = -1;
+}
+
+void Motor_Calibrate(Motor_Type *motor, float calibratedAngle) {
+    motor->angleBias     = motor->angle + motor->angleBias - calibratedAngle;
+    motor->angle         = calibratedAngle;
+    motor->angleBiasInit = 1;
 }

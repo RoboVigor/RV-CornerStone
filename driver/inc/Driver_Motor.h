@@ -24,7 +24,7 @@ typedef struct {
     int16_t  speed;         // 转子转速值, RPM
     float    actualCurrent; //电流
     int16_t  temperature;   //温度
-    uint16_t updatedAt;     // 更新电机数据时的tickCount
+    uint32_t updatedAt;     // 更新电机数据时的tickCount
     uint8_t  online;        // 电机是否离线
 
     int8_t  angleEnabled;  // 连续角度启用
@@ -66,5 +66,12 @@ void Motor_Update(Motor_Type *motor, uint8_t data[8]);
  * @param angleBias 需要设置的偏移量
  */
 void Motor_Set_Angle_Bias(Motor_Type *motor, float angleBias);
+
+/**
+ * @brief 校准连续角度为输入量
+ *
+ * @param calibratedAngle 校准角度
+ */
+void Motor_Calibrate(Motor_Type *motor, float calibratedAngle);
 
 #endif
