@@ -287,7 +287,7 @@ void Task_Chassis(void *Parameters) {
         PID_Calculate(&PID_Follow_Speed, PID_Follow_Angle.output,
                       motorSpeed); // 计算航向角角速度PID
 
-        设置底盘总体移动速度
+        // 设置底盘总体移动速度
         if (ControlMode == 1) {
             vx = -remoteData.lx / 660.0f * 8;
             vy = remoteData.ly / 660.0f * 12;
