@@ -311,9 +311,13 @@ void Task_Down_Gimbal(void *Parameters) {
 
         // 设置反馈
         // yawAngle   = Motor_Down_Gimbal_Yaw.angle;                    // 逆时针为正
-        yawSpeed   = Motor_Down_Gimbal_Yaw.speed;           // 逆时针为正
+        // yawSpeed = Motor_Down_Gimbal_Yaw.speed; // 逆时针为正
         pitchAngle = -1 * Motor_Down_Gimbal_Pitch.position; // 逆时针为正
         pitchSpeed = Motor_Down_Gimbal_Pitch.speed;         // 逆时针为正
+
+        //测试电机
+        // pitchAngle = -1 * 300; // 逆时针为正
+        // pitchSpeed = 300;      // 逆时针为正
 
         // 视觉系统
         // if (!PsEnabled) {
@@ -391,8 +395,9 @@ void Task_Down_Gimbal(void *Parameters) {
         PID_Calculate(&PID_Down_Gimbal_Pitch_Speed, PID_Down_Gimbal_Pitch_Angle.output, pitchSpeed);
 
         // 输出电流
-        Motor_Down_Gimbal_Yaw.input   = PID_Down_Gimbal_Yaw_Speed.output;
-        Motor_Down_Gimbal_Pitch.input = -1 * PID_Down_Gimbal_Pitch_Speed.output;
+        Motor_Down_Gimbal_Yaw.input = PID_Down_Gimbal_Yaw_Speed.output;
+        // Motor_Down_Gimbal_Pitch.input = -1 * PID_Down_Gimbal_Pitch_Speed.output;
+        Motor_Down_Gimbal_Pitch.input = -3000;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -452,8 +457,8 @@ void Task_Down_Stir(void *Parameters) {
 
         if (StirEnabled) {
             Motor_Down_Stir.input = PID_Down_Stir_Speed.output;
-            // //调试拨弹轮
-            // Motor_Down_Stir.input = 400;
+            // // //调试拨弹轮
+            // Motor_Down_Stir.input = 300;
         }
 
         // // 热量限制
