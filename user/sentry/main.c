@@ -6,19 +6,19 @@
 #include "task.h"
 #include "tasks.h"
 // #include "queue.h"
-void BSP_Proximity_Switch_Init(void) {
-    GPIO_InitTypeDef GPIO_InitStructure;
+// void BSP_Proximity_Switch_Init(void) {
+//     GPIO_InitTypeDef GPIO_InitStructure;
 
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+//     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0 | GPIO_Pin_1;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+//     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
+//     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+//     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0 | GPIO_Pin_1;
+//     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
+//     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
 
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-}
+//     GPIO_Init(GPIOA, &GPIO_InitStructure);
+// }
 
 int main(void) {
 
@@ -46,7 +46,7 @@ int main(void) {
     BSP_Beep_Init();
     BSP_LED_Init();
     BSP_User_Power_Init();
-    BSP_Proximity_Switch_Init();
+    // BSP_Proximity_Switch_Init();  调试拨弹轮摩擦轮,先关掉
 
     // USART
     BSP_USART6_Init(115200, USART_IT_IDLE);
@@ -57,19 +57,19 @@ int main(void) {
     BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
 
     // 底盘电机
-    Motor_Init(&Motor_Chassis_Left, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
-    Motor_Init(&Motor_Chassis_Right, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
+    Motor_Init(&Motor_Chassis_Left, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
+    Motor_Init(&Motor_Chassis_Right, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
 
     // 云台电机
-    Motor_Init(&Motor_Down_Gimbal_Yaw, 36.0f, ENABLE, ENABLE);
-    Motor_Init(&Motor_Down_Gimbal_Pitch, 1, ENABLE, ENABLE);
+    Motor_Init(&Motor_Down_Gimbal_Yaw, 36.0f, DISABLE, DISABLE);
+    Motor_Init(&Motor_Down_Gimbal_Pitch, 1, DISABLE, DISABLE);
 
     // 摩擦轮电机
-    Motor_Init(&Motor_Down_Frict_Left, 1, ENABLE, DISABLE);
-    Motor_Init(&Motor_Down_Frict_Right, 1, ENABLE, DISABLE);
+    Motor_Init(&Motor_Down_Frict_Left, 1, ENABLE, ENABLE);
+    Motor_Init(&Motor_Down_Frict_Right, 1, ENABLE, ENABLE);
 
     // 拨弹电机
-    Motor_Init(&Motor_Down_Stir, 36.0f, ENABLE, DISABLE);
+    Motor_Init(&Motor_Down_Stir, 36.0f, ENABLE, ENABLE);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData);
@@ -85,7 +85,7 @@ int main(void) {
 
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_Down_Frict_Left);
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_Down_Frict_Right);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_Down_Stir);
+    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_Down_Stir);
     Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x207, &Motor_Down_Gimbal_Yaw);
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x209, &Motor_Down_Gimbal_Pitch);
 
@@ -121,9 +121,9 @@ int main(void) {
     // while (!remoteData.state) {
     // }
 
-    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
 
-    xTaskCreate(Task_Down_Gimbal, "Task_Down_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Down_Gimbal, "Task_Down_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Down_Stir, "Task_Down_Stir", 400, NULL, 6, NULL);
     xTaskCreate(Task_Down_Frict, "Task_Down_Frict", 400, NULL, 6, NULL);
 

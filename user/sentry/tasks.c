@@ -13,14 +13,20 @@
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
-        // FrictEnabled = LEFT_SWITCH_TOP;
+        // Board_Id = 1;
+
+        FrictEnabled = LEFT_SWITCH_TOP;
         // LaserEnabled = remoteData.switchLeft == 3;
         // StirEnabled  = (remoteData.switchLeft == 3) && (remoteData.switchRight == 1);
         // StirEnabled = remoteData.switchLeft == 2;
-        // StirEnabled = LEFT_SWITCH_MIDDLE;
+        StirEnabled = RIGHT_SWITCH_TOP;
         // PsEnabled   = remoteData.switchLeft == 2;
-        AutoMode   = 1;
-        SafetyMode = LEFT_SWITCH_BOTTOM;
+
+        //测试拨弹轮和摩擦轮,先注释掉
+        // AutoMode   = 1;
+
+        // SafetyMode = LEFT_SWITCH_BOTTOM;
+        SafetyMode = 0;
 
         // if ((remoteData.switchLeft == 1 && remoteData.switchRight == 1) || (!remoteData.state)) {
         //     FrictEnabled = 1;
@@ -446,6 +452,8 @@ void Task_Down_Stir(void *Parameters) {
 
         if (StirEnabled) {
             Motor_Down_Stir.input = PID_Down_Stir_Speed.output;
+            // //调试拨弹轮
+            // Motor_Down_Stir.input = 400;
         }
 
         // // 热量限制
@@ -541,13 +549,13 @@ void Task_Down_Frict(void *Parameters) {
     float targetSpeed = 0;
 
     // 下
-    PID_Init(&PID_Down_Frict_Left_Speed, 50, 0, 0, 16384, 2000);
-    PID_Init(&PID_Down_Frict_Right_Speed, 50, 0, 0, 16384, 2000);
+    PID_Init(&PID_Down_Frict_Left_Speed, 13, 0, 0, 16384, 2000);  //改之前p是50
+    PID_Init(&PID_Down_Frict_Right_Speed, 13, 0, 0, 16384, 2000); //改之前p是50
 
     LASER_ON;
 
     while (1) {
-        targetSpeed = 200;
+        targetSpeed = 5;
 
         motorDownLeftSpeed  = Motor_Down_Frict_Left.speed / 19.2f;
         motorDownRightSpeed = Motor_Down_Frict_Right.speed / 19.2f;
@@ -560,8 +568,11 @@ void Task_Down_Frict(void *Parameters) {
         // targetSpeed = 260;   //15m/s
 
         if (FrictEnabled) {
-            Motor_Down_Frict_Left.input  = PID_Down_Frict_Left_Speed.output;
-            Motor_Down_Frict_Right.input = PID_Down_Frict_Right_Speed.output;
+            Motor_Down_Frict_Left.input  = -PID_Down_Frict_Left_Speed.output;
+            Motor_Down_Frict_Right.input = -PID_Down_Frict_Right_Speed.output;
+            // //调试摩擦轮
+            // Motor_Down_Frict_Left.input  = -190;
+            // Motor_Down_Frict_Right.input = 190;
         };
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
