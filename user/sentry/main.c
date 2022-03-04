@@ -62,14 +62,14 @@ int main(void) {
 
     // 云台电机
     Motor_Init(&Motor_Down_Gimbal_Yaw, 36.0f, DISABLE, DISABLE);
-    Motor_Init(&Motor_Down_Gimbal_Pitch, 1, ENABLE, ENABLE);
+    Motor_Init(&Motor_Down_Gimbal_Pitch, 1, DISABLE, DISABLE);
 
     // 摩擦轮电机
     Motor_Init(&Motor_Down_Frict_Left, 1, ENABLE, ENABLE);
-    Motor_Init(&Motor_Down_Frict_Right, 1, ENABLE, ENABLE);
+    Motor_Init(&Motor_Down_Frict_Right, 1, DISABLE, DISABLE);
 
     // 拨弹电机
-    Motor_Init(&Motor_Down_Stir, 36.0f, ENABLE, ENABLE);
+    Motor_Init(&Motor_Down_Stir, 36.0f, DISABLE, DISABLE);
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData);
@@ -123,9 +123,9 @@ int main(void) {
 
     // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
 
-    xTaskCreate(Task_Down_Gimbal, "Task_Down_Gimbal", 500, NULL, 5, NULL);
+    // xTaskCreate(Task_Down_Gimbal, "Task_Down_Gimbal", 500, NULL, 5, NULL);
     // xTaskCreate(Task_Down_Stir, "Task_Down_Stir", 400, NULL, 6, NULL);
-    // xTaskCreate(Task_Down_Frict, "Task_Down_Frict", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Down_Frict, "Task_Down_Frict", 400, NULL, 6, NULL);
 
     // Can发送任务
     xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);

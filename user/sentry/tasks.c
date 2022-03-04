@@ -317,7 +317,7 @@ void Task_Down_Gimbal(void *Parameters) {
 
         //测试电机
         // pitchAngle = -1 * 300; // 逆时针为正
-        // pitchSpeed = 300;      // 逆时针为正
+        pitchSpeed = 300; // 逆时针为正
 
         // 视觉系统
         // if (!PsEnabled) {
@@ -397,7 +397,7 @@ void Task_Down_Gimbal(void *Parameters) {
         // 输出电流
         Motor_Down_Gimbal_Yaw.input = PID_Down_Gimbal_Yaw_Speed.output;
         // Motor_Down_Gimbal_Pitch.input = -1 * PID_Down_Gimbal_Pitch_Speed.output;
-        Motor_Down_Gimbal_Pitch.input = -3000;
+        Motor_Down_Gimbal_Pitch.input = -1000;
 
         // 底盘运动更新频率
         vTaskDelayUntil(&LastWakeTime, intervalms);
@@ -554,13 +554,13 @@ void Task_Down_Frict(void *Parameters) {
     float targetSpeed = 0;
 
     // 下
-    PID_Init(&PID_Down_Frict_Left_Speed, 13, 0, 0, 16384, 2000);  //改之前p是50
-    PID_Init(&PID_Down_Frict_Right_Speed, 13, 0, 0, 16384, 2000); //改之前p是50
+    PID_Init(&PID_Down_Frict_Left_Speed, 50, 0, 0, 16384, 2000);  //改之前p是50
+    PID_Init(&PID_Down_Frict_Right_Speed, 50, 0, 0, 16384, 2000); //改之前p是50
 
     LASER_ON;
 
     while (1) {
-        targetSpeed = 5;
+        targetSpeed = 101;
 
         motorDownLeftSpeed  = Motor_Down_Frict_Left.speed / 19.2f;
         motorDownRightSpeed = Motor_Down_Frict_Right.speed / 19.2f;
@@ -575,10 +575,10 @@ void Task_Down_Frict(void *Parameters) {
         if (FrictEnabled) {
             Motor_Down_Frict_Left.input  = -PID_Down_Frict_Left_Speed.output;
             Motor_Down_Frict_Right.input = -PID_Down_Frict_Right_Speed.output;
-            // //调试摩擦轮
-            // Motor_Down_Frict_Left.input  = -190;
-            // Motor_Down_Frict_Right.input = 190;
         };
+        // //调试摩擦轮
+        // Motor_Down_Frict_Left.input = 3900;
+        // Motor_Down_Frict_Right.input = 190;
 
         vTaskDelayUntil(&LastWakeTime, intervalms);
     }
@@ -611,6 +611,7 @@ void Task_Board_Communication(void *Parameters) {
 void Task_Blink(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
+        // Motor_Down_Frict_Left.input = 900;
         LED_Run_Horse_XP(); // XP开机动画,建议延时200ms
         // LED_Run_Horse(); // 跑马灯,建议延时20ms
         vTaskDelayUntil(&LastWakeTime, 200);
