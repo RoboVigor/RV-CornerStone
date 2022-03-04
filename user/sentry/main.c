@@ -86,7 +86,7 @@ int main(void) {
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_Down_Frict_Left);
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_Down_Frict_Right);
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_Down_Stir);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x207, &Motor_Down_Gimbal_Yaw);
+    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_Down_Gimbal_Yaw);
     Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x207, &Motor_Down_Gimbal_Pitch);
 
     // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x501, &Node_Host);
