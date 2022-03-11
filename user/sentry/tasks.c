@@ -25,8 +25,8 @@ void Task_Control(void *Parameters) {
         //测试拨弹轮和摩擦轮,先注释掉
         // AutoMode   = 1;
 
-        // SafetyMode = LEFT_SWITCH_BOTTOM;
-        SafetyMode = 0;
+        SafetyMode = LEFT_SWITCH_BOTTOM;
+        // SafetyMode = 0;
 
         // if ((remoteData.switchLeft == 1 && remoteData.switchRight == 1) || (!remoteData.state)) {
         //     FrictEnabled = 1;
@@ -451,7 +451,7 @@ void Task_Down_Stir(void *Parameters) {
     int targetSpeed = 0;
 
     while (1) {
-        targetSpeed = 200;
+        targetSpeed = 300;
 
         PID_Calculate(&PID_Down_Stir_Speed, targetSpeed, Motor_Down_Stir.speed * RPM2RPS);
 
@@ -560,7 +560,7 @@ void Task_Down_Frict(void *Parameters) {
     LASER_ON;
 
     while (1) {
-        targetSpeed = 101;
+        // targetSpeed = 101;
 
         motorDownLeftSpeed  = Motor_Down_Frict_Left.speed / 19.2f;
         motorDownRightSpeed = Motor_Down_Frict_Right.speed / 19.2f;
@@ -573,8 +573,13 @@ void Task_Down_Frict(void *Parameters) {
         // targetSpeed = 260;   //15m/s
 
         if (FrictEnabled) {
+            targetSpeed                  = 101;
             Motor_Down_Frict_Left.input  = -PID_Down_Frict_Left_Speed.output;
             Motor_Down_Frict_Right.input = -PID_Down_Frict_Right_Speed.output;
+        } else {
+            targetSpeed                  = 0;
+            Motor_Down_Frict_Left.input  = 0;
+            Motor_Down_Frict_Right.input = 0;
         };
         // //调试摩擦轮
         // Motor_Down_Frict_Left.input = 3900;
