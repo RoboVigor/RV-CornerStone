@@ -6,7 +6,7 @@
 
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
-    LASER_ON;
+    //LASER_ON;
 
     while (1) {
         ControlMode = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM ? 2 : 1;
@@ -15,7 +15,7 @@ void Task_Control(void *Parameters) {
             // PsAimEnabled  = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
             FastmoveMode  = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
             MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP;
-            FrictEnabled  = (LEFT_SWITCH_BOTTOM || LEFT_SWITCH_TOP);
+            FrictEnabled  = 1;
             StirEnabled   = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_TOP;
             // unused
             // FastShootMode = StirEnabled;
@@ -28,18 +28,23 @@ void Task_Control(void *Parameters) {
             StirEnabled    = mouseData.pressLeft;
             PsAimEnabled   = mouseData.pressRight;
             //摩擦轮
-            if (keyboardData.G && !keyboardData.Ctrl) {
+/*            if (keyboardData.G && !keyboardData.Ctrl) {
                 FrictEnabled = 1;
             } else if (keyboardData.G && keyboardData.Ctrl) {
                 FrictEnabled = 0;
                 Key_Disable(&keyboardData, KEY_G, 100);
-            }
+            }*/
+					FrictEnabled = 1;
             // 弹舱盖
             MagzineOpened = keyboardData.F;
             // 小陀螺
             if (keyboardData.C) {
-                SwingMode = (HAS_SLIP_RING) ? 3 : 4;
-            } else if (keyboardData.V) {
+                SwingMode = 3;
+            } 
+						else if (keyboardData.Z) {
+                SwingMode = 5;
+            }
+						else if (keyboardData.V) {
                 SwingMode = 0;
             }
             // 高射速模式
@@ -223,7 +228,7 @@ void Task_Chassis(void *Parameters) {
     // 小陀螺
     float   swingAngle       = 0;
     uint8_t swingModeEnabled = 0;
-    float   swingInterval    = 0.45;
+    float   swingInterval    = 0.25;
     float   swingTimer       = swingInterval;
     int8_t  swingDir         = 1; // 瞬时针猫猫步
 
@@ -295,7 +300,7 @@ void Task_Chassis(void *Parameters) {
         } else if (SwingMode == 3) {
             swingModeEnabled = 1;
             // 匀速旋转
-            swingAngle += 1000 * interval;
+            swingAngle += 500 * interval;
         } else if (SwingMode == 4) {
             swingModeEnabled = 1; //猫猫步
             swingInterval    = 0.40;
@@ -309,7 +314,17 @@ void Task_Chassis(void *Parameters) {
                 swingDir   = -swingDir;
                 swingTimer = 0;
             }
-        } else {
+        } else if (SwingMode == 5) {
+            swingModeEnabled = 1;
+            // 匀速旋转
+            swingAngle += 180 * interval;
+        }
+         else if (SwingMode == 6) {
+            swingModeEnabled = 1;
+            // 匀速旋转
+            swingAngle += 285 * interval;
+        }
+				else {
             if (swingModeEnabled) {
                 swingModeEnabled = 0; // 圈数清零
                 Motor_Yaw.round  = 0;
@@ -378,7 +393,7 @@ void Task_Chassis(void *Parameters) {
         }
 
         // 麦轮解算及限速
-        // targetPower = 70.0 - WANG(30 - ChassisData.powerBuffer, 0.0, 10.0) / 10.0 * 70.0; // 设置目标功率
+        //targetPower = 70.0 - WANG(30 - ChassisData.powerBuffer, 0.0, 10.0) / 10.0 * 70.0; // 设置目标功率
         targetPower = 100.0 * (1 - WANG(60.0 - ChassisData.powerBuffer, 0.0, 40.0) / 40.0); // 设置目标功率 ?
 
         Chassis_Update(&ChassisData, vx, vy, vwRamp); // 更新麦轮转速
@@ -460,35 +475,35 @@ void Task_Host(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-// void Task_UI(void *Parameters) {
-//     TickType_t LastWakeTime  = xTaskGetTickCount();
-//     uint8_t    isInitialized = 0;
-//     while (1) {
-//         if (isInitialized) {
-//             ProtocolData.client_custom_delete
-//             Bridge_Send_Protocol_Once();
-//         }
-//         ProtocolData.client_custom_graphicSingle.data_cmd_id = 0x102;
-//         ProtocolData.client_custom_graphicSingle.send_id     = ProtocolData.gameRobotstatus.robot_id;
-//         ProtocolData.client_custom_graphicSingle.receiver_id = 0x100 + ProtocolData.gameRobotstatus.robot_id;
-//         // graphic 1
-//         ProtocolData.client_custom_graphicSingle.grapic_data_struct[0].graphic_name[0] = 'p';
-//         ProtocolData.client_custom_graphicSingle.grapic_data_struct.operate_type       = 1;
-//         ProtocolData.client_custom_graphicSingle.grapic_data_struct.graphic_type       = 1;
-//         ProtocolData.client_custom_graphicSingle.grapic_data_struct.layer              = 1;
-//         ProtocolData.client_custom_graphicSingle.grapic_data_struct.color              = 1;
-//         ProtocolData.client_custom_graphicSingle.grapic_data_struct.start_angle        = 1;
-//         ProtocolData.client_custom_graphicSingle.grapic_data_struct.end_angle          = 1;
-//         ProtocolData.client_custom_graphicSingle.grapic_data_struct.width              = 1;
-//         ProtocolData.client_custom_graphicSingle.grapic_data_struct.start_x            = 1;
-//         ProtocolData.client_custom_graphicSingle.grapic_data_struct.start_y            = 1;
-//         ProtocolData.client_custom_graphicSingle.grapic_data_struct.radius             = 1;
-//         ProtocolData.client_custom_graphicSingle.grapic_data_struct.end_x              = 1;
-//         ProtocolData.client_custom_graphicSingle.grapic_data_struct.end_y              = 1;
-//         vTaskDelayUntil(&LastWakeTime, 20);
-//     }
-//     vTaskDelete(NULL);
-// }
+ void Task_UI(void *Parameters) {
+     TickType_t LastWakeTime  = xTaskGetTickCount();
+     uint8_t    isInitialized = 0;
+     while (1) {
+         //if (isInitialized) {
+            // ProtocolData.client_custom_delete
+            // Bridge_Send_Protocol_Once();
+         //}
+         ProtocolData.client_custom_graphicSingle.data_cmd_id = 0x102;
+         ProtocolData.client_custom_graphicSingle.send_id     = ProtocolData.gameRobotstatus.robot_id;
+         ProtocolData.client_custom_graphicSingle.receiver_id = 0x100 + ProtocolData.gameRobotstatus.robot_id;
+         // graphic 1
+         ProtocolData.client_custom_graphicSingle.grapic_data_struct.graphic_name[0] = 'p';
+         //ProtocolData.client_custom_graphicSingle.grapic_data_struct.operate_type       = 1;
+         //ProtocolData.client_custom_graphicSingle.grapic_data_struct.graphic_type       = 1;
+         ProtocolData.client_custom_graphicSingle.grapic_data_struct.layer              = 1;
+         ProtocolData.client_custom_graphicSingle.grapic_data_struct.color              = 1;
+         ProtocolData.client_custom_graphicSingle.grapic_data_struct.start_angle        = 1;
+         ProtocolData.client_custom_graphicSingle.grapic_data_struct.end_angle          = 1;
+         ProtocolData.client_custom_graphicSingle.grapic_data_struct.width              = 1;
+         ProtocolData.client_custom_graphicSingle.grapic_data_struct.start_x            = 1;
+         ProtocolData.client_custom_graphicSingle.grapic_data_struct.start_y            = 1;
+         ProtocolData.client_custom_graphicSingle.grapic_data_struct.radius             = 1;
+         ProtocolData.client_custom_graphicSingle.grapic_data_struct.end_x              = 1;
+         ProtocolData.client_custom_graphicSingle.grapic_data_struct.end_y              = 1;
+         vTaskDelayUntil(&LastWakeTime, 20);
+     }
+     vTaskDelete(NULL);
+ }
 
 /**
  * @brief 发射机构 (拨弹轮)
@@ -609,17 +624,20 @@ void Task_Fire_Frict(void *Parameters) {
             LASER_OFF;
         }
 
-        if (FrictEnabled) {
+        if (1) {
             if (ROBOT_MIAO) {
                 if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
-                    targetSpeed = 4000;
+                    targetSpeed = 4250;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 18)
                     targetSpeed = 5000;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 22)
-                    targetSpeed = 7000;
+                    targetSpeed = 7700;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 30)
-                    targetSpeed = 10000;
-                targetSpeed *= -1;
+                    targetSpeed = 7700;
+								else
+										targetSpeed = 4450;
+						PID_Calculate(&PID_FireL, -1*targetSpeed, Motor_FL.speed);
+            PID_Calculate(&PID_FireR, targetSpeed, Motor_FR.speed);
             } else if (ROBOT_WANG) {
                 if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
                     targetSpeed = 4500;
@@ -633,23 +651,31 @@ void Task_Fire_Frict(void *Parameters) {
                 if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
                     targetSpeed = 4450;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 18)
-                    targetSpeed = 4900;
-                else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 22)
-                    targetSpeed = 5700;
+                    targetSpeed = 5100;	
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 30)
                     targetSpeed = 7700;
+								else
+								{
+										targetSpeed = 4450;
+								}
+						PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
+            PID_Calculate(&PID_FireR, -1*targetSpeed, Motor_FR.speed);
+								
             }
-        } else {
-            targetSpeed = 0;
+        } 
+				/*else {
+            targetSpeed = 4450;
+					  PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
+            PID_Calculate(&PID_FireR, -1*targetSpeed, Motor_FR.speed);
+					
         }
         if (ROBOT_SHARK) {
-            PID_Calculate(&PID_FireL, -1 * targetSpeed, Motor_FL.speed);
-            PID_Calculate(&PID_FireR, targetSpeed, Motor_FR.speed);
-        } else {
             PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
+            PID_Calculate(&PID_FireR, -1*targetSpeed, Motor_FR.speed);
+        } else {
+            PID_Calculate(&PID_FireL, -1*targetSpeed, Motor_FL.speed);
             PID_Calculate(&PID_FireR, -1 * targetSpeed, Motor_FR.speed);
-        }
-
+        }*/
         Motor_FL.input = PID_FireL.output;
         Motor_FR.input = PID_FireR.output;
 
