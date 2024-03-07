@@ -12,5 +12,6 @@ void Task_Fire_Frict(void *Parameters);    // 发射机构 (摩擦轮)
 void Task_Control(void *Parameters);
 void Task_Can_Send(void *Parameters);
 void Task_Host(void *Parameters);
+void Task_Wait(void *Parameters);
 
 #endif

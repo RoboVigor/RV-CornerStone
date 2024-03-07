@@ -1,23 +1,11 @@
 #define __HANDLE_GLOBALS
+
 #include "config.h"
 #include "macro.h"
 #include "handle.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "tasks.h"
-// #include "queue.h"
-void BSP_Optoelectronic_Input(void) {
-    GPIO_InitTypeDef GPIO_InitStructure;
-
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0 | GPIO_Pin_1;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-}
 
 int main(void) {
 
@@ -28,15 +16,32 @@ int main(void) {
     Delay_Init(180); // 初始化延时
     LED_Init();      // 初始化LED
     Beep_Init();     // 初始化蜂鸣器
+
     /*******************************************************************************
      *                                  硬件初始化                                  *
      *******************************************************************************/
+    // 底盘电机
+    Motor_Init(&Motor_LF, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
+    Motor_Init(&Motor_LB, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
+    Motor_Init(&Motor_RB, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
+    Motor_Init(&Motor_RF, CHASSIS_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);
 
-    // 获得设备ID
-    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
+    // 发射机构电机
+    Motor_Init(&Motor_Stir, STIR_MOTOR_REDUCTION_RATE, ENABLE, ENABLE); //拨弹
+    Motor_Init(&Motor_FL, 1, DISABLE, ENABLE);
+    Motor_Init(&Motor_FR, 1, DISABLE, ENABLE);
+
+    // 云台电机
+    Motor_Init(&Motor_Yaw, GIMBAL_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);   // 顺时针为正电流
+    Motor_Init(&Motor_Pitch, GIMBAL_MOTOR_REDUCTION_RATE, ENABLE, ENABLE); // 顺时针为正电流
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
+
+    // 通讯协议初始化
+    Protocol_Init(&Node_Judge, &ProtocolData);
+    Protocol_Init(&Node_Host, &ProtocolData);
+    Protocol_Init(&Node_Board, &ProtocolData);
 
     // 硬件配置
     BSP_CAN_Init();
@@ -47,124 +52,105 @@ int main(void) {
     BSP_Beep_Init();
     BSP_LED_Init();
     BSP_User_Power_Init();
-    BSP_Optoelectronic_Input();
-    // BSP_OLED_Init();
+
+    // 获得设备ID
+    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
 
     // USART
-    // BSP_USART6_Init(115200, USART_IT_IDLE);
-    // BSP_UART7_Init(115200, USART_IT_IDLE);
+    BSP_UART7_Init(115200, USART_IT_IDLE);
     BSP_UART8_Init(115200, USART_IT_IDLE);
 
-    BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
-    Motor_Init(&Motor_Chassis_Left, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
-    Motor_Init(&Motor_Chassis_Right, CHASSIS_MOTOR_REDUCTION_RATE, DISABLE, DISABLE);
+    // Servo
+    BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PI0);
+    BSP_PWM_Init(&PWM_Magazine_Servo, 9000, 200, TIM_OCPolarity_Low);
 
-    // 云台电机
-    // 上
-    Motor_Init(&Motor_Up_Gimbal_Yaw, 36, DISABLE, DISABLE);
-    Motor_Init(&Motor_Up_Gimbal_Pitch, 36, DISABLE, DISABLE);
-    // 下
-    Motor_Init(&Motor_Down_Gimbal_Yaw, 1, ENABLE, ENABLE);
-    Motor_Init(&Motor_Down_Gimbal_Pitch, 1, ENABLE, ENABLE);
-
-    // 摩擦轮电机
-    // 上
-    Motor_Init(&Motor_Up_Frict_Left, 1, DISABLE, DISABLE);
-    Motor_Init(&Motor_Up_Frict_Right, 1, DISABLE, DISABLE);
-    // 下
-    Motor_Init(&Motor_Down_Frict_Left, 1, DISABLE, DISABLE);
-    Motor_Init(&Motor_Down_Frict_Right, 1, DISABLE, DISABLE);
-
-    // 拨弹电机
-    // 上
-    Motor_Init(&Motor_Up_Stir, 1, DISABLE, DISABLE);
-    // 下
-    Motor_Init(&Motor_Down_Stir, 1, DISABLE, DISABLE);
-
-    // Motor_Up_Gimbal_Pitch.positionBias   = ;
-    // Motor_Up_Gimbal_Pitch.position       = ;
-    // Motor_Up_Gimbal_Yaw.positionBias     = ;
-    // Motor_Up_Gimbal_Yaw.position         = ;
-    // Motor_Down_Gimbal_Pitch.positionBias = ;
-    // Motor_Down_Gimbal_Pitch.position     = ;
-    // Motor_Down_Gimbal_Yaw.positionBias   = ;
-    // Motor_Down_Gimbal_Yaw.position       = ;
-
-    // 遥控器数据初始化
-    DBUS_Init(&remoteData);
-
-    // 通讯协议初始化
-    Protocol_Init(&Node_Judge, &ProtocolData);
-    Protocol_Init(&Node_Host, &ProtocolData);
-    Protocol_Init(&Node_Board, &ProtocolData);
-
-    // CAN外设
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_Chassis_Left);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_Chassis_Right);
-
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_Down_Frict_Left);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_Down_Frict_Right);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_Down_Stir);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x207, &Motor_Down_Gimbal_Yaw);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x209, &Motor_Down_Gimbal_Pitch);
-
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_Up_Frict_Left);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x204, &Motor_Up_Frict_Right);
-    Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x205, &Motor_Up_Stir);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_Up_Gimbal_Yaw);
-    Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x207, &Motor_Up_Gimbal_Pitch);
+    // Calibration
+    if (ROBOT_MIAO) {
+        Motor_Set_Angle_Bias(&Motor_Yaw, 180.615);
+        Motor_Set_Angle_Bias(&Motor_Pitch, 315.046);
+        Gyroscope_Set_Bias(&ImuData, 30, 4, -7);
+    } else if (ROBOT_WANG) {
+        Motor_Set_Angle_Bias(&Motor_Yaw, 239.941);
+        Motor_Set_Angle_Bias(&Motor_Pitch, 115.488);
+        Gyroscope_Set_Bias(&ImuData, 31, -5, -2);
+    } else if (ROBOT_SHARK) {
+         Motor_Set_Angle_Bias(&Motor_Yaw, 209.318);
+        Motor_Set_Angle_Bias(&Motor_Pitch, 350.652);
+        Gyroscope_Set_Bias(&ImuData, 10, -28, -1);
+    }
 
     // 总线设置
-    // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x501, &Node_Host);
-    // Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x502, &Node_Board);
-    // Bridge_Bind(&BridgeData, USART_BRIDGE, 6, &Node_Judge);
-    // Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &Node_Board);
-    Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &Node_Host);
+    if (ROBOT_MIAO) {
+				Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LAJI);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LF);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_LB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_RF);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Pitch);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x209, &Motor_Yaw);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_FL);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_FR);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_Stir);
+    } else if (ROBOT_WANG) {
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LF);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x209, &Motor_Pitch);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x209, &Motor_Yaw);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_FL);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_FR);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x207, &Motor_Stir);
+    } else if (ROBOT_SHARK) {
+				Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LAJI);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LF);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_LB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_RF);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_FL);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_FR);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_Stir);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x205, &Motor_Pitch);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Yaw);
+    }
+
+    // 总线设置
+    Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &Node_Host);
+    Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &Node_Judge);
 
     // 陀螺仪
-    Gyroscope_Set_Bias(&ImuData, -4, 3, 1);    // 设置静态误差
     Gyroscope_Init(&Gyroscope_EulerData, 300); // 初始化
 
     /*******************************************************************************
      *                                 任务初始化                                   *
      *******************************************************************************/
-    // 调试任务
-#if DEBUG_ENABLED
-    // xTaskCreate(Task_Debug_RTOS_State, "Task_Debug_RTOS_State", 500, NULL, 6, NULL);
-    // xTaskCreate(Task_Debug_Gyroscope_Sampling, "Task_Debug_Gyroscope_Sampling", 400, NULL, 6,
-    // NULL);
-#endif
-
-    // 低级任务
-    // xTaskCreate(Task_Safe_Mode, "Task_Safe_Mode", 500, NULL, 10, NULL);
-    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
-    // xTaskCreate(Task_Startup_Music, "Task_Startup_Music", 400, NULL, 3, NULL);
 
     // 等待遥控器开启
     while (!remoteData.state) {
     }
 
+    xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     //模式切换任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
 
+    // Can发送任务
+    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 5, NULL);
+
     // 运动控制任务
-    // xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
-
-    // xTaskCreate(Task_Up_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Up_Stir, "Task_Stir", 400, NULL, 6, NULL);
-    // xTaskCreate(Task_Up_Frict, "Task_Frict", 400, NULL, 6, NULL);
-
-    xTaskCreate(Task_Down_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
-    // xTaskCreate(Task_Down_Stir, "Task_Stir", 400, NULL, 6, NULL);
-    // xTaskCreate(Task_Down_Frict, "Task_Frict", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Chassis, "Task_Chassis", 400, NULL, 5, NULL);
+    xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
+    xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
+    xTaskCreate(Task_Wait,"Task_Wait", 400, NULL, 8, NULL);
 
     // DMA发送任务
-    // xTaskCreate(Task_Board_Communication, "Task_Board_Communication", 500, NULL, 6, NULL);
+    xTaskCreate(Task_Host, "Task_Host", 500, NULL, 6, NULL);
 
-    // Can发送任务
-    xTaskCreate(Task_Can_Send, "Task_Can_Send", 500, NULL, 6, NULL);
     // 定义协议发送频率
-    // Bridge_Send_Protocol(&Node_Host, 0x120, 1); // 心跳包
+    Bridge_Send_Protocol(&Node_Host, 0x120, 1);  // 心跳包
+    Bridge_Send_Protocol(&Node_Host, 0x403, 20); // 陀螺仪
+    // Bridge_Send_Protocol(&Node_Host, 0x404, 10); // 遥控器
+    // Bridge_Send_Protocol(&Node_Judge, 0XF101, 10); // 遥控器
 
     //启动调度,开始执行任务
     vTaskStartScheduler();

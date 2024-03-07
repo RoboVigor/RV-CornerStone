@@ -66,12 +66,12 @@ int main(void) {
 
     // Calibration
     if (ROBOT_MIAO) {
-        Motor_Set_Angle_Bias(&Motor_Yaw, 180.615);
+        Motor_Set_Angle_Bias(&Motor_Yaw, 118.615);
         Motor_Set_Angle_Bias(&Motor_Pitch, 315.046);
         Gyroscope_Set_Bias(&ImuData, 30, 4, -7);
     } else if (ROBOT_WANG) {
         Motor_Set_Angle_Bias(&Motor_Yaw, 239.941);
-        Motor_Set_Angle_Bias(&Motor_Pitch, 115.488);
+        Motor_Set_Angle_Bias(&Motor_Pitch, 75.488);
         Gyroscope_Set_Bias(&ImuData, 31, -5, -2);
     } else if (ROBOT_SHARK) {
          Motor_Set_Angle_Bias(&Motor_Yaw, 209.318);
@@ -88,19 +88,20 @@ int main(void) {
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_RF);
         Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Pitch);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x209, &Motor_Yaw);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_FL);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_FR);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_FL);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_FR);
         Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_Stir);
     } else if (ROBOT_WANG) {
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LF);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RB);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x209, &Motor_Pitch);
+		Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LAJI);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LF);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_LB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_RF);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x208, &Motor_Pitch);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x209, &Motor_Yaw);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_FL);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_FR);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x207, &Motor_Stir);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_FL);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_FR);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Stir);
     } else if (ROBOT_SHARK) {
 				Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LAJI);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LF);
@@ -109,9 +110,9 @@ int main(void) {
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_RF);
         Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_FL);
         Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_FR);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_Stir);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Stir);
         Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x205, &Motor_Pitch);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Yaw);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_Yaw);
     }
 
     // 总线设置
@@ -140,6 +141,7 @@ int main(void) {
     xTaskCreate(Task_Gimbal, "Task_Gimbal", 500, NULL, 5, NULL);
     xTaskCreate(Task_Fire_Stir, "Task_Fire_Stir", 400, NULL, 6, NULL);
     xTaskCreate(Task_Fire_Frict, "Task_Fire_Frict", 400, NULL, 6, NULL);
+		xTaskCreate(Task_Wait,"Task_Wait",400,NULL,5,NULL);
 
     // DMA发送任务
     xTaskCreate(Task_Host, "Task_Host", 500, NULL, 6, NULL);
