@@ -4,6 +4,8 @@
 #include "macro.h"
 #include "handle.h"
 
+int qian = 0 ,zuo = 0 ;
+
 void Task_Control(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount();
     //LASER_ON;
@@ -13,27 +15,28 @@ void Task_Control(void *Parameters) {
         if (ControlMode == 1) {
             //遥控器模式
             // PsAimEnabled  = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
-            FastmoveMode  = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
+            //FastmoveMode  = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
             MagzineOpened = LEFT_SWITCH_MIDDLE && RIGHT_SWITCH_TOP;
             FrictEnabled  = 1;
             StirEnabled   = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_TOP;
+					
             // unused
             // FastShootMode = StirEnabled;
             // PsShootEnabled = 0;
             // SwingMode     = (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP) ? (HAS_SLIP_RING ? 3 : 4) : 0;
-            SafetyMode = LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM;
+            SafetyMode = LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP;
         } else if (ControlMode == 2) {
             //键鼠模式
             PsShootEnabled = 0;
             StirEnabled    = mouseData.pressLeft;
             PsAimEnabled   = mouseData.pressRight;
             //摩擦轮
-/*            if (keyboardData.G && !keyboardData.Ctrl) {
+            if (keyboardData.G && !keyboardData.Ctrl) {
                 FrictEnabled = 1;
             } else if (keyboardData.G && keyboardData.Ctrl) {
                 FrictEnabled = 0;
                 Key_Disable(&keyboardData, KEY_G, 100);
-            }*/
+            }
 					FrictEnabled = 1;
             // 弹舱盖
             MagzineOpened = keyboardData.F;
@@ -44,8 +47,14 @@ void Task_Control(void *Parameters) {
 						else if (keyboardData.Z) {
                 SwingMode = 5;
             }
+						else if (keyboardData.X) {
+                SwingMode = 6;
+            }
 						else if (keyboardData.V) {
                 SwingMode = 0;
+			}
+						else if (keyboardData.A) {
+                SwingMode = 7;	
             }
             // 高射速模式
             FastShootMode = keyboardData.E;
@@ -97,6 +106,12 @@ void Task_Gimbal(void *Parameters) {
 
     // Pitch轴斜坡参数
     float pitchRampProgress    = 0;
+	if(ROBOT_WANG)
+	{
+	}else
+	{
+		float pitchRampStart       = Gyroscope_EulerData.pitch - 90;
+	}
     float pitchRampStart       = Gyroscope_EulerData.pitch - 90;
     float pitchAngleTargetRamp = 0;
 
@@ -114,15 +129,21 @@ void Task_Gimbal(void *Parameters) {
         // 设置反馈
         yawAngle     = -1 * Gyroscope_EulerData.yaw;    // 逆时针为正
         yawSpeed     = ImuData.gy / GYROSCOPE_LSB;      // 逆时针为正
-        pitchAngle   = Gyroscope_EulerData.pitch - 90;  // 逆时针为正
+        pitchAngle   = Gyroscope_EulerData.pitch - 135;  // 逆时针为正
         pitchSpeed   = -1 * ImuData.gx / GYROSCOPE_LSB; // 逆时针为正
         chassisAngle = -1 * Motor_Pitch.angle + pitchAngle;
 
         // 遥控器输入角度目标
+		if(ControlMode==1)
+		{
         if (ABS(remoteData.rx) > 30) yawAngleTargetControl += remoteData.rx / 660.0f * 360 * interval;
         if (ABS(remoteData.ry) > 30) pitchAngleTargetControl -= remoteData.ry / 660.0f * 360 * interval;
+		}
+		else if (ControlMode==2)
+		{
         yawAngleTargetControl += mouseData.x * 0.5 * 0.005; // 0.005
-        pitchAngleTargetControl += mouseData.y * 0.005;
+        //pitchAngleTargetControl += mouseData.y * 0.005;
+		}
         MIAO(pitchAngleTargetControl, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
         yawAngleTarget += yawAngleTargetControl;
         pitchAngleTarget += pitchAngleTargetControl;
@@ -300,7 +321,7 @@ void Task_Chassis(void *Parameters) {
         } else if (SwingMode == 3) {
             swingModeEnabled = 1;
             // 匀速旋转
-            swingAngle += 500 * interval;
+            swingAngle += 450 * interval;
         } else if (SwingMode == 4) {
             swingModeEnabled = 1; //猫猫步
             swingInterval    = 0.40;
@@ -317,7 +338,7 @@ void Task_Chassis(void *Parameters) {
         } else if (SwingMode == 5) {
             swingModeEnabled = 1;
             // 匀速旋转
-            swingAngle += 180 * interval;
+            swingAngle += -450 * interval;
         }
          else if (SwingMode == 6) {
             swingModeEnabled = 1;
@@ -339,8 +360,17 @@ void Task_Chassis(void *Parameters) {
         vy = 0;
         vw = 0;
         if (ControlMode == 1) {
-            vx = -remoteData.lx / 660.0f * 20.0;
-            vy = remoteData.ly / 660.0f * 20.0;
+			if(ROBOT_MIAO || ROBOT_WANG)
+			{
+				vx = -remoteData.lx / 660.0f * 20.0;
+				vy = remoteData.ly / 660.0f * 20.0;
+			}
+			if(ROBOT_SHARK)
+			{
+				vx = remoteData.lx / 660.0f * 20.0;
+				vy = -remoteData.ly / 660.0f * 20.0;
+			}
+
         } else if (ControlMode == 2) {
             xTargetRamp = RAMP(xRampStart, 660, xRampProgress);
             if (xRampProgress <= 0.5) {
@@ -354,8 +384,17 @@ void Task_Chassis(void *Parameters) {
             } else if (yRampProgress > 0.5 && yRampProgress < 1) {
                 yRampProgress += 0.002f;
             }
-            vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 8;
-            vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 12;
+			if(ROBOT_MIAO)
+			{
+				vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 8;
+				vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 12;
+			}
+			if(ROBOT_SHARK)
+			{
+				vx = -(keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 8;
+				vy = -(keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 12;
+			}
+            
 
             if (keyboardData.W == 0 && keyboardData.S == 0) {
                 yRampProgress = 0;
@@ -512,7 +551,8 @@ void Task_Host(void *Parameters) {
 void Task_Fire_Stir(void *Parameters) {
     TickType_t LastWakeTime = xTaskGetTickCount(); // 时钟
     float      interval     = 0.05;                // 任务运行间隔 s
-    int        intervalms   = interval * 1000;     // 任务运行间隔 ms
+    int        intervalms   = interval * 1000;
+		float targetSpeed = 0;	// 任务运行间隔 ms
 
     // 射击模式
     enum shootMode_e { shootIdle = 0, shootToDeath }; // 停止, 连发
@@ -533,6 +573,10 @@ void Task_Fire_Stir(void *Parameters) {
     // PID 初始化
     PID_Init(&PID_StirAngle, 1, 0, 0, 9000, 6000);  // 拨弹轮角度环
     PID_Init(&PID_StirSpeed, 18, 0, 0, 6000, 1000); // 拨弹轮速度环
+	
+	// TEST
+//	PID_Init(&PID_FireL, 3, 0, 0, 16384, 1000);
+//	PID_Init(&PID_FireR, 3, 0, 0, 16384, 1000);
 
     // 开启激光
     // LASER_ON;
@@ -584,15 +628,29 @@ void Task_Fire_Stir(void *Parameters) {
         if (ProtocolData.powerHeatData.shooter_id1_17mm_cooling_heat > maxShootHeat) {
             shootMode = shootIdle;
         }
-
+		
+		
+		
         // 控制拨弹轮
         if (shootMode == shootIdle) {
             // 停止
             Motor_Stir.input = 0;
+						targetSpeed = 0;
+						PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
+						PID_Calculate(&PID_FireR, -1*targetSpeed, Motor_FR.speed);
+						Motor_FL.input = PID_FireL.output;
+						Motor_FR.input = PID_FireR.output;
+
         } else if (shootMode == shootToDeath) {
             // 连发
             PID_Calculate(&PID_StirSpeed, stirSpeed, Motor_Stir.speed * RPM2RPS);
             Motor_Stir.input = PID_StirSpeed.output;
+//						targetSpeed = 1000;
+//						PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
+//						PID_Calculate(&PID_FireR, targetSpeed, Motor_FR.speed);
+//					
+//						Motor_FL.input = -1*PID_FireL.output;
+//						Motor_FR.input = 1*PID_FireR.output;
         }
 
         // DebugData.debug1 = PID_StirSpeed.output;
@@ -626,43 +684,49 @@ void Task_Fire_Frict(void *Parameters) {
 
         if (1) {
             if (ROBOT_MIAO) {
+								//targetSpeed = 4000;
                 if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
-                    targetSpeed = 4250;
+                    targetSpeed = 4000;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 18)
                     targetSpeed = 5000;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 22)
-                    targetSpeed = 7700;
+                    targetSpeed = 7000;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 30)
-                    targetSpeed = 7700;
-								else
-										targetSpeed = 4450;
-						PID_Calculate(&PID_FireL, -1*targetSpeed, Motor_FL.speed);
-            PID_Calculate(&PID_FireR, targetSpeed, Motor_FR.speed);
+                    targetSpeed = 1000;								
+//						PID_Calculate(&PID_FireL, -1*targetSpeed, Motor_FL.speed);
+//            PID_Calculate(&PID_FireR, targetSpeed, Motor_FR.speed);
             } else if (ROBOT_WANG) {
+				//targetSpeed = 1500;
                 if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
                     targetSpeed = 4500;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 18)
-                    targetSpeed = 5000;
+                    targetSpeed = 4000;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 22)
-                    targetSpeed = 6000;
+                    targetSpeed = 4000;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 30)
-                    targetSpeed = 7000;
+                    targetSpeed = 4000;
             } else if (ROBOT_SHARK) { //还没测
+							targetSpeed = 5000;
                 if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
                     targetSpeed = 4450;
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 18)
                     targetSpeed = 5100;	
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 30)
                     targetSpeed = 7700;
-								else
-								{
-										targetSpeed = 4450;
-								}
-						PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
-            PID_Calculate(&PID_FireR, -1*targetSpeed, Motor_FR.speed);
-								
+							
             }
+//			if(ROBOT_SHARK)
+//				{
+//					PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
+//					PID_Calculate(&PID_FireR, -1*targetSpeed, Motor_FR.speed);
+//				}else if(ROBOT_MIAO)
+//				{
+//					PID_Calculate(&PID_FireL, -1*targetSpeed, Motor_FL.speed);
+//					PID_Calculate(&PID_FireR, targetSpeed, Motor_FR.speed);
+//				}	
+			
         } 
+		
 				/*else {
             targetSpeed = 4450;
 					  PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
@@ -676,7 +740,9 @@ void Task_Fire_Frict(void *Parameters) {
             PID_Calculate(&PID_FireL, -1*targetSpeed, Motor_FL.speed);
             PID_Calculate(&PID_FireR, -1 * targetSpeed, Motor_FR.speed);
         }*/
-        Motor_FL.input = PID_FireL.output;
+		PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
+            PID_Calculate(&PID_FireR, targetSpeed, Motor_FR.speed);
+        Motor_FL.input = -1*PID_FireL.output;
         Motor_FR.input = PID_FireR.output;
 
         // DebugData.debug1 = Motor_FL.speed;
@@ -699,11 +765,49 @@ void Task_Blink(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_Startup_Music(void *Parameters) {
-    TickType_t LastWakeTime = xTaskGetTickCount();
-    while (1) {
-        if (KTV_Play(Music_Earth)) break;
-        vTaskDelayUntil(&LastWakeTime, 120);
-    }
-    vTaskDelete(NULL);
+void Task_Startup_Music(void *Parameters){
+	TickType_t LastWakeTime = xTaskGetTickCount();
+	while (1)
+	{
+			if (KTV_Play(Music_Earth)) break;
+			vTaskDelayUntil(&LastWakeTime, 120);
+	}
+	vTaskDelete(NULL);
+}
+
+void Task_Wait(void *Parameters)
+{
+	TickType_t LastWakeTime = xTaskGetTickCount();	
+	
+	while(1)//老6躲到基地后开陀螺代码，2023上理RoboVigor哨兵核心科技
+	{
+//		if (ProtocolData.gameStatus.game_progress == 3)//裁判系统信号控制
+//		//if (LEFT_SWITCH_BOTTOM && RIGHT_SWITCH_BOTTOM)//遥控器控制（双朝下开始）
+//		{
+//			delay_ms(6000);//delay3000毫秒，等裁判系统（！！！最后改成6000！！！）
+//			//SwingMode = 6;//测试裁判系统信号用的陀螺开启代码，常为被注释状态
+//			while(1){qian=27; zuo=0; vTaskDelay(4000); break;}//向前速度（可为负，建议绝对值20-40）、向左速度、持续时间（毫秒）
+//			qian=0; zuo=0;//向前向左速度初始化
+//			while(1){qian=0; zuo=-25; vTaskDelay(2700); break;}//向前速度（可为负，建议绝对值20-40）、向左速度、持续时间（毫秒）
+//			qian=0; zuo=0;//向前、向左速度初始化
+//			while(1){qian=-20; zuo=0; vTaskDelay(600); break;}//向前速度（可为负，建议绝对值20-40）、向左速度、持续时间（毫秒）
+//			qian=0; zuo=0;//向前向左速度初始化
+//			while(1){qian=0; zuo=0; vTaskDelay(200); break;}//向前速度（可为负，建议绝对值20-40）、向左速度、持续时间（毫秒）
+//			qian=0; zuo=0;//向前向左速度初始化
+//				while(1){
+//				SwingMode = 3;//小陀螺6，大陀螺3
+//				vTaskDelay(2300);
+//				SwingMode = 0;//小陀螺6，大陀螺3
+//				vTaskDelay(500);
+//				SwingMode = 5;//小陀螺6，大陀螺3
+//				vTaskDelay(2300);
+//				if (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP){SwingMode = 0;break;}//遥控器控制（双朝上停止陀螺）
+//				}
+//		}
+		if (LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP){SwingMode = 0;}//遥控器控制（双朝上停止陀螺）
+
+		
+		vTaskDelayUntil(&LastWakeTime,120);
+	}
+	vTaskDelete(NULL);
 }

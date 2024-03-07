@@ -21,8 +21,8 @@
 
 typedef struct {
     uint8_t  graphic_name[3];
-    uint32_t operate_tpye : 3;
-    uint32_t graphic_tpye : 3;
+    uint32_t operate_type : 3;
+    uint32_t graphic_type : 3;
     uint32_t layer : 4;
     uint32_t color : 4;
     uint32_t start_angle : 9;
@@ -279,7 +279,7 @@ typedef union {
         uint16_t data_cmd_id;
         uint16_t send_id;
         uint16_t receiver_id;
-        uint8_t  operate_tpye;
+        uint8_t  operate_type;
         uint8_t  layer;
     };
     struct {

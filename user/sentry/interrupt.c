@@ -1,8 +1,8 @@
 /**
  * @brief  中断服务函数根据地
  */
-#include "handle.h"
 
+#include "handle.h"
 // EXTI9_5 陀螺仪中断
 void EXTI9_5_IRQHandler(void) {
     uint8_t suc;
@@ -20,10 +20,12 @@ void USART1_IRQHandler(void) {
     UARTtemp = USART1->DR;
     UARTtemp = USART1->SR;
 
+    DMA_Cmd(DMA2_Stream2, DISABLE);
+
     // disabe DMA
     DMA_Disable(USART1_Rx);
 
-    //数据量正确
+    // 数据量正确
     if (DMA_Get_Stream(USART1_Rx)->NDTR == DBUS_BACK_LENGTH) {
         DBus_Update(&remoteData, &keyboardData, &mouseData, remoteBuffer); //解码
     }
@@ -34,17 +36,18 @@ void USART1_IRQHandler(void) {
 
 /**
  * @brief USART3 串口中断
+ * @note  视觉系统读取
  */
 void USART3_IRQHandler(void) {
-    uint8_t tmp;
     Bridge_Receive_USART(&BridgeData, USART_BRIDGE, 3);
 }
 
 /**
  * @brief USART6 串口中断
+ * @note  裁判系统读取
  */
 void USART6_IRQHandler(void) {
-    Bridge_Receive_USART(&BridgeData, USART_BRIDGE, 6);
+        Bridge_Receive_USART(&BridgeData, USART_BRIDGE, 6);
 }
 
 /**
@@ -58,7 +61,7 @@ void UART7_IRQHandler(void) {
  * @brief UART8 串口中断
  */
 void UART8_IRQHandler(void) {
-    Bridge_Receive_USART(&BridgeData, USART_BRIDGE, 8);
+   Bridge_Receive_USART(&BridgeData, USART_BRIDGE, 8);
 }
 
 // CAN1数据接收中断服务函数
@@ -70,11 +73,6 @@ void CAN1_RX0_IRQHandler(void) {
 void CAN2_RX0_IRQHandler(void) {
     Bridge_Receive_CAN(&BridgeData, CAN2_BRIDGE);
 }
-
-// void CAN1_SCE_IRQHandler(void) {
-//     RED_LIGHT_ON;
-//     CAN_ClearITPendingBit(CAN1, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR);
-// }
 
 // TIM2 高频计数器
 extern volatile uint32_t ulHighFrequencyTimerTicks;
@@ -104,7 +102,7 @@ void NMI_Handler(void) {
  * @return None
  */
 void HardFault_Handler(void) {
-    while (1) {
+   while (1) {
     }
 }
 
@@ -114,7 +112,7 @@ void HardFault_Handler(void) {
  * @return None
  */
 void MemManage_Handler(void) {
-    while (1) {
+     while (1) {
     }
 }
 
@@ -124,7 +122,7 @@ void MemManage_Handler(void) {
  * @return None
  */
 void BusFault_Handler(void) {
-    while (1) {
+   while (1) {
     }
 }
 
@@ -163,7 +161,7 @@ void DebugMon_Handler(void) {
 //  * @return None
 //  */
 // void PendSV_Handler(void) {
-//     //while(1){}
+//    //while(1){}
 // }
 
 // /**
@@ -172,5 +170,5 @@ void DebugMon_Handler(void) {
 //  * @return None
 //  */
 // void SysTick_Handler(void) {
-//     //while(1){}
+//      //while(1){}
 // }
