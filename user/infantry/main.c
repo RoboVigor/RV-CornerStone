@@ -66,7 +66,7 @@ int main(void) {
 
     // Calibration
     if (ROBOT_MIAO) {
-        Motor_Set_Angle_Bias(&Motor_Yaw, 118.615);
+        Motor_Set_Angle_Bias(&Motor_Yaw, 148.615);
         Motor_Set_Angle_Bias(&Motor_Pitch, 315.046);
         Gyroscope_Set_Bias(&ImuData, 30, 4, -7);
     } else if (ROBOT_WANG) {
@@ -74,8 +74,8 @@ int main(void) {
         Motor_Set_Angle_Bias(&Motor_Pitch, 75.488);
         Gyroscope_Set_Bias(&ImuData, 31, -5, -2);
     } else if (ROBOT_SHARK) {
-         Motor_Set_Angle_Bias(&Motor_Yaw, 209.318);
-        Motor_Set_Angle_Bias(&Motor_Pitch, 350.652);
+         Motor_Set_Angle_Bias(&Motor_Yaw, 149.318);
+        Motor_Set_Angle_Bias(&Motor_Pitch, 200.652);
         Gyroscope_Set_Bias(&ImuData, 10, -28, -1);
     }
 

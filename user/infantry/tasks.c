@@ -129,7 +129,7 @@ void Task_Gimbal(void *Parameters) {
         // 设置反馈
         yawAngle     = -1 * Gyroscope_EulerData.yaw;    // 逆时针为正
         yawSpeed     = ImuData.gy / GYROSCOPE_LSB;      // 逆时针为正
-        pitchAngle   = Gyroscope_EulerData.pitch - 135;  // 逆时针为正
+        pitchAngle   = Gyroscope_EulerData.pitch - 90;  // 逆时针为正
         pitchSpeed   = -1 * ImuData.gx / GYROSCOPE_LSB; // 逆时针为正
         chassisAngle = -1 * Motor_Pitch.angle + pitchAngle;
 
@@ -635,11 +635,11 @@ void Task_Fire_Stir(void *Parameters) {
         if (shootMode == shootIdle) {
             // 停止
             Motor_Stir.input = 0;
-						targetSpeed = 0;
-						PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
-						PID_Calculate(&PID_FireR, -1*targetSpeed, Motor_FR.speed);
-						Motor_FL.input = PID_FireL.output;
-						Motor_FR.input = PID_FireR.output;
+//						targetSpeed = 0;
+//						PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
+//						PID_Calculate(&PID_FireR, -1*targetSpeed, Motor_FR.speed);
+//						Motor_FL.input = PID_FireL.output;
+//						Motor_FR.input = PID_FireR.output;
 
         } else if (shootMode == shootToDeath) {
             // 连发
@@ -670,6 +670,10 @@ void Task_Fire_Frict(void *Parameters) {
     float motorLSpeed;
     float motorRSpeed;
     float targetSpeed = 0;
+	
+	    // 射击模式
+    enum shootMode_e { shootIdle = 0, shootToDeath }; // 停止, 连发
+    enum shootMode_e shootMode = shootIdle;
 
     PID_Init(&PID_FireL, 3, 0, 0, 16384, 1200);
     PID_Init(&PID_FireR, 3, 0, 0, 16384, 1200);
@@ -724,8 +728,30 @@ void Task_Fire_Frict(void *Parameters) {
 //					PID_Calculate(&PID_FireL, -1*targetSpeed, Motor_FL.speed);
 //					PID_Calculate(&PID_FireR, targetSpeed, Motor_FR.speed);
 //				}	
-			
+//			
         } 
+//		if (StirEnabled) {
+//            shootMode = shootToDeath;
+//        }
+//		if (shootMode == shootIdle) {
+//            // 停止
+//						targetSpeed = 0;
+//						PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
+//						PID_Calculate(&PID_FireR, -1*targetSpeed, Motor_FR.speed);
+//						Motor_FL.input = PID_FireL.output;
+//						Motor_FR.input = PID_FireR.output;
+
+//        } else if (shootMode == shootToDeath) {
+//            // 连发
+//			PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
+//			PID_Calculate(&PID_FireR, -1*targetSpeed, Motor_FR.speed);
+//			Motor_FL.input = PID_FireL.output;
+//			Motor_FR.input = PID_FireR.output;
+//        }
+		PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
+		PID_Calculate(&PID_FireR, -1*targetSpeed, Motor_FR.speed);
+		Motor_FL.input = PID_FireL.output;
+		Motor_FR.input = PID_FireR.output;
 		
 				/*else {
             targetSpeed = 4450;
@@ -740,10 +766,7 @@ void Task_Fire_Frict(void *Parameters) {
             PID_Calculate(&PID_FireL, -1*targetSpeed, Motor_FL.speed);
             PID_Calculate(&PID_FireR, -1 * targetSpeed, Motor_FR.speed);
         }*/
-		PID_Calculate(&PID_FireL, targetSpeed, Motor_FL.speed);
-            PID_Calculate(&PID_FireR, targetSpeed, Motor_FR.speed);
-        Motor_FL.input = -1*PID_FireL.output;
-        Motor_FR.input = PID_FireR.output;
+		
 
         // DebugData.debug1 = Motor_FL.speed;
         // DebugData.debug2 = targetSpeed;
@@ -754,7 +777,8 @@ void Task_Fire_Frict(void *Parameters) {
     vTaskDelete(NULL);
 }
 
-void Task_Blink(void *Parameters) {
+void Task_Blink(void *Parameters) 
+	{
     TickType_t LastWakeTime = xTaskGetTickCount();
     while (1) {
         LED_Run_Horse_XP(); // XP开机动画,建议延时200ms
