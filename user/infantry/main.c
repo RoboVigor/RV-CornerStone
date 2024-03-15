@@ -61,7 +61,7 @@ int main(void) {
     BSP_UART8_Init(115200, USART_IT_IDLE);
 
     // Servo
-    BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PI0);
+    BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PH10);
     BSP_PWM_Init(&PWM_Magazine_Servo, 9000, 200, TIM_OCPolarity_Low);
 
     // Calibration
@@ -110,7 +110,7 @@ int main(void) {
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_RF);
         Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_FL);
         Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_FR);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Stir);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_Stir);
         Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x205, &Motor_Pitch);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_Yaw);
     }

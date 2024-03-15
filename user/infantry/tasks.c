@@ -391,8 +391,8 @@ void Task_Chassis(void *Parameters) {
 			}
 			if(ROBOT_SHARK)
 			{
-				vx = -(keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 8;
-				vy = -(keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 12;
+				vx = (keyboardData.A - keyboardData.D) * xTargetRamp / 660.0f * 8;
+				vy = (keyboardData.W - keyboardData.S) * yTargetRamp / 660.0f * 12;
 			}
             
 
@@ -710,13 +710,13 @@ void Task_Fire_Frict(void *Parameters) {
                 else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 30)
                     targetSpeed = 4000;
             } else if (ROBOT_SHARK) { //还没测
-							targetSpeed = 5000;
-                if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
-                    targetSpeed = 4450;
-                else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 18)
-                    targetSpeed = 5100;	
-                else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 30)
-                    targetSpeed = 7700;
+							targetSpeed = 10000;
+//                if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 15)
+//                    targetSpeed = 4450;
+//                else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 18)
+//                    targetSpeed = 5100;	
+//                else if (ProtocolData.gameRobotstatus.shooter_id1_17mm_speed_limit == 30)
+//                    targetSpeed = 7700;
 							
             }
 //			if(ROBOT_SHARK)
