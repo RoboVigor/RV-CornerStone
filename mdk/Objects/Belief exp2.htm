@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\Belief exp2.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\Belief exp2.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Thu Mar 14 20:57:11 2024
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Tue Mar 19 18:28:07 2024
 <BR><P>
 <H3>Maximum Stack Usage =        496 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -596,9 +596,9 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_char_file
 </UL>
-<BR>[Called By]<UL><LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Start
-<LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteData
-<LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
+<BR>[Called By]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Start
+<LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteData
+<LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
 </UL>
 
 <P><STRONG><a name="[99]"></a>__2sprintf</STRONG> (Thumb, 34 bytes, Stack size 32 bytes, noretval__2sprintf.o(.text))
@@ -1428,13 +1428,13 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_IMU_Init
 </UL>
 
-<P><STRONG><a name="[12f]"></a>FastLog2</STRONG> (Thumb, 28 bytes, Stack size 8 bytes, vegmath.o(i.FastLog2))
+<P><STRONG><a name="[130]"></a>FastLog2</STRONG> (Thumb, 28 bytes, Stack size 8 bytes, vegmath.o(i.FastLog2))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = FastLog2
 </UL>
-<BR>[Called By]<UL><LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Key_Disable
+<BR>[Called By]<UL><LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Key_Disable
 </UL>
 
-<P><STRONG><a name="[122]"></a>Filter_Apply_Limit_Breadth</STRONG> (Thumb, 104 bytes, Stack size 0 bytes, driver_filter.o(i.Filter_Apply_Limit_Breadth))
+<P><STRONG><a name="[123]"></a>Filter_Apply_Limit_Breadth</STRONG> (Thumb, 104 bytes, Stack size 0 bytes, driver_filter.o(i.Filter_Apply_Limit_Breadth))
 <BR><BR>[Called By]<UL><LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Gyroscope_Solve
 </UL>
 
@@ -1459,9 +1459,9 @@ Global Symbols
 <P><STRONG><a name="[bc]"></a>GPIO_Init</STRONG> (Thumb, 144 bytes, Stack size 20 bytes, stm32f4xx_gpio.o(i.GPIO_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = GPIO_Init
 </UL>
-<BR>[Called By]<UL><LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Init
-<LI><a href="#[125]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_Out
-<LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_In
+<BR>[Called By]<UL><LI><a href="#[131]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Init
+<LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_Out
+<LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_In
 <LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_User_Power_Init
 <LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_USART_Init
 <LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_TIM2_Init
@@ -1488,14 +1488,14 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_Stone_Id_Init
 </UL>
 
-<P><STRONG><a name="[134]"></a>GPIO_ResetBits</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, stm32f4xx_gpio.o(i.GPIO_ResetBits))
-<BR><BR>[Called By]<UL><LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Set_Row
+<P><STRONG><a name="[135]"></a>GPIO_ResetBits</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, stm32f4xx_gpio.o(i.GPIO_ResetBits))
+<BR><BR>[Called By]<UL><LI><a href="#[134]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Set_Row
 <LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Fire_Frict
 </UL>
 
 <P><STRONG><a name="[d2]"></a>GPIO_SetBits</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, stm32f4xx_gpio.o(i.GPIO_SetBits))
-<BR><BR>[Called By]<UL><LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Init
-<LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Set_Row
+<BR><BR>[Called By]<UL><LI><a href="#[131]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Init
+<LI><a href="#[134]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Set_Row
 <LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_User_Power_Init
 <LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_Stone_Id_Init
 <LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_LED_Init
@@ -1531,13 +1531,14 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[11e]"></a>Gyroscope_Solve</STRONG> (Thumb, 1140 bytes, Stack size 56 bytes, driver_gyroscope.o(i.Gyroscope_Solve))
+<P><STRONG><a name="[11e]"></a>Gyroscope_Solve</STRONG> (Thumb, 1212 bytes, Stack size 56 bytes, driver_gyroscope.o(i.Gyroscope_Solve))
 <BR><BR>[Stack]<UL><LI>Max Depth = 224<LI>Call Chain = Gyroscope_Solve &rArr; __hardfp_atan2 &rArr; atan &rArr; __hardfp_atan &rArr; __kernel_poly &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[11f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MadgwickAHRSupdateIMU
-<LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Filter_Apply_Limit_Breadth
+<LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Filter_Apply_Limit_Breadth
 <LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Filter_Update
 <LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
+<LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 <LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
 <LI><a href="#[120]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_atan2
 <LI><a href="#[121]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_asin
@@ -1551,7 +1552,7 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 232 + Unknown Stack Size
 <LI>Call Chain = Gyroscope_Update &rArr; Gyroscope_Solve &rArr; __hardfp_atan2 &rArr; atan &rArr; __hardfp_atan &rArr; __kernel_poly &rArr; __aeabi_dmul
 </UL>
-<BR>[Calls]<UL><LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
+<BR>[Calls]<UL><LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
 <LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Gyroscope_Solve
 </UL>
 <BR>[Called By]<UL><LI><a href="#[29]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EXTI9_5_IRQHandler
@@ -1560,137 +1561,137 @@ Global Symbols
 <P><STRONG><a name="[a]"></a>HardFault_Handler</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, interrupt.o(i.HardFault_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f427xx.o(RESET)
 </UL>
-<P><STRONG><a name="[124]"></a>IIC_Ack</STRONG> (Thumb, 66 bytes, Stack size 8 bytes, mpu6500_i2c.o(i.IIC_Ack))
+<P><STRONG><a name="[125]"></a>IIC_Ack</STRONG> (Thumb, 66 bytes, Stack size 8 bytes, mpu6500_i2c.o(i.IIC_Ack))
 <BR><BR>[Stack]<UL><LI>Max Depth = 44<LI>Call Chain = IIC_Ack &rArr; IIC_SDA_Out &rArr; GPIO_Init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[125]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_Out
-<LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Delay
+<BR>[Calls]<UL><LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_Out
+<LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Delay
 </UL>
-<BR>[Called By]<UL><LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
+<BR>[Called By]<UL><LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
 </UL>
 
-<P><STRONG><a name="[126]"></a>IIC_Delay</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, mpu6500_i2c.o(i.IIC_Delay))
+<P><STRONG><a name="[127]"></a>IIC_Delay</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, mpu6500_i2c.o(i.IIC_Delay))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = IIC_Delay
 </UL>
-<BR>[Called By]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteBit
-<LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WaitAck
-<LI><a href="#[12c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Stop
-<LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Start
-<LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadBit
-<LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Ack
+<BR>[Called By]<UL><LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteBit
+<LI><a href="#[12c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WaitAck
+<LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Stop
+<LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Start
+<LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadBit
+<LI><a href="#[125]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Ack
 </UL>
 
-<P><STRONG><a name="[138]"></a>IIC_GPIO_Init</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, mpu6500_i2c.o(i.IIC_GPIO_Init))
-<BR><BR>[Called By]<UL><LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU6500_Init
+<P><STRONG><a name="[139]"></a>IIC_GPIO_Init</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, mpu6500_i2c.o(i.IIC_GPIO_Init))
+<BR><BR>[Called By]<UL><LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU6500_Init
 </UL>
 
-<P><STRONG><a name="[127]"></a>IIC_ReadBit</STRONG> (Thumb, 78 bytes, Stack size 16 bytes, mpu6500_i2c.o(i.IIC_ReadBit))
+<P><STRONG><a name="[128]"></a>IIC_ReadBit</STRONG> (Thumb, 78 bytes, Stack size 16 bytes, mpu6500_i2c.o(i.IIC_ReadBit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = IIC_ReadBit &rArr; IIC_SDA_In &rArr; GPIO_Init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_In
-<LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Delay
+<BR>[Calls]<UL><LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_In
+<LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Delay
 </UL>
-<BR>[Called By]<UL><LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
+<BR>[Called By]<UL><LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
 </UL>
 
-<P><STRONG><a name="[123]"></a>IIC_ReadData</STRONG> (Thumb, 152 bytes, Stack size 24 bytes, mpu6500_i2c.o(i.IIC_ReadData))
+<P><STRONG><a name="[124]"></a>IIC_ReadData</STRONG> (Thumb, 152 bytes, Stack size 24 bytes, mpu6500_i2c.o(i.IIC_ReadData))
 <BR><BR>[Stack]<UL><LI>Max Depth = 168 + Unknown Stack Size
 <LI>Call Chain = IIC_ReadData &rArr; IIC_Start &rArr; __2printf &rArr; _printf_char_file &rArr; _printf_char_common &rArr; __printf
 </UL>
-<BR>[Calls]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteBit
-<LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WaitAck
-<LI><a href="#[12c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Stop
-<LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Start
-<LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadBit
-<LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Ack
+<BR>[Calls]<UL><LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteBit
+<LI><a href="#[12c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WaitAck
+<LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Stop
+<LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Start
+<LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadBit
+<LI><a href="#[125]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Ack
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
-<BR>[Called By]<UL><LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU6500_Init
+<BR>[Called By]<UL><LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU6500_Init
 <LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Gyroscope_Update
 </UL>
 
-<P><STRONG><a name="[128]"></a>IIC_SDA_In</STRONG> (Thumb, 40 bytes, Stack size 16 bytes, mpu6500_i2c.o(i.IIC_SDA_In))
+<P><STRONG><a name="[129]"></a>IIC_SDA_In</STRONG> (Thumb, 40 bytes, Stack size 16 bytes, mpu6500_i2c.o(i.IIC_SDA_In))
 <BR><BR>[Stack]<UL><LI>Max Depth = 36<LI>Call Chain = IIC_SDA_In &rArr; GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_Init
 </UL>
-<BR>[Called By]<UL><LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WaitAck
-<LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadBit
+<BR>[Called By]<UL><LI><a href="#[12c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WaitAck
+<LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadBit
 </UL>
 
-<P><STRONG><a name="[125]"></a>IIC_SDA_Out</STRONG> (Thumb, 42 bytes, Stack size 16 bytes, mpu6500_i2c.o(i.IIC_SDA_Out))
+<P><STRONG><a name="[126]"></a>IIC_SDA_Out</STRONG> (Thumb, 42 bytes, Stack size 16 bytes, mpu6500_i2c.o(i.IIC_SDA_Out))
 <BR><BR>[Stack]<UL><LI>Max Depth = 36<LI>Call Chain = IIC_SDA_Out &rArr; GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_Init
 </UL>
-<BR>[Called By]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteBit
-<LI><a href="#[12c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Stop
-<LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Start
-<LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Ack
+<BR>[Called By]<UL><LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteBit
+<LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Stop
+<LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Start
+<LI><a href="#[125]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Ack
 </UL>
 
-<P><STRONG><a name="[129]"></a>IIC_Start</STRONG> (Thumb, 86 bytes, Stack size 8 bytes, mpu6500_i2c.o(i.IIC_Start))
+<P><STRONG><a name="[12a]"></a>IIC_Start</STRONG> (Thumb, 86 bytes, Stack size 8 bytes, mpu6500_i2c.o(i.IIC_Start))
 <BR><BR>[Stack]<UL><LI>Max Depth = 144 + Unknown Stack Size
 <LI>Call Chain = IIC_Start &rArr; __2printf &rArr; _printf_char_file &rArr; _printf_char_common &rArr; __printf
 </UL>
-<BR>[Calls]<UL><LI><a href="#[125]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_Out
-<LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Delay
+<BR>[Calls]<UL><LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_Out
+<LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Delay
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
-<BR>[Called By]<UL><LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteData
-<LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
+<BR>[Called By]<UL><LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteData
+<LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
 </UL>
 
-<P><STRONG><a name="[12c]"></a>IIC_Stop</STRONG> (Thumb, 44 bytes, Stack size 8 bytes, mpu6500_i2c.o(i.IIC_Stop))
+<P><STRONG><a name="[12d]"></a>IIC_Stop</STRONG> (Thumb, 44 bytes, Stack size 8 bytes, mpu6500_i2c.o(i.IIC_Stop))
 <BR><BR>[Stack]<UL><LI>Max Depth = 44<LI>Call Chain = IIC_Stop &rArr; IIC_SDA_Out &rArr; GPIO_Init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[125]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_Out
-<LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Delay
+<BR>[Calls]<UL><LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_Out
+<LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Delay
 </UL>
-<BR>[Called By]<UL><LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WaitAck
-<LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteData
-<LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
+<BR>[Called By]<UL><LI><a href="#[12c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WaitAck
+<LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteData
+<LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
 </UL>
 
-<P><STRONG><a name="[12b]"></a>IIC_WaitAck</STRONG> (Thumb, 74 bytes, Stack size 8 bytes, mpu6500_i2c.o(i.IIC_WaitAck))
+<P><STRONG><a name="[12c]"></a>IIC_WaitAck</STRONG> (Thumb, 74 bytes, Stack size 8 bytes, mpu6500_i2c.o(i.IIC_WaitAck))
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = IIC_WaitAck &rArr; IIC_Stop &rArr; IIC_SDA_Out &rArr; GPIO_Init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[12c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Stop
-<LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_In
-<LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Delay
+<BR>[Calls]<UL><LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Stop
+<LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_In
+<LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Delay
 </UL>
-<BR>[Called By]<UL><LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteData
-<LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
+<BR>[Called By]<UL><LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteData
+<LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
 </UL>
 
-<P><STRONG><a name="[12a]"></a>IIC_WriteBit</STRONG> (Thumb, 86 bytes, Stack size 16 bytes, mpu6500_i2c.o(i.IIC_WriteBit))
+<P><STRONG><a name="[12b]"></a>IIC_WriteBit</STRONG> (Thumb, 86 bytes, Stack size 16 bytes, mpu6500_i2c.o(i.IIC_WriteBit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = IIC_WriteBit &rArr; IIC_SDA_Out &rArr; GPIO_Init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[125]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_Out
-<LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Delay
+<BR>[Calls]<UL><LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_SDA_Out
+<LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Delay
 </UL>
-<BR>[Called By]<UL><LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteData
-<LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
+<BR>[Called By]<UL><LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteData
+<LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
 </UL>
 
-<P><STRONG><a name="[12d]"></a>IIC_WriteData</STRONG> (Thumb, 106 bytes, Stack size 16 bytes, mpu6500_i2c.o(i.IIC_WriteData))
+<P><STRONG><a name="[12e]"></a>IIC_WriteData</STRONG> (Thumb, 106 bytes, Stack size 16 bytes, mpu6500_i2c.o(i.IIC_WriteData))
 <BR><BR>[Stack]<UL><LI>Max Depth = 160 + Unknown Stack Size
 <LI>Call Chain = IIC_WriteData &rArr; IIC_Start &rArr; __2printf &rArr; _printf_char_file &rArr; _printf_char_common &rArr; __printf
 </UL>
-<BR>[Calls]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteBit
-<LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WaitAck
-<LI><a href="#[12c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Stop
-<LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Start
+<BR>[Calls]<UL><LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteBit
+<LI><a href="#[12c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WaitAck
+<LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Stop
+<LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Start
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
-<BR>[Called By]<UL><LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU6500_Init
+<BR>[Called By]<UL><LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU6500_Init
 <LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU6500_EnableInt
 </UL>
 
-<P><STRONG><a name="[12e]"></a>Key_Disable</STRONG> (Thumb, 22 bytes, Stack size 16 bytes, driver_dbus.o(i.Key_Disable))
+<P><STRONG><a name="[12f]"></a>Key_Disable</STRONG> (Thumb, 22 bytes, Stack size 16 bytes, driver_dbus.o(i.Key_Disable))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = Key_Disable &rArr; FastLog2
 </UL>
-<BR>[Calls]<UL><LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FastLog2
+<BR>[Calls]<UL><LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FastLog2
 </UL>
 <BR>[Called By]<UL><LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Control
 </UL>
@@ -1699,7 +1700,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Bridge_Check_Motor_Watchdog
 </UL>
 
-<P><STRONG><a name="[130]"></a>LED_Init</STRONG> (Thumb, 108 bytes, Stack size 16 bytes, led.o(i.LED_Init))
+<P><STRONG><a name="[131]"></a>LED_Init</STRONG> (Thumb, 108 bytes, Stack size 16 bytes, led.o(i.LED_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 36<LI>Call Chain = LED_Init &rArr; GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RCC_AHB1PeriphClockCmd
@@ -1709,11 +1710,11 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[131]"></a>LED_Run_Horse_XP</STRONG> (Thumb, 124 bytes, Stack size 8 bytes, driver_bsp.o(i.LED_Run_Horse_XP))
+<P><STRONG><a name="[132]"></a>LED_Run_Horse_XP</STRONG> (Thumb, 124 bytes, Stack size 8 bytes, driver_bsp.o(i.LED_Run_Horse_XP))
 <BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = LED_Run_Horse_XP &rArr; LED_Task_Warning &rArr; vTaskDelayUntil &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
-<BR>[Calls]<UL><LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Task_Warning
-<LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Set_Row
+<BR>[Calls]<UL><LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Task_Warning
+<LI><a href="#[134]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Set_Row
 </UL>
 <BR>[Called By]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Blink
 </UL>
@@ -1721,19 +1722,19 @@ Global Symbols
 <P><STRONG><a name="[11d]"></a>LED_Set_Progress</STRONG> (Thumb, 42 bytes, Stack size 8 bytes, driver_bsp.o(i.LED_Set_Progress))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = LED_Set_Progress &rArr; LED_Set_Row
 </UL>
-<BR>[Calls]<UL><LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Set_Row
+<BR>[Calls]<UL><LI><a href="#[134]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Set_Row
 </UL>
 <BR>[Called By]<UL><LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Gyroscope_Init
 </UL>
 
-<P><STRONG><a name="[133]"></a>LED_Set_Row</STRONG> (Thumb, 34 bytes, Stack size 8 bytes, driver_bsp.o(i.LED_Set_Row))
+<P><STRONG><a name="[134]"></a>LED_Set_Row</STRONG> (Thumb, 34 bytes, Stack size 8 bytes, driver_bsp.o(i.LED_Set_Row))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = LED_Set_Row
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_SetBits
-<LI><a href="#[134]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_ResetBits
+<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_ResetBits
 </UL>
-<BR>[Called By]<UL><LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Task_Warning
-<LI><a href="#[131]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Run_Horse_XP
+<BR>[Called By]<UL><LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Task_Warning
+<LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Run_Horse_XP
 <LI><a href="#[11d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Set_Progress
 </UL>
 
@@ -1741,34 +1742,34 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Bridge_Check_Motor_Watchdog
 </UL>
 
-<P><STRONG><a name="[132]"></a>LED_Task_Warning</STRONG> (Thumb, 66 bytes, Stack size 8 bytes, driver_bsp.o(i.LED_Task_Warning))
+<P><STRONG><a name="[133]"></a>LED_Task_Warning</STRONG> (Thumb, 66 bytes, Stack size 8 bytes, driver_bsp.o(i.LED_Task_Warning))
 <BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = LED_Task_Warning &rArr; vTaskDelayUntil &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
-<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
-<LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Set_Row
+<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
+<LI><a href="#[134]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Set_Row
 </UL>
-<BR>[Called By]<UL><LI><a href="#[131]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Run_Horse_XP
+<BR>[Called By]<UL><LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Run_Horse_XP
 </UL>
 
 <P><STRONG><a name="[11c]"></a>MPU6500_EnableInt</STRONG> (Thumb, 44 bytes, Stack size 8 bytes, mpu6500_driver.o(i.MPU6500_EnableInt))
 <BR><BR>[Stack]<UL><LI>Max Depth = 168 + Unknown Stack Size
 <LI>Call Chain = MPU6500_EnableInt &rArr; IIC_WriteData &rArr; IIC_Start &rArr; __2printf &rArr; _printf_char_file &rArr; _printf_char_common &rArr; __printf
 </UL>
-<BR>[Calls]<UL><LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteData
-<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
+<BR>[Calls]<UL><LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteData
+<LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
 </UL>
 <BR>[Called By]<UL><LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Gyroscope_Init
 </UL>
 
-<P><STRONG><a name="[137]"></a>MPU6500_Init</STRONG> (Thumb, 190 bytes, Stack size 8 bytes, mpu6500_driver.o(i.MPU6500_Init))
+<P><STRONG><a name="[138]"></a>MPU6500_Init</STRONG> (Thumb, 190 bytes, Stack size 8 bytes, mpu6500_driver.o(i.MPU6500_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 176 + Unknown Stack Size
 <LI>Call Chain = MPU6500_Init &rArr; IIC_ReadData &rArr; IIC_Start &rArr; __2printf &rArr; _printf_char_file &rArr; _printf_char_common &rArr; __printf
 </UL>
-<BR>[Calls]<UL><LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteData
-<LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
-<LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_GPIO_Init
-<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
+<BR>[Calls]<UL><LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_WriteData
+<LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_ReadData
+<LI><a href="#[139]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_GPIO_Init
+<LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
 </UL>
 <BR>[Called By]<UL><LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU6500_Initialize
 </UL>
@@ -1777,8 +1778,8 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 184 + Unknown Stack Size
 <LI>Call Chain = MPU6500_Initialize &rArr; MPU6500_Init &rArr; IIC_ReadData &rArr; IIC_Start &rArr; __2printf &rArr; _printf_char_file &rArr; _printf_char_common &rArr; __printf
 </UL>
-<BR>[Calls]<UL><LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU6500_Init
-<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
+<BR>[Calls]<UL><LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU6500_Init
+<LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
 </UL>
 <BR>[Called By]<UL><LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Gyroscope_Init
 </UL>
@@ -1786,7 +1787,7 @@ Global Symbols
 <P><STRONG><a name="[11f]"></a>MadgwickAHRSupdateIMU</STRONG> (Thumb, 968 bytes, Stack size 72 bytes, madgwickahrs.o(i.MadgwickAHRSupdateIMU))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = MadgwickAHRSupdateIMU
 </UL>
-<BR>[Calls]<UL><LI><a href="#[139]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;invSqrt
+<BR>[Calls]<UL><LI><a href="#[13a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;invSqrt
 </UL>
 <BR>[Called By]<UL><LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Gyroscope_Solve
 </UL>
@@ -1807,11 +1808,11 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
 <LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
-<LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
+<LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 <LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
 <LI><a href="#[106]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
 <LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
-<LI><a href="#[13a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
+<LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
 </UL>
 <BR>[Called By]<UL><LI><a href="#[ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Bridge_Receive_CAN
 </UL>
@@ -1888,7 +1889,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[ba]"></a>RCC_AHB1PeriphClockCmd</STRONG> (Thumb, 26 bytes, Stack size 0 bytes, stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd))
-<BR><BR>[Called By]<UL><LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Init
+<BR><BR>[Called By]<UL><LI><a href="#[131]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Init
 <LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_User_Power_Init
 <LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_USART_Init
 <LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_TIM2_Init
@@ -2043,8 +2044,8 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = Task_Blink &rArr; LED_Run_Horse_XP &rArr; LED_Task_Warning &rArr; vTaskDelayUntil &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
-<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
-<LI><a href="#[131]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Run_Horse_XP
+<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
+<LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Run_Horse_XP
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.main)
 </UL>
@@ -2052,7 +2053,7 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = Task_Can_Send &rArr; Bridge_Send_Motor &rArr; Can_Send &rArr; CAN_TransmitStatus
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
-<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
+<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
 <LI><a href="#[f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Bridge_Send_Motor
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.main)
@@ -2061,7 +2062,7 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 496<LI>Call Chain = Task_Chassis &rArr; Chassis_Limit_Power &rArr; __hardfp_pow &rArr; sqrt &rArr; _dsqrt &rArr; __fpl_dnaninf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
-<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
+<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
 <LI><a href="#[14a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Update
 <LI><a href="#[10a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Limit_Rotor_Speed
 <LI><a href="#[105]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Limit_Power
@@ -2086,8 +2087,8 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = Task_Control &rArr; vTaskDelayUntil &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
-<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
-<LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Key_Disable
+<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
+<LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Key_Disable
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.main)
 </UL>
@@ -2095,9 +2096,9 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = Task_Fire_Frict &rArr; vTaskDelayUntil &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_SetBits
-<LI><a href="#[134]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_ResetBits
+<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_ResetBits
 <LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
-<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
+<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
 <LI><a href="#[104]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_Init
 <LI><a href="#[109]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_Calculate
 </UL>
@@ -2107,30 +2108,30 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = Task_Fire_Stir &rArr; vTaskDelayUntil &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
-<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
+<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
 <LI><a href="#[14c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWM_Set_Compare
 <LI><a href="#[104]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_Init
 <LI><a href="#[109]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_Calculate
 <LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
-<LI><a href="#[13a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
+<LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
 <LI><a href="#[14d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2iz
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.main)
 </UL>
-<P><STRONG><a name="[74]"></a>Task_Gimbal</STRONG> (Thumb, 1716 bytes, Stack size 112 bytes, tasks_1.o(i.Task_Gimbal))
+<P><STRONG><a name="[74]"></a>Task_Gimbal</STRONG> (Thumb, 1792 bytes, Stack size 112 bytes, tasks_1.o(i.Task_Gimbal))
 <BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = Task_Gimbal &rArr; FirstOrderLowPassFilter &rArr; __aeabi_ddiv
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
-<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
+<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
 <LI><a href="#[104]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_Init
 <LI><a href="#[109]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_Calculate
 <LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FirstOrderLowPassFilter
 <LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
-<LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
+<LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 <LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
 <LI><a href="#[106]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
 <LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
-<LI><a href="#[13a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
+<LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.main)
 </UL>
@@ -2138,7 +2139,7 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = Task_Host &rArr; vTaskDelayUntil &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
-<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
+<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
 <LI><a href="#[14f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
 <LI><a href="#[14e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 <LI><a href="#[f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Protocol_Get_Info_Handle
@@ -2149,7 +2150,7 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = Task_Send_Protocol &rArr; Bridge_Send_Protocol_Once &rArr; Can_Send_Msg &rArr; Can_Send &rArr; CAN_TransmitStatus
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
-<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
+<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
 <LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Bridge_Send_Protocol_Once
 <LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
 <LI><a href="#[106]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
@@ -2161,7 +2162,7 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = Task_Wait &rArr; vTaskDelayUntil &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
-<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
+<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.main)
 </UL>
@@ -2260,7 +2261,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
 <LI><a href="#[15a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dsub
 <LI><a href="#[149]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_drsub
-<LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
+<LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 <LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__kernel_poly
 <LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_fpclassify
 <LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_dbl_underflow
@@ -2281,7 +2282,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
 <LI><a href="#[15a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dsub
 <LI><a href="#[149]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_drsub
-<LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
+<LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 <LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__kernel_poly
 <LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_fpclassify
 <LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_dbl_underflow
@@ -2332,7 +2333,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
 <LI><a href="#[15a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dsub
 <LI><a href="#[149]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_drsub
-<LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
+<LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 <LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__kernel_poly
 <LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_fpclassify
 <LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_dbl_underflow
@@ -2347,7 +2348,7 @@ Global Symbols
 <LI><a href="#[158]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fabs
 <LI><a href="#[148]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_cdrcmple
 <LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
-<LI><a href="#[13a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
+<LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
 </UL>
 <BR>[Called By]<UL><LI><a href="#[105]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Limit_Power
 </UL>
@@ -2355,7 +2356,7 @@ Global Symbols
 <P><STRONG><a name="[157]"></a>__kernel_poly</STRONG> (Thumb, 248 bytes, Stack size 24 bytes, poly.o(i.__kernel_poly))
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = __kernel_poly &rArr; __aeabi_dmul
 </UL>
-<BR>[Calls]<UL><LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
+<BR>[Calls]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 <LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
 </UL>
 <BR>[Called By]<UL><LI><a href="#[15c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_atan
@@ -2374,7 +2375,7 @@ Global Symbols
 <P><STRONG><a name="[153]"></a>__mathlib_dbl_infnan</STRONG> (Thumb, 20 bytes, Stack size 8 bytes, dunder.o(i.__mathlib_dbl_infnan))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = __mathlib_dbl_infnan &rArr; __aeabi_dadd
 </UL>
-<BR>[Calls]<UL><LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
+<BR>[Calls]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 </UL>
 <BR>[Called By]<UL><LI><a href="#[15c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_atan
 <LI><a href="#[121]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_asin
@@ -2383,7 +2384,7 @@ Global Symbols
 <P><STRONG><a name="[15d]"></a>__mathlib_dbl_infnan2</STRONG> (Thumb, 20 bytes, Stack size 8 bytes, dunder.o(i.__mathlib_dbl_infnan2))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = __mathlib_dbl_infnan2 &rArr; __aeabi_dadd
 </UL>
-<BR>[Calls]<UL><LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
+<BR>[Calls]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 </UL>
 <BR>[Called By]<UL><LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_pow
 <LI><a href="#[120]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_atan2
@@ -2435,7 +2436,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vegsin
 </UL>
 
-<P><STRONG><a name="[136]"></a>delay_ms</STRONG> (Thumb, 62 bytes, Stack size 16 bytes, delay.o(i.delay_ms))
+<P><STRONG><a name="[137]"></a>delay_ms</STRONG> (Thumb, 62 bytes, Stack size 16 bytes, delay.o(i.delay_ms))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = delay_ms &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[140]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetSchedulerState
@@ -2443,14 +2444,14 @@ Global Symbols
 <LI><a href="#[165]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 </UL>
 <BR>[Called By]<UL><LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU6500_Initialize
-<LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU6500_Init
+<LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU6500_Init
 <LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU6500_EnableInt
 </UL>
 
 <P><STRONG><a name="[166]"></a>delay_us</STRONG> (Thumb, 68 bytes, Stack size 16 bytes, delay.o(i.delay_us))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = delay_us
 </UL>
-<BR>[Called By]<UL><LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
+<BR>[Called By]<UL><LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
 </UL>
 
 <P><STRONG><a name="[158]"></a>fabs</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, fabs.o(i.fabs))
@@ -2465,7 +2466,7 @@ Global Symbols
 <P><STRONG><a name="[6e]"></a>fputc</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, usart.o(i.fputc))
 <BR>[Address Reference Count : 1]<UL><LI> _printf_char_file.o(.text)
 </UL>
-<P><STRONG><a name="[139]"></a>invSqrt</STRONG> (Thumb, 56 bytes, Stack size 0 bytes, madgwickahrs.o(i.invSqrt))
+<P><STRONG><a name="[13a]"></a>invSqrt</STRONG> (Thumb, 56 bytes, Stack size 0 bytes, madgwickahrs.o(i.invSqrt))
 <BR><BR>[Called By]<UL><LI><a href="#[11f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MadgwickAHRSupdateIMU
 </UL>
 
@@ -2474,7 +2475,7 @@ Global Symbols
 <LI>Call Chain = main &rArr; BSP_DBUS_Init &rArr; BSP_USART_Init &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[167]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NVIC_PriorityGroupConfig
-<LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Init
+<LI><a href="#[131]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Init
 <LI><a href="#[168]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Beep_Init
 <LI><a href="#[111]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Delay_Init
 <LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskCreate
@@ -2657,17 +2658,17 @@ Global Symbols
 <LI><a href="#[17d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
 <LI><a href="#[170]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvAddCurrentTaskToDelayedList
 </UL>
-<BR>[Called By]<UL><LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
+<BR>[Called By]<UL><LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
 </UL>
 
-<P><STRONG><a name="[135]"></a>vTaskDelayUntil</STRONG> (Thumb, 200 bytes, Stack size 32 bytes, tasks.o(i.vTaskDelayUntil))
+<P><STRONG><a name="[136]"></a>vTaskDelayUntil</STRONG> (Thumb, 200 bytes, Stack size 32 bytes, tasks.o(i.vTaskDelayUntil))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = vTaskDelayUntil &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[17e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskResumeAll
 <LI><a href="#[17d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
 <LI><a href="#[170]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvAddCurrentTaskToDelayedList
 </UL>
-<BR>[Called By]<UL><LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Task_Warning
+<BR>[Called By]<UL><LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Task_Warning
 <LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Wait
 <LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Host
 <LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Gimbal
@@ -2748,7 +2749,7 @@ Global Symbols
 <LI><a href="#[183]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortFree
 <LI><a href="#[198]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pvPortMalloc
 <LI><a href="#[191]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvProcessTimerOrBlockTask
-<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
+<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
 <LI><a href="#[165]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 <LI><a href="#[17c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvCheckTasksWaitingTermination
 </UL>
@@ -2775,7 +2776,7 @@ Global Symbols
 <LI><a href="#[1a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_fabs
 <LI><a href="#[106]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
 <LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
-<LI><a href="#[13a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
+<LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
 <LI><a href="#[14d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2iz
 </UL>
 <BR>[Called By]<UL><LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Fix
@@ -2899,14 +2900,14 @@ Global Symbols
 <P><STRONG><a name="[140]"></a>xTaskGetSchedulerState</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, tasks.o(i.xTaskGetSchedulerState))
 <BR><BR>[Called By]<UL><LI><a href="#[1ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[190]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
-<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
+<LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
 <LI><a href="#[11]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SysTick_Handler
 <LI><a href="#[18d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTimerGenericCommand
 </UL>
 
 <P><STRONG><a name="[e9]"></a>xTaskGetTickCount</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, tasks.o(i.xTaskGetTickCount))
 <BR><BR>[Called By]<UL><LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvSampleTimeNow
-<LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Task_Warning
+<LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Task_Warning
 <LI><a href="#[ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_Update
 <LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Wait
 <LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Host
@@ -2970,7 +2971,7 @@ Global Symbols
 <LI><a href="#[183]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortFree
 <LI><a href="#[198]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pvPortMalloc
 <LI><a href="#[191]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvProcessTimerOrBlockTask
-<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
+<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
 <LI><a href="#[165]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 <LI><a href="#[17c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvCheckTasksWaitingTermination
 </UL>
@@ -3032,10 +3033,11 @@ Global Symbols
 <LI><a href="#[1b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__fpl_dnaninf
 </UL>
 
-<P><STRONG><a name="[13b]"></a>__aeabi_dadd</STRONG> (Thumb, 0 bytes, Stack size 16 bytes, daddsub_clz.o(x$fpl$dadd))
+<P><STRONG><a name="[122]"></a>__aeabi_dadd</STRONG> (Thumb, 0 bytes, Stack size 16 bytes, daddsub_clz.o(x$fpl$dadd))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = __aeabi_dadd
 </UL>
-<BR>[Called By]<UL><LI><a href="#[ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_Update
+<BR>[Called By]<UL><LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Gyroscope_Solve
+<LI><a href="#[ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_Update
 <LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Gimbal
 <LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__kernel_poly
 <LI><a href="#[15d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_dbl_infnan2
@@ -3117,7 +3119,7 @@ Global Symbols
 <BR><BR>[Calls]<UL><LI><a href="#[1b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__fpl_dnaninf
 </UL>
 
-<P><STRONG><a name="[13a]"></a>__aeabi_i2d</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, dflt_clz.o(x$fpl$dflt))
+<P><STRONG><a name="[13b]"></a>__aeabi_i2d</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, dflt_clz.o(x$fpl$dflt))
 <BR><BR>[Called By]<UL><LI><a href="#[ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_Update
 <LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vegsin
 <LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Gimbal
@@ -3364,7 +3366,7 @@ Local Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[19e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskPlaceOnEventListRestricted
 <LI><a href="#[1a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskPlaceOnEventList
-<LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
+<LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelayUntil
 <LI><a href="#[165]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 </UL>
 

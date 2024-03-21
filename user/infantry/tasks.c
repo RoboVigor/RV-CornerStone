@@ -142,7 +142,7 @@ void Task_Gimbal(void *Parameters) {
 		else if (ControlMode==2)
 		{
         yawAngleTargetControl += mouseData.x * 0.5 * 0.005; // 0.005
-        //pitchAngleTargetControl += mouseData.y * 0.005;
+        pitchAngleTargetControl += mouseData.y * 0.005;
 		}
         MIAO(pitchAngleTargetControl, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
         yawAngleTarget += yawAngleTargetControl;
@@ -367,8 +367,8 @@ void Task_Chassis(void *Parameters) {
 			}
 			if(ROBOT_SHARK)
 			{
-				vx = remoteData.lx / 660.0f * 20.0;
-				vy = -remoteData.ly / 660.0f * 20.0;
+				vx = -remoteData.lx / 660.0f * 20.0;
+				vy = remoteData.ly / 660.0f * 20.0;
 			}
 
         } else if (ControlMode == 2) {
