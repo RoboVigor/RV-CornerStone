@@ -53,9 +53,9 @@ void Task_Control(void *Parameters) {
 						else if (keyboardData.V) {
                 SwingMode = 0;
 			}
-						else if (keyboardData.A) {
-                SwingMode = 7;	
-            }
+//						else if (keyboardData.A) {
+//                SwingMode = 7;	
+//            }
             // 高射速模式
             FastShootMode = keyboardData.E;
             //高速移动模式(关闭底盘功率上限，飞坡用)
@@ -141,8 +141,8 @@ void Task_Gimbal(void *Parameters) {
 		}
 		else if (ControlMode==2)
 		{
-        yawAngleTargetControl += mouseData.x * 0.5 * 0.005; // 0.005
-        pitchAngleTargetControl += mouseData.y * 0.005;
+        yawAngleTargetControl += mouseData.x * 0.5 * 0.005 * 1.2; // 0.005
+        pitchAngleTargetControl += mouseData.y * 0.005 * 0.8;
 		}
         MIAO(pitchAngleTargetControl, GIMBAL_PITCH_MIN, GIMBAL_PITCH_MAX);
         yawAngleTarget += yawAngleTargetControl;
