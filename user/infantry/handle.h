@@ -50,7 +50,7 @@ __HANDLE_EXT autoaim_data_t HostAutoaimData;
 __HANDLE_EXT chassis_data_t HostChassisData;
 
 // 电机
-__HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB;
+__HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB, Motor_LAJI;
 
 // 云台
 __HANDLE_EXT Motor_Type Motor_Yaw, Motor_Pitch;

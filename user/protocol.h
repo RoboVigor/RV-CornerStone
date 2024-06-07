@@ -1,5 +1,6 @@
 #ifndef __PROTOCOL_H
 #define __PROTOCOL_H
+
 /**
  * @file    protocol.h
  * @note    本文件由 Node_Bridge 生成, 请勿直接修改
@@ -442,6 +443,26 @@ typedef union {
         uint8_t data[16];
     };
 } board_interactive_data_t;
+
+typedef union {
+		struct {
+				uint8_t graphic_name[3];
+		};
+		struct {
+uint32_t operate_type:3;
+uint32_t graphic_type:3;
+uint32_t layer:4;
+uint32_t color:4;
+uint32_t start_angle:9;
+uint32_t end_angle:9;
+uint32_t width:10;
+uint32_t start_x:11;
+uint32_t start_y:11;
+uint32_t radius:10;
+uint32_t end_x:11;
+uint32_t end_y:11;
+		};
+} graphic_data_struct_t;
 
 /**********************************************************************
  *                              协议信息

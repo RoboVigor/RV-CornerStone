@@ -1,5 +1,6 @@
 #ifndef __PROTOCOL_H
 #define __PROTOCOL_H
+#include <stdint.h>
 /**
  * @file    protocol.h
  * @note    本文件由 Node_Bridge 生成, 请勿直接修改

@@ -20,6 +20,8 @@ static float          zMag;
 extern volatile float beta;
 static int16_t        debug_pitch = 0;
 
+double yawoffset_add=0;
+
 Filter_Type Filter_Yaw = {.count = 0, .thresholdLB = GYROSCOPE_YAW_FILTER_THRESHOLD};
 
 extern ImuData_Type ImuData;
@@ -130,6 +132,8 @@ void Gyroscope_Solve(GyroscopeData_Type *GyroscopeData) {
     xAcc   = (float) (ImuData.ax / ACCELERATE_LSB);
     yAcc   = (float) (ImuData.ay / ACCELERATE_LSB);
     zAcc   = (float) (ImuData.az / ACCELERATE_LSB);
+	
+	
 #ifdef STM32F40_41xxx
     xMag = (float) (ImuData.mx / MAGNETIC_LSB);
     yMag = (float) (ImuData.my / MAGNETIC_LSB);
@@ -160,7 +164,8 @@ void Gyroscope_Solve(GyroscopeData_Type *GyroscopeData) {
     }
 
     // 应用滤波
-    GyroscopeData->yaw = Filter_Apply_Limit_Breadth(&Filter_Yaw) + GyroscopeData->yawoffset;
+	yawoffset_add += 0.0038;
+    GyroscopeData->yaw = Filter_Apply_Limit_Breadth(&Filter_Yaw) + GyroscopeData->yawoffset + yawoffset_add;
 
     // 输出欧拉角
     if (GyroscopeData->startupCounter == GYROSCOPE_START_UP_DELAY - 1) {

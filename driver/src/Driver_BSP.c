@@ -196,8 +196,8 @@ void BSP_DBUS_Init(uint8_t *remoteBuffer) {
     DMA_InitTypeDef DMA_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
     DMA_InitStructure.DMA_Channel            = DMA_Channel_4;
-    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(&USART1->DR);
-    DMA_InitStructure.DMA_Memory0BaseAddr    = (uint32_t)(remoteBuffer);
+    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) (&USART1->DR);
+    DMA_InitStructure.DMA_Memory0BaseAddr    = (uint32_t) (remoteBuffer);
     DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
     DMA_InitStructure.DMA_BufferSize         = DBUS_LENGTH + DBUS_BACK_LENGTH;
     DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
@@ -233,8 +233,8 @@ void BSP_DBUS_Init(uint8_t *remoteBuffer) {
     DMA_InitTypeDef DMA_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
     DMA_InitStructure.DMA_Channel            = DMA_Channel_4;
-    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(&USART3->DR);
-    DMA_InitStructure.DMA_Memory0BaseAddr    = (uint32_t)(remoteBuffer);
+    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) (&USART3->DR);
+    DMA_InitStructure.DMA_Memory0BaseAddr    = (uint32_t) (remoteBuffer);
     DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralToMemory;
     DMA_InitStructure.DMA_BufferSize         = DBUS_LENGTH + DBUS_BACK_LENGTH;
     DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
@@ -980,6 +980,31 @@ void BSP_LED_Init(void) {
 #endif
 }
 
+uint8_t  LedWarningLock, LedWarningRow;
+uint16_t LedWarningBlinkTimes, LedWarningLastWakeTime;
+
+void LED_Set_Warning(uint16_t row, uint16_t blinkTimes) {
+    LedWarningRow        = row;
+    LedWarningBlinkTimes = blinkTimes;
+    LedWarningLock       = 1;
+}
+
+void LED_Cancel_Warning() {
+    LedWarningLock = 0;
+}
+
+void LED_Task_Warning() {
+    LedWarningLastWakeTime = xTaskGetTickCount();
+    int i;
+    for (i = 0; i < LedWarningBlinkTimes; i++) {
+        LED_Set_Row(LedWarningRow);
+        vTaskDelayUntil(&LedWarningLastWakeTime, 200);
+        LED_Set_Row(0);
+        vTaskDelayUntil(&LedWarningLastWakeTime, 200);
+    }
+    vTaskDelayUntil(&LedWarningLastWakeTime, 1000);
+}
+
 /**
  * @brief 设置LED亮暗
  * @param row 共8位表示8个灯,1为亮,0为暗
@@ -1018,6 +1043,7 @@ void LED_Set_Colour(uint16_t red, uint16_t green, uint16_t blue) {
  *        建议每次调用后设置20ms延时
  */
 void LED_Run_Horse() {
+    if (LedWarningLock) return LED_Task_Warning();
     static uint16_t LEDHorseRow   = 0;
     static uint16_t LEDHorseState = 0;
     LEDHorseState                 = (LEDHorseState % 26) + 1;
@@ -1034,6 +1060,7 @@ void LED_Run_Horse() {
  *        建议每次调用后设置200ms延时
  */
 void LED_Run_Horse_XP() {
+    if (LedWarningLock) return LED_Task_Warning();
     static uint16_t LEDXPRow   = 0;
     static uint16_t LEDXPState = 0;
     LEDXPState                 = (LEDXPState % 11) + 1;
