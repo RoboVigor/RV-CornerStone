@@ -38,7 +38,8 @@
 #define BOARD_FRONT_IS_UP 0                     // 板子正面朝上
 #define BOARD_SHORT_SIDE_IS_PARALLEL_TO_PITCH 0 // 板子短边朝下
 
-#define GYROSCOPE_YAW_FILTER_THRESHOLD 0.005f // 零飘修正阈值
+#define GYROSCOPE_YAW_FILTER_THRESHOLD 0.005f // 零飘修正阈值   (2024/6/8)感觉不太好用，是我不会用吗？
+#define GYROSCOPE_YAW_MODIFICATION -0.002f    // 零飘修正值
 #define GYROSCOPE_LSB 16.384f                 // 陀螺仪敏感度 2^16/4000
 #define ACCELERATE_LSB 4096.0f                // 加速度计敏感度 2^16/16
 

@@ -28,6 +28,7 @@ extern ImuData_Type ImuData;
 
 void Gyroscope_Init(GyroscopeData_Type *GyroscopeData, uint16_t startupDelay) {
     GyroscopeData->startupCounter = 0;
+    GyroscopeData->modification = 0;
 #ifdef STM32F427_437xx
     MPU6500_Initialize();
     MPU6500_EnableInt();
@@ -163,9 +164,11 @@ void Gyroscope_Solve(GyroscopeData_Type *GyroscopeData) {
         Filter_Yaw.offset += 360;
     }
 
+    //前馈
+    GyroscopeData->modification += GYROSCOPE_YAW_MODIFICATION;
+
     // 应用滤波
-	yawoffset_add += 0.0038;
-    GyroscopeData->yaw = Filter_Apply_Limit_Breadth(&Filter_Yaw) + GyroscopeData->yawoffset + yawoffset_add;
+    GyroscopeData->yaw = Filter_Apply_Limit_Breadth(&Filter_Yaw) + GyroscopeData->yawoffset+GyroscopeData->modification;
 
     // 输出欧拉角
     if (GyroscopeData->startupCounter == GYROSCOPE_START_UP_DELAY - 1) {

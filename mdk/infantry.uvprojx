@@ -186,6 +186,7 @@
             <RvdsVP>2</RvdsVP>
             <RvdsMve>0</RvdsMve>
             <RvdsCdeCp>0</RvdsCdeCp>
+            <nBranchProt>0</nBranchProt>
             <hadIRAM2>1</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -662,6 +663,111 @@
               <FileName>stm32f4xx_wwdg.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\device\src\stm32f4xx_wwdg.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_crc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_crc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_cryp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_cryp.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_cryp_aes.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_cryp_aes.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_cryp_des.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_cryp_des.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_cryp_tdes.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_cryp_tdes.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_dac.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_dac.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_dbgmcu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_dbgmcu.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_dcmi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_dcmi.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_flash_ramfunc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_flash_ramfunc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_fmc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_fmc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_hash.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hash_md5.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_hash_md5.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hash_sha1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_hash_sha1.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_iwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_iwdg.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_ltdc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_ltdc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_pwr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_pwr.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_rng.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_rng.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_sai.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_sai.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_sdio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\stm32f4xx_sdio.c</FilePath>
             </File>
           </Files>
         </Group>

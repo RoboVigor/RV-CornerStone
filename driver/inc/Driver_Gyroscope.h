@@ -51,6 +51,7 @@ typedef struct {
     float roll;
     float yawoffset;
     int   startupCounter;
+    float modification;
 } GyroscopeData_Type;
 
 /**
