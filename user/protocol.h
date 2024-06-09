@@ -152,22 +152,15 @@ typedef union {
         uint8_t  robot_level;
         uint16_t remain_HP;
         uint16_t max_HP;
-        uint16_t shooter_id1_17mm_cooling_rate;
-        uint16_t shooter_id1_17mm_cooling_limit;
-        uint16_t shooter_id1_17mm_speed_limit;
-        uint16_t shooter_id2_17mm_cooling_rate;
-        uint16_t shooter_id2_17mm_cooling_limit;
-        uint16_t shooter_id2_17mm_speed_limit;
-        uint16_t shooter_id1_42mm_cooling_rate;
-        uint16_t shooter_id1_42mm_cooling_limit;
-        uint16_t shooter_id1_42mm_speed_limit;
+        uint16_t shooter_barrel_cooling_value;
+        uint16_t shooter_barrel_heat_limit;
         uint16_t chassis_power_limit;
         uint8_t  mains_power_gimbal_output : 1;
         uint8_t  mains_power_chassis_output : 1;
         uint8_t  mains_power_shooter_output : 1;
     };
     struct {
-        uint8_t data[27];
+        uint8_t data[15];
     };
 } game_robot_status_t;
 
@@ -470,7 +463,7 @@ uint32_t end_y:11;
 
 #define PROTOCOL_INFO_LIST                                                                                                                                     \
     {                                                                                                                                                          \
-        {0X0001, 11, 1}, {0X0002, 1, 1}, {0X0003, 32, 1}, {0X0004, 3, 1}, {0X0101, 4, 1}, {0X0102, 4, 1}, {0X0104, 2, 1}, {0X0105, 1, 1}, {0X0201, 27, 1},     \
+        {0X0001, 11, 1}, {0X0002, 1, 1}, {0X0003, 32, 1}, {0X0004, 3, 1}, {0X0101, 4, 1}, {0X0102, 4, 1}, {0X0104, 2, 1}, {0X0105, 1, 1}, {0X0201, 15, 1},     \
             {0X0202, 16, 1}, {0X0203, 16, 1}, {0X0204, 1, 1}, {0X0205, 1, 1}, {0X0206, 1, 1}, {0X0207, 7, 1}, {0X0208, 6, 1}, {0X0209, 4, 1}, {0X020A, 12, 1}, \
             {0XF100, 8, 0}, {0XF101, 21, 0}, {0XF102, 36, 0}, {0XF103, 81, 0}, {0XF110, 51, 0}, {0XF104, 111, 0}, {0X1024, 32, 0}, {0X6666, 24, 0},            \
             {0X0120, 0, 1}, {0X0401, 9, 1}, {0X0402, 12, 1}, {0X0403, 12, 0}, {0X0404, 18, 0}, {0XF301, 22, 1}, {0X0501, 16, 1}, {                             \
@@ -520,7 +513,7 @@ typedef union {
         board_interactive_data_t       boardBeta;                   // 0X0502 主控板间通信
     };
     struct {
-        uint8_t data[618];
+        uint8_t data[606];
     };
 } ProtocolData_Type;
 

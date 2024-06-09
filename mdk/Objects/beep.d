@@ -3,7 +3,7 @@
 .\objects\beep.o: ..\library\atom\sys\sys.h
 .\objects\beep.o: ..\user\common\stm32f4xx.h
 .\objects\beep.o: ..\core\core_cm4.h
-.\objects\beep.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\beep.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stdint.h
 .\objects\beep.o: ..\core\core_cmInstr.h
 .\objects\beep.o: ..\core\core_cmFunc.h
 .\objects\beep.o: ..\core\core_cm4_simd.h

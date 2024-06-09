@@ -40,7 +40,7 @@ __HANDLE_EXT volatile uint32_t ulHighFrequencyTimerTicks;
 
 // 功能开关
 __HANDLE_EXT uint8_t ControlMode;
-__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, MagzineOpened, FastShootMode;
+__HANDLE_EXT uint8_t FrictEnabled, StirEnabled, StirReloadEnabled, MagzineOpened, FastShootMode;
 __HANDLE_EXT uint8_t PsAimEnabled, PsShootEnabled;
 __HANDLE_EXT uint8_t SwingMode, SafetyMode, PigeonMode,FastmoveMode;
 
@@ -53,7 +53,7 @@ __HANDLE_EXT chassis_data_t HostChassisData;
 __HANDLE_EXT Motor_Type Motor_LF, Motor_RF, Motor_RB, Motor_LB, Motor_LAJI;
 
 // 云台
-__HANDLE_EXT Motor_Type Motor_Yaw, Motor_Pitch;
+__HANDLE_EXT Motor_Type Motor_Yaw, Motor_Pitch, Motor_Pitch2;
 __HANDLE_EXT PID_Type   PID_Cloud_YawAngle, PID_Cloud_YawSpeed, PID_Cloud_PitchAngle, PID_Cloud_PitchSpeed;
 __HANDLE_EXT PID_Type   PID_Follow_Angle, PID_Follow_Speed;
 

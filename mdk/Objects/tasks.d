@@ -1,9 +1,9 @@
 .\objects\tasks.o: ..\library\freertos\tasks.c
-.\objects\tasks.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
-.\objects\tasks.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\tasks.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stdlib.h
+.\objects\tasks.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\string.h
 .\objects\tasks.o: ..\library\freertos\include\FreeRTOS.h
-.\objects\tasks.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-.\objects\tasks.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\tasks.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stddef.h
+.\objects\tasks.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stdint.h
 .\objects\tasks.o: ..\library\freertos\include\FreeRTOSConfig.h
 .\objects\tasks.o: ..\library\freertos\include\projdefs.h
 .\objects\tasks.o: ..\library\freertos\include\portable.h
@@ -14,4 +14,4 @@
 .\objects\tasks.o: ..\library\freertos\include\list.h
 .\objects\tasks.o: ..\library\freertos\include\timers.h
 .\objects\tasks.o: ..\library\freertos\include\StackMacros.h
-.\objects\tasks.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\tasks.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stdio.h

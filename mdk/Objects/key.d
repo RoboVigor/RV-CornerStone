@@ -3,7 +3,7 @@
 .\objects\key.o: ..\library\atom\sys\sys.h
 .\objects\key.o: ..\user\common\stm32f4xx.h
 .\objects\key.o: ..\core\core_cm4.h
-.\objects\key.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\key.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stdint.h
 .\objects\key.o: ..\core\core_cmInstr.h
 .\objects\key.o: ..\core\core_cmFunc.h
 .\objects\key.o: ..\core\core_cm4_simd.h

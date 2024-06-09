@@ -6,17 +6,23 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "tasks.h"
+#include "delay.h"
+#include "stm32f4xx_usart.h"
+#include "math.h"
+#include "Serial.h"
+#include "main.h"
+#include "Driver_oled.h"
 
 int main(void) {
-
+		
     //设置中断优先级位数
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
     //调试相关
     Delay_Init(180); // 初始化延时
-    LED_Init();      // 初始化LED
+		LED_Init();      // 初始化LED
     Beep_Init();     // 初始化蜂鸣器
-
+		
     /*******************************************************************************
      *                                  硬件初始化                                  *
      *******************************************************************************/
@@ -34,6 +40,7 @@ int main(void) {
     // 云台电机
     Motor_Init(&Motor_Yaw, GIMBAL_MOTOR_REDUCTION_RATE, ENABLE, ENABLE);   // 顺时针为正电流
     Motor_Init(&Motor_Pitch, GIMBAL_MOTOR_REDUCTION_RATE, ENABLE, ENABLE); // 顺时针为正电流
+    Motor_Init(&Motor_Pitch2, GIMBAL_MOTOR_REDUCTION_RATE, ENABLE, ENABLE); // 顺时针为正电流 右侧电机
 
     // 遥控器数据初始化
     DBUS_Init(&remoteData, &keyboardData, &mouseData);
@@ -52,6 +59,8 @@ int main(void) {
     BSP_Beep_Init();
     BSP_LED_Init();
     BSP_User_Power_Init();
+		//BSP_OLED_Init(); 
+		//BSP_ADC1_Init(1, 6, ADC_IT_EOC);
 
     // 获得设备ID
     BSP_Stone_Id_Init(&Board_Id, &Robot_Id);
@@ -59,61 +68,30 @@ int main(void) {
     // USART
     BSP_UART7_Init(115200, USART_IT_IDLE);
     BSP_UART8_Init(115200, USART_IT_IDLE);
-
+		//BSP_USART6_Init(115200, USART_IT_IDLE);
+		
     // Servo
     BSP_PWM_Set_Port(&PWM_Magazine_Servo, PWM_PI0);
     BSP_PWM_Init(&PWM_Magazine_Servo, 9000, 200, TIM_OCPolarity_Low);
 
     // Calibration
-    if (ROBOT_MIAO) {
-        Motor_Set_Angle_Bias(&Motor_Yaw, 180.615);
-        Motor_Set_Angle_Bias(&Motor_Pitch, 315.046);
-        Gyroscope_Set_Bias(&ImuData, 30, 4, -7);
-    } else if (ROBOT_WANG) {
-        Motor_Set_Angle_Bias(&Motor_Yaw, 239.941);
-        Motor_Set_Angle_Bias(&Motor_Pitch, 115.488);
-        Gyroscope_Set_Bias(&ImuData, 31, -5, -2);
-    } else if (ROBOT_SHARK) {
-         Motor_Set_Angle_Bias(&Motor_Yaw, 209.318);
-        Motor_Set_Angle_Bias(&Motor_Pitch, 350.652);
-        Gyroscope_Set_Bias(&ImuData, 10, -28, -1);
-    }
+        Motor_Set_Angle_Bias(&Motor_Yaw, 265.840);
+        Motor_Set_Angle_Bias(&Motor_Pitch, -145.764); //350.652 -145.764
+        Gyroscope_Set_Bias(&ImuData, 20, 22, -1);
+
 
     // 总线设置
-    if (ROBOT_MIAO) {
 				Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LAJI);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LF);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_LB);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RB);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_RF);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Pitch);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_LF);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x207, &Motor_LB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_RB);
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RF);
         Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x209, &Motor_Yaw);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_FL);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_FR);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_Stir);
-    } else if (ROBOT_WANG) {
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LF);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LB);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_RB);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RF);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x209, &Motor_Pitch);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x209, &Motor_Yaw);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_FL);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_FR);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x207, &Motor_Stir);
-    } else if (ROBOT_SHARK) {
-				Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x201, &Motor_LAJI);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x202, &Motor_LF);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x203, &Motor_LB);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x204, &Motor_RB);
-        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x205, &Motor_RF);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x201, &Motor_FL);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x202, &Motor_FR);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_Stir);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x205, &Motor_Pitch);
-        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Yaw);
-    }
-
+        Bridge_Bind(&BridgeData, CAN1_BRIDGE, 0x206, &Motor_Stir);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x203, &Motor_FL);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x204, &Motor_FR);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x207, &Motor_Pitch);
+        Bridge_Bind(&BridgeData, CAN2_BRIDGE, 0x206, &Motor_Pitch2);        
     // 总线设置
     Bridge_Bind(&BridgeData, USART_BRIDGE, 7, &Node_Host);
     Bridge_Bind(&BridgeData, USART_BRIDGE, 8, &Node_Judge);
@@ -124,10 +102,13 @@ int main(void) {
     /*******************************************************************************
      *                                 任务初始化                                   *
      *******************************************************************************/
-
+		
+		//测试串口发送
+		Serial_SendByte(0x41);
+			
     // 等待遥控器开启
     while (!remoteData.state) {
-    }
+    } 
     xTaskCreate(Task_Blink, "Task_Blink", 400, NULL, 3, NULL);
     //模式切换任务
     xTaskCreate(Task_Control, "Task_Control", 400, NULL, 9, NULL);
@@ -147,13 +128,20 @@ int main(void) {
     // 定义协议发送频率
     Bridge_Send_Protocol(&Node_Host, 0x120, 1);  // 心跳包
     Bridge_Send_Protocol(&Node_Host, 0x403, 20); // 陀螺仪
-    // Bridge_Send_Protocol(&Node_Host, 0x404, 10); // 遥控器
-    // Bridge_Send_Protocol(&Node_Judge, 0XF101, 10); // 遥控器
+    Bridge_Send_Protocol(&Node_Host, 0x404, 10); // 遥控器
+    Bridge_Send_Protocol(&Node_Judge, 0XF101, 10); // 遥控器
 
     //启动调度,开始执行任务
     vTaskStartScheduler();
-
+		
     //系统启动失败:定时器任务或者空闲任务的heap空间不足
-    while (1) {
-    }
+    while(1)
+		{
+//			oled_clear(Pen_Clear);
+//			oled_LOGO();
+//			oled_refresh_gram();
+			
+		}
+		
 }
+

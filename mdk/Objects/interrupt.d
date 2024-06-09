@@ -1,9 +1,10 @@
 .\objects\interrupt.o: ..\user\infantry\interrupt.c
+.\objects\interrupt.o: ..\user\common\interrupt.h
 .\objects\interrupt.o: ..\user\infantry\handle.h
 .\objects\interrupt.o: ..\library\atom\sys\sys.h
 .\objects\interrupt.o: ..\user\common\stm32f4xx.h
 .\objects\interrupt.o: ..\core\core_cm4.h
-.\objects\interrupt.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\interrupt.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stdint.h
 .\objects\interrupt.o: ..\core\core_cmInstr.h
 .\objects\interrupt.o: ..\core\core_cmFunc.h
 .\objects\interrupt.o: ..\core\core_cm4_simd.h
@@ -45,7 +46,7 @@
 .\objects\interrupt.o: ..\user\infantry\config.h
 .\objects\interrupt.o: ..\user\common\default_config.h
 .\objects\interrupt.o: ..\library\freertos\include\FreeRTOS.h
-.\objects\interrupt.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\interrupt.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stddef.h
 .\objects\interrupt.o: ..\library\freertos\include\FreeRTOSConfig.h
 .\objects\interrupt.o: ..\library\freertos\include\projdefs.h
 .\objects\interrupt.o: ..\library\freertos\include\portable.h

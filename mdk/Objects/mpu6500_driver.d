@@ -4,7 +4,7 @@
 .\objects\mpu6500_driver.o: ..\library\atom\sys\sys.h
 .\objects\mpu6500_driver.o: ..\user\common\stm32f4xx.h
 .\objects\mpu6500_driver.o: ..\core\core_cm4.h
-.\objects\mpu6500_driver.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\mpu6500_driver.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stdint.h
 .\objects\mpu6500_driver.o: ..\core\core_cmInstr.h
 .\objects\mpu6500_driver.o: ..\core\core_cmFunc.h
 .\objects\mpu6500_driver.o: ..\core\core_cm4_simd.h

@@ -108,5 +108,5 @@ void Chassis_Limit_Power(ChassisData_Type *cd, float targetPower, float referenc
     PID_Calculate(PID_Power, cd->targetPower, cd->power);
     cd->powerScale = (cd->power + PID_Power->output) / cd->power;
     MIAO(cd->powerScale, 0, 1);
-    // Chassis_Scale_Rotor_Speed(cd, cd->powerScale);
+    Chassis_Scale_Rotor_Speed(cd, cd->powerScale);
 }

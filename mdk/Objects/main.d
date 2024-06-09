@@ -6,7 +6,7 @@
 .\objects\main.o: ..\library\atom\sys\sys.h
 .\objects\main.o: ..\user\common\stm32f4xx.h
 .\objects\main.o: ..\core\core_cm4.h
-.\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\main.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stdint.h
 .\objects\main.o: ..\core\core_cmInstr.h
 .\objects\main.o: ..\core\core_cmFunc.h
 .\objects\main.o: ..\core\core_cm4_simd.h
@@ -48,7 +48,7 @@
 .\objects\main.o: ..\user\infantry\config.h
 .\objects\main.o: ..\user\common\default_config.h
 .\objects\main.o: ..\library\freertos\include\FreeRTOS.h
-.\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\main.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stddef.h
 .\objects\main.o: ..\library\freertos\include\FreeRTOSConfig.h
 .\objects\main.o: ..\library\freertos\include\projdefs.h
 .\objects\main.o: ..\library\freertos\include\portable.h
@@ -81,3 +81,7 @@
 .\objects\main.o: ..\driver\inc\Driver_Magic.h
 .\objects\main.o: ..\driver\inc\Driver_Fsm.h
 .\objects\main.o: ..\user\infantry\tasks.h
+.\objects\main.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\math.h
+.\objects\main.o: ..\user\infantry\Serial.h
+.\objects\main.o: ..\user\infantry\main.h
+.\objects\main.o: ..\driver\inc\Driver_oled.h

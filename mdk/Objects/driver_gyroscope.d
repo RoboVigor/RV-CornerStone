@@ -1,11 +1,11 @@
 .\objects\driver_gyroscope.o: ..\driver\src\Driver_Gyroscope.c
-.\objects\driver_gyroscope.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+.\objects\driver_gyroscope.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\math.h
 .\objects\driver_gyroscope.o: ..\driver\inc\Driver_Filter.h
 .\objects\driver_gyroscope.o: ..\user\common\stm32f4xx_conf.h
 .\objects\driver_gyroscope.o: ..\library\std\inc\stm32f4xx_adc.h
 .\objects\driver_gyroscope.o: ..\user\common\stm32f4xx.h
 .\objects\driver_gyroscope.o: ..\core\core_cm4.h
-.\objects\driver_gyroscope.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\driver_gyroscope.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stdint.h
 .\objects\driver_gyroscope.o: ..\core\core_cmInstr.h
 .\objects\driver_gyroscope.o: ..\core\core_cmFunc.h
 .\objects\driver_gyroscope.o: ..\core\core_cm4_simd.h

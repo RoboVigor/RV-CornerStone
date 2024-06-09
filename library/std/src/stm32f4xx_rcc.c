@@ -1707,7 +1707,7 @@ void RCC_APB2PeriphClockCmd(uint32_t RCC_APB2Periph, FunctionalState NewState)
   *            @arg RCC_AHB1Periph_GPIOE:   GPIOE clock
   *            @arg RCC_AHB1Periph_GPIOF:   GPIOF clock
   *            @arg RCC_AHB1Periph_GPIOG:   GPIOG clock
-  *            @arg RCC_AHB1Periph_GPIOG:   GPIOG clock
+  *            @arg RCC_AHB1Periph_GPIOH:   GPIOH clock
   *            @arg RCC_AHB1Periph_GPIOI:   GPIOI clock
   *            @arg RCC_AHB1Periph_GPIOJ:   GPIOJ clock (STM32F42xxx/43xxx devices) 
   *            @arg RCC_AHB1Periph_GPIOK:   GPIOK clock (STM32F42xxx/43xxxdevices)   
@@ -1896,7 +1896,7 @@ void RCC_APB2PeriphResetCmd(uint32_t RCC_APB2Periph, FunctionalState NewState)
   *            @arg RCC_AHB1Periph_GPIOE:       GPIOE clock
   *            @arg RCC_AHB1Periph_GPIOF:       GPIOF clock
   *            @arg RCC_AHB1Periph_GPIOG:       GPIOG clock
-  *            @arg RCC_AHB1Periph_GPIOG:       GPIOG clock
+  *            @arg RCC_AHB1Periph_GPIOH:       GPIOH clock
   *            @arg RCC_AHB1Periph_GPIOI:       GPIOI clock
   *            @arg RCC_AHB1Periph_GPIOJ:       GPIOJ clock (STM32F42xxx/43xxx devices) 
   *            @arg RCC_AHB1Periph_GPIOK:       GPIOK clock (STM32F42xxx/43xxx devices)   

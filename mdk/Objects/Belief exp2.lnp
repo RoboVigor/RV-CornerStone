@@ -44,10 +44,12 @@
 ".\objects\driver_protocol.o"
 ".\objects\driver_fsm.o"
 ".\objects\driver_bridge.o"
+".\objects\diver_oled.o"
 ".\objects\system_stm32f4xx.o"
 ".\objects\interrupt.o"
 ".\objects\main.o"
 ".\objects\tasks_1.o"
+".\objects\serial.o"
 --strict --scatter ".\Objects\Belief exp2.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

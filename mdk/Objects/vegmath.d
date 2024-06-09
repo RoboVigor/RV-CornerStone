@@ -1,2 +1,2 @@
 .\objects\vegmath.o: ..\library\vegmath\vegmath.c
-.\objects\vegmath.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+.\objects\vegmath.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\math.h

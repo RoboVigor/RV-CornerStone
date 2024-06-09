@@ -2,7 +2,7 @@
 .\objects\driver_motor.o: ..\driver\inc\Driver_Motor.h
 .\objects\driver_motor.o: ..\user\common\stm32f4xx.h
 .\objects\driver_motor.o: ..\core\core_cm4.h
-.\objects\driver_motor.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\driver_motor.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stdint.h
 .\objects\driver_motor.o: ..\core\core_cmInstr.h
 .\objects\driver_motor.o: ..\core\core_cmFunc.h
 .\objects\driver_motor.o: ..\core\core_cm4_simd.h

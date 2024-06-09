@@ -5,6 +5,7 @@
 #include "MadgwickAHRS.h"
 #include "Driver_Gyroscope.h"
 
+static float 					yawOffset = 0;
 static float          rollAngle;
 static float          pitchAngle;
 static float          yawAngle;
@@ -158,13 +159,14 @@ void Gyroscope_Solve(GyroscopeData_Type *GyroscopeData) {
     } else if (Filter_Yaw.diff < -300) {
         Filter_Yaw.offset += 360;
     }
-
+		
+		yawOffset -= 0.0059872;
     // 应用滤波
-    GyroscopeData->yaw = Filter_Apply_Limit_Breadth(&Filter_Yaw) + GyroscopeData->yawoffset;
+    GyroscopeData->yaw = Filter_Apply_Limit_Breadth(&Filter_Yaw) + GyroscopeData->yawoffset + yawOffset;
 
     // 输出欧拉角
     if (GyroscopeData->startupCounter == GYROSCOPE_START_UP_DELAY - 1) {
-        GyroscopeData->yawoffset = -GyroscopeData->yaw;
+        GyroscopeData->yawoffset = -GyroscopeData->yaw ;
     }
 
     GyroscopeData->pitch = -pitchAngle;

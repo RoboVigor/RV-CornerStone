@@ -3,7 +3,7 @@
 .\objects\delay.o: ..\library\atom\sys\sys.h
 .\objects\delay.o: ..\user\common\stm32f4xx.h
 .\objects\delay.o: ..\core\core_cm4.h
-.\objects\delay.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\delay.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stdint.h
 .\objects\delay.o: ..\core\core_cmInstr.h
 .\objects\delay.o: ..\core\core_cmFunc.h
 .\objects\delay.o: ..\core\core_cm4_simd.h
@@ -39,7 +39,7 @@
 .\objects\delay.o: ..\library\std\inc\stm32f4xx_fmc.h
 .\objects\delay.o: ..\library\std\inc\stm32f4xx_sai.h
 .\objects\delay.o: ..\library\freertos\include\FreeRTOS.h
-.\objects\delay.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\delay.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stddef.h
 .\objects\delay.o: ..\library\freertos\include\FreeRTOSConfig.h
 .\objects\delay.o: ..\library\freertos\include\projdefs.h
 .\objects\delay.o: ..\library\freertos\include\portable.h

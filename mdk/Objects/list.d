@@ -1,8 +1,8 @@
 .\objects\list.o: ..\library\freertos\list.c
-.\objects\list.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\list.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stdlib.h
 .\objects\list.o: ..\library\freertos\include\FreeRTOS.h
-.\objects\list.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-.\objects\list.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\list.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stddef.h
+.\objects\list.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stdint.h
 .\objects\list.o: ..\library\freertos\include\FreeRTOSConfig.h
 .\objects\list.o: ..\library\freertos\include\projdefs.h
 .\objects\list.o: ..\library\freertos\include\portable.h

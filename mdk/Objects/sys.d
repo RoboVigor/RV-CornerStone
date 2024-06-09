@@ -2,7 +2,7 @@
 .\objects\sys.o: ..\library\atom\sys\sys.h
 .\objects\sys.o: ..\user\common\stm32f4xx.h
 .\objects\sys.o: ..\core\core_cm4.h
-.\objects\sys.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\sys.o: D:\Keilv5\Keilv5_core\ARM\Compiler_5.06u7\Bin\..\include\stdint.h
 .\objects\sys.o: ..\core\core_cmInstr.h
 .\objects\sys.o: ..\core\core_cmFunc.h
 .\objects\sys.o: ..\core\core_cm4_simd.h
