@@ -1,0 +1,8 @@
+# IDE workspaces, local state and generated build output
+.metadata/
+/CornerStone_LED/STM32CubeIDE/Debug/
+/CornerStone_LED/STM32CubeIDE/Release/
+build/
+*.launch
+*.log
+.DS_Store
