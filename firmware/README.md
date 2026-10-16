@@ -43,6 +43,50 @@ Passed subsequently: user-provided CubeIDE Debug build after regeneration (0 err
 
 Pending: physical observation of at least two complete LED cycles and disconnect/reconnect power with autonomous startup. Windows hardware/build acceptance is pending and does not block the Mac milestone.
 
+## Flash and debug in CubeIDE (CMSIS-DAP)
+
+**Windows/macOS setup guide:** [Debugger configuration (中文)](docs/debugger-setup.md). For the simplest local setup without PATH changes, duplicate the shared entry into a workspace-local configuration and use your OpenOCD executable's full path as described there. The shared configuration below remains PATH-based.
+
+Shared entry: `CornerStone_LED CMSIS-DAP Flash and Debug`, under **Run → Debug Configurations → GDB Hardware Debugging**. It uses CubeIDE's bundled GDB and an OpenOCD pipe, not the ST-LINK server. No separate OpenOCD server needs to be started.
+
+One-time setup:
+
+1. Install OpenOCD with CMSIS-DAP support (tested executable: OpenOCD 0.12.0).
+2. Ensure the **PATH inherited by CubeIDE** contains the directory holding `openocd` (or `openocd.exe` on Windows), then restart CubeIDE after PATH changes. In a terminal, check `command -v openocd` on macOS/Linux or `where.exe openocd` on Windows. Terminal success alone does not prove an already-running or Dock-launched IDE has the same PATH. On macOS, launching the IDE executable from a terminal with the correct PATH is an option. No `openocd_path` String Substitution variable is needed; an old one may be removed if no other launch uses it.
+3. Refresh the imported `CornerStone_LED` project. The shared `.launch` file is inside `STM32CubeIDE`; if the entry is not listed, use **File → Import → Run/Debug → Launch Configurations** and select that directory.
+4. In **Preferences → Run/Debug → Launching**, keep build-before-launch enabled and set **Continue launch if project contains errors** to **Never**. Do not accept a prompt to launch an old binary after a failed build.
+
+Usage:
+
+1. Connect the powered board and CMSIS-DAP via SWD. Stop any existing OpenOCD/debug session using the probe.
+2. Select the shared entry and click **Debug**. It requests the Debug build, loads `Debug/CornerStone_LED.elf` and symbols, verifies the image, resets, and runs to `main`.
+3. Use **Resume (F8)** to run the LEDs, or set breakpoints and step/inspect variables. A stop at `main` occurs before clock/GPIO/application initialization; resume or step through initialization first. SWD stays at the existing safe 100 kHz, so downloading can be slow.
+4. **Terminate** ends the debugger session. For standalone operation, power-cycle the board; do not assume terminating a halted session resumes execution. For flash-only with explicit verify/reset/exit, use the terminal command below.
+
+Keep **Debugger → Use remote target** checked, with the OpenOCD pipe device and protocol `remote`. The Connection field is:
+
+```text
+| openocd -f "../../debug/openocd.cfg" -c "gdb_port pipe; tcl_port disabled; telnet_port disabled"
+```
+
+The working directory is `${workspace_loc:/CornerStone_LED}`, so the relative config path resolves to `firmware/debug/openocd.cfg`. Connection does not expand Eclipse variables; executable lookup uses PATH instead. Keep Startup initialization as `set remotetimeout 30` followed by `monitor reset halt`; do not add another `target remote` command. Unchecking remote target also removes CubeIDE's remote session mode. The launch does not change reset hooks, clocks, protection bits, or firmware sources.
+
+This is one shared configuration for Unix-like hosts and Windows, with no platform-specific shell variable syntax. Windows GDB pipe support and runtime behavior still require validation on Windows; Linux is also untested.
+
+Diagnostics: the Build Console proves compilation only. OpenOCD runs through GDB's pipe, so no separate OpenOCD Console is expected. Check the Debug view and available GDB console for launch failures. To check connectivity separately, terminate any debug session and run `openocd -f firmware/debug/openocd.cfg -c "init; shutdown"` from the repository root (no flash command). A missing executable indicates a PATH/install problem; `unable to find a matching CMSIS-DAP device` indicates probe discovery failed.
+
+Validation boundary: the user confirmed the preceding absolute-path macOS debug configuration worked. The PATH-based revision requires a fresh CubeIDE launch to confirm its effective PATH. Static XML/path checks and a macOS no-hardware GDB-to-OpenOCD pipe smoke test passed using `noinit` and `shutdown` (expected remote closure before handshake). These validate configuration mechanics under the test process's PATH, not download, breakpoint/stepping behavior, or Windows operation.
+
+## Flash and run from CubeIDE (without debugging)
+
+Shared entry: `CornerStone_LED Flash and Run`, under **Run → External Tools → External Tools Configurations → Program**. See the [Windows/macOS setup guide](docs/debugger-setup.md#7-只下载并运行flash-and-run).
+
+As with the local Debug setup, duplicate it into a workspace-local configuration and set **Location** to your OpenOCD executable's full path (no surrounding quotes). Alternatively, define workspace String Substitution variable `openocd_path` to use the shared entry unchanged. Unlike the Debug pipe command, External Tools Location requires an existing file and does not search PATH for bare `openocd`.
+
+**Save and successfully build the current Debug firmware in CubeIDE before running this tool.** Automatic build is deliberately disabled: the installed Program launch delegate does not reliably gate launching on compiler errors, so it must not be advertised as safe one-click build-and-flash. This tool downloads the existing `Debug/CornerStone_LED.elf`; it cannot establish freshness. Never run it after a failed build. Stop any Debug/OpenOCD session using the probe first.
+
+The tool uses the existing board config to program, verify, reset and exit. Check its Console for successful programming, `Verified OK`, reset and normal termination. No GDB is started and execution does not stop at `main`. IDE/hardware acceptance of this new entry and Windows testing remain pending.
+
 ## Flash from terminal
 
 From the `firmware` directory, after a successful current IDE build:
