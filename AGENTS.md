@@ -22,7 +22,16 @@
 - Voltage scale 1, OverDrive, Flash latency 5. PLLQ=8 yields 45 MHz, not a USB-compatible 48 MHz clock; revisit clock planning before enabling such peripherals.
 - SWD on PA13/PA14 must remain available.
 - LEDs: PG1–PG8, active-low, initial outputs high/off. Current sequence is one LED per second, 8 seconds per cycle.
-- HSE frequency comes from the approved software baseline, not physical measurement. HSE/PLL readiness and clock selection were checked on target; do not silently fall back to HSI on failure.
+- HSE 12 MHz is now supported by the archived A-board schematic (PDF p3 / Sheet 4, X1); it is still not a physical frequency measurement. HSE/PLL readiness and clock selection were checked on target; do not silently fall back to HSI on failure.
+
+## Hardware evidence and document reading
+
+- Start at `docs/hardware/README.md`. For board facts use `docs/hardware/robomaster-a/board-facts.md`; for connections use `pin-map.md` beside it. Original PDFs, source IDs, versions and page conventions are indexed in that directory's `README.md`.
+- Summaries describe hardware connections, not CubeMX settings or runtime proof. Keep board facts, `.ioc` choices and measured evidence separate. Do not substitute legacy code or model memory for missing board evidence.
+- For precise STM32 register behavior, reset values, clocks or peripheral constraints, use the local RM0090 via `docs/hardware/stm32f427/README.md`. Read bounded relevant pages, not the whole manual. F427 RCC is chapter 6, not chapter 7. Use datasheets for package/electrical/AF details and errata for known silicon issues; search ST official sources when local documents do not cover the question or an update is required.
+- For uncovered facts, circuit reasoning or source conflicts, inspect the relevant original pages. Use the text layer first; render only relevant pages when diagrams/layout matter. Record source PDF page sequence plus Sheet/component where applicable.
+- Known unresolved conflicts include IMU MPU6500 vs MPU6600 and IST8310 address 0x0E vs 0x0F. Do not select a definite driver part/address from these summaries until resolved. USER UART power-domain labels also differ between silk drawing and schematic; do not silently merge those nets.
+- When originals change or related hardware configuration changes, recheck affected summaries and `docs/hardware/SHA256SUMS`. Report discrepancies before resolving them; never rewrite hardware facts merely to match code. PDF originals retain third-party rights and are not relicensed with repository code.
 
 ## Code ownership and regeneration
 

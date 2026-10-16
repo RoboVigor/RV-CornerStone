@@ -1,0 +1,2 @@
+# Preserve original PDF bytes; some vector PDFs look like plain text to Git.
+*.pdf binary
