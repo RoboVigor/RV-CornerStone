@@ -52,3 +52,7 @@ openocd -f debug/openocd.cfg -c 'program CornerStone_LED/STM32CubeIDE/Debug/Corn
 ```
 
 Requires OpenOCD (tested 0.12.0) and the CMSIS-DAP adapter connected via SWD. Configuration keeps SWD at 100 kHz and overrides upstream reset handlers to avoid temporary HSI PLL programming. The application owns HSE/PLL configuration. `program` erases the sectors needed for this image; do not perform mass erase or change protection bits. Stop on detection, write or verify failure; never substitute an old ELF.
+
+## Plan closure
+
+The user explicitly declared the current plan done. The milestone is closed by user acceptance; earlier pending-observation entries are historical, not active blockers. This does not add an agent-observed power-cycle measurement. Windows remains untested. See root `AGENTS.md` for ongoing development guidance.

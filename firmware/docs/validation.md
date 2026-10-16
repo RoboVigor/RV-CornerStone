@@ -45,3 +45,7 @@ User physical confirmation of PG1→PG8 cycling at about 500 ms/step for at leas
 - All 1442 files under Drivers match the installed STM32CubeF4 1.28.3 package byte-for-byte before Git line-ending normalization.
 - Full staged whitespace check reports inherited vendor/generated whitespace; these files are retained as generated. Application, documentation and OpenOCD files pass the scoped whitespace check after trimming log line endings.
 - Build output directories are ignored by anchored paths, avoiding a case-insensitive Debug/debug rule that would accidentally ignore firmware/debug/openocd.cfg.
+
+## Plan closure
+
+The user explicitly declared the current plan done. The milestone is closed by user acceptance; earlier pending-observation entries are historical, not active blockers. This does not add an agent-observed power-cycle measurement. Windows remains untested. See root `AGENTS.md` for ongoing development guidance.
