@@ -3,7 +3,7 @@
 ## Goal and scope
 
 - Gradually migrate the original Keil robot firmware to CubeMX + CubeIDE + HAL. The LED baseline is complete and closed by user acceptance; robot modules and RTOS are not yet migrated.
-- The sole active firmware is `firmware/CornerStone_LED`. Default to incremental development here, preserving a recoverable LED baseline in Git. A new project, rename, RTOS import or robot-module migration requires an explicitly scoped task; do not scaffold unused layers.
+- Keep `firmware/CornerStone_LED` as the independent simple LED test firmware. Future robot refactoring belongs in `firmware/CornerStone_Robot`, an independent copy initially retaining the same LED behavior. Neither project builds the other; do not propagate robot changes into the LED baseline. RTOS import or robot-module migration still requires an explicitly scoped task; do not scaffold unused layers.
 - Legacy root directories (`mdk`, `user`, `driver`, `device`, `library`, `core`) are reference only, outside the CubeIDE build. Do not delete them, merge the macOS toolchain branch wholesale, or maintain a second build system without approval.
 - Verify repository/branch before edits or commits: migration work lives in the `RV-CornerStone-cubemx` worktree on `feat/cubemx-migration`. Preserve other worktrees and unrelated changes.
 
@@ -22,8 +22,8 @@ Read only documents relevant to the task; do not preload every reference.
 
 ## Code ownership and migration
 
-- Configuration source: `firmware/CornerStone_LED/CornerStone_LED.ioc`. Change peripheral/clock settings there and regenerate with standalone CubeMX, preserving user code.
-- Build in CubeIDE using `firmware/CornerStone_LED/STM32CubeIDE` and an external workspace; do not copy the project or introduce a CLI/CMake compiler workflow without approval.
+- Configuration sources: `firmware/CornerStone_LED/CornerStone_LED.ioc` for the LED test and `firmware/CornerStone_Robot/CornerStone_Robot.ioc` for robot development. Change peripheral/clock settings in the selected project's `.ioc` and regenerate with standalone CubeMX, preserving user code.
+- Import the selected firmware's `STM32CubeIDE` directory into an external CubeIDE workspace. Both projects may coexist with distinct names; do not copy into the workspace or introduce a CLI/CMake compiler workflow without approval.
 - Application-owned files currently include `STM32CubeIDE/App/led_app.c` and `Inc/led_app.h` under the firmware project. Keep substantive logic in separate modules and generated `Src/main.c` wiring in USER CODE blocks only.
 - Physical sources inside the IDE project are discovered by CDT; verify added modules appear in build output. IDE linked resources are not duplicate source copies.
 - Generated HAL, startup, vectors and linker files remain authoritative; do not import duplicate legacy implementations. HAL is the default; LL/register access requires a specific need and clear peripheral ownership.

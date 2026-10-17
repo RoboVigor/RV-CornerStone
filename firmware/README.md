@@ -1,9 +1,29 @@
-# CornerStone LED — CubeMX migration
+# CornerStone firmware — CubeMX migration
 
 ## Scope and versions
 
 Standalone bare-metal HAL milestone; no RTOS or legacy robot framework is linked.
-Legacy directories in this branch are baseline reference only; the CubeIDE project below is the sole firmware build entrypoint.
+Legacy directories in this branch are baseline reference only; neither CubeIDE project links them.
+
+## Independent firmware projects
+
+| Project | Purpose | CubeIDE import directory |
+| --- | --- | --- |
+| `CornerStone_LED` | Preserve the simple LED hardware test | `firmware/CornerStone_LED/STM32CubeIDE` |
+| `CornerStone_Robot` | Starting point for the next robot refactoring milestone | `firmware/CornerStone_Robot/STM32CubeIDE` |
+
+Both may be imported into the same external workspace without copying. Each owns its `.ioc`, sources, vendor libraries, linker files, build outputs and named launch configurations. The OpenOCD board configuration in `debug/` is shared. They are alternative images for the same board, not two images to run together.
+
+Robot initially has identical LED behavior; no robot modules or RTOS have been migrated. No build outputs were copied. Static duplication checks do not establish a successful Robot build, regeneration or hardware test.
+
+The detailed steps and historical acceptance below refer to **LED**. For Robot, open `CornerStone_Robot/CornerStone_Robot.ioc`, import its IDE directory, and select the `CornerStone_Robot` build/launch entries. Build it independently before downloading. Its expected ELF is `CornerStone_Robot/STM32CubeIDE/Debug/CornerStone_Robot.elf`. From `firmware/`, after a successful fresh Robot build:
+
+```sh
+openocd -f debug/openocd.cfg \\
+  -c 'program CornerStone_Robot/STM32CubeIDE/Debug/CornerStone_Robot.elf verify reset exit'
+```
+
+Keep future robot changes inside Robot; do not synchronize them back into the LED test. See [Robot project notes](CornerStone_Robot/README.md).
 
 - MCU: STM32F427IIHx, UFBGA176 (user-confirmed package).
 - STM32CubeMX 6.18.1, STM32CubeF4 1.28.3, STM32CubeIDE 2.2.0.

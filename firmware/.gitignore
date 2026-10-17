@@ -2,10 +2,14 @@
 .metadata/
 /CornerStone_LED/STM32CubeIDE/Debug/
 /CornerStone_LED/STM32CubeIDE/Release/
+/CornerStone_Robot/STM32CubeIDE/Debug/
+/CornerStone_Robot/STM32CubeIDE/Release/
 build/
 *.launch
 # Portable shared CMSIS-DAP configurations; personal launches remain ignored.
 !/CornerStone_LED/STM32CubeIDE/CornerStone_LED CMSIS-DAP Flash and Debug.launch
 !/CornerStone_LED/STM32CubeIDE/CornerStone_LED Flash and Run.launch
+!/CornerStone_Robot/STM32CubeIDE/CornerStone_Robot CMSIS-DAP Flash and Debug.launch
+!/CornerStone_Robot/STM32CubeIDE/CornerStone_Robot Flash and Run.launch
 *.log
 .DS_Store
