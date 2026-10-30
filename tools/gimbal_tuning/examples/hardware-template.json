@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "environment": "hardware",
+  "identity": {
+    "protocol": null, "firmware": null, "motor0_id": null, "motor1_id": null,
+    "baud": null, "nominal_control_us": null,
+    "angle_unit": null, "speed_unit": null, "current_unit": null,
+    "temperature_unit": null, "output_unit": null,
+    "pid_sample_semantics": null, "initialization_policy": null
+  },
+  "confirmations": {
+    "human_supervision": false, "physical_support": false, "independent_estop": false,
+    "coast_margin_verified": false, "fixed_pose_verified": false, "motor_mapping_verified": false,
+    "units_verified": false, "direction_zero_verified": false, "firmware_protocol_verified": false,
+    "initialization_policy_accepted": false, "small_trajectory_accepted": false,
+    "conditional_trial_authorized": false, "conditional_baseline_accepted": false, "clock_rng_verified": false
+  },
+  "safety": {
+    "pos_min": null, "pos_max": null, "margin": null,
+    "max_speed": null, "max_output": null, "max_current": null,
+    "max_temperature": null, "max_pair_error": null,
+    "prepare_speed": null, "prepare_accel": null,
+    "settle_pos_tol": null, "settle_speed_tol": null,
+    "other_pos_tol": null, "other_speed_tol": null,
+    "other_target_1": null, "other_target_2": null, "other_target_3": null,
+    "gain_min_pos_p": null, "gain_min_pos_d": null,
+    "gain_min_speed_p": null, "gain_min_speed_i": null,
+    "gain_max_pos_p": null, "gain_max_pos_d": null,
+    "gain_max_speed_p": null, "gain_max_speed_i": null,
+    "max_integral": null,
+    "feedback_timeout_ms": null, "heartbeat_timeout_ms": null,
+    "prepare_timeout_ms": null, "settle_timeout_ms": null, "settle_hold_ms": null,
+    "max_trial_ms": null, "telemetry_period_ms": null,
+    "batch_timeout_ms": null, "max_control_gap_us": null
+  },
+  "baseline": {"version": null, "pos_p": null, "pos_d": null, "speed_p": null, "speed_i": null, "algorithm": null},
+  "candidate": {"version": null, "pos_p": null, "pos_d": null, "speed_p": null, "speed_i": null, "algorithm": null},
+  "trial": {"trial_id": null, "mode": null, "origin": null, "target": null, "duration_ms": null},
+  "gate_c": {
+    "stage": null, "speed_loop_accepted": false,
+    "baseline_accepted": false, "preparation_accepted": false,
+    "performance_accepted": false, "search_accepted": false, "budget_accepted": false,
+    "performance": {
+      "max_overshoot_rad_s": null, "final_error_rad_s": null,
+      "sustained_oscillation_limit_rad_s": null,
+      "max_overshoot_rad": null, "final_error_rad": null, "hold_ms": null,
+      "max_settling_ms": null, "max_telemetry_gap_ms": null,
+      "max_missing_fraction": null, "sustained_oscillation_limit_rad": null
+    },
+    "search": {"pos_p": [null, null], "pos_d": [null, null], "speed_p": [null, null], "speed_i": [null, null]},
+    "budget": {"max_candidates": null, "max_total_ms": null, "max_trial_ms": null, "repeats": null, "termination_rule": null},
+    "scoring_version": null, "scenarios": [], "random_seed": null,
+    "parameter_units": null, "firmware": null
+  }
+}

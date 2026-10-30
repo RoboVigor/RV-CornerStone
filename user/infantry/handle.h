@@ -28,12 +28,17 @@
 #include "Driver_Magic.h"
 #include "Driver_Fsm.h"
 #include "Driver_Vofa.h"
+#include "unitree.h"
+#include "Driver_MecArm.h"
 
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT
 #else
 #define __HANDLE_EXT extern
 #endif
+
+//rtos任务句柄
+__HANDLE_EXT TaskHandle_t MecArmTask_Handler;
 
 // Stone Id
 __HANDLE_EXT uint8_t Board_Id, Robot_Id;
@@ -100,6 +105,32 @@ __HANDLE_EXT PWM_Type PWM_Test;
 
 // CAN
 __HANDLE_EXT Bridge_Type BridgeData;
+
+//Vofa
+__HANDLE_EXT Vofa_Debug_JustFloat_Type vf_debug;
+
+//机械臂
+__HANDLE_EXT Motor_Type Motor6020_MecArm_0_0;
+__HANDLE_EXT Motor_Type Motor6020_MecArm_0_1;
+__HANDLE_EXT PID_Type Motor6020_MecArm_Group_0_PosPID;
+__HANDLE_EXT PID_Type Motor6020_MecArm_Group_0_SpeedPID;
+__HANDLE_EXT Motor_Group_Type Motor6020_MecArm_Group_0;
+
+__HANDLE_EXT Unitree_Motor_Type Unitree_MecArm_1;
+__HANDLE_EXT Unitree_Motor_Type Unitree_MecArm_2;
+__HANDLE_EXT Unitree_Bridge_Type Unitree_Bridge;
+
+__HANDLE_EXT Motor_Type Motor6020_MecArm_3;
+__HANDLE_EXT PID_Type Motor6020_MecArm_3_PosPID;
+__HANDLE_EXT PID_Type Motor6020_MecArm_3_SpeedPID;
+
+__HANDLE_EXT Arm_Joint_Type Arm_Joint_0;
+__HANDLE_EXT Arm_Joint_Type Arm_Joint_1;
+__HANDLE_EXT Arm_Joint_Type Arm_Joint_2;
+__HANDLE_EXT Arm_Joint_Type Arm_Joint_3;
+__HANDLE_EXT Arm_Joint_Type Arm_Joint_4;
+
+__HANDLE_EXT Manipulator_Type MecArm;
 
 /**
  * @brief 初始化结构体

@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gimbal-tuning"
+version = "0.1.0"
+description = "Offline-first joint0 gimbal tuning protocol and simulator"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+serial = ["pyserial==3.5"]
+optimize = ["bayesian-optimization==3.1.0", "packaging==25.0"]
+
+[project.scripts]
+gimbal-tuning = "gimbal_tuning.cli:main"
+
+[tool.setuptools.package-data]
+gimbal_tuning = ["examples/*.json"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gimbal_tuning*"]

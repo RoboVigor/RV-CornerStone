@@ -1,0 +1,5 @@
+# Optional runtime integrations; offline protocol/simulator/tests use only stdlib.
+pyserial==3.5
+bayesian-optimization==3.1.0
+# bayes_opt 3.1.0 imports packaging but omits it from its declared dependencies.
+packaging==25.0

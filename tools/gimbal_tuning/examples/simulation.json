@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "environment": "simulation_only",
+  "identity": {
+    "protocol": 1, "firmware": 65536, "motor0_id": 517, "motor1_id": 518,
+    "baud": 500000, "nominal_control_us": 1000,
+    "angle_unit": "rad", "speed_unit": "rad/s", "current_unit": "A",
+    "temperature_unit": "degC", "output_unit": "esc_command",
+    "pid_sample_semantics": "discrete_per_sample", "initialization_policy": "reset_at_rest_v1"
+  },
+  "confirmations": {
+    "human_supervision": true, "physical_support": true, "independent_estop": true,
+    "coast_margin_verified": true, "fixed_pose_verified": true, "motor_mapping_verified": true,
+    "units_verified": true, "direction_zero_verified": true, "firmware_protocol_verified": true,
+    "initialization_policy_accepted": true, "small_trajectory_accepted": true,
+    "conditional_trial_authorized": false, "conditional_baseline_accepted": false, "clock_rng_verified": true
+  },
+  "safety": {
+    "pos_min": -1.0, "pos_max": 1.0, "margin": 0.1,
+    "max_speed": 2.0, "max_output": 1000.0, "max_current": 20.0,
+    "max_temperature": 70.0, "max_pair_error": 0.05,
+    "prepare_speed": 0.3, "prepare_accel": 0.5,
+    "settle_pos_tol": 0.01, "settle_speed_tol": 0.02,
+    "other_pos_tol": 0.02, "other_speed_tol": 0.02,
+    "other_target_1": 0.0, "other_target_2": 0.0, "other_target_3": 0.0,
+    "gain_min_pos_p": 0.0, "gain_min_pos_d": 0.0,
+    "gain_min_speed_p": 0.0, "gain_min_speed_i": 0.0,
+    "gain_max_pos_p": 50.0, "gain_max_pos_d": 50.0,
+    "gain_max_speed_p": 2000.0, "gain_max_speed_i": 50.0,
+    "max_integral": 500.0,
+    "feedback_timeout_ms": 50, "heartbeat_timeout_ms": 100,
+    "prepare_timeout_ms": 10000, "settle_timeout_ms": 8000, "settle_hold_ms": 50,
+    "max_trial_ms": 3000, "telemetry_period_ms": 10,
+    "batch_timeout_ms": 60000, "max_control_gap_us": 2000
+  },
+  "baseline": {"version": 1, "pos_p": 8.0, "pos_d": 0.1, "speed_p": 100.0, "speed_i": 0.5, "algorithm": 0},
+  "candidate": {"version": 2, "pos_p": 8.0, "pos_d": 0.1, "speed_p": 100.0, "speed_i": 0.5, "algorithm": 0},
+  "trial": {"trial_id": 1, "mode": 0, "origin": 0.0, "target": 0.1, "duration_ms": 1000},
+  "gate_c": {
+    "stage": "position_pd", "speed_loop_accepted": true,
+    "baseline_accepted": true, "preparation_accepted": true,
+    "performance_accepted": true, "search_accepted": true, "budget_accepted": true,
+    "performance": {
+      "max_overshoot_rad_s": 0.03, "final_error_rad_s": 0.01,
+      "sustained_oscillation_limit_rad_s": 0.02,
+      "max_overshoot_rad": 0.03, "final_error_rad": 0.01, "hold_ms": 100,
+      "max_settling_ms": 900, "max_telemetry_gap_ms": 30,
+      "max_missing_fraction": 0.05, "sustained_oscillation_limit_rad": 0.02
+    },
+    "search": {"pos_p": [7.0, 9.0], "pos_d": [0.0, 0.2], "speed_p": [100.0, 100.0], "speed_i": [0.5, 0.5]},
+    "budget": {"max_candidates": 5, "max_total_ms": 60000, "max_trial_ms": 3000, "repeats": 2, "termination_rule": "stop_on_fault_or_budget"},
+    "scoring_version": "constraints_first_v2",
+    "scenarios": [
+      {"trial_id": 1, "mode": 0, "origin": 0.0, "target": 0.1, "duration_ms": 1000},
+      {"trial_id": 2, "mode": 0, "origin": 0.0, "target": -0.1, "duration_ms": 1000}
+    ],
+    "random_seed": 42, "parameter_units": "discrete_per_sample", "firmware": 65536
+  }
+}

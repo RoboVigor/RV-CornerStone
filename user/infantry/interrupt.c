@@ -3,6 +3,7 @@
  */
 
 #include "handle.h"
+#include "gimbal_tuning.h"
 // EXTI9_5 陀螺仪中断
 void EXTI9_5_IRQHandler(void) {
     uint8_t suc;
@@ -41,7 +42,11 @@ void USART1_IRQHandler(void) {
  * @note  视觉系统读取
  */
 void USART3_IRQHandler(void) {
+#if GIMBAL_TUNING_ENABLED
+    GimbalTuning_USART3_IRQHandler(); // ISR copies bytes; parsing is in control task.
+#else
     Bridge_Receive_USART(&BridgeData, USART_BRIDGE, 3);
+#endif
 }
 
 /**
@@ -49,7 +54,8 @@ void USART3_IRQHandler(void) {
  * @note  裁判系统读取
  */
 void USART6_IRQHandler(void) {
-        Bridge_Receive_USART(&BridgeData, USART_BRIDGE, 6);
+    //Bridge_Receive_USART(&BridgeData, USART_BRIDGE, 6);
+    Unitree_Receive(&Unitree_Bridge);
 }
 
 /**

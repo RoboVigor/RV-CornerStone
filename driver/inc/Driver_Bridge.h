@@ -71,7 +71,7 @@ void Bridge_Receive_USART(Bridge_Type *bridge, uint8_t type, uint32_t deviceID);
 void Bridge_Receive_CAN(Bridge_Type *bridge, uint8_t type);
 
 /**
- * @brief 发送电机数据
+ * @brief 发送电机数据,6020的压控已经完全删除，全面采用流控，在配置ID时，0x205-0x208，C620和6020电机不可混接！
  */
 void Bridge_Send_Motor(Bridge_Type *bridge, uint8_t safetyMode);
 

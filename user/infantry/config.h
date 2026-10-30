@@ -5,6 +5,12 @@
 
 #include "default_config.h"
 
+// Dedicated tuning build: owns USART3 and joint0; boot/STOP/fault = zero output.
+// Set to 0 ONLY to explicitly build the legacy, non-tuning behavior.
+#ifndef GIMBAL_TUNING_ENABLED
+#define GIMBAL_TUNING_ENABLED 1
+#endif
+
 // 步兵编号
 #define ROBOT_MIAO (Robot_Id == 1)
 #define ROBOT_WANG (Robot_Id == 2)

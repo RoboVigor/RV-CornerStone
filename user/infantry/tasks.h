@@ -16,4 +16,6 @@ void Task_Wait(void *Parameters);
 void Task_IWDG(void *Parameters);
 void Task_Imu(void *Parameters);
 
+void Task_MecArm(void *Parameters);
+
 #endif
